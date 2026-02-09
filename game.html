@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    body { visibility: hidden; }
     /* (Tumhara existing CSS same rakha hai) */
   </style>
 </head>
@@ -440,11 +439,33 @@
 
     document.addEventListener("DOMContentLoaded", async function() {
       // ✅ LOGIN REQUIRED (Firebase)
-      USER = await requireLoginAsync();
-      if (!USER) return;
+(async function waitForAuthThenStart(){
+  // 0 to 5 sec tak wait
+  for (let i=0; i<50; i++){
+    if (window.currentUser && currentUser()) break;
+    await new Promise(r => setTimeout(r, 100));
+  }
 
-      // show page
-      document.body.style.visibility = "visible";
+  USER = (window.currentUser ? currentUser() : null);
+  if (!USER) {
+    // login page pe bhej do
+    window.location.replace("login.html");
+    return;
+  }
+
+  // ✅ show page
+  document.body.style.visibility = "visible";
+
+  // ✅ redirect admin
+  if (USER.role === "admin") {
+    window.location.replace("admin.html");
+    return;
+  }
+
+  // ✅ yaha se tumhara existing init code chalu
+  // (logout handler, tabs, grid, start game etc.)
+})();
+
 
       // redirect admin
       if (USER.role === "admin") {
@@ -568,3 +589,4 @@
   </script>
 </body>
 </html>
+
