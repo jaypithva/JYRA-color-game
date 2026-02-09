@@ -1,0 +1,1475 @@
+:root {
+    --bg: #0b1220;
+    --card: #101a2f;
+    --muted: #8ea0c0;
+    --text: #e8efff;
+    --brand: #ff3b3b;
+    --brand2: #ff6a6a;
+    --line: #1f2a44;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 20% 10%, #18284b 0%, var(--bg) 55%) fixed;
+    color: var(--text);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+/* ===== NAV ===== */
+
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(11, 18, 32, .75);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+
+/* header row */
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+
+/* brand/logo */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+}
+
+
+/* IMPORTANT: logo clickable area correct */
+
+.brand a {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 90px;
+    width: auto;
+    display: block;
+}
+
+
+/* right actions */
+
+.row-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    /* ✅ right side proper */
+}
+
+@media(max-width:600px) {
+    .logo {
+        height: 50px;
+    }
+}
+
+
+/* ===== UI ===== */
+
+.badge {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 999px;
+    color: var(--muted);
+}
+
+.btn {
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--brand), var(--brand2));
+    color: white;
+}
+
+.btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .14);
+    color: var(--text);
+}
+
+.btn.small {
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+
+/* ===== GRID / CARD ===== */
+
+.grid {
+    display: grid;
+    gap: 14px;
+}
+
+.grid.two {
+    grid-template-columns: 1fr 1fr;
+}
+
+@media(max-width:900px) {
+    .grid.two {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: rgba(16, 26, 47, .85);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 20px;
+    padding: 16px;
+}
+
+.h1 {
+    font-size: 34px;
+    margin: 0 0 10px;
+}
+
+.h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+    color: #dbe6ff;
+}
+
+.p {
+    color: var(--muted);
+    margin: 0 0 14px;
+    line-height: 1.5;
+}
+
+
+/* ===== KPI ===== */
+
+.kpi {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.kpi .box {
+    flex: 1;
+    min-width: 170px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .03);
+}
+
+.kpi .label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.kpi .val {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 6px;
+}
+
+
+/* ===== INPUTS ===== */
+
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.input label {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.input input,
+.input select {
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .15);
+    color: var(--text);
+    outline: none;
+}
+
+
+/* ===== TABLE ===== */
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.table th,
+.table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    text-align: left;
+    font-size: 14px;
+}
+
+.table th {
+    color: #cfe0ff;
+    background: rgba(255, 255, 255, .03);
+}
+
+.table tr:hover td {
+    background: rgba(255, 255, 255, .02);
+}
+
+
+/* ===== MISC ===== */
+
+.small {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.hr {
+    height: 1px;
+    background: rgba(255, 255, 255, .08);
+    margin: 14px 0;
+}
+
+.notice {
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .03);
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+/* ===== PASSWORD TOGGLE ===== */
+
+.pw-wrap {
+    position: relative;
+}
+
+.pw-wrap input {
+    padding-right: 46px;
+}
+
+.pw-toggle {
+    position: absolute;
+    right: 10px;
+    top: 36px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgba(255, 255, 255, .75);
+    z-index: 10;
+    /* ✅ ensure clickable */
+    pointer-events: auto;
+    /* ✅ ensure clickable */
+}
+
+.pw-toggle:hover {
+    color: #fff;
+}
+
+
+/* ===== WinGo Tabs & Buttons ===== */
+
+.wg-tabs {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.wg-tab {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: transparent;
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.wg-tab.active {
+    background: rgba(255, 255, 255, .06);
+    border-color: rgba(255, 255, 255, .22);
+}
+
+.wg-timer {
+    text-align: right;
+}
+
+.wg-count {
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+
+.wg-period {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .03);
+}
+
+.wg-period-id {
+    font-weight: 900;
+    letter-spacing: .5px;
+}
+
+.wg-colors {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.wg-color {
+    flex: 1;
+    min-width: 160px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 14px 14px;
+    border-radius: 16px;
+    color: #fff;
+}
+
+.wg-color.green {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+.wg-color.violet {
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+
+.wg-color.red {
+    background: linear-gradient(135deg, #ef4444, #ff6a6a);
+}
+
+
+/* ===== Numbers Grid + Big/Small ===== */
+
+.wg-numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.wg-num {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .03);
+    color: var(--text);
+    padding: 12px 0;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.wg-num.active {
+    background: rgba(255, 255, 255, .10);
+    border-color: rgba(255, 255, 255, .25);
+}
+
+.wg-bs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.wg-bs-btn {
+    flex: 1;
+    min-width: 160px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .03);
+    color: var(--text);
+    padding: 14px 14px;
+    border-radius: 16px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.wg-bs-btn.active {
+    background: rgba(255, 255, 255, .10);
+    border-color: rgba(255, 255, 255, .25);
+}
+
+
+/* Active for color buttons too */
+
+.wg-color.active {
+    outline: 2px solid rgba(255, 255, 255, .25);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, .06);
+}
+
+
+/* =========================
+   WIN/LOSE POPUP (RESULT)
+========================= */
+
+.wg-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, .55);
+    z-index: 9999;
+}
+
+.wg-modal.show {
+    display: flex;
+}
+
+.wg-pop {
+    width: min(420px, 95vw);
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(16, 26, 47, .95);
+    box-shadow: 0 18px 80px rgba(0, 0, 0, .45);
+}
+
+.wg-pop-top {
+    padding: 18px 16px;
+    background: linear-gradient(135deg, rgba(255, 59, 59, .95), rgba(255, 106, 106, .85));
+    position: relative;
+}
+
+.wg-pop-top .title {
+    font-weight: 900;
+    font-size: 20px;
+    margin: 0;
+}
+
+.wg-pop-top .sub {
+    opacity: .9;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.wg-pop-close {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    border: 0;
+    background: rgba(0, 0, 0, .25);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.wg-pop-mid {
+    padding: 14px 16px;
+}
+
+.wg-pill-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.wg-pill {
+    padding: 8px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+}
+
+.wg-pill.green {
+    border-color: rgba(34, 197, 94, .35);
+}
+
+.wg-pill.red {
+    border-color: rgba(239, 68, 68, .35);
+}
+
+.wg-pill.violet {
+    border-color: rgba(168, 85, 247, .35);
+}
+
+.wg-pill.big {
+    border-color: rgba(59, 130, 246, .35);
+}
+
+.wg-pill.small {
+    border-color: rgba(245, 158, 11, .35);
+}
+
+.wg-bonus {
+    margin-top: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .18);
+    padding: 14px;
+}
+
+.wg-bonus .lbl {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.wg-bonus .amt {
+    font-size: 28px;
+    font-weight: 1000;
+    margin-top: 4px;
+}
+
+.wg-pop-foot {
+    padding: 14px 16px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .02);
+}
+
+
+/* =========================
+   GAME TABS + TIMER + BET LOCK
+========================= */
+
+.wg-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.wg-tab {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.wg-tab.active {
+    background: linear-gradient(135deg, rgba(255, 59, 59, .95), rgba(255, 106, 106, .85));
+    border-color: rgba(255, 255, 255, .0);
+}
+
+.wg-timer {
+    text-align: right;
+}
+
+.wg-count {
+    font-size: 22px;
+    font-weight: 1000;
+    margin-top: 6px;
+}
+
+.wg-lock {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: rgba(255, 255, 255, .92);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================
+   BET OPTIONS UI
+========================= */
+
+.wg-colors {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.wg-color {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.wg-color.green {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .10);
+}
+
+.wg-color.red {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .10);
+}
+
+.wg-color.violet {
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, .12);
+}
+
+.wg-color.active,
+.wg-num.active,
+.wg-bs-btn.active {
+    outline: 2px solid rgba(255, 255, 255, .35);
+    transform: translateY(-1px);
+}
+
+.wg-numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.wg-num {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+    height: 44px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 1000;
+}
+
+.wg-bs {
+    display: flex;
+    gap: 10px;
+}
+
+.wg-bs-btn {
+    flex: 1;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 1000;
+}
+
+
+/* =========================
+   BET AMOUNT STEPPER + CHIPS
+========================= */
+
+.bet-amt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .15);
+}
+
+.bet-amt input {
+    flex: 1;
+    border: 0 !important;
+    outline: none;
+    background: transparent !important;
+    padding: 10px 8px;
+    color: var(--text);
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.bet-amt .step-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bet-chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.bet-chip {
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 1000;
+    font-size: 13px;
+}
+
+.bet-chip:hover {
+    background: rgba(255, 255, 255, .08);
+}
+
+
+/* =========================
+   POINTS ICON (wallet)
+========================= */
+
+.pts-box .pts-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.pts-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.pts-ic {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 900;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    color: rgba(255, 255, 255, .92);
+    user-select: none;
+}
+
+.pts-ic.plus {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .10);
+}
+
+.pts-ic.minus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .10);
+}
+
+
+/* =====================================================
+   RESPONSIVE PATCH (paste at END of styles.css)
+===================================================== */
+
+
+/* ✅ Better mobile sizing + prevent overflow */
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ✅ Container padding for small screens */
+
+@media (max-width: 600px) {
+    .container {
+        padding: 14px;
+    }
+    .card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+    .h1 {
+        font-size: 26px;
+    }
+    .h2 {
+        font-size: 16px;
+    }
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .row-actions {
+        justify-content: stretch;
+    }
+    .row-actions .btn {
+        flex: 1;
+    }
+}
+
+
+/* ✅ NAV: logo + actions stacking */
+
+@media (max-width: 520px) {
+    .header-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .brand {
+        justify-content: center;
+    }
+    .row-actions {
+        justify-content: center;
+    }
+}
+
+
+/* ✅ Inputs: full width always */
+
+.input input,
+.input select {
+    width: 100%;
+}
+
+
+/* ✅ Tables: safe scroll on mobile */
+
+.table {
+    /* display: block; */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table thead,
+.table tbody,
+.table tr {
+    width: 100%;
+}
+
+.table th,
+.table td {
+    white-space: nowrap;
+}
+
+
+/* ✅ If you use any ".grid.two" + buttons row inside cards */
+
+@media (max-width: 900px) {
+    .grid.two {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ✅ Summary cards (admin) already good, just tighten mobile */
+
+@media (max-width: 600px) {
+    .sumrow {
+        gap: 10px;
+    }
+    .sumrow .val {
+        font-size: 18px;
+    }
+}
+
+
+/* ✅ Game layout responsive fixes */
+
+@media (max-width: 600px) {
+    .wg-tabs {
+        flex-wrap: wrap;
+    }
+    .wg-tab {
+        flex: 1;
+        text-align: center;
+    }
+    .wg-period {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .wg-timer {
+        text-align: left;
+    }
+}
+
+
+/* ✅ Number grid: 5 -> 4 -> 3 columns */
+
+@media (max-width: 520px) {
+    .wg-numbers {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 380px) {
+    .wg-numbers {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+
+/* ✅ Color / BigSmall buttons: full width on mobile */
+
+@media (max-width: 520px) {
+    .wg-color,
+    .wg-bs-btn {
+        min-width: 100%;
+    }
+}
+
+
+/* ✅ Bet amount row: keep aligned */
+
+@media (max-width: 520px) {
+    .bet-amt {
+        gap: 8px;
+    }
+    .bet-amt .step-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+}
+
+
+/* ✅ Modal: safer on small screens */
+
+@media (max-width: 420px) {
+    .wg-pop {
+        width: 95vw;
+        border-radius: 18px;
+    }
+    .wg-bonus .amt {
+        font-size: 24px;
+    }
+}
+
+
+/* ✅ Long text break (IDs/notes) */
+
+.small,
+.notice,
+td {
+    word-break: break-word;
+}
+
+
+/* =====================================================
+   GAME TIMER (Responsive Premium)
+===================================================== */
+
+.wg-topbar {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.wg-top-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.wg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    font-weight: 900;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .92);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, .12);
+}
+
+.dot-live {
+    background: #22c55e;
+}
+
+.dot-lock {
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .12);
+}
+
+.dot-end {
+    background: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, .12);
+}
+
+.wg-meta {
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .15);
+    min-width: 180px;
+}
+
+.wg-meta-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .65);
+}
+
+.wg-meta-value {
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 1000;
+    letter-spacing: .6px;
+    color: #e8efff;
+}
+
+.wg-top-right {
+    margin-left: auto;
+    min-width: 320px;
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wg-timer-card {
+    width: min(420px, 100%);
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .16));
+    box-shadow: 0 12px 50px rgba(0, 0, 0, .25);
+}
+
+.wg-timer-title {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .70);
+    font-weight: 900;
+}
+
+.wg-timer-time {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.wg-t {
+    width: 44px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(0, 0, 0, .18);
+    font-weight: 1100;
+    font-size: 26px;
+    letter-spacing: .5px;
+}
+
+.wg-colon {
+    font-weight: 1100;
+    font-size: 24px;
+    opacity: .9;
+    margin: 0 2px;
+}
+
+.wg-timer-sub {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .70);
+    text-align: right;
+}
+
+.wg-progress {
+    margin-top: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .18);
+    overflow: hidden;
+}
+
+.wg-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(34, 197, 94, .95), rgba(255, 59, 59, .95));
+    transition: width .25s ease;
+}
+
+
+/* ✅ Responsive */
+
+@media (max-width: 700px) {
+    .wg-top-right {
+        min-width: 100%;
+        justify-content: stretch;
+        margin-left: 0;
+    }
+    .wg-meta {
+        min-width: 100%;
+    }
+    .wg-timer-card {
+        width: 100%;
+    }
+    .wg-timer-time {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 420px) {
+    .wg-t {
+        width: 38px;
+        height: 46px;
+        font-size: 22px;
+        border-radius: 12px;
+    }
+    .wg-meta-value {
+        font-size: 15px;
+    }
+}
+
+
+/* ==============================
+   CLEAN RESPONSIVE PATCH (END)
+   ============================== */
+
+
+/* ✅ mobile safe */
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ✅ container/card responsive */
+
+@media (max-width: 600px) {
+    .container {
+        padding: 14px;
+    }
+    .card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+    .h1 {
+        font-size: 26px;
+    }
+    .h2 {
+        font-size: 16px;
+    }
+    .btn {
+        width: 100%;
+    }
+    .row-actions {
+        justify-content: stretch;
+    }
+    .row-actions .btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .header-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .brand {
+        justify-content: center;
+    }
+    .row-actions {
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+
+/* ✅ inputs always full width */
+
+.input input,
+.input select {
+    width: 100%;
+}
+
+
+/* ✅ tables scroll on mobile */
+
+.table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table th,
+.table td {
+    white-space: nowrap;
+}
+
+
+/* ✅ game grids */
+
+@media (max-width: 520px) {
+    .wg-numbers {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 380px) {
+    .wg-numbers {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 520px) {
+    .wg-color,
+    .wg-bs-btn {
+        min-width: 100%;
+    }
+    .wg-period {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
+
+
+/* ✅ long ids/notes wrap */
+
+.small,
+.notice,
+td {
+    word-break: break-word;
+}
+
+
+/* ==============================
+   PREMIUM TIMER UI (WORKING)
+   ============================== */
+
+.wg-topbar {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.wg-top-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.wg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .04);
+    font-weight: 900;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .92);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, .12);
+}
+
+.dot-lock {
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .12);
+}
+
+.dot-end {
+    background: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, .12);
+}
+
+.wg-meta {
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .15);
+    min-width: 180px;
+}
+
+.wg-meta-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .65);
+}
+
+.wg-meta-value {
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 1000;
+    letter-spacing: .6px;
+    color: #e8efff;
+}
+
+.wg-top-right {
+    margin-left: auto;
+    min-width: 320px;
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wg-timer-card {
+    width: min(420px, 100%);
+    padding: 12px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .16));
+    box-shadow: 0 12px 50px rgba(0, 0, 0, .25);
+}
+
+.wg-timer-title {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .70);
+    font-weight: 900;
+}
+
+.wg-timer-time {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.wg-t {
+    width: 44px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(0, 0, 0, .18);
+    font-weight: 1100;
+    font-size: 26px;
+}
+
+.wg-colon {
+    font-weight: 1100;
+    font-size: 24px;
+    opacity: .9;
+    margin: 0 2px;
+}
+
+.wg-timer-sub {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .70);
+    text-align: right;
+}
+
+.wg-progress {
+    margin-top: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    background: rgba(0, 0, 0, .18);
+    overflow: hidden;
+}
+
+.wg-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(34, 197, 94, .95), rgba(255, 59, 59, .95));
+    transition: width .25s ease;
+}
+
+
+/* responsive for timer */
+
+@media (max-width:700px) {
+    .wg-top-right {
+        min-width: 100%;
+        justify-content: stretch;
+        margin-left: 0;
+    }
+    .wg-meta {
+        min-width: 100%;
+    }
+    .wg-timer-card {
+        width: 100%;
+    }
+    .wg-timer-time {
+        justify-content: space-between;
+    }
+}
+
+@media (max-width:420px) {
+    .wg-t {
+        width: 38px;
+        height: 46px;
+        font-size: 22px;
+        border-radius: 12px;
+    }
+    .wg-meta-value {
+        font-size: 15px;
+    }
+}
