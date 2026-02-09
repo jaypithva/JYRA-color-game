@@ -1,0 +1,93 @@
+<!-- <!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Register</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    
+    <div class="nav">
+        <div class="container">
+            <div class="row">
+                <div class="brand">CLUB<span class="badge">register</span></div>
+                <a class="btn secondary small" href="index.html">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card" style="max-width:520px;margin:20px auto;">
+            <div class="h2">Create Account</div>
+
+            <div class="input">
+                <label>Name</label>
+                <input id="name" placeholder="Your name" />
+            </div>
+            <div class="input">
+                <label>Phone</label>
+                <input id="phone" placeholder="10 digit phone" />
+            </div>
+            <div class="input">
+                <label>Password</label>
+                <input id="pass" type="password" placeholder="Create password" />
+            </div>
+
+            <button class="btn" id="btnReg">Register</button>
+            <p class="small">Already have account? <a href="login.html"><u>Login</u></a></p>
+
+            <div class="notice" id="msg" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        $("btnReg").onclick = () => {
+            const name = $("name").value.trim();
+            const phone = $("phone").value.trim();
+            const password = $("pass").value;
+
+            const msg = $("msg");
+            msg.style.display = "block";
+
+            if (!name || !phone || !password) {
+                msg.textContent = "All fields required.";
+                return;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                msg.textContent = "Phone must be 10 digits.";
+                return;
+            }
+
+            registerUserSecure({
+                name,
+                phone,
+                password
+            }).then(function(r) {
+                if (!r.ok) {
+                    msg.textContent = r.msg;
+                    return;
+                }
+                setSession(r.user.id);
+                msg.textContent = "Registered! Your Client ID: " + r.user.id + " (Redirecting...)";
+                setTimeout(function() {
+                    window.location.href = "game.html";
+                }, 800);
+            });
+
+            if (!r.ok) {
+                msg.textContent = r.msg;
+                return;
+            }
+            // auto login
+            setSession(r.user.id);
+            msg.textContent = "Registered! Your Client ID: " + r.user.id + " (Redirecting...)";
+            setTimeout(() => window.location.href = "dashboard.html", 800);
+        };
+    </script>
+</body>
+
+</html> -->
