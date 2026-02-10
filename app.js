@@ -30,6 +30,7 @@
   function db() {
     return ensureFirebase();
   }
+firebase.auth().signInAnonymously().catch(console.error);
 
   // ---------- HELPERS ----------
   function nowISO() { return new Date().toISOString(); }
@@ -375,3 +376,4 @@
   window.deleteClient = deleteClient;
 
 })();
+
