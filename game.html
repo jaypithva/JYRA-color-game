@@ -310,428 +310,531 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase FIRST -->
-    <!-- Firebase compat -->
-  <!-- Firebase SDK FIRST -->
+  <!-- ✅ Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-  </script>
-
+  <!-- ✅ Your Firebase + helpers (NEW app.js) -->
   <script src="app.js"></script>
 
   <script>
-    // ✅ Your existing game logic remains,
-    // only 3 functions changed to use Firestore:
-    // - renderHistory() uses playsForUser()
-    // - addPlayRow() already Firestore
-    // - adjustPoints() already Firestore
+    (function(){
+      "use strict";
 
-    function fmtINR(n) {
-      n = Number(n || 0);
-      return "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-    function setText(id, text){ var el=document.getElementById(id); if(el) el.textContent=text; }
-    function showMsg(id, text){ var el=document.getElementById(id); if(el){ el.style.display="block"; el.textContent=text; } }
-    function hideMsg(id){ var el=document.getElementById(id); if(el){ el.style.display="none"; el.textContent=""; } }
-    function pad2(n){ return (n<10?"0":"")+n; }
-    function makePeriodId(){
-      var d=new Date();
-      return ""+d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+pad2(d.getHours())+pad2(d.getMinutes())+pad2(d.getSeconds());
-    }
-    function numberToColor(n){
-      if(n===0 || n===5) return "Violet";
-      if(n===1 || n===3 || n===7 || n===9) return "Green";
-      return "Red";
-    }
-    function numberToBigSmall(n){ return (n>=5)?"Big":"Small"; }
-
-    var USER=null;
-    var MODE_SEC=60;
-    var timer=null;
-    var remain=60;
-    var BET_OPEN_SEC=30;
-    var activeBet=null;
-    var selectedBet=null;
-
-    function bettingAllowed(){ return remain > (MODE_SEC - BET_OPEN_SEC); }
-
-    function updateBetWindowUI(){
-      var el=document.getElementById("betWindow");
-      if(!el) return;
-      if(bettingAllowed()) el.innerHTML='Betting: <b class="bet-open">OPEN</b> (first 30 sec)';
-      else el.innerHTML='Betting: <b class="bet-closed">CLOSED</b> (wait next round)';
-    }
-
-    function clearSelectionUI(){
-      var all=document.querySelectorAll(".wg-num, .wg-bs-btn, .wg-color");
-      for(var i=0;i<all.length;i++) all[i].classList.remove("active");
-    }
-
-    function setSelectedBet(bet){
-      selectedBet=bet;
-      var inp=document.getElementById("selBet");
-      if(inp) inp.value = bet ? bet.label : "";
-      hideMsg("betMsg");
-    }
-
-    function setTimerUI(remainSec,totalSec){
-      remainSec=Math.max(0, Number(remainSec)||0);
-      totalSec=Math.max(1, Number(totalSec)||1);
-
-      var mm=pad2(Math.floor(remainSec/60));
-      var ss=pad2(remainSec%60);
-
-      var m1=document.getElementById("tm_m1"), m2=document.getElementById("tm_m2");
-      var s1=document.getElementById("tm_s1"), s2=document.getElementById("tm_s2");
-      if(m1) m1.textContent=mm[0]; if(m2) m2.textContent=mm[1];
-      if(s1) s1.textContent=ss[0]; if(s2) s2.textContent=ss[1];
-
-      var done=totalSec-remainSec;
-      var pct=Math.min(100, Math.max(0,(done/totalSec)*100));
-      var bar=document.getElementById("wgProgressBar");
-      if(bar) bar.style.width=pct+"%";
-
-      var dot=document.getElementById("wgDot");
-      var hint=document.getElementById("wgTimerHint");
-      var status=document.getElementById("wgStatusText");
-
-      if(remainSec<=0){
-        if(dot) dot.className="dot dot-end";
-        if(status) status.textContent="ENDED";
-        if(hint) hint.textContent="Result generating…";
-        return;
+      /* =========================
+         Helpers
+      ========================= */
+      function fmtINR(n) {
+        n = Number(n || 0);
+        return "₹" + n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
-      if(bettingAllowed()){
-        if(dot) dot.className="dot dot-live";
-        if(status) status.textContent="LIVE";
-        if(hint) hint.textContent="Place bets before time ends";
-      } else {
-        if(dot) dot.className="dot dot-lock";
-        if(status) status.textContent="LOCKED";
-        if(hint) hint.textContent="Bet locked (wait next round)";
+      function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+      function showMsg(id, text) { var el = document.getElementById(id); if (!el) return; el.style.display = "block"; el.textContent = text; }
+      function hideMsg(id) { var el = document.getElementById(id); if (!el) return; el.style.display = "none"; el.textContent = ""; }
+      function pad2(n) { return (n < 10 ? "0" : "") + n; }
+      function makePeriodId() {
+        var d = new Date();
+        return "" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
       }
-    }
-
-    async function renderWallet(){
-      var me=currentUser();
-      if(!me) return;
-      setText("cid", me.id||"-");
-      setText("nm", me.name||"-");
-      var pts=(typeof me.points==="number") ? me.points : 0;
-      setText("pts", String(pts));
-      setText("ptsInr", fmtINR(pts));
-    }
-
-    async function renderLatestResultFromHistory(){
-      var me=currentUser();
-      if(!me) return;
-      var rows = await playsForUser(me.id, 1);
-      if(!rows.length){
-        setText("resNum","-"); setText("resColor","-"); setText("resBS","-");
-        return;
+      // 0,5 => Violet | 1,3,7,9 => Green | 2,4,6,8 => Red
+      function numberToColor(n) {
+        if (n === 0 || n === 5) return "Violet";
+        if (n === 1 || n === 3 || n === 7 || n === 9) return "Green";
+        return "Red";
       }
-      var r=rows[0];
-      var rn=(r.resultNumber===0 || r.resultNumber) ? String(r.resultNumber) : "-";
-      setText("resNum", rn);
-      setText("resColor", r.resultColor || "-");
-      setText("resBS", r.resultBigSmall || "-");
-    }
+      function numberToBigSmall(n) { return (n >= 5) ? "Big" : "Small"; }
 
-    async function renderHistory(){
-      var me=currentUser();
-      if(!me) return;
-      var rows = await playsForUser(me.id, 30);
-      var tb=document.getElementById("histBody");
-      if(!tb) return;
+      /* =========================
+         State
+      ========================= */
+      var USER = null;           // profile {uid, role, name, phone, clientId, points}
+      var MODE_SEC = 60;
+      var timer = null;
+      var remain = 60;
 
-      if(rows.length===0){
-        tb.innerHTML='<tr><td colspan="7" class="small">No history yet.</td></tr>';
-        return;
+      var BET_OPEN_SEC = 30;     // first 30 sec only
+      var activeBet = null;      // placed bet this round
+      var selectedBet = null;    // selected option before place bet
+
+      function bettingAllowed() {
+        return remain > (MODE_SEC - BET_OPEN_SEC);
       }
 
-      tb.innerHTML = rows.map(r => {
-        var resNum=(r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
-        var resCol=r.resultColor||"-";
-        var resBS=r.resultBigSmall||"-";
-        return `<tr>
-          <td>${fmtDate(r.createdAt)}</td>
-          <td>${r.period||"-"}</td>
-          <td>${r.modeLabel||"-"}</td>
-          <td>${(r.betLabel||"-")} (${r.betAmount||0})</td>
-          <td>${resNum} / ${resCol} / ${resBS}</td>
-          <td>${r.before||0}</td>
-          <td>${r.after||0}</td>
-        </tr>`;
-      }).join("");
-    }
-
-    function setMode(sec){
-      MODE_SEC=sec;
-      remain=MODE_SEC;
-
-      var t1=document.getElementById("tab1m");
-      var t3=document.getElementById("tab3m");
-      if(t1 && t3){
-        if(sec===60){ t1.classList.add("active"); t3.classList.remove("active"); }
-        else { t3.classList.add("active"); t1.classList.remove("active"); }
+      function updateBetWindowUI() {
+        var el = document.getElementById("betWindow");
+        if (!el) return;
+        if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b> (first 30 sec)';
+        else el.innerHTML = 'Betting: <b class="bet-closed">CLOSED</b> (wait next round)';
       }
-      startNewRound();
-    }
 
-    async function startNewRound(){
-      if(timer){ clearInterval(timer); timer=null; }
+      function clearSelectionUI() {
+        var all = document.querySelectorAll(".wg-num, .wg-bs-btn, .wg-color");
+        for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+      }
 
-      activeBet=null; selectedBet=null;
-      clearSelectionUI();
+      function setSelectedBet(bet) {
+        selectedBet = bet;
+        var inp = document.getElementById("selBet");
+        if (inp) inp.value = bet ? bet.label : "";
+        hideMsg("betMsg");
+      }
 
-      var selBet=document.getElementById("selBet");
-      var amt=document.getElementById("betAmt");
-      if(selBet) selBet.value="";
-      if(amt) amt.value="";
-      setText("betAmtInr", fmtINR(0));
-      hideMsg("betMsg"); hideMsg("roundMsg");
+      /* =========================
+         Premium Timer UI
+      ========================= */
+      function setTimerUI(remainSec, totalSec) {
+        remainSec = Math.max(0, Number(remainSec) || 0);
+        totalSec = Math.max(1, Number(totalSec) || 1);
 
-      var period=makePeriodId();
-      setText("periodId", period);
+        var mm = pad2(Math.floor(remainSec / 60));
+        var ss = pad2(remainSec % 60);
 
-      await renderLatestResultFromHistory();
+        var m1 = document.getElementById("tm_m1"), m2 = document.getElementById("tm_m2");
+        var s1 = document.getElementById("tm_s1"), s2 = document.getElementById("tm_s2");
+        if (m1) m1.textContent = mm[0];
+        if (m2) m2.textContent = mm[1];
+        if (s1) s1.textContent = ss[0];
+        if (s2) s2.textContent = ss[1];
 
-      remain=MODE_SEC;
-      setTimerUI(remain, MODE_SEC);
-      updateBetWindowUI();
+        var done = totalSec - remainSec;
+        var pct = Math.min(100, Math.max(0, (done / totalSec) * 100));
+        var bar = document.getElementById("wgProgressBar");
+        if (bar) bar.style.width = pct + "%";
 
-      timer=setInterval(async function(){
-        remain -= 1;
-        if(remain<0) remain=0;
+        var dot = document.getElementById("wgDot");
+        var hint = document.getElementById("wgTimerHint");
+        var status = document.getElementById("wgStatusText");
+
+        if (remainSec <= 0) {
+          if (dot) dot.className = "dot dot-end";
+          if (status) status.textContent = "ENDED";
+          if (hint) hint.textContent = "Result generating…";
+          return;
+        }
+
+        if (bettingAllowed()) {
+          if (dot) dot.className = "dot dot-live";
+          if (status) status.textContent = "LIVE";
+          if (hint) hint.textContent = "Place bets before time ends";
+        } else {
+          if (dot) dot.className = "dot dot-lock";
+          if (status) status.textContent = "LOCKED";
+          if (hint) hint.textContent = "Bet locked (wait next round)";
+        }
+      }
+
+      /* =========================
+         Wallet + History (Firestore)
+      ========================= */
+      async function refreshProfile() {
+        USER = await getMyProfile(true);
+        return USER;
+      }
+
+      async function renderWallet() {
+        await refreshProfile();
+        var me = USER;
+        if (!me) return;
+
+        setText("cid", me.clientId || "-");
+        setText("nm", me.name || "-");
+
+        var pts = (typeof me.points === "number") ? me.points : 0;
+        setText("pts", String(pts));
+        setText("ptsInr", fmtINR(pts));
+      }
+
+      async function renderLatestResultFromHistory() {
+        var rows = await playsForMe(1);
+        if (!rows.length) {
+          setText("resNum", "-");
+          setText("resColor", "-");
+          setText("resBS", "-");
+          return;
+        }
+        var r = rows[0];
+        var rn = (r.resultNumber === 0 || r.resultNumber) ? String(r.resultNumber) : "-";
+        setText("resNum", rn);
+        setText("resColor", r.resultColor || "-");
+        setText("resBS", r.resultBigSmall || "-");
+      }
+
+      async function renderHistory() {
+        var rows = await playsForMe(30);
+        var tb = document.getElementById("histBody");
+        if (!tb) return;
+
+        if (!rows.length) {
+          tb.innerHTML = '<tr><td colspan="7" class="small">No history yet.</td></tr>';
+          return;
+        }
+
+        tb.innerHTML = rows.map(function(r){
+          var resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
+          var resCol = r.resultColor || "-";
+          var resBS  = r.resultBigSmall || "-";
+
+          return "<tr>" +
+            "<td>" + fmtDate(r.createdAt) + "</td>" +
+            "<td>" + (r.period || "-") + "</td>" +
+            "<td>" + (r.modeLabel || "-") + "</td>" +
+            "<td>" + (r.betLabel || "-") + " (" + (r.betAmount || 0) + ")</td>" +
+            "<td>" + (resNum + " / " + resCol + " / " + resBS) + "</td>" +
+            "<td>" + (r.before || 0) + "</td>" +
+            "<td>" + (r.after || 0) + "</td>" +
+          "</tr>";
+        }).join("");
+      }
+
+      /* =========================
+         Mode / Round
+      ========================= */
+      function setMode(sec) {
+        MODE_SEC = sec;
+        remain = MODE_SEC;
+
+        var t1 = document.getElementById("tab1m");
+        var t3 = document.getElementById("tab3m");
+        if (t1 && t3) {
+          if (sec === 60) { t1.classList.add("active"); t3.classList.remove("active"); }
+          else { t3.classList.add("active"); t1.classList.remove("active"); }
+        }
+        startNewRound();
+      }
+
+      async function startNewRound() {
+        if (timer) { clearInterval(timer); timer = null; }
+
+        activeBet = null;
+        selectedBet = null;
+        clearSelectionUI();
+
+        var selBet = document.getElementById("selBet");
+        var amt = document.getElementById("betAmt");
+        if (selBet) selBet.value = "";
+        if (amt) amt.value = "";
+        setText("betAmtInr", fmtINR(0));
+        hideMsg("betMsg");
+        hideMsg("roundMsg");
+
+        var period = makePeriodId();
+        setText("periodId", period);
+
+        await renderLatestResultFromHistory();
+
+        remain = MODE_SEC;
         setTimerUI(remain, MODE_SEC);
         updateBetWindowUI();
 
-        if(remain===0){
-          await finishRound();
-          await startNewRound();
+        timer = setInterval(async function() {
+          remain -= 1;
+          if (remain < 0) remain = 0;
+
+          setTimerUI(remain, MODE_SEC);
+          updateBetWindowUI();
+
+          if (remain === 0) {
+            await finishRound();
+            await startNewRound();
+          }
+        }, 1000);
+      }
+
+      /* =========================
+         Popup
+      ========================= */
+      function showResultPopup(o) {
+        var back = document.getElementById("popBack");
+        var title = document.getElementById("popTitle");
+        var chips = document.getElementById("popChips");
+        var bonus = document.getElementById("popBonus");
+        var per = document.getElementById("popPeriod");
+
+        if (title) title.textContent = o.win ? "Congratulations" : "Better Luck Next Time";
+        if (chips) {
+          chips.innerHTML =
+            '<span class="chip">Lottery results</span>' +
+            '<span class="chip">' + o.color + '</span>' +
+            '<span class="chip">' + o.num + '</span>' +
+            '<span class="chip">' + o.bs + '</span>';
         }
-      },1000);
-    }
-
-    function showResultPopup(o){
-      var back=document.getElementById("popBack");
-      var title=document.getElementById("popTitle");
-      var chips=document.getElementById("popChips");
-      var bonus=document.getElementById("popBonus");
-      var per=document.getElementById("popPeriod");
-
-      if(title) title.textContent=o.win?"Congratulations":"Better Luck Next Time";
-      if(chips){
-        chips.innerHTML =
-          '<span class="chip">Lottery results</span>'+
-          '<span class="chip">'+o.color+'</span>'+
-          '<span class="chip">'+o.num+'</span>'+
-          '<span class="chip">'+o.bs+'</span>';
-      }
-      if(bonus){
-        bonus.textContent=o.bonusText||"₹0.00";
-        bonus.classList.toggle("lose", !o.win);
-      }
-      if(per) per.textContent="Period: "+(o.period||"-");
-      if(back) back.style.display="flex";
-    }
-    function hideResultPopup(){ var back=document.getElementById("popBack"); if(back) back.style.display="none"; }
-
-    async function finishRound(){
-      var n=Math.floor(Math.random()*10);
-      var col=numberToColor(n);
-      var bs=numberToBigSmall(n);
-
-      setText("resNum", String(n));
-      setText("resColor", col);
-      setText("resBS", bs);
-
-      var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
-
-      if(!activeBet){
-        showMsg("roundMsg","Round ended. No bet placed.");
-        showResultPopup({ win:false, period, num:n, color:col, bs, bonusText: fmtINR(0) });
-        return;
+        if (bonus) {
+          bonus.textContent = o.bonusText || "₹0.00";
+          bonus.classList.toggle("lose", !o.win);
+        }
+        if (per) per.textContent = "Period: " + (o.period || "-");
+        if (back) back.style.display = "flex";
       }
 
-      var isWin=false;
-      if(activeBet.type==="color") isWin=(String(activeBet.value).toLowerCase()===String(col).toLowerCase());
-      if(activeBet.type==="number") isWin=(Number(activeBet.value)===Number(n));
-      if(activeBet.type==="bs") isWin=(String(activeBet.value).toLowerCase()===String(bs).toLowerCase());
-
-      if(isWin){
-        await adjustPoints(USER.id, activeBet.amount*2, "Win reward (2x)", null);
+      function hideResultPopup() {
+        var back = document.getElementById("popBack");
+        if (back) back.style.display = "none";
       }
 
-      // refresh cached profile
-      await new Promise(r => setTimeout(r, 200));
-      const me = currentUser();
-      const after = me ? (me.points||0) : 0;
+      /* =========================
+         Game Logic (Firestore points + plays)
+      ========================= */
+      async function finishRound() {
+        var n = Math.floor(Math.random() * 10);
+        var col = numberToColor(n);
+        var bs = numberToBigSmall(n);
 
-      await addPlayRow({
-        userId: USER.id,
-        createdAt: new Date().toISOString(),
-        period: activeBet.period,
-        modeSec: activeBet.modeSec,
-        modeLabel: (activeBet.modeSec===60 ? "1 Min" : "3 Min"),
-        betType: activeBet.type,
-        betValue: activeBet.value,
-        betLabel: activeBet.label,
-        betAmount: activeBet.amount,
-        resultNumber: n,
-        resultColor: col,
-        resultBigSmall: bs,
-        result: isWin ? "WIN" : "LOSE",
-        before: activeBet.beforePoints,
-        after: after
+        setText("resNum", String(n));
+        setText("resColor", col);
+        setText("resBS", bs);
+
+        var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
+
+        if (!activeBet) {
+          showMsg("roundMsg", "Round ended. No bet placed.");
+          showResultPopup({ win: false, period: period, num: n, color: col, bs: bs, bonusText: fmtINR(0) });
+          return;
+        }
+
+        var isWin = false;
+        if (activeBet.type === "color") isWin = (String(activeBet.value).toLowerCase() === String(col).toLowerCase());
+        if (activeBet.type === "number") isWin = (Number(activeBet.value) === Number(n));
+        if (activeBet.type === "bs") isWin = (String(activeBet.value).toLowerCase() === String(bs).toLowerCase());
+
+        // ✅ win reward +2x
+        if (isWin) {
+          await addMyPoints(activeBet.amount * 2, "Win reward (2x)");
+        }
+
+        // refresh wallet points after win
+        await renderWallet();
+
+        // after wallet
+        await refreshProfile();
+        var after = USER ? (USER.points || 0) : 0;
+
+        // save play in Firestore
+        await addPlayRow({
+          createdAt: new Date().toISOString(),
+          period: activeBet.period,
+          modeSec: activeBet.modeSec,
+          modeLabel: (activeBet.modeSec === 60 ? "1 Min" : "3 Min"),
+          betType: activeBet.type,
+          betValue: activeBet.value,
+          betLabel: activeBet.label,
+          betAmount: activeBet.amount,
+          resultNumber: n,
+          resultColor: col,
+          resultBigSmall: bs,
+          result: isWin ? "WIN" : "LOSE",
+          before: activeBet.beforePoints,
+          after: after
+        });
+
+        showMsg("roundMsg", isWin ? "🎉 WIN! Reward added (2x)." : "❌ LOSE! Bet deducted.");
+        await renderHistory();
+
+        var bonusVal = isWin ? (activeBet.amount * 2) : (-activeBet.amount);
+        showResultPopup({
+          win: isWin,
+          period: activeBet.period,
+          num: n,
+          color: col,
+          bs: bs,
+          bonusText: (bonusVal < 0 ? ("-" + fmtINR(Math.abs(bonusVal))) : fmtINR(bonusVal))
+        });
+
+        activeBet = null;
+      }
+
+      async function confirmBet() {
+        await refreshProfile();
+        var me = USER;
+        if (!me) return;
+
+        if (!bettingAllowed()) {
+          showMsg("betMsg", "Betting closed for this round. Wait next round.");
+          return;
+        }
+
+        var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
+        var amt = Number(document.getElementById("betAmt").value);
+
+        if (!selectedBet) return showMsg("betMsg", "Please select Color / Number / Big-Small.");
+        if (!amt || amt < 50) return showMsg("betMsg", "Minimum bet is 50.");
+        if (amt > (me.points || 0)) return showMsg("betMsg", "Insufficient wallet points.");
+        if (activeBet) return showMsg("betMsg", "You already placed bet in this round.");
+
+        var before = me.points || 0;
+
+        // ✅ deduct points (Firestore transaction)
+        var r = await deductMyPoints(amt, "Bet entry (" + selectedBet.label + ")");
+        if (!r || !r.ok) return showMsg("betMsg", (r && r.msg) ? r.msg : "Bet failed");
+
+        // refresh wallet after deduct
+        await renderWallet();
+
+        activeBet = {
+          type: selectedBet.type,
+          value: selectedBet.value,
+          label: selectedBet.label,
+          amount: amt,
+          period: period,
+          modeSec: MODE_SEC,
+          beforePoints: before
+        };
+
+        showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Wait for result.");
+      }
+
+      /* =========================
+         Init
+      ========================= */
+      document.addEventListener("DOMContentLoaded", async function () {
+        // ✅ require login (redirects if not)
+        USER = await requireLogin();
+        if (!USER) return;
+
+        document.body.style.visibility = "visible";
+
+        // admin redirect
+        if (USER.role === "admin") {
+          window.location.replace("admin.html");
+          return;
+        }
+
+        // logout
+        var lo = document.getElementById("btnLogout");
+        if (lo) lo.onclick = logout;
+
+        // popup close
+        var ok = document.getElementById("popOk");
+        if (ok) ok.onclick = hideResultPopup;
+        var back = document.getElementById("popBack");
+        if (back) {
+          back.addEventListener("click", function (e) {
+            if (e.target === back) hideResultPopup();
+          });
+        }
+
+        // tabs
+        var t1 = document.getElementById("tab1m");
+        var t3 = document.getElementById("tab3m");
+        if (t1) t1.onclick = function () { setMode(60); };
+        if (t3) t3.onclick = function () { setMode(180); };
+
+        // colors
+        var g = document.getElementById("btnGreen");
+        var v = document.getElementById("btnViolet");
+        var rr = document.getElementById("btnRed");
+
+        if (g) g.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          this.classList.add("active");
+          setSelectedBet({ type: "color", value: "Green", label: "Color: Green" });
+        };
+        if (v) v.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          this.classList.add("active");
+          setSelectedBet({ type: "color", value: "Violet", label: "Color: Violet" });
+        };
+        if (rr) rr.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          this.classList.add("active");
+          setSelectedBet({ type: "color", value: "Red", label: "Color: Red" });
+        };
+
+        // numbers grid
+        var grid = document.getElementById("numGrid");
+        if (grid) {
+          var html = "";
+          for (var i = 0; i <= 9; i++) {
+            html += '<button class="wg-num" type="button" data-num="' + i + '">' + i + '</button>';
+          }
+          grid.innerHTML = html;
+
+          grid.addEventListener("click", function (e) {
+            var b = e.target.closest(".wg-num");
+            if (!b) return;
+            if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+            var n = Number(b.getAttribute("data-num"));
+            clearSelectionUI();
+            b.classList.add("active");
+            setSelectedBet({ type: "number", value: n, label: "Number: " + n });
+          });
+        }
+
+        // big/small
+        var bb = document.getElementById("btnBig");
+        var bs = document.getElementById("btnSmall");
+        if (bb) bb.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          this.classList.add("active");
+          setSelectedBet({ type: "bs", value: "Big", label: "Big" });
+        };
+        if (bs) bs.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          this.classList.add("active");
+          setSelectedBet({ type: "bs", value: "Small", label: "Small" });
+        };
+
+        // bet amount -> inr
+        var betAmt = document.getElementById("betAmt");
+        if (betAmt) {
+          betAmt.addEventListener("input", function () {
+            var val = Number(this.value || 0);
+            setText("betAmtInr", fmtINR(val));
+          });
+        }
+
+        // chips
+        var chipsRow = document.getElementById("chipsRow");
+        if (chipsRow) {
+          chipsRow.addEventListener("click", function (e) {
+            var b = e.target.closest(".chipbtn");
+            if (!b) return;
+            var val = Number(b.getAttribute("data-chip") || 0);
+            if (betAmt) {
+              betAmt.value = String(val);
+              setText("betAmtInr", fmtINR(val));
+            }
+          });
+        }
+
+        // buttons
+        var btnBet = document.getElementById("btnBet");
+        var btnClear = document.getElementById("btnClear");
+        var btnRefresh = document.getElementById("btnRefresh");
+
+        if (btnBet) btnBet.onclick = confirmBet;
+
+        if (btnClear) btnClear.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          setSelectedBet(null);
+          if (betAmt) betAmt.value = "";
+          setText("betAmtInr", fmtINR(0));
+          hideMsg("betMsg");
+        };
+
+        if (btnRefresh) btnRefresh.onclick = async function () {
+          await renderWallet();
+          await renderHistory();
+          await renderLatestResultFromHistory();
+        };
+
+        // start
+        await renderWallet();
+        await renderHistory();
+        await renderLatestResultFromHistory();
+        setMode(60);
+
+        // live wallet refresh
+        setInterval(renderWallet, 1500);
       });
 
-      showMsg("roundMsg", isWin ? "🎉 WIN! Reward added (2x)." : "❌ LOSE! Bet deducted.");
-      await renderWallet();
-      await renderHistory();
-
-      var bonusVal = isWin ? (activeBet.amount*2) : (-activeBet.amount);
-      showResultPopup({
-        win:isWin, period: activeBet.period, num:n, color:col, bs:bs,
-        bonusText: (bonusVal<0 ? ("-" + fmtINR(Math.abs(bonusVal))) : fmtINR(bonusVal))
-      });
-
-      activeBet=null;
-    }
-
-    async function confirmBet(){
-      var me=currentUser();
-      if(!me) return;
-
-      if(!bettingAllowed()) return showMsg("betMsg","Betting closed for this round. Wait next round.");
-
-      var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
-      var amt = Number(document.getElementById("betAmt").value);
-
-      if(!selectedBet) return showMsg("betMsg","Please select Color / Number / Big-Small.");
-      if(!amt || amt<50) return showMsg("betMsg","Minimum bet is 50.");
-      if(amt > (me.points||0)) return showMsg("betMsg","Insufficient wallet points.");
-      if(activeBet) return showMsg("betMsg","You already placed bet in this round.");
-
-      var before = me.points || 0;
-      var r = await adjustPoints(me.id, -amt, "Bet entry ("+selectedBet.label+")", null);
-      if(!r || !r.ok) return showMsg("betMsg",(r&&r.msg)?r.msg:"Bet failed");
-
-      activeBet = { type:selectedBet.type, value:selectedBet.value, label:selectedBet.label, amount:amt, period, modeSec:MODE_SEC, beforePoints:before };
-      showMsg("betMsg","Bet placed: "+selectedBet.label+" ("+amt+"). Wait for result.");
-      await renderWallet();
-    }
-
-    document.addEventListener("DOMContentLoaded", async function(){
-      USER = await requireLoginAsync();
-      if(!USER) return;
-
-      document.body.style.visibility="visible";
-
-      if(USER.role==="admin"){ window.location.replace("admin.html"); return; }
-
-      var lo=document.getElementById("btnLogout");
-      if(lo) lo.onclick = logout;
-
-      var ok=document.getElementById("popOk");
-      if(ok) ok.onclick = hideResultPopup;
-
-      var back=document.getElementById("popBack");
-      if(back){ back.addEventListener("click", function(e){ if(e.target===back) hideResultPopup(); }); }
-
-      var t1=document.getElementById("tab1m");
-      var t3=document.getElementById("tab3m");
-      if(t1) t1.onclick=function(){ setMode(60); };
-      if(t3) t3.onclick=function(){ setMode(180); };
-
-      // Colors
-      var g=document.getElementById("btnGreen");
-      var v=document.getElementById("btnViolet");
-      var rr=document.getElementById("btnRed");
-      if(g) g.onclick=function(){ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({type:"color",value:"Green",label:"Color: Green"}); };
-      if(v) v.onclick=function(){ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({type:"color",value:"Violet",label:"Color: Violet"}); };
-      if(rr) rr.onclick=function(){ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({type:"color",value:"Red",label:"Color: Red"}); };
-
-      // numbers
-      var grid=document.getElementById("numGrid");
-      if(grid){
-        var html="";
-        for(var i=0;i<=9;i++) html += '<button class="wg-num" type="button" data-num="'+i+'">'+i+'</button>';
-        grid.innerHTML=html;
-        grid.addEventListener("click", function(e){
-          var b=e.target.closest(".wg-num"); if(!b) return;
-          if(activeBet) return showMsg("betMsg","Bet already placed. Wait result.");
-          var n=Number(b.getAttribute("data-num"));
-          clearSelectionUI(); b.classList.add("active");
-          setSelectedBet({type:"number",value:n,label:"Number: "+n});
-        });
-      }
-
-      // big/small
-      var bb=document.getElementById("btnBig");
-      var bs=document.getElementById("btnSmall");
-      if(bb) bb.onclick=function(){ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({type:"bs",value:"Big",label:"Big"}); };
-      if(bs) bs.onclick=function(){ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({type:"bs",value:"Small",label:"Small"}); };
-
-      // bet amount
-      var betAmt=document.getElementById("betAmt");
-      if(betAmt){
-        betAmt.addEventListener("input", function(){
-          var val=Number(this.value||0);
-          setText("betAmtInr", fmtINR(val));
-        });
-      }
-
-      // chips
-      var chipsRow=document.getElementById("chipsRow");
-      if(chipsRow){
-        chipsRow.addEventListener("click", function(e){
-          var b=e.target.closest(".chipbtn"); if(!b) return;
-          var val=Number(b.getAttribute("data-chip")||0);
-          if(betAmt){ betAmt.value=String(val); setText("betAmtInr", fmtINR(val)); }
-        });
-      }
-
-      var btnBet=document.getElementById("btnBet");
-      var btnClear=document.getElementById("btnClear");
-      var btnRefresh=document.getElementById("btnRefresh");
-
-      if(btnBet) btnBet.onclick=confirmBet;
-      if(btnClear) btnClear.onclick=function(){
-        if(activeBet) return showMsg("betMsg","Bet already placed. Wait result.");
-        clearSelectionUI(); setSelectedBet(null);
-        if(betAmt) betAmt.value="";
-        setText("betAmtInr", fmtINR(0));
-        hideMsg("betMsg");
-      };
-      if(btnRefresh) btnRefresh.onclick=async function(){
-        await renderWallet(); await renderHistory(); await renderLatestResultFromHistory();
-      };
-
-      await renderWallet();
-      await renderHistory();
-      await renderLatestResultFromHistory();
-      setMode(60);
-
-      setInterval(renderWallet, 1000);
-    });
+    })();
   </script>
-
-
 </body>
-
 </html>
-
-
