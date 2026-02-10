@@ -1,28 +1,37 @@
 /* =====================================================
-   Firebase + Firestore CROSS-DEVICE app.js
-   (Replace your complete app.js with this)
+   Firebase + Firestore Cross-Device App (NO blank pages)
+   - Works with compat SDK (firebase-app-compat, firestore-compat)
+   - Global functions: loginSecure, registerUserSecure, adjustPoints, playsForUser, etc.
 ===================================================== */
 
 (function () {
   "use strict";
 
-  // ---------- CONFIG ----------
-  const SESSION_KEY = "club_session_v2"; // local session only
+  // ====== CONFIG ======
+  const SESSION_KEY = "club_session_v2";
+
+  // Fixed admin login (you can login with ADMIN1 or phone)
   const DEFAULT_ADMIN = {
-    id: "ADMIN1",
+    clientId: "ADMIN1",
     role: "admin",
     name: "Admin",
     phone: "9316740061",
-    password: "Jay@1803"
+    password: "Jay@1803",
   };
 
-  // ---------- FIREBASE INIT ----------
+  // ====== FIREBASE INIT ======
   function ensureFirebase() {
-    if (!window.firebase) throw new Error("Firebase SDK not loaded");
-    if (!window.firebaseConfig) throw new Error("window.firebaseConfig missing");
-
+    if (typeof firebase === "undefined") {
+      throw new Error("Firebase SDK missing. Add firebase-app-compat + firebase-firestore-compat before app.js");
+    }
+    if (!window.firebaseConfig) {
+      throw new Error("firebaseConfig missing. Set window.firebaseConfig before app.js");
+    }
     if (!firebase.apps || !firebase.apps.length) {
       firebase.initializeApp(window.firebaseConfig);
+    }
+    if (!firebase.firestore) {
+      throw new Error("Firestore SDK missing. Add firebase-firestore-compat before app.js");
     }
     return firebase.firestore();
   }
@@ -30,13 +39,10 @@
   function db() {
     return ensureFirebase();
   }
-firebase.auth().signInAnonymously().catch(console.error);
 
-  // ---------- HELPERS ----------
-  function nowISO() { return new Date().toISOString(); }
-
-  function uid(prefix = "C") {
-    return prefix + Math.random().toString(36).slice(2, 8).toUpperCase();
+  // ====== HELPERS ======
+  function nowISO() {
+    return new Date().toISOString();
   }
 
   function safeNum(n) {
@@ -45,72 +51,91 @@ firebase.auth().signInAnonymously().catch(console.error);
   }
 
   function fmtDate(iso) {
-    try { return new Date(iso).toLocaleString("en-IN"); }
-    catch (e) { return String(iso || "-"); }
+    try {
+      return new Date(iso).toLocaleString("en-IN");
+    } catch (e) {
+      return String(iso || "-");
+    }
   }
 
-  // SHA-256 (browser)
   async function sha256(text) {
     const enc = new TextEncoder().encode(String(text));
     const buf = await crypto.subtle.digest("SHA-256", enc);
     return Array.from(new Uint8Array(buf))
-      .map(b => b.toString(16).padStart(2, "0"))
+      .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   }
 
-  // ---------- SESSION ----------
   function setSession(userId) {
     localStorage.setItem(SESSION_KEY, JSON.stringify({ userId, at: nowISO() }));
   }
+
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
+    window.__ME = null;
   }
+
   function getSession() {
-    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
-    catch { return null; }
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
-  // Cached user (last fetched)
-  let _cachedUser = null;
-
-  async function fetchUserById(userId) {
-    const snap = await db().collection("users").doc(userId).get();
-    if (!snap.exists) return null;
-    return { id: snap.id, ...snap.data() };
+  // ====== FIRESTORE PATHS ======
+  function userRef(userId) {
+    return db().collection("users").doc(userId);
   }
 
-  async function fetchUserByPhone(phone) {
-    const qs = await db().collection("users")
-      .where("phone", "==", phone)
+  function txnsCol(userId) {
+    return userRef(userId).collection("txns");
+  }
+
+  function playsCol(userId) {
+    return userRef(userId).collection("plays");
+  }
+
+  // ====== USER READS ======
+  async function getUserById(userId) {
+    const snap = await userRef(userId).get();
+    return snap.exists ? snap.data() : null;
+  }
+
+  async function getUserByPhone(phone) {
+    // phone must be stored correctly in doc field "phone"
+    const q = await db()
+      .collection("users")
+      .where("phone", "==", String(phone))
       .limit(1)
       .get();
-    if (qs.empty) return null;
-    const doc = qs.docs[0];
-    return { id: doc.id, ...doc.data() };
+
+    if (q.empty) return null;
+    return q.docs[0].data();
   }
 
+  // cache current user profile
   async function currentUserAsync() {
     const sess = getSession();
     if (!sess || !sess.userId) return null;
-    if (_cachedUser && _cachedUser.id === sess.userId) return _cachedUser;
+    if (window.__ME && window.__ME.clientId === sess.userId) return window.__ME;
 
-    const u = await fetchUserById(sess.userId);
-    _cachedUser = u;
+    const u = await getUserById(sess.userId);
+    window.__ME = u;
     return u;
   }
 
-  // Sync wrapper (old code compatibility)
   function currentUser() {
-    return _cachedUser;
+    return window.__ME || null;
   }
 
   function logout() {
     clearSession();
-    _cachedUser = null;
     window.location.replace("login.html");
   }
 
-  // ---------- GUARDS ----------
+  // ====== GUARDD ======
   async function requireLoginAsync() {
     const u = await currentUserAsync();
     if (!u) {
@@ -129,121 +154,108 @@ firebase.auth().signInAnonymously().catch(console.error);
     return u;
   }
 
-  // old sync names (some pages call these)
-  function requireLogin() {
-    // if not fetched yet, force redirect (safe)
-    if (!_cachedUser) {
-      window.location.replace("login.html");
-      return null;
-    }
-    return _cachedUser;
-  }
-  function requireAdmin() {
-    const u = requireLogin();
-    if (!u || u.role !== "admin") {
-      window.location.replace("login.html");
-      return null;
-    }
-    return u;
-  }
-
-  // ---------- AUTH ----------
-  async function ensureAdminProfile() {
-    // If ADMIN1 missing in Firestore, create it (safe)
-    const ref = db().collection("users").doc(DEFAULT_ADMIN.id);
+  // ====== BOOTSTRAP ADMIN (if missing) ======
+  async function ensureAdminDoc() {
+    const ref = userRef(DEFAULT_ADMIN.clientId);
     const snap = await ref.get();
     if (snap.exists) return;
 
     const passwordHash = await sha256(DEFAULT_ADMIN.password);
+
     await ref.set({
-      clientId: DEFAULT_ADMIN.id,
-      role: "admin",
+      clientId: DEFAULT_ADMIN.clientId,
+      role: DEFAULT_ADMIN.role,
       name: DEFAULT_ADMIN.name,
       phone: DEFAULT_ADMIN.phone,
       points: 0,
       passwordHash,
-      createdAt: nowISO()
-    }, { merge: true });
+      createdAt: nowISO(),
+      updatedAt: nowISO(),
+    });
   }
 
+  // ====== AUTH ======
   async function loginSecure({ phoneOrId, password }) {
-    await ensureAdminProfile();
+    await ensureAdminDoc();
 
-    const input = String(phoneOrId || "").trim();
-    const pass = String(password || "");
-
-    if (!input || !pass) return { ok: false, msg: "Enter ID/Phone and Password" };
+    const key = String(phoneOrId || "").trim();
+    if (!key) return { ok: false, msg: "Enter phone or Client ID" };
 
     let user = null;
 
-    // try by document id first (ClientId like C12345 / ADMIN1)
-    user = await fetchUserById(input);
-    if (!user) {
-      // try by phone
-      user = await fetchUserByPhone(input);
-    }
+    // Try by ID first (doc id = clientId)
+    const byId = await getUserById(key);
+    if (byId) user = byId;
+
+    // If not found by ID, try phone
+    if (!user) user = await getUserByPhone(key);
 
     if (!user) return { ok: false, msg: "User not found" };
 
-    // If admin has no hash, set it once (rare)
-    if (user.role === "admin" && !user.passwordHash) {
-      const h = await sha256(DEFAULT_ADMIN.password);
-      await db().collection("users").doc(user.id).set({ passwordHash: h }, { merge: true });
-      user.passwordHash = h;
-    }
+    if (!user.passwordHash) return { ok: false, msg: "Password not set for this profile" };
 
-    const hash = await sha256(pass);
-    if (!user.passwordHash || user.passwordHash !== hash) {
-      return { ok: false, msg: "Wrong password" };
-    }
+    const hash = await sha256(password || "");
+    if (hash !== user.passwordHash) return { ok: false, msg: "Wrong password" };
 
-    setSession(user.id);
-    _cachedUser = user;
+    setSession(user.clientId);
+    window.__ME = user;
+
     return { ok: true, user };
   }
 
   async function registerUserSecure({ name, phone, password }) {
-    const n = String(name || "").trim();
-    const p = String(phone || "").trim();
-    const pw = String(password || "");
+    await ensureAdminDoc();
 
-    if (!n || !p || !pw) return { ok: false, msg: "All fields required" };
-    if (!/^\d{10}$/.test(p)) return { ok: false, msg: "Phone must be 10 digits" };
-    if (pw.length < 4) return { ok: false, msg: "Password min 4 chars" };
+    name = String(name || "").trim();
+    phone = String(phone || "").trim();
+    password = String(password || "");
 
-    // phone uniqueness check
-    const exists = await db().collection("users").where("phone", "==", p).limit(1).get();
-    if (!exists.empty) return { ok: false, msg: "Phone already exists" };
+    if (!name || !phone || !password) return { ok: false, msg: "All fields required" };
+    if (!/^\d{10}$/.test(phone)) return { ok: false, msg: "Phone must be 10 digits" };
 
-    // create clientId
-    const id = uid("C");
-    const passwordHash = await sha256(pw);
+    // check phone duplicate
+    const q = await db().collection("users").where("phone", "==", phone).limit(1).get();
+    if (!q.empty) return { ok: false, msg: "Phone already exists" };
+
+    // generate client id similar to old: C + random digits
+    const clientId = "C" + Math.floor(10000 + Math.random() * 90000);
+
+    const ref = userRef(clientId);
+    const exists = await ref.get();
+    if (exists.exists) {
+      // rare collision
+      return { ok: false, msg: "Try again (ID collision)" };
+    }
+
+    const passwordHash = await sha256(password);
 
     const user = {
-      clientId: id,
+      clientId,
       role: "user",
-      name: n,
-      phone: p,
+      name,
+      phone,
       points: 0,
       passwordHash,
-      createdAt: nowISO()
+      createdAt: nowISO(),
+      updatedAt: nowISO(),
     };
 
-    await db().collection("users").doc(id).set(user, { merge: true });
-    return { ok: true, user: { id, ...user } };
+    await ref.set(user);
+    return { ok: true, user };
   }
 
-  // ---------- POINTS + TXNS ----------
+  // ====== POINTS + TXNS (Firestore Transaction) ======
   async function adjustPoints(userId, delta, note, byAdminId = null) {
+    userId = String(userId || "").trim();
     const d = Number(delta);
+    if (!userId) return { ok: false, msg: "User missing" };
     if (!Number.isFinite(d)) return { ok: false, msg: "Invalid points" };
 
-    const userRef = db().collection("users").doc(userId);
-    const txRef = db().collection("txns").doc(); // auto id
+    const uref = userRef(userId);
 
     try {
-      await db().runTransaction(async (t) => {
-        const snap = await t.get(userRef);
+      const result = await db().runTransaction(async (tx) => {
+        const snap = await tx.get(uref);
         if (!snap.exists) throw new Error("User not found");
 
         const u = snap.data();
@@ -251,114 +263,138 @@ firebase.auth().signInAnonymously().catch(console.error);
         const next = cur + d;
         if (next < 0) throw new Error("Insufficient points");
 
-        t.set(userRef, { points: next }, { merge: true });
+        tx.update(uref, { points: next, updatedAt: nowISO() });
 
-        t.set(txRef, {
+        const tdoc = txnsCol(userId).doc();
+        tx.set(tdoc, {
+          id: tdoc.id,
           userId,
           type: d >= 0 ? "credit" : "debit",
           amount: Math.abs(d),
           note: note || "",
           byAdminId: byAdminId || null,
-          createdAt: nowISO()
+          createdAt: nowISO(),
         });
+
+        return next;
       });
 
-      // refresh cache if needed
-      const sess = getSession();
-      if (sess && sess.userId === userId) {
-        _cachedUser = await fetchUserById(userId);
+      // refresh cache if same user
+      if (window.__ME && window.__ME.clientId === userId) {
+        window.__ME = await getUserById(userId);
       }
 
-      const fresh = await fetchUserById(userId);
-      return { ok: true, points: fresh ? safeNum(fresh.points) : 0 };
+      return { ok: true, points: result };
     } catch (e) {
       return { ok: false, msg: e && e.message ? e.message : String(e) };
     }
   }
 
-  async function userTxns(userId) {
-    const qs = await db().collection("txns")
-      .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
-      .get();
-    return qs.docs.map(d => ({ id: d.id, ...d.data() }));
+  async function userTxns(userId, limit = 100) {
+    const q = await txnsCol(userId).orderBy("createdAt", "desc").limit(Number(limit || 100)).get();
+    return q.docs.map((d) => d.data());
   }
 
-  // ---------- PLAY HISTORY ----------
+  // ====== PLAYS ======
   async function addPlayRow(row) {
-    const data = { ...(row || {}) };
-    if (!data.createdAt) data.createdAt = nowISO();
-    await db().collection("plays").add(data);
-    return { ok: true };
+    if (!row) return { ok: false, msg: "Row missing" };
+    if (!row.userId) return { ok: false, msg: "userId missing" };
+
+    const userId = String(row.userId);
+    const doc = playsCol(userId).doc();
+    row.id = row.id || doc.id;
+    row.createdAt = row.createdAt || nowISO();
+
+    await doc.set(row);
+    return { ok: true, id: doc.id };
   }
 
-  async function playsForUser(userId, limitN = 30) {
-    const qs = await db().collection("plays")
-      .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
-      .limit(Number(limitN) || 30)
-      .get();
-    return qs.docs.map(d => ({ id: d.id, ...d.data() }));
+  async function playsForUser(userId, limit = 30) {
+    const q = await playsCol(userId).orderBy("createdAt", "desc").limit(Number(limit || 30)).get();
+    return q.docs.map((d) => d.data());
   }
 
-  // ---------- ADMIN ----------
+  // ====== ADMIN OPS ======
   async function adminResetClientPassword(clientId, newPass, adminId) {
-    const admin = await fetchUserById(adminId);
-    if (!admin || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
 
-    const userRef = db().collection("users").doc(clientId);
-    const snap = await userRef.get();
+    newPass = String(newPass || "").trim();
+    if (newPass.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
+
+    const ref = userRef(clientId);
+    const snap = await ref.get();
     if (!snap.exists) return { ok: false, msg: "Client not found" };
 
-    const pw = String(newPass || "").trim();
-    if (pw.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
-
-    const passwordHash = await sha256(pw);
-    await userRef.set({ passwordHash }, { merge: true });
+    const passwordHash = await sha256(newPass);
+    await ref.update({ passwordHash, updatedAt: nowISO() });
     return { ok: true };
   }
 
   async function updateAdminProfile(adminId, name, pass) {
-    const adminRef = db().collection("users").doc(adminId);
-    const snap = await adminRef.get();
-    if (!snap.exists) return { ok: false, msg: "Admin not found" };
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Admin not found" };
 
-    const upd = {};
-    if (name && String(name).trim()) upd.name = String(name).trim();
-    if (pass && String(pass).trim().length >= 4) upd.passwordHash = await sha256(String(pass).trim());
+    const patch = { updatedAt: nowISO() };
+    if (name && String(name).trim()) patch.name = String(name).trim();
+    if (pass && String(pass).trim().length >= 4) patch.passwordHash = await sha256(String(pass).trim());
 
-    if (!Object.keys(upd).length) return { ok: false, msg: "Nothing to update" };
-    await adminRef.set(upd, { merge: true });
-
-    // refresh cache if admin is logged in
-    const sess = getSession();
-    if (sess && sess.userId === adminId) _cachedUser = await fetchUserById(adminId);
-
+    await userRef(adminId).update(patch);
+    window.__ME = await getUserById(adminId);
     return { ok: true };
   }
 
   async function deleteClient(clientId, adminId) {
-    const admin = await fetchUserById(adminId);
-    if (!admin || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
-    if (clientId === DEFAULT_ADMIN.id) return { ok: false, msg: "Cannot delete admin" };
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    if (clientId === DEFAULT_ADMIN.clientId) return { ok: false, msg: "Cannot delete admin" };
 
-    // delete user doc
-    await db().collection("users").doc(clientId).delete();
+    // delete txns + plays (best-effort)
+    const txSnap = await txnsCol(clientId).get();
+    const plSnap = await playsCol(clientId).get();
+    const batch = db().batch();
 
-    // NOTE: txns/plays cleanup can be added later (optional)
+    txSnap.docs.forEach((d) => batch.delete(d.ref));
+    plSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(userRef(clientId));
+    await batch.commit();
+
     return { ok: true };
   }
 
-  // ---------- expose globally (same names) ----------
-  window.DEFAULT_ADMIN = DEFAULT_ADMIN;
-  window.fmtDate = fmtDate;
+  async function clearClientHistory(clientId, resetWallet = false) {
+    const txSnap = await txnsCol(clientId).get();
+    const plSnap = await playsCol(clientId).get();
+    const batch = db().batch();
 
-  window.logout = logout;
+    txSnap.docs.forEach((d) => batch.delete(d.ref));
+    plSnap.docs.forEach((d) => batch.delete(d.ref));
+
+    if (resetWallet) {
+      batch.update(userRef(clientId), { points: 0, updatedAt: nowISO() });
+    }
+    await batch.commit();
+
+    // refresh cache
+    if (window.__ME && window.__ME.clientId === clientId) {
+      window.__ME = await getUserById(clientId);
+    }
+
+    return { ok: true };
+  }
+
+  async function listAllUsers() {
+    const q = await db().collection("users").orderBy("createdAt", "desc").get();
+    return q.docs.map((d) => d.data());
+  }
+
+  // ====== Expose globals (so "loginSecure is not defined" NEVER happens) ======
+  window.fmtDate = fmtDate;
+  window.sha256 = sha256;
+
   window.currentUser = currentUser;
   window.currentUserAsync = currentUserAsync;
 
-  window.requireLogin = requireLogin;
-  window.requireAdmin = requireAdmin;
   window.requireLoginAsync = requireLoginAsync;
   window.requireAdminAsync = requireAdminAsync;
 
@@ -374,6 +410,9 @@ firebase.auth().signInAnonymously().catch(console.error);
   window.adminResetClientPassword = adminResetClientPassword;
   window.updateAdminProfile = updateAdminProfile;
   window.deleteClient = deleteClient;
+  window.clearClientHistory = clearClientHistory;
+
+  window.logout = logout;
+  window.listAllUsers = listAllUsers;
 
 })();
-
