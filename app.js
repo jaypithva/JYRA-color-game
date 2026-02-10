@@ -1,15 +1,13 @@
 /* =====================================================
    CONFIG
 ===================================================== */
-const DB_KEY = "club_db_v1";              // fallback local (optional)
 const SESSION_KEY = "club_session_v1";
-const PLAY_KEY = "club_play_history_v1";  // fallback local (optional)
 
 const COL_USERS = "users";
 const COL_TXNS  = "txns";
 const COL_PLAYS = "plays";
 
-// ✅ Fixed Admin
+// ✅ Your fixed admin credentials
 const DEFAULT_ADMIN = {
   id: "ADMIN1",
   role: "admin",
@@ -25,10 +23,6 @@ function nowISO() { return new Date().toISOString(); }
 
 function uid(p = "U") {
   return p + Math.random().toString(36).slice(2, 9).toUpperCase();
-}
-
-function safeJSONParse(raw, fallback) {
-  try { return JSON.parse(raw); } catch { return fallback; }
 }
 
 function safeNum(n) {
@@ -80,22 +74,14 @@ async function sha256(text) {
 /* =====================================================
    FIREBASE GUARD
 ===================================================== */
-function hasFirebase() {
-  return typeof window !== "undefined" && window.db && window.firebase && window.firebase.firestore;
-}
-
 function getDb() {
-  return hasFirebase() ? window.db : null;
-}
-
-function FieldValue() {
-  // compat FieldValue
-  return window.firebase.firestore.FieldValue;
+  if (window.db && window.firebase && window.firebase.firestore) return window.db;
+  return null;
 }
 
 async function ensureAdminInFirestore() {
   const db = getDb();
-  if (!db) return;
+  if (!db) throw new Error("Firestore not ready");
 
   const ref = db.collection(COL_USERS).doc(DEFAULT_ADMIN.id);
   const snap = await ref.get();
@@ -114,11 +100,14 @@ async function ensureAdminInFirestore() {
 }
 
 /* =====================================================
-   SESSION (Cross-device login ke liye)
+   SESSION (store full user for no-blank pages)
 ===================================================== */
 function setSession(userObj) {
-  // cache full user for sync currentUser()
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: userObj.id, user: userObj, at: nowISO() }));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    userId: userObj.id,
+    user: userObj,
+    at: nowISO()
+  }));
 }
 
 function clearSession() {
@@ -127,13 +116,13 @@ function clearSession() {
 
 function getSession() {
   const raw = localStorage.getItem(SESSION_KEY);
-  return raw ? safeJSONParse(raw, null) : null;
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
 function currentUser() {
   const sess = getSession();
   if (!sess || !sess.userId) return null;
-  // ✅ sync user from cache (pages blank nahi honge)
   return sess.user || null;
 }
 
@@ -148,68 +137,6 @@ async function refreshCurrentUser() {
 function logout() {
   clearSession();
   window.location.replace("login.html");
-}
-
-/* =====================================================
-   LOCAL FALLBACK DB (optional)
-   (Agar firebase missing ho, page crash na ho)
-===================================================== */
-function loadDB_local() {
-  const raw = localStorage.getItem(DB_KEY);
-  if (raw) {
-    const db = safeJSONParse(raw, null);
-    if (db && Array.isArray(db.users) && Array.isArray(db.txns)) return db;
-  }
-  const db = { users: [], txns: [] };
-  db.users.push({
-    id: DEFAULT_ADMIN.id,
-    role: DEFAULT_ADMIN.role,
-    name: DEFAULT_ADMIN.name,
-    phone: DEFAULT_ADMIN.phone,
-    passwordHash: null,
-    points: 0,
-    createdAt: nowISO()
-  });
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  return db;
-}
-function saveDB_local(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-
-/* =====================================================
-   DATABASE (Firestore preferred)
-===================================================== */
-async function getUserById(userId) {
-  const db = getDb();
-  if (!db) {
-    const ldb = loadDB_local();
-    return (ldb.users || []).find(u => u.id === userId) || null;
-  }
-  await ensureAdminInFirestore();
-  const snap = await db.collection(COL_USERS).doc(String(userId)).get();
-  return snap.exists ? snap.data() : null;
-}
-
-async function findUserByPhoneOrId(phoneOrId) {
-  const db = getDb();
-  const key = String(phoneOrId || "").trim();
-  if (!key) return null;
-
-  if (!db) {
-    const ldb = loadDB_local();
-    return (ldb.users || []).find(u => u.phone === key || u.id === key) || null;
-  }
-
-  await ensureAdminInFirestore();
-
-  // 1) try direct doc by id
-  const byId = await db.collection(COL_USERS).doc(key).get();
-  if (byId.exists) return byId.data();
-
-  // 2) else try phone query
-  const q = await db.collection(COL_USERS).where("phone", "==", key).limit(1).get();
-  if (!q.empty) return q.docs[0].data();
-
-  return null;
 }
 
 /* =====================================================
@@ -234,29 +161,54 @@ function requireAdmin() {
 }
 
 /* =====================================================
-   AUTH (Cross-device)
+   DATABASE
+===================================================== */
+async function getUserById(userId) {
+  const db = getDb();
+  await ensureAdminInFirestore();
+  const snap = await db.collection(COL_USERS).doc(String(userId)).get();
+  return snap.exists ? snap.data() : null;
+}
+
+async function findUserByPhoneOrId(phoneOrId) {
+  const db = getDb();
+  await ensureAdminInFirestore();
+
+  const key = String(phoneOrId || "").trim();
+  if (!key) return null;
+
+  // Try ID as doc first
+  const byId = await db.collection(COL_USERS).doc(key).get();
+  if (byId.exists) return byId.data();
+
+  // Else try phone
+  const q = await db.collection(COL_USERS).where("phone", "==", key).limit(1).get();
+  if (!q.empty) return q.docs[0].data();
+
+  return null;
+}
+
+async function listClients() {
+  const db = getDb();
+  await ensureAdminInFirestore();
+
+  const q = await db.collection(COL_USERS).where("role", "==", "user").orderBy("createdAt", "desc").limit(500).get();
+  return q.docs.map(d => d.data());
+}
+
+/* =====================================================
+   AUTH
 ===================================================== */
 async function loginSecure({ phoneOrId, password }) {
   const user = await findUserByPhoneOrId(phoneOrId);
   if (!user) return { ok: false, msg: "User not found" };
 
-  // Ensure admin hash exists (if old admin doc missing hash)
+  // Admin hash safety
   if (user.role === "admin" && !user.passwordHash) {
     const db = getDb();
-    if (db) {
-      const adminHash = await sha256(DEFAULT_ADMIN.password);
-      await db.collection(COL_USERS).doc(user.id).set({ passwordHash: adminHash }, { merge: true });
-      user.passwordHash = adminHash;
-    } else {
-      // local fallback
-      const ldb = loadDB_local();
-      const a = (ldb.users || []).find(u => u.id === user.id);
-      if (a && !a.passwordHash) {
-        a.passwordHash = await sha256(DEFAULT_ADMIN.password);
-        saveDB_local(ldb);
-        user.passwordHash = a.passwordHash;
-      }
-    }
+    const adminHash = await sha256(DEFAULT_ADMIN.password);
+    await db.collection(COL_USERS).doc(user.id).set({ passwordHash: adminHash }, { merge: true });
+    user.passwordHash = adminHash;
   }
 
   const hash = await sha256(password);
@@ -266,34 +218,13 @@ async function loginSecure({ phoneOrId, password }) {
   return { ok: true, user };
 }
 
-// ✅ Admin uses this to create client (Firestore)
 async function registerUserSecure({ name, phone, password }) {
   const db = getDb();
+  await ensureAdminInFirestore();
 
   if (!name || !phone || !password) return { ok: false, msg: "All fields required" };
   if (!/^\d{10}$/.test(String(phone))) return { ok: false, msg: "Phone must be 10 digits" };
 
-  if (!db) {
-    // local fallback
-    const ldb = loadDB_local();
-    if (ldb.users.some(u => u.phone === phone)) return { ok: false, msg: "Phone already exists" };
-    const user = {
-      id: uid("C"),
-      role: "user",
-      name: String(name).trim(),
-      phone: String(phone).trim(),
-      passwordHash: await sha256(password),
-      points: 0,
-      createdAt: nowISO()
-    };
-    ldb.users.push(user);
-    saveDB_local(ldb);
-    return { ok: true, user };
-  }
-
-  await ensureAdminInFirestore();
-
-  // check phone unique
   const q = await db.collection(COL_USERS).where("phone", "==", String(phone).trim()).limit(1).get();
   if (!q.empty) return { ok: false, msg: "Phone already exists" };
 
@@ -312,50 +243,20 @@ async function registerUserSecure({ name, phone, password }) {
 }
 
 /* =====================================================
-   POINTS + TRANSACTIONS (Firestore Transaction)
+   POINTS + TRANSACTIONS (Atomic)
 ===================================================== */
 async function adjustPoints(userId, delta, note, byAdminId = null) {
   const db = getDb();
+  await ensureAdminInFirestore();
 
   const d = Number(delta);
   if (!Number.isFinite(d)) return { ok: false, msg: "Invalid points" };
 
-  if (!db) {
-    // local fallback (old behavior)
-    const ldb = loadDB_local();
-    const u = (ldb.users || []).find(x => x.id === userId);
-    if (!u) return { ok: false, msg: "User not found" };
-
-    const cur = (typeof u.points === "number") ? u.points : 0;
-    const next = cur + d;
-    if (next < 0) return { ok: false, msg: "Insufficient points" };
-    u.points = next;
-
-    ldb.txns.unshift({
-      id: uid("T"),
-      userId,
-      type: d >= 0 ? "credit" : "debit",
-      amount: Math.abs(d),
-      note: note || "",
-      byAdminId: byAdminId || null,
-      createdAt: nowISO()
-    });
-    saveDB_local(ldb);
-
-    // update session cache if same user
-    const sess = getSession();
-    if (sess && sess.userId === userId) setSession(u);
-
-    return { ok: true, points: u.points };
-  }
-
-  await ensureAdminInFirestore();
-
   const userRef = db.collection(COL_USERS).doc(String(userId));
-  const txRef = db.collection(COL_TXNS).doc(uid("T"));
+  const txnRef  = db.collection(COL_TXNS).doc(uid("T"));
 
   try {
-    const result = await db.runTransaction(async (tx) => {
+    const newPoints = await db.runTransaction(async (tx) => {
       const snap = await tx.get(userRef);
       if (!snap.exists) throw new Error("User not found");
 
@@ -366,8 +267,8 @@ async function adjustPoints(userId, delta, note, byAdminId = null) {
 
       tx.update(userRef, { points: next });
 
-      tx.set(txRef, {
-        id: txRef.id,
+      tx.set(txnRef, {
+        id: txnRef.id,
         userId: String(userId),
         type: d >= 0 ? "credit" : "debit",
         amount: Math.abs(d),
@@ -379,25 +280,22 @@ async function adjustPoints(userId, delta, note, byAdminId = null) {
       return next;
     });
 
-    // update session cache if same user
+    // Update cached session if same user
     const sess = getSession();
     if (sess && sess.userId === userId) {
       const fresh = await getUserById(userId);
       if (fresh) setSession(fresh);
     }
 
-    return { ok: true, points: result };
+    return { ok: true, points: newPoints };
   } catch (e) {
-    return { ok: false, msg: (e && e.message) ? e.message : "Update failed" };
+    return { ok: false, msg: e?.message || "Update failed" };
   }
 }
 
 async function userTxns(userId) {
   const db = getDb();
-  if (!db) {
-    const ldb = loadDB_local();
-    return (ldb.txns || []).filter(t => t.userId === userId);
-  }
+  await ensureAdminInFirestore();
 
   const q = await db.collection(COL_TXNS)
     .where("userId", "==", String(userId))
@@ -409,35 +307,22 @@ async function userTxns(userId) {
 }
 
 /* =====================================================
-   PLAY HISTORY (Firestore)
+   PLAY HISTORY
 ===================================================== */
-function loadPlays_local() {
-  const raw = localStorage.getItem(PLAY_KEY);
-  return raw ? safeJSONParse(raw, []) : [];
-}
-function savePlays_local(rows) { localStorage.setItem(PLAY_KEY, JSON.stringify(rows || [])); }
-
 async function addPlayRow(row) {
-  if (!row.createdAt) row.createdAt = nowISO();
-
   const db = getDb();
-  if (!db) {
-    const rows = loadPlays_local();
-    rows.unshift(row);
-    savePlays_local(rows);
-    return { ok: true };
-  }
+  await ensureAdminInFirestore();
 
-  const id = row.id || uid("P");
-  row.id = id;
+  if (!row.createdAt) row.createdAt = nowISO();
+  if (!row.id) row.id = uid("P");
 
-  await db.collection(COL_PLAYS).doc(id).set(row, { merge: true });
+  await db.collection(COL_PLAYS).doc(String(row.id)).set(row, { merge: true });
   return { ok: true };
 }
 
 async function playsForUser(userId) {
   const db = getDb();
-  if (!db) return loadPlays_local().filter(r => r.userId === userId);
+  await ensureAdminInFirestore();
 
   const q = await db.collection(COL_PLAYS)
     .where("userId", "==", String(userId))
@@ -449,24 +334,17 @@ async function playsForUser(userId) {
 }
 
 /* =====================================================
-   ADMIN FUNCTIONS (Firestore)
+   ADMIN FUNCTIONS
 ===================================================== */
 async function adminResetClientPassword(clientId, newPass, adminId) {
   const db = getDb();
-  if (!newPass || String(newPass).trim().length < 4) return { ok: false, msg: "New password minimum 4 characters" };
+  await ensureAdminInFirestore();
 
-  // verify admin (session)
   const admin = currentUser();
   if (!admin || admin.id !== adminId || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
 
-  if (!db) {
-    const ldb = loadDB_local();
-    const user = (ldb.users || []).find(u => u.id === clientId && u.role === "user");
-    if (!user) return { ok: false, msg: "Client not found" };
-    user.passwordHash = await sha256(String(newPass).trim());
-    saveDB_local(ldb);
-    return { ok: true };
-  }
+  const np = String(newPass || "").trim();
+  if (np.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
 
   const ref = db.collection(COL_USERS).doc(String(clientId));
   const snap = await ref.get();
@@ -475,12 +353,14 @@ async function adminResetClientPassword(clientId, newPass, adminId) {
   const u = snap.data();
   if (u.role !== "user") return { ok: false, msg: "Client not found" };
 
-  await ref.set({ passwordHash: await sha256(String(newPass).trim()) }, { merge: true });
+  await ref.set({ passwordHash: await sha256(np) }, { merge: true });
   return { ok: true };
 }
 
 async function updateAdminProfile(adminId, name, pass) {
   const db = getDb();
+  await ensureAdminInFirestore();
+
   const admin = currentUser();
   if (!admin || admin.id !== adminId || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
 
@@ -490,17 +370,6 @@ async function updateAdminProfile(adminId, name, pass) {
 
   if (!Object.keys(patch).length) return { ok: false, msg: "Nothing to update" };
 
-  if (!db) {
-    const ldb = loadDB_local();
-    const a = (ldb.users || []).find(u => u.id === adminId && u.role === "admin");
-    if (!a) return { ok: false, msg: "Admin not found" };
-    if (patch.name) a.name = patch.name;
-    if (patch.passwordHash) a.passwordHash = patch.passwordHash;
-    saveDB_local(ldb);
-    setSession(a);
-    return { ok: true };
-  }
-
   await db.collection(COL_USERS).doc(String(adminId)).set(patch, { merge: true });
   await refreshCurrentUser();
   return { ok: true };
@@ -508,64 +377,41 @@ async function updateAdminProfile(adminId, name, pass) {
 
 async function deleteClient(clientId, adminId) {
   const db = getDb();
+  await ensureAdminInFirestore();
+
   const admin = currentUser();
   if (!admin || admin.id !== adminId || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
   if (clientId === DEFAULT_ADMIN.id) return { ok: false, msg: "Cannot delete admin" };
 
-  if (!db) {
-    const ldb = loadDB_local();
-    ldb.users = (ldb.users || []).filter(u => u.id !== clientId);
-    ldb.txns = (ldb.txns || []).filter(t => t.userId !== clientId);
-    saveDB_local(ldb);
-    const plays = loadPlays_local().filter(p => p.userId !== clientId);
-    savePlays_local(plays);
-    return { ok: true };
-  }
-
-  // delete user
   await db.collection(COL_USERS).doc(String(clientId)).delete();
 
-  // txns delete (best-effort)
-  const txq = await db.collection(COL_TXNS).where("userId", "==", String(clientId)).limit(200).get();
-  const batch1 = db.batch();
-  txq.docs.forEach(doc => batch1.delete(doc.ref));
-  await batch1.commit();
+  // best-effort deletes (limits)
+  const txq = await db.collection(COL_TXNS).where("userId", "==", String(clientId)).limit(300).get();
+  const b1 = db.batch();
+  txq.docs.forEach(doc => b1.delete(doc.ref));
+  await b1.commit();
 
-  // plays delete (best-effort)
-  const pq = await db.collection(COL_PLAYS).where("userId", "==", String(clientId)).limit(200).get();
-  const batch2 = db.batch();
-  pq.docs.forEach(doc => batch2.delete(doc.ref));
-  await batch2.commit();
+  const pq = await db.collection(COL_PLAYS).where("userId", "==", String(clientId)).limit(300).get();
+  const b2 = db.batch();
+  pq.docs.forEach(doc => b2.delete(doc.ref));
+  await b2.commit();
 
   return { ok: true };
 }
 
 async function clearClientHistory(userId, resetWallet = false) {
   const db = getDb();
-  if (!db) {
-    // local
-    const ldb = loadDB_local();
-    const u = (ldb.users || []).find(x => x.id === userId);
-    if (!u) return { ok: false, msg: "User not found" };
-    ldb.txns = (ldb.txns || []).filter(t => t.userId !== userId);
-    saveDB_local(ldb);
-    const plays = loadPlays_local().filter(p => p.userId !== userId);
-    savePlays_local(plays);
-    if (resetWallet) { u.points = 0; saveDB_local(ldb); }
-    return { ok: true, points: u.points };
-  }
+  await ensureAdminInFirestore();
 
   const userRef = db.collection(COL_USERS).doc(String(userId));
   const snap = await userRef.get();
   if (!snap.exists) return { ok: false, msg: "User not found" };
 
-  // delete txns (best-effort)
   const txq = await db.collection(COL_TXNS).where("userId", "==", String(userId)).limit(300).get();
   const b1 = db.batch();
   txq.docs.forEach(d => b1.delete(d.ref));
   await b1.commit();
 
-  // delete plays (best-effort)
   const pq = await db.collection(COL_PLAYS).where("userId", "==", String(userId)).limit(300).get();
   const b2 = db.batch();
   pq.docs.forEach(d => b2.delete(d.ref));
@@ -574,11 +420,5 @@ async function clearClientHistory(userId, resetWallet = false) {
   if (resetWallet) await userRef.set({ points: 0 }, { merge: true });
 
   const fresh = await getUserById(userId);
-  return { ok: true, points: fresh && typeof fresh.points === "number" ? fresh.points : 0 };
+  return { ok: true, points: fresh?.points || 0 };
 }
-
-/* =====================================================
-   NOTE:
-   - totalAdminCredit / totalWinLoss etc aapke admin.html me
-     ab async queries se calculate honge.
-===================================================== */
