@@ -1,359 +1,377 @@
 /* =====================================================
-   FIREBASE + CROSS-DEVICE (Spark/Free)
-   - Admin creates clients
-   - Client logs in from any device using: Phone OR ClientId + Password
+   Firebase + Firestore CROSS-DEVICE app.js
+   (Replace your complete app.js with this)
 ===================================================== */
 
-/* ===== Firebase Config ===== */
-const firebaseConfig = {
-  apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-  authDomain: "wingo-app-f68dd.firebaseapp.com",
-  projectId: "wingo-app-f68dd",
-  storageBucket: "wingo-app-f68dd.firebasestorage.app",
-  messagingSenderId: "533037771285",
-  appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-  measurementId: "G-RJ1XX4FX3W"
-};
+(function () {
+  "use strict";
 
-let FB_APP = null;
-let AUTH = null;
-let DB = null;
+  // ---------- CONFIG ----------
+  const SESSION_KEY = "club_session_v2"; // local session only
+  const DEFAULT_ADMIN = {
+    id: "ADMIN1",
+    role: "admin",
+    name: "Admin",
+    phone: "9316740061",
+    password: "Jay@1803"
+  };
 
-function initFirebaseOnce() {
-  if (FB_APP) return;
-  if (!window.firebase) throw new Error("Firebase SDK not loaded");
-  FB_APP = firebase.initializeApp(firebaseConfig);
-  AUTH = firebase.auth();
-  DB = firebase.firestore();
-}
+  // ---------- FIREBASE INIT ----------
+  function ensureFirebase() {
+    if (!window.firebase) throw new Error("Firebase SDK not loaded");
+    if (!window.firebaseConfig) throw new Error("window.firebaseConfig missing");
 
-/* ===== Helpers ===== */
-function nowISO() { return new Date().toISOString(); }
-function safeNum(n) { n = Number(n); return Number.isFinite(n) ? n : 0; }
-function fmtDate(iso) { try { return new Date(iso).toLocaleString("en-IN"); } catch { return String(iso||"-"); } }
-function uid(prefix="C") {
-  return prefix + Math.random().toString(36).slice(2, 8).toUpperCase();
-}
-function isPhone(x){ return /^\d{10}$/.test(String(x||"").trim()); }
-function isClientId(x){ return /^C[A-Z0-9]{3,}$/i.test(String(x||"").trim()); }
-
-/* ===== Session cache ===== */
-let _PROFILE_CACHE = null;
-
-async function getMyProfile(force=false){
-  initFirebaseOnce();
-  const u = AUTH.currentUser;
-  if (!u) return null;
-  if (_PROFILE_CACHE && !force) return _PROFILE_CACHE;
-
-  const snap = await DB.collection("users").doc(u.uid).get();
-  if (!snap.exists) return null;
-  _PROFILE_CACHE = { uid: u.uid, ...snap.data() };
-  return _PROFILE_CACHE;
-}
-
-async function requireLogin(){
-  initFirebaseOnce();
-  const u = AUTH.currentUser;
-  if (!u) { window.location.replace("login.html"); return null; }
-  const p = await getMyProfile(true);
-  if (!p) { window.location.replace("login.html"); return null; }
-  return p;
-}
-
-async function requireAdmin(){
-  const p = await requireLogin();
-  if (!p) return null;
-  if (p.role !== "admin") { window.location.replace("game.html"); return null; }
-  return p;
-}
-
-async function logout(){
-  initFirebaseOnce();
-  _PROFILE_CACHE = null;
-  await AUTH.signOut();
-  window.location.replace("login.html");
-}
-
-/* =====================================================
-   AUTH (Cross-device)
-   Login by: Phone OR ClientId OR Email
-===================================================== */
-
-async function resolveEmailByIdentifier(identifier){
-  initFirebaseOnce();
-  const id = String(identifier||"").trim();
-
-  // if user typed email directly
-  if (id.includes("@")) return id;
-
-  // if ClientId -> fixed email pattern
-  if (isClientId(id)) {
-    return `${id.toLowerCase()}@jyra.app`;
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp(window.firebaseConfig);
+    }
+    return firebase.firestore();
   }
 
-  // if Phone -> look up user doc by phone and use authEmail
-  if (isPhone(id)) {
-    const q = await DB.collection("users").where("phone", "==", id).limit(1).get();
-    if (q.empty) return null;
-    const data = q.docs[0].data();
-    return data.authEmail || null;
+  function db() {
+    return ensureFirebase();
   }
 
-  return null;
-}
+  // ---------- HELPERS ----------
+  function nowISO() { return new Date().toISOString(); }
 
-async function loginSecure({ phoneOrId, password }){
-  initFirebaseOnce();
-  const email = await resolveEmailByIdentifier(phoneOrId);
-  if (!email) return { ok:false, msg:"User not found (phone/client id not registered)" };
+  function uid(prefix = "C") {
+    return prefix + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
 
-  try{
-    const cred = await AUTH.signInWithEmailAndPassword(email, String(password||""));
-    _PROFILE_CACHE = null;
+  function safeNum(n) {
+    n = Number(n);
+    return Number.isFinite(n) ? n : 0;
+  }
 
-    const prof = await getMyProfile(true);
-    if (!prof) {
-      await AUTH.signOut();
-      return { ok:false, msg:"Profile missing in Firestore (admin ko profile create karna hoga)" };
+  function fmtDate(iso) {
+    try { return new Date(iso).toLocaleString("en-IN"); }
+    catch (e) { return String(iso || "-"); }
+  }
+
+  // SHA-256 (browser)
+  async function sha256(text) {
+    const enc = new TextEncoder().encode(String(text));
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    return Array.from(new Uint8Array(buf))
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  // ---------- SESSION ----------
+  function setSession(userId) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ userId, at: nowISO() }));
+  }
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
+    catch { return null; }
+  }
+
+  // Cached user (last fetched)
+  let _cachedUser = null;
+
+  async function fetchUserById(userId) {
+    const snap = await db().collection("users").doc(userId).get();
+    if (!snap.exists) return null;
+    return { id: snap.id, ...snap.data() };
+  }
+
+  async function fetchUserByPhone(phone) {
+    const qs = await db().collection("users")
+      .where("phone", "==", phone)
+      .limit(1)
+      .get();
+    if (qs.empty) return null;
+    const doc = qs.docs[0];
+    return { id: doc.id, ...doc.data() };
+  }
+
+  async function currentUserAsync() {
+    const sess = getSession();
+    if (!sess || !sess.userId) return null;
+    if (_cachedUser && _cachedUser.id === sess.userId) return _cachedUser;
+
+    const u = await fetchUserById(sess.userId);
+    _cachedUser = u;
+    return u;
+  }
+
+  // Sync wrapper (old code compatibility)
+  function currentUser() {
+    return _cachedUser;
+  }
+
+  function logout() {
+    clearSession();
+    _cachedUser = null;
+    window.location.replace("login.html");
+  }
+
+  // ---------- GUARDS ----------
+  async function requireLoginAsync() {
+    const u = await currentUserAsync();
+    if (!u) {
+      window.location.replace("login.html");
+      return null;
+    }
+    return u;
+  }
+
+  async function requireAdminAsync() {
+    const u = await requireLoginAsync();
+    if (!u || u.role !== "admin") {
+      window.location.replace("login.html");
+      return null;
+    }
+    return u;
+  }
+
+  // old sync names (some pages call these)
+  function requireLogin() {
+    // if not fetched yet, force redirect (safe)
+    if (!_cachedUser) {
+      window.location.replace("login.html");
+      return null;
+    }
+    return _cachedUser;
+  }
+  function requireAdmin() {
+    const u = requireLogin();
+    if (!u || u.role !== "admin") {
+      window.location.replace("login.html");
+      return null;
+    }
+    return u;
+  }
+
+  // ---------- AUTH ----------
+  async function ensureAdminProfile() {
+    // If ADMIN1 missing in Firestore, create it (safe)
+    const ref = db().collection("users").doc(DEFAULT_ADMIN.id);
+    const snap = await ref.get();
+    if (snap.exists) return;
+
+    const passwordHash = await sha256(DEFAULT_ADMIN.password);
+    await ref.set({
+      clientId: DEFAULT_ADMIN.id,
+      role: "admin",
+      name: DEFAULT_ADMIN.name,
+      phone: DEFAULT_ADMIN.phone,
+      points: 0,
+      passwordHash,
+      createdAt: nowISO()
+    }, { merge: true });
+  }
+
+  async function loginSecure({ phoneOrId, password }) {
+    await ensureAdminProfile();
+
+    const input = String(phoneOrId || "").trim();
+    const pass = String(password || "");
+
+    if (!input || !pass) return { ok: false, msg: "Enter ID/Phone and Password" };
+
+    let user = null;
+
+    // try by document id first (ClientId like C12345 / ADMIN1)
+    user = await fetchUserById(input);
+    if (!user) {
+      // try by phone
+      user = await fetchUserByPhone(input);
     }
 
-    return { ok:true, user: prof };
-  }catch(e){
-    const m = (e && e.message) ? e.message : String(e);
-    return { ok:false, msg: m.replace("Firebase: ", "") };
+    if (!user) return { ok: false, msg: "User not found" };
+
+    // If admin has no hash, set it once (rare)
+    if (user.role === "admin" && !user.passwordHash) {
+      const h = await sha256(DEFAULT_ADMIN.password);
+      await db().collection("users").doc(user.id).set({ passwordHash: h }, { merge: true });
+      user.passwordHash = h;
+    }
+
+    const hash = await sha256(pass);
+    if (!user.passwordHash || user.passwordHash !== hash) {
+      return { ok: false, msg: "Wrong password" };
+    }
+
+    setSession(user.id);
+    _cachedUser = user;
+    return { ok: true, user };
   }
-}
 
-/* =====================================================
-   ADMIN: CREATE CLIENT (without logging out admin)
-   Uses secondary Firebase app auth instance
-===================================================== */
+  async function registerUserSecure({ name, phone, password }) {
+    const n = String(name || "").trim();
+    const p = String(phone || "").trim();
+    const pw = String(password || "");
 
-async function adminCreateClient({ name, phone, password }){
-  initFirebaseOnce();
+    if (!n || !p || !pw) return { ok: false, msg: "All fields required" };
+    if (!/^\d{10}$/.test(p)) return { ok: false, msg: "Phone must be 10 digits" };
+    if (pw.length < 4) return { ok: false, msg: "Password min 4 chars" };
 
-  if (!name || !phone || !password) return { ok:false, msg:"All fields required" };
-  if (!isPhone(phone)) return { ok:false, msg:"Phone must be 10 digits" };
-  if (String(password).trim().length < 4) return { ok:false, msg:"Password min 4 characters" };
+    // phone uniqueness check
+    const exists = await db().collection("users").where("phone", "==", p).limit(1).get();
+    if (!exists.empty) return { ok: false, msg: "Phone already exists" };
 
-  const admin = await getMyProfile(true);
-  if (!admin || admin.role !== "admin") return { ok:false, msg:"Unauthorized" };
+    // create clientId
+    const id = uid("C");
+    const passwordHash = await sha256(pw);
 
-  // check phone unique
-  const phoneChk = await DB.collection("users").where("phone","==",String(phone)).limit(1).get();
-  if (!phoneChk.empty) return { ok:false, msg:"Phone already exists" };
-
-  // create clientId and authEmail
-  const clientId = uid("C");
-  const authEmail = `${clientId.toLowerCase()}@jyra.app`;
-
-  // secondary app to create auth user without switching admin session
-  const secName = "secondary_" + Date.now();
-  const secApp = firebase.initializeApp(firebaseConfig, secName);
-  const secAuth = secApp.auth();
-
-  try{
-    const cred = await secAuth.createUserWithEmailAndPassword(authEmail, String(password));
-    const userUid = cred.user.uid;
-
-    await DB.collection("users").doc(userUid).set({
+    const user = {
+      clientId: id,
       role: "user",
-      name: String(name).trim(),
-      phone: String(phone).trim(),
-      clientId,
-      authEmail,
+      name: n,
+      phone: p,
       points: 0,
+      passwordHash,
       createdAt: nowISO()
-    });
+    };
 
-    // cleanup
-    await secAuth.signOut();
-    await secApp.delete();
-
-    return { ok:true, clientId, authEmail, uid: userUid };
-  }catch(e){
-    try { await secAuth.signOut(); await secApp.delete(); } catch {}
-    const m = (e && e.message) ? e.message : String(e);
-    return { ok:false, msg: m.replace("Firebase: ", "") };
-  }
-}
-
-/* =====================================================
-   ADMIN: SEARCH / UPDATE POINTS / RESET PASS
-===================================================== */
-
-async function findClientByPhoneOrId(q){
-  initFirebaseOnce();
-  q = String(q||"").trim();
-
-  if (isClientId(q)) {
-    const email = `${q.toLowerCase()}@jyra.app`;
-    const snap = await DB.collection("users").where("authEmail","==",email).limit(1).get();
-    if (snap.empty) return null;
-    const d = snap.docs[0];
-    return { uid: d.id, ...d.data() };
+    await db().collection("users").doc(id).set(user, { merge: true });
+    return { ok: true, user: { id, ...user } };
   }
 
-  if (isPhone(q)) {
-    const snap = await DB.collection("users").where("phone","==",q).limit(1).get();
-    if (snap.empty) return null;
-    const d = snap.docs[0];
-    return { uid: d.id, ...d.data() };
+  // ---------- POINTS + TXNS ----------
+  async function adjustPoints(userId, delta, note, byAdminId = null) {
+    const d = Number(delta);
+    if (!Number.isFinite(d)) return { ok: false, msg: "Invalid points" };
+
+    const userRef = db().collection("users").doc(userId);
+    const txRef = db().collection("txns").doc(); // auto id
+
+    try {
+      await db().runTransaction(async (t) => {
+        const snap = await t.get(userRef);
+        if (!snap.exists) throw new Error("User not found");
+
+        const u = snap.data();
+        const cur = safeNum(u.points);
+        const next = cur + d;
+        if (next < 0) throw new Error("Insufficient points");
+
+        t.set(userRef, { points: next }, { merge: true });
+
+        t.set(txRef, {
+          userId,
+          type: d >= 0 ? "credit" : "debit",
+          amount: Math.abs(d),
+          note: note || "",
+          byAdminId: byAdminId || null,
+          createdAt: nowISO()
+        });
+      });
+
+      // refresh cache if needed
+      const sess = getSession();
+      if (sess && sess.userId === userId) {
+        _cachedUser = await fetchUserById(userId);
+      }
+
+      const fresh = await fetchUserById(userId);
+      return { ok: true, points: fresh ? safeNum(fresh.points) : 0 };
+    } catch (e) {
+      return { ok: false, msg: e && e.message ? e.message : String(e) };
+    }
   }
 
-  return null;
-}
-
-async function adminAdjustPoints(userUid, delta, note){
-  initFirebaseOnce();
-  const admin = await getMyProfile(true);
-  if (!admin || admin.role !== "admin") return { ok:false, msg:"Unauthorized" };
-
-  const d = Number(delta);
-  if (!Number.isFinite(d) || d === 0) return { ok:false, msg:"Invalid points" };
-
-  const userRef = DB.collection("users").doc(userUid);
-
-  try{
-    let newPoints = 0;
-
-    await DB.runTransaction(async (tx) => {
-      const snap = await tx.get(userRef);
-      if (!snap.exists) throw new Error("User not found");
-      const cur = safeNum(snap.data().points);
-      const next = cur + d;
-      if (next < 0) throw new Error("Insufficient points");
-      newPoints = next;
-      tx.update(userRef, { points: next });
-    });
-
-    await DB.collection("txns").add({
-      userUid,
-      type: d >= 0 ? "credit" : "debit",
-      amount: Math.abs(d),
-      note: String(note||""),
-      byAdminUid: admin.uid,
-      createdAt: nowISO()
-    });
-
-    return { ok:true, points: newPoints };
-  }catch(e){
-    return { ok:false, msg: (e && e.message) ? e.message : String(e) };
+  async function userTxns(userId) {
+    const qs = await db().collection("txns")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .get();
+    return qs.docs.map(d => ({ id: d.id, ...d.data() }));
   }
-}
 
-async function adminResetClientPasswordByClientId(clientIdOrPhone, newPass){
-  initFirebaseOnce();
-  const admin = await getMyProfile(true);
-  if (!admin || admin.role !== "admin") return { ok:false, msg:"Unauthorized" };
-  if (!newPass || String(newPass).trim().length < 4) return { ok:false, msg:"New password min 4 chars" };
-
-  const client = await findClientByPhoneOrId(clientIdOrPhone);
-  if (!client) return { ok:false, msg:"Client not found" };
-
-  const secName = "secondary_" + Date.now();
-  const secApp = firebase.initializeApp(firebaseConfig, secName);
-  const secAuth = secApp.auth();
-
-  try{
-    // need to sign in as the user to change password (client SDK limitation)
-    // workaround: admin must know user email (we have authEmail) and use "send password reset email"
-    // But for custom domain emails like @jyra.app, email still works for reset link.
-    await AUTH.sendPasswordResetEmail(client.authEmail);
-
-    await secAuth.signOut();
-    await secApp.delete();
-
-    return { ok:true, msg:"Password reset email sent to: " + client.authEmail };
-  }catch(e){
-    try { await secAuth.signOut(); await secApp.delete(); } catch {}
-    return { ok:false, msg: (e && e.message) ? e.message : String(e) };
+  // ---------- PLAY HISTORY ----------
+  async function addPlayRow(row) {
+    const data = { ...(row || {}) };
+    if (!data.createdAt) data.createdAt = nowISO();
+    await db().collection("plays").add(data);
+    return { ok: true };
   }
-}
 
-/* =====================================================
-   GAME: BET / PLAYS
-===================================================== */
-
-async function getMyPoints(){
-  const p = await getMyProfile(true);
-  return p ? safeNum(p.points) : 0;
-}
-
-async function deductMyPoints(amount, note){
-  initFirebaseOnce();
-  const p = await getMyProfile(true);
-  if (!p) return { ok:false, msg:"Not logged in" };
-
-  const amt = Number(amount);
-  if (!Number.isFinite(amt) || amt <= 0) return { ok:false, msg:"Invalid amount" };
-
-  const userRef = DB.collection("users").doc(p.uid);
-  try{
-    let after = 0;
-    await DB.runTransaction(async (tx)=>{
-      const snap = await tx.get(userRef);
-      const cur = safeNum(snap.data().points);
-      const next = cur - amt;
-      if (next < 0) throw new Error("Insufficient points");
-      after = next;
-      tx.update(userRef, { points: next });
-    });
-    _PROFILE_CACHE = null;
-    return { ok:true, after };
-  }catch(e){
-    return { ok:false, msg: (e && e.message) ? e.message : String(e) };
+  async function playsForUser(userId, limitN = 30) {
+    const qs = await db().collection("plays")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .limit(Number(limitN) || 30)
+      .get();
+    return qs.docs.map(d => ({ id: d.id, ...d.data() }));
   }
-}
 
-async function addMyPoints(amount, note){
-  initFirebaseOnce();
-  const p = await getMyProfile(true);
-  if (!p) return { ok:false, msg:"Not logged in" };
+  // ---------- ADMIN ----------
+  async function adminResetClientPassword(clientId, newPass, adminId) {
+    const admin = await fetchUserById(adminId);
+    if (!admin || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
 
-  const amt = Number(amount);
-  if (!Number.isFinite(amt) || amt <= 0) return { ok:false, msg:"Invalid amount" };
+    const userRef = db().collection("users").doc(clientId);
+    const snap = await userRef.get();
+    if (!snap.exists) return { ok: false, msg: "Client not found" };
 
-  const userRef = DB.collection("users").doc(p.uid);
-  try{
-    let after = 0;
-    await DB.runTransaction(async (tx)=>{
-      const snap = await tx.get(userRef);
-      const cur = safeNum(snap.data().points);
-      const next = cur + amt;
-      after = next;
-      tx.update(userRef, { points: next });
-    });
-    _PROFILE_CACHE = null;
-    return { ok:true, after };
-  }catch(e){
-    return { ok:false, msg: (e && e.message) ? e.message : String(e) };
+    const pw = String(newPass || "").trim();
+    if (pw.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
+
+    const passwordHash = await sha256(pw);
+    await userRef.set({ passwordHash }, { merge: true });
+    return { ok: true };
   }
-}
 
-async function addPlayRow(row){
-  initFirebaseOnce();
-  const p = await getMyProfile(true);
-  if (!p) return { ok:false, msg:"Not logged in" };
+  async function updateAdminProfile(adminId, name, pass) {
+    const adminRef = db().collection("users").doc(adminId);
+    const snap = await adminRef.get();
+    if (!snap.exists) return { ok: false, msg: "Admin not found" };
 
-  const doc = {
-    ...row,
-    userUid: p.uid,
-    createdAt: row.createdAt || nowISO()
-  };
-  await DB.collection("plays").add(doc);
-  return { ok:true };
-}
+    const upd = {};
+    if (name && String(name).trim()) upd.name = String(name).trim();
+    if (pass && String(pass).trim().length >= 4) upd.passwordHash = await sha256(String(pass).trim());
 
-async function playsForMe(limit=30){
-  initFirebaseOnce();
-  const p = await getMyProfile(true);
-  if (!p) return [];
-  const q = await DB.collection("plays")
-    .where("userUid","==",p.uid)
-    .orderBy("createdAt","desc")
-    .limit(limit)
-    .get();
-  return q.docs.map(d=>({ id:d.id, ...d.data() }));
-}
+    if (!Object.keys(upd).length) return { ok: false, msg: "Nothing to update" };
+    await adminRef.set(upd, { merge: true });
+
+    // refresh cache if admin is logged in
+    const sess = getSession();
+    if (sess && sess.userId === adminId) _cachedUser = await fetchUserById(adminId);
+
+    return { ok: true };
+  }
+
+  async function deleteClient(clientId, adminId) {
+    const admin = await fetchUserById(adminId);
+    if (!admin || admin.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    if (clientId === DEFAULT_ADMIN.id) return { ok: false, msg: "Cannot delete admin" };
+
+    // delete user doc
+    await db().collection("users").doc(clientId).delete();
+
+    // NOTE: txns/plays cleanup can be added later (optional)
+    return { ok: true };
+  }
+
+  // ---------- expose globally (same names) ----------
+  window.DEFAULT_ADMIN = DEFAULT_ADMIN;
+  window.fmtDate = fmtDate;
+
+  window.logout = logout;
+  window.currentUser = currentUser;
+  window.currentUserAsync = currentUserAsync;
+
+  window.requireLogin = requireLogin;
+  window.requireAdmin = requireAdmin;
+  window.requireLoginAsync = requireLoginAsync;
+  window.requireAdminAsync = requireAdminAsync;
+
+  window.loginSecure = loginSecure;
+  window.registerUserSecure = registerUserSecure;
+
+  window.adjustPoints = adjustPoints;
+  window.userTxns = userTxns;
+
+  window.addPlayRow = addPlayRow;
+  window.playsForUser = playsForUser;
+
+  window.adminResetClientPassword = adminResetClientPassword;
+  window.updateAdminProfile = updateAdminProfile;
+  window.deleteClient = deleteClient;
+
+})();
