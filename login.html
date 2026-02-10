@@ -7,15 +7,13 @@
   <link rel="icon" type="image/x-icon" href="images/logo.png">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
 
+<body>
   <div class="nav">
     <div class="container">
       <div class="row header-row">
         <div class="brand">
-          <a href="index.html">
-            <img src="logo.png" alt="Logo" class="logo">
-          </a>
+          <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
         </div>
         <div class="row-actions"></div>
       </div>
@@ -28,7 +26,7 @@
 
       <div class="input">
         <label>Phone or Client ID</label>
-        <input id="pid" placeholder="98xxxxxxxx or CXXXXX or ADMIN1" autocomplete="username" />
+        <input id="pid" placeholder="98xxxxxxxx or CXXXXX" autocomplete="username" />
       </div>
 
       <div class="input pw-wrap">
@@ -42,72 +40,72 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase compat SDK FIRST -->
+  <!-- Firebase compat (NO import inside script) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <!-- ✅ Config as plain object (NO import) -->
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-  </script>
-
-  <!-- ✅ App logic -->
   <script src="app.js"></script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-      const msg = document.getElementById("msg");
-      const btn = document.getElementById("btnLogin");
+    document.addEventListener("DOMContentLoaded", function () {
 
-      function showMsg(t){ msg.style.display="block"; msg.textContent=t; }
-      function hideMsg(){ msg.style.display="none"; msg.textContent=""; }
+      function showMsg(text){
+        var el = document.getElementById("msg");
+        if (!el) return;
+        el.style.display = "block";
+        el.textContent = text;
+      }
+      function hideMsg(){
+        var el = document.getElementById("msg");
+        if (!el) return;
+        el.style.display = "none";
+        el.textContent = "";
+      }
+      function redirectByRole(profile){
+        if (!profile) return;
+        window.location.replace(profile.role === "admin" ? "admin.html" : "game.html");
+      }
 
-      // If already logged in
-      try {
-        const u = currentUser();
-        if (u) window.location.replace(u.role === "admin" ? "admin.html" : "game.html");
-      } catch(e){}
-
-      document.addEventListener("keydown", function(e){
-        if(e.key === "Enter") btn.click();
+      // password toggle
+      document.addEventListener("click", function(e){
+        var btn = e.target.closest(".pw-toggle");
+        if (!btn) return;
+        var targetId = btn.getAttribute("data-target");
+        var inp = document.getElementById(targetId);
+        if (!inp) return;
+        if (inp.type === "password") { inp.type="text"; btn.textContent="🙈"; }
+        else { inp.type="password"; btn.textContent="👁️"; }
       });
 
-      btn.addEventListener("click", async function(){
-        hideMsg();
-        const phoneOrId = (document.getElementById("pid").value || "").trim();
-        const password  = (document.getElementById("pass").value || "");
+      // Enter key login
+      document.addEventListener("keydown", function(e){
+        if (e.key === "Enter") document.getElementById("btnLogin").click();
+      });
 
-        if(!phoneOrId || !password) return showMsg("Please enter ID/Phone and Password.");
+      document.getElementById("btnLogin").addEventListener("click", async function(){
+        hideMsg();
+        const btn = this;
+
+        const phoneOrId = (document.getElementById("pid").value || "").trim();
+        const password = (document.getElementById("pass").value || "");
+
+        if (!phoneOrId || !password){
+          showMsg("Please enter ID/Phone and Password.");
+          return;
+        }
 
         btn.disabled = true;
         const r = await loginSecure({ phoneOrId, password });
         btn.disabled = false;
 
-        if(!r || !r.ok) return showMsg((r && r.msg) ? r.msg : "Login failed.");
-        window.location.replace(r.user.role === "admin" ? "admin.html" : "game.html");
-      });
-
-      // Password show/hide
-      document.addEventListener("click", function(e){
-        const t = e.target.closest(".pw-toggle");
-        if(!t) return;
-        const targetId = t.getAttribute("data-target");
-        const inp = document.getElementById(targetId);
-        if(!inp) return;
-        if(inp.type === "password"){ inp.type="text"; t.textContent="🙈"; }
-        else { inp.type="password"; t.textContent="👁️"; }
+        if (!r || !r.ok){
+          showMsg(r && r.msg ? r.msg : "Login failed");
+          return;
+        }
+        redirectByRole(r.user);
       });
     });
   </script>
-
 </body>
 </html>
