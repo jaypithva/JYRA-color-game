@@ -2,183 +2,175 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Login</title>
-    <link rel="icon" type="image/x-icon" href="images/logo.png">
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <link rel="icon" type="image/x-icon" href="images/logo.png">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <!-- ===== Header ===== -->
-    <div class="nav">
-        <div class="container">
-            <div class="row header-row">
-                <div class="brand">
-                    <a href="index.html">
-                        <img src="logo.png" alt="Logo" class="logo">
-                    </a>
-                </div>
-                <div class="row-actions"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== Login Card ===== -->
+  <!-- ===== Header ===== -->
+  <div class="nav">
     <div class="container">
-        <div class="card" style="max-width:520px;margin:20px auto;">
-            <div class="h2">Login</div>
-
-            <div class="input">
-                <label>Phone or Client ID</label>
-                <input id="pid" placeholder="98xxxxxxxx or CXXXXX" autocomplete="username" />
-            </div>
-
-            <div class="input pw-wrap">
-                <label>Password</label>
-                <input id="pass" type="password" placeholder="Password" autocomplete="current-password" />
-                <button type="button" class="pw-toggle" data-target="pass" aria-label="Toggle password">👁️</button>
-            </div>
-
-            <button class="btn" id="btnLogin" type="button">Login</button>
-
-            <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+      <div class="row header-row">
+        <div class="brand">
+          <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo">
+          </a>
         </div>
+        <div class="row-actions"></div>
+      </div>
     </div>
+  </div>
 
-    <script src="app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = {
- // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <!-- ===== Login Card ===== -->
+  <div class="container">
+    <div class="card" style="max-width:520px;margin:20px auto;">
+      <div class="h2">Login</div>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-  authDomain: "wingo-app-f68dd.firebaseapp.com",
-  projectId: "wingo-app-f68dd",
-  storageBucket: "wingo-app-f68dd.firebasestorage.app",
-  messagingSenderId: "533037771285",
-  appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-  measurementId: "G-RJ1XX4FX3W"
-};
+      <div class="input">
+        <label>Phone or Client ID</label>
+        <input id="pid" placeholder="98xxxxxxxx or CXXXXX" autocomplete="username" />
+      </div>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);ो
-};
-firebase.initializeApp(firebaseConfig);
-        document.addEventListener("DOMContentLoaded", function() {
+      <div class="input pw-wrap">
+        <label>Password</label>
+        <input id="pass" type="password" placeholder="Password" autocomplete="current-password" />
+        <button type="button" class="pw-toggle" data-target="pass" aria-label="Toggle password">👁️</button>
+      </div>
 
-            function showMsg(text) {
-                var el = document.getElementById("msg");
-                if (!el) return;
-                el.style.display = "block";
-                el.textContent = text;
-            }
+      <button class="btn" id="btnLogin" type="button">Login</button>
 
-            function hideMsg() {
-                var el = document.getElementById("msg");
-                if (!el) return;
-                el.style.display = "none";
-                el.textContent = "";
-            }
+      <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
 
-            function redirectByRole(user) {
-                if (!user) return;
-                window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
-            }
+  <!-- ✅ Firebase scripts FIRST -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-            // If already logged in
-            try {
-                if (typeof currentUser === "function") {
-                    var u = currentUser();
-                    if (u) {
-                        redirectByRole(u);
-                        return;
-                    }
-                }
-            } catch (e) {}
+  <script>
+    // ✅ Only ONE firebaseConfig (no import lines)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+      authDomain: "wingo-app-f68dd.firebaseapp.com",
+      projectId: "wingo-app-f68dd",
+      storageBucket: "wingo-app-f68dd.firebasestorage.app",
+      messagingSenderId: "533037771285",
+      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
+      measurementId: "G-RJ1XX4FX3W"
+    };
 
-            // Enter key = login
-            document.addEventListener("keydown", function(e) {
-                if (e.key === "Enter") {
-                    var btn = document.getElementById("btnLogin");
-                    if (btn) btn.click();
-                }
+    // ✅ Safe init
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+    // optional globals
+    window.auth = firebase.auth();
+    window.db = firebase.firestore();
+  </script>
+
+  <!-- ✅ app.js AFTER firebase init -->
+  <script src="app.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const msgEl = document.getElementById("msg");
+      const loginBtn = document.getElementById("btnLogin");
+
+      function showMsg(text) {
+        if (!msgEl) return;
+        msgEl.style.display = "block";
+        msgEl.textContent = text;
+      }
+
+      function hideMsg() {
+        if (!msgEl) return;
+        msgEl.style.display = "none";
+        msgEl.textContent = "";
+      }
+
+      function redirectByRole(user) {
+        if (!user) return;
+        window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
+      }
+
+      // ✅ If already logged in
+      try {
+        if (typeof currentUser === "function") {
+          const u = currentUser();
+          if (u) {
+            redirectByRole(u);
+            return;
+          }
+        }
+      } catch (e) { }
+
+      // ✅ Enter key = login
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") loginBtn && loginBtn.click();
+      });
+
+      // ✅ Login click
+      if (loginBtn) {
+        loginBtn.addEventListener("click", function () {
+          hideMsg();
+
+          const phoneOrId = (document.getElementById("pid").value || "").trim();
+          const password = (document.getElementById("pass").value || "");
+
+          if (!phoneOrId || !password) {
+            showMsg("Please enter ID/Phone and Password.");
+            return;
+          }
+
+          if (typeof loginSecure !== "function") {
+            showMsg("Error: loginSecure() not found in app.js");
+            return;
+          }
+
+          loginBtn.disabled = true;
+
+          loginSecure({ phoneOrId, password })
+            .then(function (r) {
+              loginBtn.disabled = false;
+
+              if (!r || !r.ok) {
+                showMsg((r && r.msg) ? r.msg : "Login failed.");
+                return;
+              }
+
+              redirectByRole(r.user);
+            })
+            .catch(function (err) {
+              loginBtn.disabled = false;
+              showMsg("Error: " + (err && err.message ? err.message : err));
             });
-
-            // Login click
-            var loginBtn = document.getElementById("btnLogin");
-            if (loginBtn) {
-                loginBtn.addEventListener("click", function() {
-                    hideMsg();
-
-                    var phoneOrId = (document.getElementById("pid").value || "").trim();
-                    var password = (document.getElementById("pass").value || "");
-
-                    if (!phoneOrId || !password) {
-                        showMsg("Please enter ID/Phone and Password.");
-                        return;
-                    }
-
-                    if (typeof loginSecure !== "function") {
-                        showMsg("Error: loginSecure() not found in app.js");
-                        return;
-                    }
-
-                    loginBtn.disabled = true;
-
-                    loginSecure({
-                            phoneOrId: phoneOrId,
-                            password: password
-                        })
-                        .then(function(r) {
-                            loginBtn.disabled = false;
-
-                            if (!r || !r.ok) {
-                                showMsg((r && r.msg) ? r.msg : "Login failed.");
-                                return;
-                            }
-
-                            redirectByRole(r.user);
-                        })
-                        .catch(function(err) {
-                            loginBtn.disabled = false;
-                            showMsg("Error: " + (err && err.message ? err.message : err));
-                        });
-                });
-            }
-
-            // Password show/hide
-            document.addEventListener("click", function(e) {
-                var btn = e.target.closest(".pw-toggle");
-                if (!btn) return;
-
-                var targetId = btn.getAttribute("data-target");
-                var inp = document.getElementById(targetId);
-                if (!inp) return;
-
-                if (inp.type === "password") {
-                    inp.type = "text";
-                    btn.textContent = "🙈";
-                } else {
-                    inp.type = "password";
-                    btn.textContent = "👁️";
-                }
-            });
-
         });
-    </script>
+      }
+
+      // ✅ Password show/hide
+      document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".pw-toggle");
+        if (!btn) return;
+
+        const targetId = btn.getAttribute("data-target");
+        const inp = document.getElementById(targetId);
+        if (!inp) return;
+
+        if (inp.type === "password") {
+          inp.type = "text";
+          btn.textContent = "🙈";
+        } else {
+          inp.type = "password";
+          btn.textContent = "👁️";
+        }
+      });
+
+    });
+  </script>
 </body>
 
-
 </html>
-
