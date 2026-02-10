@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -46,131 +45,74 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase scripts FIRST -->
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <script>
-    // ✅ Only ONE firebaseConfig (no import lines)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-
-    // ✅ Safe init
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
-    // optional globals
-    window.auth = firebase.auth();
-    window.db = firebase.firestore();
-  </script>
-
-  <!-- ✅ app.js AFTER firebase init -->
+  <script src="firebase-init.js"></script>
   <script src="app.js"></script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", async function () {
+      const msg = document.getElementById("msg");
+      const btnLogin = document.getElementById("btnLogin");
 
-      const msgEl = document.getElementById("msg");
-      const loginBtn = document.getElementById("btnLogin");
+      function showMsg(t){ msg.style.display="block"; msg.textContent=t; }
+      function hideMsg(){ msg.style.display="none"; msg.textContent=""; }
 
-      function showMsg(text) {
-        if (!msgEl) return;
-        msgEl.style.display = "block";
-        msgEl.textContent = text;
-      }
-
-      function hideMsg() {
-        if (!msgEl) return;
-        msgEl.style.display = "none";
-        msgEl.textContent = "";
-      }
-
-      function redirectByRole(user) {
+      function redirectByRole(user){
         if (!user) return;
         window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
       }
 
-      // ✅ If already logged in
+      // auto redirect if session exists (and refresh user once)
       try {
-        if (typeof currentUser === "function") {
-          const u = currentUser();
-          if (u) {
-            redirectByRole(u);
-            return;
-          }
+        const u = currentUser();
+        if (u) {
+          await refreshCurrentUser();
+          redirectByRole(currentUser());
+          return;
         }
-      } catch (e) { }
+      } catch(e){}
 
-      // ✅ Enter key = login
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") loginBtn && loginBtn.click();
+      // Enter key
+      document.addEventListener("keydown", function(e){
+        if (e.key === "Enter") btnLogin.click();
       });
 
-      // ✅ Login click
-      if (loginBtn) {
-        loginBtn.addEventListener("click", function () {
-          hideMsg();
+      btnLogin.addEventListener("click", async function(){
+        hideMsg();
 
-          const phoneOrId = (document.getElementById("pid").value || "").trim();
-          const password = (document.getElementById("pass").value || "");
+        const phoneOrId = (document.getElementById("pid").value || "").trim();
+        const password  = (document.getElementById("pass").value || "");
 
-          if (!phoneOrId || !password) {
-            showMsg("Please enter ID/Phone and Password.");
-            return;
-          }
+        if (!phoneOrId || !password) return showMsg("Please enter ID/Phone and Password.");
 
-          if (typeof loginSecure !== "function") {
-            showMsg("Error: loginSecure() not found in app.js");
-            return;
-          }
+        btnLogin.disabled = true;
+        try{
+          const r = await loginSecure({ phoneOrId, password });
+          btnLogin.disabled = false;
 
-          loginBtn.disabled = true;
+          if (!r || !r.ok) return showMsg(r?.msg || "Login failed.");
+          redirectByRole(r.user);
+        } catch(err){
+          btnLogin.disabled = false;
+          showMsg("Error: " + (err?.message || err));
+        }
+      });
 
-          loginSecure({ phoneOrId, password })
-            .then(function (r) {
-              loginBtn.disabled = false;
-
-              if (!r || !r.ok) {
-                showMsg((r && r.msg) ? r.msg : "Login failed.");
-                return;
-              }
-
-              redirectByRole(r.user);
-            })
-            .catch(function (err) {
-              loginBtn.disabled = false;
-              showMsg("Error: " + (err && err.message ? err.message : err));
-            });
-        });
-      }
-
-      // ✅ Password show/hide
-      document.addEventListener("click", function (e) {
-        const btn = e.target.closest(".pw-toggle");
-        if (!btn) return;
-
-        const targetId = btn.getAttribute("data-target");
+      // Password show/hide
+      document.addEventListener("click", function(e){
+        const b = e.target.closest(".pw-toggle");
+        if (!b) return;
+        const targetId = b.getAttribute("data-target");
         const inp = document.getElementById(targetId);
         if (!inp) return;
 
-        if (inp.type === "password") {
-          inp.type = "text";
-          btn.textContent = "🙈";
-        } else {
-          inp.type = "password";
-          btn.textContent = "👁️";
-        }
+        if (inp.type === "password") { inp.type="text"; b.textContent="🙈"; }
+        else { inp.type="password"; b.textContent="👁️"; }
       });
-
     });
   </script>
 </body>
-
 </html>
