@@ -24,6 +24,34 @@
     @media(max-width:900px){.twoCols{grid-template-columns:1fr}}
     .panel{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
     .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+
+    /* ✅ Responsive "Bet History" cards (mobile) */
+    @media (max-width: 700px){
+      .resp-table thead{display:none}
+      .resp-table, .resp-table tbody, .resp-table tr, .resp-table td{display:block;width:100%}
+      .resp-table tr{
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:16px;
+        padding:10px;
+        margin-bottom:10px;
+        background:rgba(255,255,255,.03);
+      }
+      .resp-table td{
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        padding:8px 6px;
+        border:0;
+        border-bottom:1px dashed rgba(255,255,255,.10);
+      }
+      .resp-table td:last-child{border-bottom:0}
+      .resp-table td::before{
+        content: attr(data-label);
+        opacity:.75;
+        font-weight:800;
+      }
+      .resp-table td{white-space:normal}
+    }
   </style>
 </head>
 
@@ -119,7 +147,7 @@
         <div class="notice" id="adminMsg" style="display:none;margin-top:10px;"></div>
       </div>
 
-      <!-- ===== Quick Actions ===== -->
+      <!-- ===== Quick Actions (JSON buttons removed) ===== -->
       <div class="card">
         <div class="h2" style="margin-top:0;">Quick Actions</div>
 
@@ -133,16 +161,8 @@
           <div class="small">
             • Client ID Firestore doc id hota hai (example <span class="kbd">C12345</span>)<br/>
             • Wallet credit/debit Firestore transaction se safe hota hai<br/>
-            • Agar “Missing permissions” aayega to Rules fix karne padenge (neeche)
+            • Agar “Missing permissions” aayega to Rules fix karne padenge
           </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="row-actions">
-          <button class="btn secondary" id="btnExport" type="button">Export JSON</button>
-          <button class="btn secondary" id="btnImportBtn" type="button">Import JSON</button>
-          <input id="impFile" type="file" accept="application/json" style="display:none"/>
         </div>
 
         <div class="notice" id="backupMsg" style="display:none;margin-top:10px;"></div>
@@ -265,7 +285,8 @@
         <div>
           <div class="h2" style="margin-top:0;">Game Plays (last 30)</div>
           <div style="overflow:auto;margin-top:10px;">
-            <table class="table">
+            <!-- ✅ only this table made responsive on mobile -->
+            <table class="table resp-table">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -302,27 +323,14 @@
     };
   </script>
 
-  <!-- ✅ app.js AFTER config -->
   <script src="app.js"></script>
 
   <script>
-    // ---- small helpers ----
     function $(id){ return document.getElementById(id); }
-    function show(id, text){
-      var el=$(id); if(!el) return;
-      el.style.display="block"; el.textContent=text;
-    }
-    function hide(id){
-      var el=$(id); if(!el) return;
-      el.style.display="none"; el.textContent="";
-    }
-    function setText(id, text){
-      var el=$(id); if(!el) return;
-      el.textContent=text;
-    }
-    function esc(s){
-      return String(s??"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
+    function show(id, text){ var el=$(id); if(!el) return; el.style.display="block"; el.textContent=text; }
+    function hide(id){ var el=$(id); if(!el) return; el.style.display="none"; el.textContent=""; }
+    function setText(id, text){ var el=$(id); if(!el) return; el.textContent=text; }
+    function esc(s){ return String(s??"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
     let ADMIN=null;
     let USERS=[];
@@ -344,7 +352,6 @@
       if(!ADMIN) return;
 
       document.body.style.visibility="visible";
-
       setText("a_id", ADMIN.clientId || "-");
       setText("a_nm", ADMIN.name || "-");
       $("a_name_in").value = ADMIN.name || "";
@@ -417,7 +424,6 @@
 
     async function refreshSelectedFromServer(){
       if(!SELECTED) return;
-      // reload users list and re-pick
       await loadUsers();
       await pickUser(SELECTED.clientId);
     }
@@ -446,6 +452,7 @@
       }
     }
 
+    /* ✅ Bet History responsive: add data-labels for mobile cards */
     async function loadSelectedPlays(){
       const tb = $("pBody");
       if(!tb) return;
@@ -461,13 +468,13 @@
           const resCol = r.resultColor || "-";
           const resBS = r.resultBigSmall || "-";
           return `<tr>
-            <td class="nowrap">${esc(fmtDate(r.createdAt))}</td>
-            <td class="nowrap">${esc(r.period||"-")}</td>
-            <td class="nowrap">${esc(r.modeLabel||"-")}</td>
-            <td>${esc((r.betLabel||"-") + " (" + (r.betAmount||0) + ")")}</td>
-            <td class="nowrap">${esc(resNum + " / " + resCol + " / " + resBS)}</td>
-            <td class="nowrap">${esc(r.before ?? 0)}</td>
-            <td class="nowrap">${esc(r.after ?? 0)}</td>
+            <td data-label="Date">${esc(fmtDate(r.createdAt))}</td>
+            <td data-label="Period">${esc(r.period||"-")}</td>
+            <td data-label="Mode">${esc(r.modeLabel||"-")}</td>
+            <td data-label="Bet">${esc((r.betLabel||"-") + " (" + (r.betAmount||0) + ")")}</td>
+            <td data-label="Result">${esc(resNum + " / " + resCol + " / " + resBS)}</td>
+            <td data-label="Before">${esc(r.before ?? 0)}</td>
+            <td data-label="After">${esc(r.after ?? 0)}</td>
           </tr>`;
         }).join("");
       }catch(e){
@@ -481,7 +488,6 @@
 
       const amt = Number($("m_amt").value);
       const note = ($("m_note").value || "").trim();
-
       if(!amt || amt<=0) return show("walletMsg","Enter amount > 0");
 
       const delta = sign>0 ? amt : -amt;
@@ -569,43 +575,6 @@
       setText("a_nm", ADMIN.name || "-");
     }
 
-    async function doExport(){
-      hide("backupMsg");
-      try{
-        const users = await listAllUsers();
-        const out = {
-          version: 1,
-          exportedAt: new Date().toISOString(),
-          users: users
-        };
-        const blob = new Blob([JSON.stringify(out, null, 2)], {type:"application/json"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "backup-users.json";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        show("backupMsg","✅ Exported users backup");
-      }catch(e){
-        show("backupMsg","Error: " + (e && e.message ? e.message : e));
-      }
-    }
-
-    async function doImport(file){
-      hide("backupMsg");
-      try{
-        const txt = await file.text();
-        const data = JSON.parse(txt);
-        if(!data || !Array.isArray(data.users)) return show("backupMsg","Invalid JSON");
-
-        // NOTE: Importing full users safely needs server/admin script.
-        // Here we only show file loaded to avoid accidental overwrite.
-        show("backupMsg","✅ File loaded. (For full restore, tell me—I'll give safe restore script.)");
-      }catch(e){
-        show("backupMsg","Error: " + (e && e.message ? e.message : e));
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", async function(){
       try{
         await loadAdmin();
@@ -639,13 +608,6 @@
         doDeleteUser(SELECTED.clientId);
       };
 
-      $("btnExport").onclick = doExport;
-      $("btnImportBtn").onclick = function(){ $("impFile").click(); };
-      $("impFile").addEventListener("change", function(){
-        if(this.files && this.files[0]) doImport(this.files[0]);
-      });
-
-      // table clicks (Manage / Delete / Pick)
       document.addEventListener("click", async function(e){
         const pick = e.target.closest("[data-pick]");
         if(pick){
