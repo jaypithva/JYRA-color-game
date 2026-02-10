@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,14 +8,11 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    /* ===== Guard ===== */
     body { visibility: hidden; }
 
-    /* ===== Layout helpers ===== */
     .container { padding: clamp(12px, 3vw, 20px); }
     .card { overflow: hidden; }
 
-    /* ===== Header responsive ===== */
     @media (max-width: 640px) {
       .header-row { flex-direction: column; align-items: stretch; gap: 10px; }
       .brand { justify-content: center; }
@@ -24,142 +20,46 @@
       .row-actions .btn { width: 100%; }
       .logo { height: 56px; }
     }
+    @media (max-width: 900px) { .grid.two { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .btn,.btn.secondary{ width:100% } .row-actions{justify-content:stretch} .row-actions>*{flex:1} }
 
-    /* ===== Main grid better ===== */
-    @media (max-width: 900px) {
-      .grid.two { grid-template-columns: 1fr; }
-    }
-
-    /* ===== Buttons responsive ===== */
-    @media (max-width: 640px) {
-      .btn, .btn.secondary { width: 100%; }
-      .row-actions { justify-content: stretch; }
-      .row-actions>* { flex: 1; }
-    }
-
-    /* ===== Found box wrap ===== */
     #foundBox div { word-break: break-word; }
 
-    /* ===== Filter actions grid ===== */
-    .row-actions.tight {
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-start;
+    .row-actions.tight { gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-start; }
+    @media (max-width:720px){
+      .row-actions.tight{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; }
+      .row-actions.tight .btn{ width:100% }
     }
+    @media (max-width:420px){ .row-actions.tight{ grid-template-columns:1fr } }
 
-    @media (max-width: 720px) {
-      .row-actions.tight {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-items: stretch;
-      }
-      .row-actions.tight .btn { width: 100%; }
-    }
+    .sumrow { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px; }
+    @media (max-width:980px){ .sumrow{ grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:560px){ .sumrow{ grid-template-columns:1fr } }
 
-    @media (max-width: 420px) {
-      .row-actions.tight { grid-template-columns: 1fr; }
-    }
+    .sumrow .box { padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); margin:12px 0; }
+    .sumrow .label { color:rgba(255,255,255,.65); font-size:12px; }
+    .sumrow .val { margin-top:8px; font-size:22px; font-weight:900; color:#e8efff; word-break:break-word; }
 
-    /* ===== Summary cards ===== */
-    .sumrow {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 12px;
-    }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); font-size:12px; color:#cfe0ff; font-weight:800; white-space:nowrap; }
+    .pill.pos { border-color:rgba(134,239,172,.35); color:#86efac; }
+    .pill.neg { border-color:rgba(252,165,165,.35); color:#fca5a5; }
 
-    @media (max-width: 980px) {
-      .sumrow { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 560px) {
-      .sumrow { grid-template-columns: 1fr; }
-    }
+    .pager{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    @media(max-width:720px){ .pager{ justify-content:center } }
 
-    .sumrow .box {
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, .08);
-      background: rgba(255, 255, 255, .03);
-      margin: 12px 0;
-    }
+    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; border:1px solid rgba(255,255,255,.08); background:rgba(0,0,0,.08); }
+    @media(max-width:640px){ .table th,.table td{ padding:10px; font-size:13px; } }
+    .table th,.table td{ white-space:nowrap; }
+    .table thead th{ position:sticky; top:0; z-index:2; background:rgba(255,255,255,.06); backdrop-filter:blur(10px); }
 
-    .sumrow .label {
-      color: rgba(255, 255, 255, .65);
-      font-size: 12px;
-    }
+    .scroll-hint{ display:none; margin-top:8px; }
+    @media(max-width:720px){ .scroll-hint{ display:block; } }
 
-    .sumrow .val {
-      margin-top: 8px;
-      font-size: 22px;
-      font-weight: 900;
-      color: #e8efff;
-      word-break: break-word;
-    }
+    .admin-settings{ grid-column:1 / -1; }
 
-    /* ===== Pills ===== */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, .14);
-      background: rgba(255, 255, 255, .04);
-      font-size: 12px;
-      color: #cfe0ff;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .pill.pos { border-color: rgba(134, 239, 172, .35); color: #86efac; }
-    .pill.neg { border-color: rgba(252, 165, 165, .35); color: #fca5a5; }
-
-    /* ===== Pager ===== */
-    .pager {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-end;
-    }
-    @media (max-width: 720px) {
-      .pager { justify-content: center; }
-    }
-
-    /* ===== Table scroll wrappers ===== */
-    .table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, .08);
-      background: rgba(0, 0, 0, .08);
-    }
-
-    @media (max-width: 640px) {
-      .table th, .table td {
-        padding: 10px;
-        font-size: 13px;
-      }
-    }
-
-    .table th, .table td { white-space: nowrap; }
-
-    .table thead th {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: rgba(255, 255, 255, .06);
-      backdrop-filter: blur(10px);
-    }
-
-    .scroll-hint { display: none; margin-top: 8px; }
-    @media (max-width: 720px) { .scroll-hint { display: block; } }
-
-    .admin-settings { grid-column: 1 / -1; }
-
-    @media (max-width: 640px) {
-      .card { padding: 14px; border-radius: 18px; }
-      .h2 { font-size: 17px; }
+    @media(max-width:640px){
+      .card{ padding:14px; border-radius:18px; }
+      .h2{ font-size:17px; }
     }
   </style>
 </head>
@@ -170,9 +70,7 @@
     <div class="container">
       <div class="row header-row">
         <div class="brand">
-          <a href="index.html">
-            <img src="logo.png" alt="Logo" class="logo">
-          </a>
+          <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
         </div>
         <div class="row-actions">
           <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
@@ -182,7 +80,6 @@
   </div>
 
   <div class="container grid two">
-
     <!-- ===== Create Client ===== -->
     <div class="card">
       <div class="h2">Create Client</div>
@@ -260,8 +157,7 @@
 
         <div class="hr"></div>
 
-        <button class="btn" id="btnDeleteClient" type="button"
-          style="background:linear-gradient(135deg,#111827,#ef4444);">
+        <button class="btn" id="btnDeleteClient" type="button" style="background:linear-gradient(135deg,#111827,#ef4444);">
           Delete Client
         </button>
 
@@ -285,8 +181,7 @@
         <div class="row-actions tight">
           <button class="btn secondary small" id="btnFilter" type="button">Apply Filter</button>
           <button class="btn secondary small" id="btnClearFilter" type="button">Clear Filter</button>
-          <button class="btn secondary small" id="btnClearHistory" type="button"
-            title="Remove Txns + Bets for this client (Wallet same)">
+          <button class="btn secondary small" id="btnClearHistory" type="button" title="Remove Txns + Bets for this client (Wallet same)">
             Clear History
           </button>
           <button class="btn secondary small" id="btnResetAll" type="button" title="Remove Txns + Bets + Wallet=0">
@@ -346,6 +241,7 @@
             <button class="btn secondary small" id="histNext" type="button">Next</button>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -403,562 +299,466 @@
 
   </div>
 
-  <!-- ✅ Firebase scripts FIRST (compat) -->
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <script>
-    // ✅ Firebase config ONLY (no import lines)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-
-    // ✅ Safe init (avoid "already exists")
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
-    // optional globals if needed later
-    window.auth = firebase.auth();
-    window.db = firebase.firestore();
-  </script>
-
-  <!-- ✅ app.js AFTER firebase init -->
+  <script src="firebase-init.js"></script>
   <script src="app.js"></script>
 
-  <!-- ✅ Your existing Admin JS (same, only removed broken firebase imports) -->
   <script>
-    (function () {
-      "use strict";
+    document.addEventListener("DOMContentLoaded", async function () {
+      // Guard
+      let adminUser = null;
+      try { adminUser = requireAdmin(); } catch(e) {}
+      if (!adminUser) return;
 
-      document.addEventListener("DOMContentLoaded", function () {
-        var adminUser = requireAdmin();
-        if (!adminUser) return;
+      document.body.style.visibility = "visible";
 
-        document.body.style.visibility = "visible";
+      const PER_PAGE = 5;
+      let HIST_PAGE = 1;
+      let selectedUser = null; // full user object
+      let combinedRowsCache = [];
 
-        var selectedUserId = null;
-        var PER_PAGE = 5;
-        var HIST_PAGE = 1;
+      const $ = (id) => document.getElementById(id);
 
-        function $(id) { return document.getElementById(id); }
+      function show(el, on){ if (el) el.style.display = on ? "block" : "none"; }
+      function txt(id, v){ const e = $(id); if (e) e.textContent = v; }
+      function showNotice(id, msg){ const el = $(id); if (!el) return; el.style.display="block"; el.textContent = msg; }
 
-        function show(el, on) { if (el) el.style.display = on ? "block" : "none"; }
+      function getFilters(){
+        return {
+          from: dateInputToStart(($("fromDate").value || "").trim()),
+          to: dateInputToStart(($("toDate").value || "").trim())
+        };
+      }
 
-        function txt(id, v) { var e = $(id); if (e) e.textContent = v; }
+      // Logout
+      $("btnLogout").addEventListener("click", logout);
 
-        function safeNum(n) { n = Number(n); return isFinite(n) ? n : 0; }
+      // Password toggle
+      document.addEventListener("click", function(e){
+        const b = e.target.closest(".pw-toggle");
+        if (!b) return;
+        const targetId = b.getAttribute("data-target");
+        const inp = $(targetId);
+        if (!inp) return;
+        if (inp.type === "password") { inp.type = "text"; b.textContent="🙈"; }
+        else { inp.type = "password"; b.textContent="👁️"; }
+      });
 
-        function showNotice(id, msg) {
-          var el = $(id);
-          if (!el) return;
-          el.style.display = "block";
-          el.textContent = msg;
-        }
-
-        function safeClosest(target, sel) {
-          if (!target) return null;
-          if (target.nodeType !== 1) target = target.parentElement;
-          if (!target) return null;
-          return target.closest(sel);
-        }
-
-        function isoTime(iso) {
-          var d = new Date(iso);
-          var t = d.getTime();
-          return isNaN(t) ? 0 : t;
-        }
-
-        function parseDateInput(id) {
-          var el = $(id);
-          if (!el || !el.value) return null;
-          var p = String(el.value).split("-");
-          if (p.length !== 3) return null;
-          var y = Number(p[0]), m = Number(p[1]) - 1, d = Number(p[2]);
-          return new Date(y, m, d, 0, 0, 0, 0);
-        }
-
-        function inRangeISO(iso, fromD, toD) {
-          var t = isoTime(iso);
-          if (!fromD && !toD) return true;
-          if (fromD && t < fromD.getTime()) return false;
-          if (toD) {
-            var end = new Date(toD.getFullYear(), toD.getMonth(), toD.getDate(), 23, 59, 59, 999).getTime();
-            if (t > end) return false;
-          }
-          return true;
-        }
-
-        function getFilters() {
-          return { from: parseDateInput("fromDate"), to: parseDateInput("toDate") };
-        }
-
-        function getUserById(userId) {
-          var db = loadDB();
-          return (db.users || []).find(function (u) { return u.id === userId; }) || null;
-        }
-
-        // Logout
-        var lo = $("btnLogout");
-        if (lo) lo.addEventListener("click", logout);
-
-        // All clients
-        function adminNetAllTime(userId) {
-          var tx = userTxns(userId) || [];
-          var net = 0;
-          tx.forEach(function (t) {
-            if (!t.byAdminId) return;
-            var amt = safeNum(t.amount);
-            if (t.type === "credit") net += amt;
-            else if (t.type === "debit") net -= amt;
-          });
-          return net;
-        }
-
-        function renderUsers() {
-          var db = loadDB();
-          var rows = "";
-          (db.users || []).forEach(function (u) {
-            if (u.role !== "user") return;
-            var totalPts = adminNetAllTime(u.id);
-            var wallet = (typeof u.points === "number") ? u.points : 0;
-
-            rows += "<tr>" +
-              "<td>" + u.id + "</td>" +
-              "<td>" + u.name + "</td>" +
-              "<td>" + u.phone + "</td>" +
-              "<td>" + totalPts + "</td>" +
-              "<td>" + wallet + "</td>" +
-              "<td>" + fmtDate(u.createdAt) + "</td>" +
-              "</tr>";
-          });
-
-          var tb = document.querySelector("#uTable tbody");
-          if (tb) tb.innerHTML = rows || '<tr><td colspan="6" class="small">No users</td></tr>';
-        }
-
-        var btnRefresh = $("btnRefresh");
-        if (btnRefresh) btnRefresh.addEventListener("click", renderUsers);
-
-        // Create client
-        var btnCreate = $("btnCreate");
-        if (btnCreate) btnCreate.addEventListener("click", function () {
-          var n = ($("cname").value || "").trim();
-          var p = ($("cphone").value || "").trim();
-          var pw = $("cpass").value || "";
-          var m = $("createMsg");
-          show(m, true);
-
-          if (!n || !p || !pw) { m.textContent = "All fields required"; return; }
-          if (!/^\d{10}$/.test(p)) { m.textContent = "Phone must be 10 digits"; return; }
-
-          registerUserSecure({ name: n, phone: p, password: pw }).then(function (r) {
-            if (!r || !r.ok) { m.textContent = (r && r.msg) ? r.msg : "Create failed"; return; }
-            m.textContent = "Client created. ID: " + r.user.id;
-            $("cname").value = ""; $("cphone").value = ""; $("cpass").value = "";
-            renderUsers();
-          });
+      // Render All Clients
+      async function adminNetAllTime(userId){
+        const tx = await userTxns(userId);
+        let net = 0;
+        tx.forEach(t=>{
+          if (!t.byAdminId) return;
+          const amt = safeNum(t.amount);
+          if (t.type === "credit") net += amt;
+          if (t.type === "debit") net -= amt;
         });
+        return net;
+      }
 
-        // Search client
-        var btnSearch = $("btnSearch");
-        if (btnSearch) btnSearch.addEventListener("click", function () {
-          var q = ($("search").value || "").trim();
-          var db = loadDB();
+      async function renderUsers(){
+        const tb = document.querySelector("#uTable tbody");
+        tb.innerHTML = '<tr><td colspan="6" class="small">Loading…</td></tr>';
 
-          var u = null;
-          for (var i = 0; i < (db.users || []).length; i++) {
-            var x = db.users[i];
-            if (x.role === "user" && (x.id === q || x.phone === q)) { u = x; break; }
-          }
+        const users = await listClients();
+        if (!users.length){
+          tb.innerHTML = '<tr><td colspan="6" class="small">No users</td></tr>';
+          return;
+        }
 
-          if (!u) {
-            selectedUserId = null;
+        let html = "";
+        for (const u of users){
+          const totalPts = await adminNetAllTime(u.id);
+          const wallet = (typeof u.points === "number") ? u.points : 0;
+          html += "<tr>" +
+            "<td>"+u.id+"</td>" +
+            "<td>"+(u.name||"-")+"</td>" +
+            "<td>"+(u.phone||"-")+"</td>" +
+            "<td>"+totalPts+"</td>" +
+            "<td>"+wallet+"</td>" +
+            "<td>"+fmtDate(u.createdAt)+"</td>" +
+          "</tr>";
+        }
+        tb.innerHTML = html;
+      }
+
+      $("btnRefresh").addEventListener("click", renderUsers);
+
+      // Create client
+      $("btnCreate").addEventListener("click", async function(){
+        const n  = ($("cname").value || "").trim();
+        const p  = ($("cphone").value || "").trim();
+        const pw = ($("cpass").value || "");
+        const m  = $("createMsg");
+        show(m, true);
+
+        if (!n || !p || !pw) return (m.textContent = "All fields required");
+        if (!/^\d{10}$/.test(p)) return (m.textContent = "Phone must be 10 digits");
+
+        try{
+          const r = await registerUserSecure({ name:n, phone:p, password:pw });
+          if (!r || !r.ok) return (m.textContent = r?.msg || "Create failed");
+
+          m.textContent = "Client created. ID: " + r.user.id;
+          $("cname").value=""; $("cphone").value=""; $("cpass").value="";
+          await renderUsers();
+        }catch(e){
+          m.textContent = "Error: " + (e?.message || e);
+        }
+      });
+
+      // Search client
+      $("btnSearch").addEventListener("click", async function(){
+        const q = ($("search").value || "").trim();
+        if (!q) return alert("Enter Client ID or Phone");
+
+        try{
+          const u = await findUserByPhoneOrId(q);
+          if (!u || u.role !== "user"){
+            selectedUser = null;
             show($("foundBox"), false);
             show($("actionBox"), false);
             alert("Client not found");
             return;
           }
 
-          selectedUserId = u.id;
+          selectedUser = u;
           txt("f_id", u.id);
-          txt("f_name", u.name);
-          txt("f_phone", u.phone);
-          txt("f_points", (typeof u.points === "number" ? u.points : 0));
+          txt("f_name", u.name || "-");
+          txt("f_phone", u.phone || "-");
+          txt("f_points", (typeof u.points==="number"?u.points:0));
 
           show($("foundBox"), true);
           show($("actionBox"), true);
 
           HIST_PAGE = 1;
-          renderClientAll();
-        });
-
-        // Apply points
-        var btnApply = $("btnApply");
-        if (btnApply) btnApply.addEventListener("click", function () {
-          if (!selectedUserId) return;
-
-          var amt = Number($("amt").value);
-          var msg = $("applyMsg");
-          show(msg, true);
-
-          if (!amt || amt <= 0) { msg.textContent = "Enter valid points"; return; }
-
-          var type = $("atype").value;
-          var delta = (type === "credit") ? amt : -amt;
-          var note = ($("note").value || "").trim();
-
-          var r = adjustPoints(selectedUserId, delta, note, adminUser.id);
-          if (!r || !r.ok) { msg.textContent = (r && r.msg) ? r.msg : "Update failed"; return; }
-
-          msg.textContent = "Done! New wallet: " + r.points;
-          $("amt").value = ""; $("note").value = "";
-
-          var u = getUserById(selectedUserId);
-          if (u) txt("f_points", u.points);
-
-          renderUsers();
-          renderClientAll();
-        });
-
-        // Reset password
-        var btnReset = $("btnResetPass");
-        if (btnReset) btnReset.addEventListener("click", function () {
-          if (!selectedUserId) return showNotice("adminActionMsg", "Search client first");
-
-          var np = ($("newPass").value || "").trim();
-          if (np.length < 4) return showNotice("adminActionMsg", "New password minimum 4 characters");
-
-          adminResetClientPassword(selectedUserId, np, adminUser.id).then(function (r) {
-            if (r && r.ok) {
-              showNotice("adminActionMsg", "Password reset done.");
-              $("newPass").value = "";
-            } else {
-              showNotice("adminActionMsg", (r && r.msg) ? r.msg : "Reset failed");
-            }
-          });
-        });
-
-        // Delete client
-        var btnDel = $("btnDeleteClient");
-        if (btnDel) btnDel.addEventListener("click", function () {
-          if (!selectedUserId) return showNotice("adminActionMsg", "Search client first");
-          if (!confirm("Delete client?")) return;
-
-          var r = deleteClient(selectedUserId, adminUser.id);
-          if (!r || !r.ok) return showNotice("adminActionMsg", (r && r.msg) ? r.msg : "Delete failed");
-
-          showNotice("adminActionMsg", "Client deleted.");
-          selectedUserId = null;
-          show($("foundBox"), false);
-          show($("actionBox"), false);
-          renderUsers();
-        });
-
-        // Admin update
-        var btnUpd = $("btnAdminUpdate");
-        if (btnUpd) btnUpd.addEventListener("click", function () {
-          var name = ($("adminName").value || "").trim();
-          var pass = ($("adminNewPass").value || "").trim();
-          var el = $("adminUpdateMsg");
-          show(el, true);
-
-          if (!name && !pass) { el.textContent = "Enter name or password"; return; }
-
-          updateAdminProfile(adminUser.id, name, pass).then(function (r) {
-            el.textContent = (r && r.ok) ? "Admin updated" : ((r && r.msg) ? r.msg : "Update failed");
-            $("adminNewPass").value = "";
-          });
-        });
-
-        // Filter
-        var btnFilter = $("btnFilter");
-        if (btnFilter) btnFilter.addEventListener("click", function () {
-          if (!selectedUserId) return;
-          HIST_PAGE = 1;
-          renderClientAll();
-        });
-
-        var btnClearFilter = $("btnClearFilter");
-        if (btnClearFilter) btnClearFilter.addEventListener("click", function () {
-          if (!selectedUserId) return;
-          $("fromDate").value = "";
-          $("toDate").value = "";
-          HIST_PAGE = 1;
-          renderClientAll();
-        });
-
-        // Clear history / reset
-        function clearClientHistoryLocal(userId, resetWallet) {
-          var db = loadDB();
-          var u = (db.users || []).find(function (x) { return x.id === userId; });
-          if (!u) return { ok: false, msg: "User not found" };
-
-          db.txns = (db.txns || []).filter(function (t) { return t.userId !== userId; });
-
-          var plays = loadPlays();
-          plays = (plays || []).filter(function (p) { return p.userId !== userId; });
-          savePlays(plays);
-
-          if (resetWallet) u.points = 0;
-          saveDB(db);
-          return { ok: true, points: u.points };
+          await renderClientAll();
+        }catch(e){
+          alert("Error: " + (e?.message || e));
         }
-
-        var btnClearHist = $("btnClearHistory");
-        if (btnClearHist) btnClearHist.addEventListener("click", function () {
-          if (!selectedUserId) return;
-          if (!confirm("Clear HISTORY for this client? (Wallet same rahega)")) return;
-
-          var r = clearClientHistoryLocal(selectedUserId, false);
-          if (!r.ok) return alert(r.msg);
-
-          showNotice("adminActionMsg", "✅ History cleared (wallet unchanged).");
-          var u = getUserById(selectedUserId);
-          if (u) txt("f_points", u.points);
-          renderUsers();
-          renderClientAll();
-        });
-
-        var btnResetAll = $("btnResetAll");
-        if (btnResetAll) btnResetAll.addEventListener("click", function () {
-          if (!selectedUserId) return;
-          if (!confirm("RESET HISTORY + WALLET = 0 ?")) return;
-
-          var r = clearClientHistoryLocal(selectedUserId, true);
-          if (!r.ok) return alert(r.msg);
-
-          showNotice("adminActionMsg", "✅ History cleared + Wallet reset to 0.");
-          var u = getUserById(selectedUserId);
-          if (u) txt("f_points", u.points);
-          renderUsers();
-          renderClientAll();
-        });
-
-        function calcSummary(userId) {
-          var fil = getFilters();
-
-          var adminCredit = 0;
-          (userTxns(userId) || []).forEach(function (t) {
-            if (!t.byAdminId) return;
-            if (!inRangeISO(t.createdAt, fil.from, fil.to)) return;
-            if (t.type === "credit") adminCredit += safeNum(t.amount);
-          });
-
-          var winAmt = 0, lossAmt = 0;
-          (playsForUser(userId) || []).forEach(function (b) {
-            if (!inRangeISO(b.createdAt, fil.from, fil.to)) return;
-            var bet = safeNum(b.betAmount || b.playPoints || 0);
-            var isWin = String(b.result || "").toUpperCase() === "WIN";
-            if (isWin) winAmt += (bet * 2);
-            else lossAmt += bet;
-          });
-
-          var u = getUserById(userId);
-          var wallet = u && typeof u.points === "number" ? u.points : 0;
-
-          return { adminCredit: adminCredit, win: winAmt, loss: lossAmt, wallet: wallet };
-        }
-
-        function getCombinedHistory(userId) {
-          var fil = getFilters();
-          var rows = [];
-
-          (userTxns(userId) || []).forEach(function (t) {
-            if (!t.byAdminId) return;
-            if (!inRangeISO(t.createdAt, fil.from, fil.to)) return;
-
-            var amt = safeNum(t.amount);
-            var signed = (t.type === "credit") ? amt : -amt;
-
-            rows.push({
-              ts: isoTime(t.createdAt),
-              createdAt: t.createdAt,
-              source: "ADMIN",
-              details: (t.note && String(t.note).trim()) ? t.note : ("Admin " + t.type),
-              amount: signed,
-              result: "-",
-              after: "-"
-            });
-          });
-
-          (playsForUser(userId) || []).forEach(function (b) {
-            if (!inRangeISO(b.createdAt, fil.from, fil.to)) return;
-
-            var bet = safeNum(b.betAmount || b.playPoints || 0);
-            var isWin = String(b.result || "").toUpperCase() === "WIN";
-            var baseTs = isoTime(b.createdAt);
-
-            rows.push({
-              ts: baseTs + 1,
-              createdAt: b.createdAt,
-              source: "BET",
-              details: "Bet Entry • " + (b.betLabel || "Bet"),
-              amount: -bet,
-              result: isWin ? "WIN" : "LOSE",
-              after: (b.after !== undefined && b.after !== null) ? b.after : "-"
-            });
-
-            if (isWin) {
-              rows.push({
-                ts: baseTs,
-                createdAt: b.createdAt,
-                source: "BET",
-                details: "Win Reward (2x) • " + (b.betLabel || "Bet"),
-                amount: +(bet * 2),
-                result: "WIN",
-                after: (b.after !== undefined && b.after !== null) ? b.after : "-"
-              });
-            }
-          });
-
-          rows.sort(function (a, b) { return b.ts - a.ts; });
-          return rows;
-        }
-
-        function renderSummary(userId) {
-          var row = $("summaryRow");
-          if (!row) return;
-          if (!userId) { show(row, false); return; }
-
-          var s = calcSummary(userId);
-          txt("sumAdminCredit", String(s.adminCredit));
-          txt("sumWin", String(s.win));
-          txt("sumLoss", String(s.loss));
-          txt("sumWallet", String(s.wallet));
-          show(row, true);
-        }
-
-        function renderHistoryTable(userId) {
-          var tb = $("historyBody");
-          var pagesBox = $("histPages");
-          var pageInfo = $("histPageInfo");
-          var infoPill = $("histInfo");
-          var prev = $("histPrev");
-          var next = $("histNext");
-          if (!tb || !pagesBox || !pageInfo || !infoPill) return;
-
-          if (!userId) {
-            tb.innerHTML = '<tr><td colspan="6" class="small">Search a client to view history.</td></tr>';
-            pagesBox.innerHTML = "";
-            pageInfo.textContent = "-";
-            infoPill.textContent = "Page 1";
-            if (prev) prev.disabled = true;
-            if (next) next.disabled = true;
-            return;
-          }
-
-          var rows = getCombinedHistory(userId);
-
-          if (!rows.length) {
-            tb.innerHTML = '<tr><td colspan="6" class="small">No records found.</td></tr>';
-            pagesBox.innerHTML = "";
-            pageInfo.textContent = "-";
-            infoPill.textContent = "Page 1";
-            if (prev) prev.disabled = true;
-            if (next) next.disabled = true;
-            return;
-          }
-
-          var total = rows.length;
-          var totalPages = Math.ceil(total / PER_PAGE);
-          if (HIST_PAGE < 1) HIST_PAGE = 1;
-          if (HIST_PAGE > totalPages) HIST_PAGE = totalPages;
-
-          var start = (HIST_PAGE - 1) * PER_PAGE;
-          var slice = rows.slice(start, start + PER_PAGE);
-
-          var html = "";
-          slice.forEach(function (r) {
-            var srcCell = (r.source === "ADMIN") ?
-              "<span class='pill'>ADMIN</span>" :
-              "<span class='pill'>BET</span>";
-
-            var amtCls = (r.amount >= 0) ? "pos" : "neg";
-            var amtSign = (r.amount >= 0) ? "+" : "-";
-            var amtCell = "<span class='pill " + amtCls + "'>" + amtSign + Math.abs(r.amount) + "</span>";
-
-            var resCell = "-";
-            if (r.source === "BET") {
-              resCell = (r.result === "WIN") ?
-                "<span class='pill pos'>WIN</span>" :
-                "<span class='pill neg'>LOSE</span>";
-            }
-
-            html += "<tr>" +
-              "<td>" + fmtDate(r.createdAt) + "</td>" +
-              "<td>" + srcCell + "</td>" +
-              "<td>" + (r.details || "-") + "</td>" +
-              "<td>" + amtCell + "</td>" +
-              "<td>" + resCell + "</td>" +
-              "<td>" + (r.after == null ? "-" : r.after) + "</td>" +
-              "</tr>";
-          });
-
-          tb.innerHTML = html;
-          infoPill.textContent = "Page " + HIST_PAGE + " / " + totalPages;
-          pageInfo.textContent = "Total " + total + " records";
-
-          pagesBox.innerHTML = "";
-          for (var p = 1; p <= totalPages; p++) {
-            var b = document.createElement("button");
-            b.type = "button";
-            b.textContent = String(p);
-            b.className = (p === HIST_PAGE) ? "btn small" : "btn secondary small";
-            (function (pageNo) {
-              b.addEventListener("click", function () {
-                HIST_PAGE = pageNo;
-                renderHistoryTable(selectedUserId);
-              });
-            })(p);
-            pagesBox.appendChild(b);
-          }
-
-          if (prev) prev.disabled = (HIST_PAGE <= 1);
-          if (next) next.disabled = (HIST_PAGE >= totalPages);
-        }
-
-        function renderClientAll() {
-          renderSummary(selectedUserId);
-          renderHistoryTable(selectedUserId);
-        }
-
-        var prevBtn = $("histPrev");
-        if (prevBtn) prevBtn.addEventListener("click", function () {
-          HIST_PAGE--;
-          renderHistoryTable(selectedUserId);
-        });
-
-        var nextBtn = $("histNext");
-        if (nextBtn) nextBtn.addEventListener("click", function () {
-          HIST_PAGE++;
-          renderHistoryTable(selectedUserId);
-        });
-
-        // Password toggle
-        document.addEventListener("click", function (e) {
-          var b = safeClosest(e.target, ".pw-toggle");
-          if (!b) return;
-
-          var targetId = b.getAttribute("data-target");
-          var inp = $(targetId);
-          if (!inp) return;
-
-          if (inp.type === "password") { inp.type = "text"; b.textContent = "🙈"; }
-          else { inp.type = "password"; b.textContent = "👁️"; }
-        });
-
-        // INIT
-        renderUsers();
-        renderHistoryTable(null);
       });
-    })();
-  </script>
 
+      // Apply points
+      $("btnApply").addEventListener("click", async function(){
+        if (!selectedUser) return;
+
+        const amt = Number($("amt").value);
+        const msg = $("applyMsg");
+        show(msg,true);
+
+        if (!amt || amt<=0) return (msg.textContent="Enter valid points");
+
+        const type = $("atype").value;
+        const delta = (type==="credit") ? amt : -amt;
+        const note = ($("note").value || "").trim();
+
+        const r = await adjustPoints(selectedUser.id, delta, note, adminUser.id);
+        if (!r || !r.ok) return (msg.textContent = r?.msg || "Update failed");
+
+        msg.textContent = "Done! New wallet: " + r.points;
+        $("amt").value=""; $("note").value="";
+
+        // refresh selected user
+        selectedUser = await getUserById(selectedUser.id);
+        txt("f_points", selectedUser?.points || 0);
+
+        await renderUsers();
+        await renderClientAll();
+      });
+
+      // Reset password
+      $("btnResetPass").addEventListener("click", async function(){
+        if (!selectedUser) return showNotice("adminActionMsg","Search client first");
+
+        const np = ($("newPass").value || "").trim();
+        if (np.length < 4) return showNotice("adminActionMsg","New password minimum 4 characters");
+
+        const r = await adminResetClientPassword(selectedUser.id, np, adminUser.id);
+        if (r && r.ok){
+          showNotice("adminActionMsg","Password reset done.");
+          $("newPass").value="";
+        } else {
+          showNotice("adminActionMsg", r?.msg || "Reset failed");
+        }
+      });
+
+      // Delete client
+      $("btnDeleteClient").addEventListener("click", async function(){
+        if (!selectedUser) return showNotice("adminActionMsg","Search client first");
+        if (!confirm("Delete client?")) return;
+
+        const r = await deleteClient(selectedUser.id, adminUser.id);
+        if (!r || !r.ok) return showNotice("adminActionMsg", r?.msg || "Delete failed");
+
+        showNotice("adminActionMsg","Client deleted.");
+        selectedUser = null;
+        show($("foundBox"), false);
+        show($("actionBox"), false);
+        await renderUsers();
+      });
+
+      // Admin settings
+      $("btnAdminUpdate").addEventListener("click", async function(){
+        const name = ($("adminName").value||"").trim();
+        const pass = ($("adminNewPass").value||"").trim();
+        const el = $("adminUpdateMsg");
+        show(el,true);
+
+        if (!name && !pass) return (el.textContent="Enter name or password");
+
+        const r = await updateAdminProfile(adminUser.id, name, pass);
+        el.textContent = (r && r.ok) ? "Admin updated" : (r?.msg || "Update failed");
+        $("adminNewPass").value="";
+      });
+
+      // Filters buttons
+      $("btnFilter").addEventListener("click", async function(){
+        if (!selectedUser) return;
+        HIST_PAGE = 1;
+        await renderClientAll();
+      });
+
+      $("btnClearFilter").addEventListener("click", async function(){
+        if (!selectedUser) return;
+        $("fromDate").value=""; $("toDate").value="";
+        HIST_PAGE = 1;
+        await renderClientAll();
+      });
+
+      // Clear history / reset
+      $("btnClearHistory").addEventListener("click", async function(){
+        if (!selectedUser) return;
+        if (!confirm("Clear HISTORY for this client? (Wallet same rahega)")) return;
+
+        const r = await clearClientHistory(selectedUser.id, false);
+        if (!r.ok) return alert(r.msg);
+
+        showNotice("adminActionMsg","✅ History cleared (wallet unchanged).");
+        selectedUser = await getUserById(selectedUser.id);
+        txt("f_points", selectedUser?.points || 0);
+        await renderUsers();
+        await renderClientAll();
+      });
+
+      $("btnResetAll").addEventListener("click", async function(){
+        if (!selectedUser) return;
+        if (!confirm("RESET HISTORY + WALLET = 0 ?")) return;
+
+        const r = await clearClientHistory(selectedUser.id, true);
+        if (!r.ok) return alert(r.msg);
+
+        showNotice("adminActionMsg","✅ History cleared + Wallet reset to 0.");
+        selectedUser = await getUserById(selectedUser.id);
+        txt("f_points", selectedUser?.points || 0);
+        await renderUsers();
+        await renderClientAll();
+      });
+
+      // Summary + Combined history
+      async function getCombinedHistory(userId){
+        const fil = getFilters();
+
+        const rows = [];
+
+        const tx = await userTxns(userId);
+        tx.forEach(t=>{
+          if (!t.byAdminId) return;
+          if (!inRangeISO(t.createdAt, fil.from, fil.to)) return;
+
+          const amt = safeNum(t.amount);
+          const signed = (t.type==="credit") ? amt : -amt;
+
+          rows.push({
+            ts: toTimeSafe(t.createdAt) + 2,
+            createdAt: t.createdAt,
+            source: "ADMIN",
+            details: (t.note && String(t.note).trim()) ? t.note : ("Admin " + t.type),
+            amount: signed,
+            result: "-",
+            after: "-"
+          });
+        });
+
+        const plays = await playsForUser(userId);
+        plays.forEach(p=>{
+          if (!inRangeISO(p.createdAt, fil.from, fil.to)) return;
+
+          const bet = safeNum(p.betAmount || 0);
+          const isWin = String(p.result||"").toUpperCase() === "WIN";
+          const baseTs = toTimeSafe(p.createdAt);
+
+          rows.push({
+            ts: baseTs + 1,
+            createdAt: p.createdAt,
+            source: "BET",
+            details: "Bet Entry • " + (p.betLabel || "Bet"),
+            amount: -bet,
+            result: isWin ? "WIN" : "LOSE",
+            after: (p.after ?? "-")
+          });
+
+          if (isWin){
+            rows.push({
+              ts: baseTs,
+              createdAt: p.createdAt,
+              source: "BET",
+              details: "Win Reward (2x) • " + (p.betLabel || "Bet"),
+              amount: +(bet*2),
+              result: "WIN",
+              after: (p.after ?? "-")
+            });
+          }
+        });
+
+        rows.sort((a,b)=>b.ts-a.ts);
+        return rows;
+      }
+
+      async function renderSummary(userId){
+        const row = $("summaryRow");
+        if (!userId){ show(row,false); return; }
+
+        const fil = getFilters();
+        const tx = await userTxns(userId);
+        const plays = await playsForUser(userId);
+
+        let adminCredit = 0;
+        tx.forEach(t=>{
+          if (!t.byAdminId) return;
+          if (t.type !== "credit") return;
+          if (!inRangeISO(t.createdAt, fil.from, fil.to)) return;
+          adminCredit += safeNum(t.amount);
+        });
+
+        let winAmt=0, lossAmt=0;
+        plays.forEach(p=>{
+          if (!inRangeISO(p.createdAt, fil.from, fil.to)) return;
+          const bet = safeNum(p.betAmount || 0);
+          const isWin = String(p.result||"").toUpperCase()==="WIN";
+          if (isWin) winAmt += (bet*2);
+          else lossAmt += bet;
+        });
+
+        const u = await getUserById(userId);
+        const wallet = (u && typeof u.points==="number") ? u.points : 0;
+
+        txt("sumAdminCredit", String(adminCredit));
+        txt("sumWin", String(winAmt));
+        txt("sumLoss", String(lossAmt));
+        txt("sumWallet", String(wallet));
+
+        show(row,true);
+      }
+
+      function renderHistoryTableFromCache(){
+        const tb = $("historyBody");
+        const pagesBox = $("histPages");
+        const pageInfo = $("histPageInfo");
+        const infoPill = $("histInfo");
+        const prev = $("histPrev");
+        const next = $("histNext");
+
+        const rows = combinedRowsCache || [];
+
+        if (!selectedUser){
+          tb.innerHTML = '<tr><td colspan="6" class="small">Search a client to view history.</td></tr>';
+          pagesBox.innerHTML = "";
+          pageInfo.textContent = "-";
+          infoPill.textContent = "Page 1";
+          prev.disabled = true; next.disabled = true;
+          return;
+        }
+
+        if (!rows.length){
+          tb.innerHTML = '<tr><td colspan="6" class="small">No records found.</td></tr>';
+          pagesBox.innerHTML = "";
+          pageInfo.textContent = "-";
+          infoPill.textContent = "Page 1";
+          prev.disabled = true; next.disabled = true;
+          return;
+        }
+
+        const total = rows.length;
+        const totalPages = Math.ceil(total / PER_PAGE);
+        if (HIST_PAGE < 1) HIST_PAGE = 1;
+        if (HIST_PAGE > totalPages) HIST_PAGE = totalPages;
+
+        const start = (HIST_PAGE-1)*PER_PAGE;
+        const slice = rows.slice(start, start+PER_PAGE);
+
+        let html = "";
+        slice.forEach(r=>{
+          const srcCell = (r.source==="ADMIN")
+            ? "<span class='pill'>ADMIN</span>"
+            : "<span class='pill'>BET</span>";
+
+          const amtCls = (r.amount>=0) ? "pos" : "neg";
+          const amtSign = (r.amount>=0) ? "+" : "-";
+          const amtCell = "<span class='pill "+amtCls+"'>"+amtSign+Math.abs(r.amount)+"</span>";
+
+          let resCell = "-";
+          if (r.source==="BET"){
+            resCell = (r.result==="WIN")
+              ? "<span class='pill pos'>WIN</span>"
+              : "<span class='pill neg'>LOSE</span>";
+          }
+
+          html += "<tr>"+
+            "<td>"+fmtDate(r.createdAt)+"</td>"+
+            "<td>"+srcCell+"</td>"+
+            "<td>"+(r.details||"-")+"</td>"+
+            "<td>"+amtCell+"</td>"+
+            "<td>"+resCell+"</td>"+
+            "<td>"+(r.after ?? "-")+"</td>"+
+          "</tr>";
+        });
+
+        tb.innerHTML = html;
+        infoPill.textContent = "Page " + HIST_PAGE + " / " + totalPages;
+        pageInfo.textContent = "Total " + total + " records";
+
+        pagesBox.innerHTML = "";
+        for (let p=1; p<=totalPages; p++){
+          const b = document.createElement("button");
+          b.type="button";
+          b.textContent = String(p);
+          b.className = (p===HIST_PAGE) ? "btn small" : "btn secondary small";
+          b.addEventListener("click", function(){
+            HIST_PAGE = p;
+            renderHistoryTableFromCache();
+          });
+          pagesBox.appendChild(b);
+        }
+
+        prev.disabled = (HIST_PAGE<=1);
+        next.disabled = (HIST_PAGE>=totalPages);
+      }
+
+      async function renderClientAll(){
+        if (!selectedUser) return;
+
+        await renderSummary(selectedUser.id);
+        combinedRowsCache = await getCombinedHistory(selectedUser.id);
+        renderHistoryTableFromCache();
+      }
+
+      $("histPrev").addEventListener("click", function(){
+        HIST_PAGE--;
+        renderHistoryTableFromCache();
+      });
+      $("histNext").addEventListener("click", function(){
+        HIST_PAGE++;
+        renderHistoryTableFromCache();
+      });
+
+      // INIT
+      await renderUsers();
+      $("historyBody").innerHTML = '<tr><td colspan="6" class="small">Search a client to view history.</td></tr>';
+    });
+  </script>
 </body>
 </html>
