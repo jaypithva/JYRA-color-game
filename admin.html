@@ -1,15 +1,34 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin Panel</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin</title>
   <link rel="icon" type="image/x-icon" href="images/logo.png">
-  <link rel="stylesheet" href="styles.css" />
-  <style>body{visibility:hidden}</style>
+  <link rel="stylesheet" href="styles.css"/>
+
+  <style>
+    body{visibility:hidden}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:900px){.grid-3{grid-template-columns:1fr}}
+    .mini-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:900;font-size:12px}
+    .muted{opacity:.8}
+    .danger{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35)}
+    .ok{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.25)}
+    .warn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25)}
+    .nowrap{white-space:nowrap}
+    .table td{vertical-align:top}
+    .smalllink{font-size:12px;opacity:.85;cursor:pointer;text-decoration:underline}
+    .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:900px){.twoCols{grid-template-columns:1fr}}
+    .panel{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03)}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
 </head>
 
 <body>
+  <!-- ===== Header ===== -->
   <div class="nav">
     <div class="container">
       <div class="row header-row">
@@ -17,252 +36,631 @@
           <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
         </div>
         <div class="row-actions">
+          <button class="btn secondary small" id="btnGoGame" type="button">Go Game</button>
           <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="container grid two">
-    <!-- Create Client -->
+  <div class="container">
+    <!-- ===== Admin Summary ===== -->
     <div class="card">
-      <div class="h2">Create Client</div>
-      <div class="small">Admin yaha se client ID create karega</div>
-      <div class="hr"></div>
-
-      <div class="input"><label>Name</label><input id="cname" placeholder="Client name"></div>
-      <div class="input"><label>Phone</label><input id="cphone" placeholder="10 digit phone"></div>
-
-      <div class="input pw-wrap">
-        <label>Password</label>
-        <input id="cpass" type="password" placeholder="Set password">
-        <button type="button" class="pw-toggle" data-target="cpass">👁️</button>
+      <div class="row-actions" style="justify-content:space-between;">
+        <div>
+          <div class="h2" style="margin:0;">Admin Panel</div>
+          <div class="small">Cross-device Firestore based (Users / Wallet / Txns / Plays)</div>
+        </div>
+        <div class="mini-actions">
+          <span class="pill ok">Status: <span id="st">Ready</span></span>
+          <button class="btn secondary small" id="btnReload" type="button">Reload</button>
+        </div>
       </div>
 
-      <button class="btn" id="btnCreate" type="button">Create Client</button>
-      <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
+      <div class="kpi" style="margin-top:10px;">
+        <div class="box">
+          <div class="label">Admin ID</div>
+          <div class="val" id="a_id">-</div>
+        </div>
+        <div class="box">
+          <div class="label">Admin Name</div>
+          <div class="val" id="a_nm">-</div>
+        </div>
+        <div class="box">
+          <div class="label">Total Users</div>
+          <div class="val" id="u_count">0</div>
+        </div>
+      </div>
+
+      <div class="notice warn" id="warnBox" style="display:none;margin-top:10px;"></div>
     </div>
 
-    <!-- Search -->
-    <div class="card">
-      <div class="h2">Search Client</div>
-      <div class="hr"></div>
+    <div class="twoCols" style="margin-top:14px;">
+      <!-- ===== Create Client ===== -->
+      <div class="card">
+        <div class="h2" style="margin-top:0;">Create Client</div>
 
-      <div class="input"><label>Client ID / Phone</label><input id="search" placeholder="CXXXXXX or phone"></div>
-      <button class="btn secondary" id="btnSearch" type="button">Search</button>
-
-      <div class="notice" id="foundBox" style="display:none;margin-top:10px;">
-        <div><b>ID:</b> <span id="f_id"></span></div>
-        <div><b>Name:</b> <span id="f_name"></span></div>
-        <div><b>Phone:</b> <span id="f_phone"></span></div>
-        <div><b>Current Wallet:</b> <span id="f_points"></span></div>
-      </div>
-
-      <div id="actionBox" style="display:none;margin-top:12px;">
         <div class="input">
-          <label>Action</label>
-          <select id="atype">
-            <option value="credit">Credit</option>
-            <option value="debit">Debit</option>
-          </select>
+          <label>Name</label>
+          <input id="c_name" placeholder="Client name"/>
+        </div>
+        <div class="input">
+          <label>Phone (10 digit)</label>
+          <input id="c_phone" placeholder="9876543210"/>
+        </div>
+        <div class="input">
+          <label>Password</label>
+          <input id="c_pass" type="password" placeholder="Set password"/>
         </div>
 
-        <div class="input"><label>Points</label><input id="amt" type="number" min="1"></div>
-        <div class="input"><label>Note</label><input id="note" placeholder="ex: Today credit"></div>
+        <div class="row-actions">
+          <button class="btn" id="btnCreate" type="button">Create</button>
+          <button class="btn secondary" id="btnCreateClear" type="button">Clear</button>
+        </div>
 
-        <button class="btn" id="btnApply" type="button">Apply</button>
-        <div class="notice" id="applyMsg" style="display:none;margin-top:10px;"></div>
+        <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
 
         <div class="hr"></div>
 
-        <div class="input pw-wrap">
-          <label>Reset Password (email reset)</label>
-          <input id="newPass" type="password" placeholder="New password (not direct)">
-          <button type="button" class="pw-toggle" data-target="newPass">👁️</button>
+        <div class="h2" style="margin-top:0;">Admin Profile</div>
+        <div class="small muted">Name update / Password change (min 4 chars)</div>
+
+        <div class="input">
+          <label>Admin Name</label>
+          <input id="a_name_in" placeholder="Admin"/>
         </div>
-        <button class="btn secondary" id="btnResetPass" type="button">Send Reset Email</button>
-        <div class="notice" id="adminActionMsg" style="display:none;margin-top:10px;"></div>
+        <div class="input">
+          <label>New Password</label>
+          <input id="a_pass_in" type="password" placeholder="(optional)"/>
+        </div>
+        <div class="row-actions">
+          <button class="btn" id="btnAdminSave" type="button">Save</button>
+        </div>
+        <div class="notice" id="adminMsg" style="display:none;margin-top:10px;"></div>
+      </div>
+
+      <!-- ===== Quick Actions ===== -->
+      <div class="card">
+        <div class="h2" style="margin-top:0;">Quick Actions</div>
+
+        <div class="input">
+          <label>Search (Client ID / Phone / Name)</label>
+          <input id="q" placeholder="e.g. C12345 / 9876543210 / Client One"/>
+        </div>
+
+        <div class="panel">
+          <div class="small muted">Tips</div>
+          <div class="small">
+            • Client ID Firestore doc id hota hai (example <span class="kbd">C12345</span>)<br/>
+            • Wallet credit/debit Firestore transaction se safe hota hai<br/>
+            • Agar “Missing permissions” aayega to Rules fix karne padenge (neeche)
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row-actions">
+          <button class="btn secondary" id="btnExport" type="button">Export JSON</button>
+          <button class="btn secondary" id="btnImportBtn" type="button">Import JSON</button>
+          <input id="impFile" type="file" accept="application/json" style="display:none"/>
+        </div>
+
+        <div class="notice" id="backupMsg" style="display:none;margin-top:10px;"></div>
       </div>
     </div>
 
-    <!-- All Clients -->
-    <div class="card" style="grid-column:1/-1;">
+    <!-- ===== Users Table ===== -->
+    <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
-          <div class="h2" style="margin:0;">All Clients</div>
-          <div class="small">Registered users</div>
+          <div class="h2" style="margin:0;">Users</div>
+          <div class="small">Click any user → Manage wallet, reset password, view history</div>
         </div>
-        <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
+        <div class="mini-actions">
+          <button class="btn secondary small" id="btnRefreshUsers" type="button">Refresh Users</button>
+        </div>
       </div>
 
       <div style="overflow:auto;margin-top:10px;">
-        <table class="table" id="uTable">
+        <table class="table">
           <thead>
             <tr>
-              <th>Client ID</th>
+              <th class="nowrap">Client ID</th>
               <th>Name</th>
-              <th>Phone</th>
-              <th>Wallet</th>
-              <th>Created</th>
+              <th class="nowrap">Phone</th>
+              <th class="nowrap">Role</th>
+              <th class="nowrap">Points</th>
+              <th class="nowrap">Created</th>
+              <th class="nowrap">Actions</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody id="uBody"></tbody>
         </table>
       </div>
+
+      <div class="notice" id="userMsg" style="display:none;margin-top:10px;"></div>
+    </div>
+
+    <!-- ===== Selected User Panel ===== -->
+    <div class="card" style="margin-top:14px;">
+      <div class="row-actions" style="justify-content:space-between;">
+        <div>
+          <div class="h2" style="margin:0;">Manage User</div>
+          <div class="small" id="selHint">Select any user from table.</div>
+        </div>
+        <div class="mini-actions">
+          <span class="pill" id="selPill">No user</span>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:10px;">
+        <div class="panel">
+          <div class="small muted">Client</div>
+          <div class="h2" style="margin:6px 0 0;" id="m_id">-</div>
+          <div class="small" id="m_name">-</div>
+          <div class="small" id="m_phone">-</div>
+        </div>
+
+        <div class="panel">
+          <div class="small muted">Wallet</div>
+          <div class="h2" style="margin:6px 0 0;" id="m_pts">0</div>
+          <div class="small muted">Credit / Debit</div>
+
+          <div class="input" style="margin-top:8px;">
+            <label>Amount (points)</label>
+            <input id="m_amt" type="number" min="1" placeholder="e.g. 100"/>
+          </div>
+          <div class="input">
+            <label>Note</label>
+            <input id="m_note" placeholder="e.g. Deposit / Bonus / Penalty"/>
+          </div>
+
+          <div class="row-actions">
+            <button class="btn" id="btnCredit" type="button">Credit</button>
+            <button class="btn secondary" id="btnDebit" type="button">Debit</button>
+          </div>
+          <div class="notice" id="walletMsg" style="display:none;margin-top:10px;"></div>
+        </div>
+
+        <div class="panel">
+          <div class="small muted">More</div>
+
+          <div class="input" style="margin-top:8px;">
+            <label>Reset Password (min 4 chars)</label>
+            <input id="m_newpass" type="text" placeholder="new password"/>
+          </div>
+
+          <div class="row-actions">
+            <button class="btn secondary" id="btnResetPass" type="button">Reset Pass</button>
+            <button class="btn secondary" id="btnClearHistory" type="button">Clear History</button>
+            <button class="btn secondary danger" id="btnClearAll" type="button">Clear + Reset Wallet</button>
+            <button class="btn danger" id="btnDelete" type="button">Delete User</button>
+          </div>
+
+          <div class="notice" id="moreMsg" style="display:none;margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="twoCols">
+        <div>
+          <div class="h2" style="margin-top:0;">Latest Txns (last 50)</div>
+          <div style="overflow:auto;margin-top:10px;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Note</th>
+                  <th>By</th>
+                </tr>
+              </thead>
+              <tbody id="tBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="h2" style="margin-top:0;">Game Plays (last 30)</div>
+          <div style="overflow:auto;margin-top:10px;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Period</th>
+                  <th>Mode</th>
+                  <th>Bet</th>
+                  <th>Result</th>
+                  <th>Before</th>
+                  <th>After</th>
+                </tr>
+              </thead>
+              <tbody id="pBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Firebase compat -->
+  <!-- ✅ Firebase SDK FIRST -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+      authDomain: "wingo-app-f68dd.firebaseapp.com",
+      projectId: "wingo-app-f68dd",
+      storageBucket: "wingo-app-f68dd.firebasestorage.app",
+      messagingSenderId: "533037771285",
+      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
+      measurementId: "G-RJ1XX4FX3W"
+    };
+  </script>
+
+  <!-- ✅ app.js AFTER config -->
   <script src="app.js"></script>
 
   <script>
-    (function(){
-      "use strict";
+    // ---- small helpers ----
+    function $(id){ return document.getElementById(id); }
+    function show(id, text){
+      var el=$(id); if(!el) return;
+      el.style.display="block"; el.textContent=text;
+    }
+    function hide(id){
+      var el=$(id); if(!el) return;
+      el.style.display="none"; el.textContent="";
+    }
+    function setText(id, text){
+      var el=$(id); if(!el) return;
+      el.textContent=text;
+    }
+    function esc(s){
+      return String(s??"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
 
-      let ADMIN = null;
-      let SELECTED = null; // {uid, ...}
+    let ADMIN=null;
+    let USERS=[];
+    let SELECTED=null;
 
-      function show(el,on){ if(el) el.style.display = on ? "block":"none"; }
-      function txt(id,v){ var e=document.getElementById(id); if(e) e.textContent = v; }
-      function notice(id,msg){ var e=document.getElementById(id); if(!e) return; e.style.display="block"; e.textContent=msg; }
-
-      // password toggle
-      document.addEventListener("click", function(e){
-        var b = e.target.closest(".pw-toggle");
-        if(!b) return;
-        var tid = b.getAttribute("data-target");
-        var inp = document.getElementById(tid);
-        if(!inp) return;
-        if(inp.type==="password"){ inp.type="text"; b.textContent="🙈"; }
-        else { inp.type="password"; b.textContent="👁️"; }
+    function filterUsers(query){
+      query = String(query||"").trim().toLowerCase();
+      if(!query) return USERS;
+      return USERS.filter(u=>{
+        const id = String(u.clientId||"").toLowerCase();
+        const nm = String(u.name||"").toLowerCase();
+        const ph = String(u.phone||"").toLowerCase();
+        return id.includes(query) || nm.includes(query) || ph.includes(query);
       });
+    }
 
-      async function renderUsers(){
-        initFirebaseOnce();
-        const snap = await DB.collection("users").where("role","==","user").get();
-        const rows = snap.docs.map(d=>({ uid:d.id, ...d.data() }));
+    async function loadAdmin(){
+      ADMIN = await requireAdminAsync();
+      if(!ADMIN) return;
 
-        rows.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+      document.body.style.visibility="visible";
 
-        const tb = document.querySelector("#uTable tbody");
-        if(!tb) return;
+      setText("a_id", ADMIN.clientId || "-");
+      setText("a_nm", ADMIN.name || "-");
+      $("a_name_in").value = ADMIN.name || "";
+    }
 
-        if(!rows.length){
-          tb.innerHTML = '<tr><td colspan="5" class="small">No users</td></tr>';
-          return;
-        }
+    async function loadUsers(){
+      hide("userMsg");
+      try{
+        USERS = await listAllUsers();
+        setText("u_count", String(USERS.length||0));
+        renderUsers();
+      }catch(e){
+        show("userMsg", "Error: " + (e && e.message ? e.message : e));
+      }
+    }
 
-        tb.innerHTML = rows.map(u => `
-          <tr>
-            <td>${u.clientId || "-"}</td>
-            <td>${u.name || "-"}</td>
-            <td>${u.phone || "-"}</td>
-            <td>${(typeof u.points==="number") ? u.points : 0}</td>
-            <td>${fmtDate(u.createdAt)}</td>
-          </tr>
-        `).join("");
+    function renderUsers(){
+      const q = $("q").value;
+      const rows = filterUsers(q);
+      const tb = $("uBody");
+      if(!tb) return;
+
+      if(!rows.length){
+        tb.innerHTML = '<tr><td colspan="7" class="small">No users found.</td></tr>';
+        return;
       }
 
-      document.addEventListener("DOMContentLoaded", async function(){
-        ADMIN = await requireAdmin();
-        if(!ADMIN) return;
+      tb.innerHTML = rows.map(u=>{
+        const isAdmin = (u.role==="admin");
+        return `<tr>
+          <td class="nowrap"><span class="smalllink" data-pick="${esc(u.clientId)}">${esc(u.clientId||"-")}</span></td>
+          <td>${esc(u.name||"-")}</td>
+          <td class="nowrap">${esc(u.phone||"-")}</td>
+          <td class="nowrap">${esc(u.role||"-")}</td>
+          <td class="nowrap">${esc(u.points ?? 0)}</td>
+          <td class="nowrap">${esc(fmtDate(u.createdAt))}</td>
+          <td class="nowrap">
+            <div class="mini-actions">
+              <button class="btn secondary small" data-pick="${esc(u.clientId)}" type="button">Manage</button>
+              ${isAdmin ? '' : `<button class="btn secondary small danger" data-del="${esc(u.clientId)}" type="button">Delete</button>`}
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+    }
 
-        document.body.style.visibility = "visible";
+    async function pickUser(clientId){
+      hide("walletMsg"); hide("moreMsg");
+      SELECTED = USERS.find(u => u.clientId === clientId) || null;
 
-        document.getElementById("btnLogout").addEventListener("click", logout);
-        document.getElementById("btnRefresh").addEventListener("click", renderUsers);
+      if(!SELECTED){
+        setText("selHint","Select any user from table.");
+        setText("selPill","No user");
+        setText("m_id","-"); setText("m_name","-"); setText("m_phone","-"); setText("m_pts","0");
+        $("tBody").innerHTML = '<tr><td colspan="5" class="small">No user selected.</td></tr>';
+        $("pBody").innerHTML = '<tr><td colspan="7" class="small">No user selected.</td></tr>';
+        return;
+      }
 
-        // create client
-        document.getElementById("btnCreate").addEventListener("click", async function(){
-          const name = (document.getElementById("cname").value||"").trim();
-          const phone = (document.getElementById("cphone").value||"").trim();
-          const pass = (document.getElementById("cpass").value||"");
+      setText("selHint","Managing selected user.");
+      setText("selPill", SELECTED.clientId);
+      setText("m_id", SELECTED.clientId || "-");
+      setText("m_name", SELECTED.name || "-");
+      setText("m_phone", SELECTED.phone || "-");
+      setText("m_pts", String(SELECTED.points ?? 0));
 
-          const msg = document.getElementById("createMsg");
-          show(msg,true);
-          msg.textContent = "Creating...";
+      await loadSelectedTxns();
+      await loadSelectedPlays();
+    }
 
-          const r = await adminCreateClient({ name, phone, password: pass });
-          if(!r || !r.ok){
-            msg.textContent = (r && r.msg) ? r.msg : "Create failed";
-            return;
-          }
-          msg.textContent = "✅ Client created. Client ID: " + r.clientId + " (Login by Phone or Client ID)";
-          document.getElementById("cname").value="";
-          document.getElementById("cphone").value="";
-          document.getElementById("cpass").value="";
-          renderUsers();
-        });
+    async function refreshSelectedFromServer(){
+      if(!SELECTED) return;
+      // reload users list and re-pick
+      await loadUsers();
+      await pickUser(SELECTED.clientId);
+    }
 
-        // search
-        document.getElementById("btnSearch").addEventListener("click", async function(){
-          const q = (document.getElementById("search").value||"").trim();
-          const u = await findClientByPhoneOrId(q);
+    async function loadSelectedTxns(){
+      const tb = $("tBody");
+      if(!tb) return;
 
-          if(!u){
-            SELECTED = null;
-            show(document.getElementById("foundBox"), false);
-            show(document.getElementById("actionBox"), false);
-            alert("Client not found");
-            return;
-          }
+      try{
+        const tx = await userTxns(SELECTED.clientId, 50);
+        if(!tx.length){
+          tb.innerHTML = '<tr><td colspan="5" class="small">No txns.</td></tr>';
+          return;
+        }
+        tb.innerHTML = tx.map(t=>{
+          return `<tr>
+            <td class="nowrap">${esc(fmtDate(t.createdAt))}</td>
+            <td class="nowrap">${esc(t.type||"-")}</td>
+            <td class="nowrap">${esc(t.amount ?? 0)}</td>
+            <td>${esc(t.note||"")}</td>
+            <td class="nowrap">${esc(t.byAdminId || "-")}</td>
+          </tr>`;
+        }).join("");
+      }catch(e){
+        tb.innerHTML = `<tr><td colspan="5" class="small">Error: ${esc(e && e.message ? e.message : e)}</td></tr>`;
+      }
+    }
 
-          SELECTED = u;
-          txt("f_id", u.clientId || "-");
-          txt("f_name", u.name || "-");
-          txt("f_phone", u.phone || "-");
-          txt("f_points", (typeof u.points==="number") ? u.points : 0);
+    async function loadSelectedPlays(){
+      const tb = $("pBody");
+      if(!tb) return;
 
-          show(document.getElementById("foundBox"), true);
-          show(document.getElementById("actionBox"), true);
-        });
+      try{
+        const rows = await playsForUser(SELECTED.clientId, 30);
+        if(!rows.length){
+          tb.innerHTML = '<tr><td colspan="7" class="small">No plays.</td></tr>';
+          return;
+        }
+        tb.innerHTML = rows.map(r=>{
+          const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
+          const resCol = r.resultColor || "-";
+          const resBS = r.resultBigSmall || "-";
+          return `<tr>
+            <td class="nowrap">${esc(fmtDate(r.createdAt))}</td>
+            <td class="nowrap">${esc(r.period||"-")}</td>
+            <td class="nowrap">${esc(r.modeLabel||"-")}</td>
+            <td>${esc((r.betLabel||"-") + " (" + (r.betAmount||0) + ")")}</td>
+            <td class="nowrap">${esc(resNum + " / " + resCol + " / " + resBS)}</td>
+            <td class="nowrap">${esc(r.before ?? 0)}</td>
+            <td class="nowrap">${esc(r.after ?? 0)}</td>
+          </tr>`;
+        }).join("");
+      }catch(e){
+        tb.innerHTML = `<tr><td colspan="7" class="small">Error: ${esc(e && e.message ? e.message : e)}</td></tr>`;
+      }
+    }
 
-        // apply points
-        document.getElementById("btnApply").addEventListener("click", async function(){
-          if(!SELECTED) return notice("applyMsg","Search client first");
+    async function doCredit(sign){
+      hide("walletMsg");
+      if(!SELECTED) return show("walletMsg","Select user first.");
 
-          const amt = Number(document.getElementById("amt").value || 0);
-          const type = document.getElementById("atype").value;
-          const note = (document.getElementById("note").value||"").trim();
+      const amt = Number($("m_amt").value);
+      const note = ($("m_note").value || "").trim();
 
-          if(!amt || amt<=0) return notice("applyMsg","Enter valid points");
+      if(!amt || amt<=0) return show("walletMsg","Enter amount > 0");
 
-          const delta = (type==="credit") ? amt : -amt;
-          const r = await adminAdjustPoints(SELECTED.uid, delta, note);
+      const delta = sign>0 ? amt : -amt;
+      const label = (sign>0 ? "Admin credit" : "Admin debit") + (note ? (" • "+note) : "");
 
-          if(!r || !r.ok){
-            notice("applyMsg", (r && r.msg) ? r.msg : "Update failed");
-            return;
-          }
+      const r = await adjustPoints(SELECTED.clientId, delta, label, ADMIN.clientId);
+      if(!r || !r.ok) return show("walletMsg", (r && r.msg) ? r.msg : "Failed");
 
-          notice("applyMsg", "✅ Done! New wallet: " + r.points);
-          document.getElementById("amt").value="";
-          document.getElementById("note").value="";
+      show("walletMsg", (sign>0 ? "✅ Credited " : "✅ Debited ") + amt);
+      $("m_amt").value=""; $("m_note").value="";
+      await refreshSelectedFromServer();
+    }
 
-          // refresh selected
-          const fresh = await findClientByPhoneOrId(SELECTED.phone || SELECTED.clientId);
-          if(fresh){ SELECTED = fresh; txt("f_points", fresh.points||0); }
-          renderUsers();
-        });
+    async function doResetPass(){
+      hide("moreMsg");
+      if(!SELECTED) return show("moreMsg","Select user first.");
+      if(SELECTED.role==="admin") return show("moreMsg","Admin password reset not here.");
 
-        // reset password (email reset)
-        document.getElementById("btnResetPass").addEventListener("click", async function(){
-          if(!SELECTED) return notice("adminActionMsg","Search client first");
-          const np = (document.getElementById("newPass").value||"").trim();
-          if(np.length < 4) return notice("adminActionMsg","Password min 4 characters");
+      const np = ($("m_newpass").value || "").trim();
+      if(np.length < 4) return show("moreMsg","New password min 4 chars");
 
-          // Free plan me direct set possible nahi -> reset email
-          const r = await adminResetClientPasswordByClientId(SELECTED.phone || SELECTED.clientId, np);
-          notice("adminActionMsg", r.ok ? r.msg : (r.msg||"Failed"));
-        });
+      const r = await adminResetClientPassword(SELECTED.clientId, np, ADMIN.clientId);
+      if(!r || !r.ok) return show("moreMsg", (r && r.msg) ? r.msg : "Failed");
 
-        renderUsers();
+      show("moreMsg","✅ Password reset done");
+      $("m_newpass").value="";
+    }
+
+    async function doClearHistory(resetWallet){
+      hide("moreMsg");
+      if(!SELECTED) return show("moreMsg","Select user first.");
+      if(SELECTED.role==="admin") return show("moreMsg","Admin history clear not allowed.");
+
+      const ok = confirm(resetWallet ? "Clear plays+txns AND reset wallet to 0?" : "Clear plays+txns only?");
+      if(!ok) return;
+
+      const r = await clearClientHistory(SELECTED.clientId, !!resetWallet);
+      if(!r || !r.ok) return show("moreMsg", (r && r.msg) ? r.msg : "Failed");
+
+      show("moreMsg","✅ Cleared");
+      await refreshSelectedFromServer();
+    }
+
+    async function doDeleteUser(clientId){
+      hide("userMsg"); hide("moreMsg");
+      const ok = confirm("Delete user " + clientId + " ? (cannot undo)");
+      if(!ok) return;
+
+      const r = await deleteClient(clientId, ADMIN.clientId);
+      if(!r || !r.ok) return show("userMsg", (r && r.msg) ? r.msg : "Delete failed");
+
+      show("userMsg","✅ Deleted " + clientId);
+      SELECTED=null;
+      await loadUsers();
+      await pickUser(null);
+    }
+
+    async function doCreate(){
+      hide("createMsg");
+      const name = ($("c_name").value || "").trim();
+      const phone = ($("c_phone").value || "").trim();
+      const pass = ($("c_pass").value || "");
+
+      const r = await registerUserSecure({name, phone, password: pass});
+      if(!r || !r.ok){
+        show("createMsg", (r && r.msg) ? r.msg : "Create failed");
+        return;
+      }
+      show("createMsg","✅ Client created: " + r.user.clientId);
+      $("c_name").value=""; $("c_phone").value=""; $("c_pass").value="";
+      await loadUsers();
+    }
+
+    async function saveAdmin(){
+      hide("adminMsg");
+      const nm = ($("a_name_in").value || "").trim();
+      const pw = ($("a_pass_in").value || "").trim();
+
+      const r = await updateAdminProfile(ADMIN.clientId, nm, pw || null);
+      if(!r || !r.ok) return show("adminMsg", (r && r.msg) ? r.msg : "Failed");
+
+      show("adminMsg","✅ Saved");
+      $("a_pass_in").value="";
+      ADMIN = await currentUserAsync();
+      setText("a_nm", ADMIN.name || "-");
+    }
+
+    async function doExport(){
+      hide("backupMsg");
+      try{
+        const users = await listAllUsers();
+        const out = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          users: users
+        };
+        const blob = new Blob([JSON.stringify(out, null, 2)], {type:"application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "backup-users.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        show("backupMsg","✅ Exported users backup");
+      }catch(e){
+        show("backupMsg","Error: " + (e && e.message ? e.message : e));
+      }
+    }
+
+    async function doImport(file){
+      hide("backupMsg");
+      try{
+        const txt = await file.text();
+        const data = JSON.parse(txt);
+        if(!data || !Array.isArray(data.users)) return show("backupMsg","Invalid JSON");
+
+        // NOTE: Importing full users safely needs server/admin script.
+        // Here we only show file loaded to avoid accidental overwrite.
+        show("backupMsg","✅ File loaded. (For full restore, tell me—I'll give safe restore script.)");
+      }catch(e){
+        show("backupMsg","Error: " + (e && e.message ? e.message : e));
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function(){
+      try{
+        await loadAdmin();
+        await loadUsers();
+        await pickUser(null);
+      }catch(e){
+        show("warnBox","Error: " + (e && e.message ? e.message : e));
+        $("warnBox").style.display="block";
+      }
+
+      $("btnLogout").onclick = logout;
+      $("btnGoGame").onclick = function(){ window.location.replace("game.html"); };
+      $("btnReload").onclick = async function(){ await loadUsers(); await refreshSelectedFromServer(); };
+      $("btnRefreshUsers").onclick = loadUsers;
+
+      $("q").addEventListener("input", renderUsers);
+
+      $("btnCreate").onclick = doCreate;
+      $("btnCreateClear").onclick = function(){ $("c_name").value=""; $("c_phone").value=""; $("c_pass").value=""; hide("createMsg"); };
+
+      $("btnAdminSave").onclick = saveAdmin;
+
+      $("btnCredit").onclick = function(){ doCredit(+1); };
+      $("btnDebit").onclick = function(){ doCredit(-1); };
+      $("btnResetPass").onclick = doResetPass;
+      $("btnClearHistory").onclick = function(){ doClearHistory(false); };
+      $("btnClearAll").onclick = function(){ doClearHistory(true); };
+      $("btnDelete").onclick = function(){
+        if(!SELECTED) return show("moreMsg","Select user first.");
+        if(SELECTED.role==="admin") return show("moreMsg","Cannot delete admin.");
+        doDeleteUser(SELECTED.clientId);
+      };
+
+      $("btnExport").onclick = doExport;
+      $("btnImportBtn").onclick = function(){ $("impFile").click(); };
+      $("impFile").addEventListener("change", function(){
+        if(this.files && this.files[0]) doImport(this.files[0]);
       });
-    })();
+
+      // table clicks (Manage / Delete / Pick)
+      document.addEventListener("click", async function(e){
+        const pick = e.target.closest("[data-pick]");
+        if(pick){
+          const id = pick.getAttribute("data-pick");
+          await pickUser(id);
+          return;
+        }
+        const del = e.target.closest("[data-del]");
+        if(del){
+          const id = del.getAttribute("data-del");
+          if(id) await doDeleteUser(id);
+          return;
+        }
+      });
+    });
   </script>
 </body>
 </html>
-
