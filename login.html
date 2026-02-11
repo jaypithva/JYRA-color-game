@@ -4,152 +4,98 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login</title>
-  <link rel="icon" type="image/x-icon" href="images/logo.png">
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-  <!-- ===== Header ===== -->
-  <div class="nav">
-    <div class="container">
-      <div class="row header-row">
-        <div class="brand">
-          <a href="index.html">
-            <img src="logo.png" alt="Logo" class="logo">
-          </a>
-        </div>
-      </div>
+<div class="container" style="max-width:480px;margin:80px auto;">
+  <div class="card">
+    <h2>Login</h2>
+
+    <div class="input">
+      <label>Phone / Client ID</label>
+      <input id="pid" autocomplete="off">
     </div>
+
+    <div class="input">
+      <label>Password</label>
+      <input id="pass" type="password">
+    </div>
+
+    <button id="btnLogin" class="btn">Login</button>
+
+    <div id="msg" class="notice" style="display:none;margin-top:10px;"></div>
   </div>
+</div>
 
-  <!-- ===== Login Card ===== -->
-  <div class="container">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-    <!-- ❗ FORM added + submit disabled -->
-    <form id="loginForm" onsubmit="return false;">
-      <div class="card" style="max-width:520px;margin:20px auto;">
-        <div class="h2">Login</div>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+  authDomain: "wingo-app-f68dd.firebaseapp.com",
+  projectId: "wingo-app-f68dd"
+});
+</script>
 
-        <div class="input">
-          <label>Phone or Client ID</label>
-          <input id="pid" placeholder="98xxxxxxxx or C123 / ADMIN1" autocomplete="off">
-        </div>
+<script src="app.js"></script>
 
-        <div class="input pw-wrap">
-          <label>Password</label>
-          <input id="pass" type="password" placeholder="Password" autocomplete="off">
-          <button type="button" class="pw-toggle" id="togglePass">👁️</button>
-        </div>
+<script>
+const msg = document.getElementById("msg");
+const btn = document.getElementById("btnLogin");
 
-        <!-- ❗ type=button (NOT submit) -->
-        <button class="btn" id="btnLogin" type="button">Login</button>
+function show(m){
+  msg.style.display="block";
+  msg.textContent=m;
+}
 
-        <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
-      </div>
-    </form>
-  </div>
+btn.onclick = async function(e){
+  e.preventDefault();      // 🔥 VERY IMPORTANT
+  e.stopPropagation();     // 🔥 NO REFRESH
 
-  <!-- ===== Firebase SDK ===== -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  msg.style.display="none";
 
-  <script>
-    // Firebase config
-    window.firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c"
-    };
-  </script>
+  const pid = pidEl.value.trim();
+  const pass = passEl.value.trim();
 
-  <!-- ✅ app.js MUST be loaded -->
-  <script src="app.js"></script>
+  if(!pid || !pass){
+    show("Enter ID and password");
+    return;
+  }
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
+  btn.disabled = true;
 
-      const form = document.getElementById("loginForm");
-      const btnLogin = document.getElementById("btnLogin");
-      const msg = document.getElementById("msg");
+  const res = await loginSecure({
+    phoneOrId: pid,
+    password: pass
+  });
 
-      /* ===== HARD STOP: form submit ===== */
-      form.addEventListener("submit", function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      });
+  btn.disabled = false;
 
-      /* ===== Enter key fix ===== */
-      document.addEventListener("keydown", function(e){
-        if(e.key === "Enter"){
-          e.preventDefault();
-          btnLogin.click();
-        }
-      });
+  if(!res || !res.ok){
+    show(res?.msg || "Login failed");
+    return;
+  }
 
-      /* ===== Show / Hide password ===== */
-      document.getElementById("togglePass").onclick = function(){
-        const p = document.getElementById("pass");
-        if(p.type === "password"){
-          p.type = "text";
-          this.textContent = "🙈";
-        }else{
-          p.type = "password";
-          this.textContent = "👁️";
-        }
-      };
+  // ✅ SAVE SESSION
+  localStorage.setItem("jyra_user", JSON.stringify(res.user));
 
-      function showMsg(t){
-        msg.style.display = "block";
-        msg.textContent = t;
-      }
+  // ✅ REDIRECT
+  if(res.user.role === "admin"){
+    location.href = "admin.html";
+  } else {
+    location.href = "game.html";
+  }
+};
 
-      function hideMsg(){
-        msg.style.display = "none";
-        msg.textContent = "";
-      }
-
-      function redirectByRole(user){
-        if(!user) return;
-        window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
-      }
-
-      /* ===== Login click ===== */
-      btnLogin.onclick = async function(){
-        hideMsg();
-
-        const phoneOrId = document.getElementById("pid").value.trim();
-        const password  = document.getElementById("pass").value;
-
-        if(!phoneOrId || !password){
-          showMsg("Enter ID/Phone and Password");
-          return;
-        }
-
-        btnLogin.disabled = true;
-
-        try{
-          const r = await loginSecure({ phoneOrId, password });
-          btnLogin.disabled = false;
-
-          if(!r || !r.ok){
-            showMsg(r && r.msg ? r.msg : "Login failed");
-            return;
-          }
-
-          redirectByRole(r.user);
-
-        }catch(err){
-          btnLogin.disabled = false;
-          showMsg("Error: " + err.message);
-        }
-      };
-    });
-  </script>
+// ENTER KEY FIX
+document.addEventListener("keydown", e=>{
+  if(e.key==="Enter") btn.click();
+});
+</script>
 
 </body>
 </html>
