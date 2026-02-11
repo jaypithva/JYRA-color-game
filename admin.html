@@ -51,45 +51,26 @@
       -webkit-appearance:none;
       appearance:none;
     }
-    select option{ color:#111; } /* dropdown readable on mobile */
+    select option{ color:#111; }
 
-    /* Responsive tables wrapper */
+    /* ✅ Keep tables as tables everywhere. Just horizontal scroll on small screens */
     .table-wrap{
       width:100%;
       overflow:auto;
       -webkit-overflow-scrolling:touch;
       border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
+      touch-action: pan-x pan-y;
     }
-    .table-wrap .table{ min-width: 860px; }
-
-    /* Mobile: tables -> cards */
+    .table-wrap .table{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 980px; /* readable columns */
+    }
     @media (max-width:720px){
-      .table-wrap{ border:0; overflow:visible; }
-      table.table, table.table thead, table.table tbody, table.table th, table.table td, table.table tr{
-        display:block;
-        width:100%;
-      }
-      table.table thead{ display:none; }
-      table.table{ min-width:0; }
-      table.table tr{
-        border:1px solid rgba(255,255,255,.12);
-        background: rgba(255,255,255,.03);
-        border-radius:16px;
-        padding:10px;
-        margin-bottom:10px;
-      }
-      table.table td{
-        border:0 !important;
-        padding:8px 8px;
-      }
-      table.table td::before{
-        content: attr(data-label);
-        display:block;
-        font-size:12px;
-        opacity:.7;
-        margin-bottom:4px;
-      }
+      .table-wrap{ overflow-x:auto; overflow-y:hidden; }
+      .table-wrap .table{ min-width: 1100px; }
+      table.table th, table.table td{ white-space:nowrap; }
     }
 
     .grid3{
@@ -348,15 +329,25 @@
       return s ? String(s.value||"") : "";
     }
 
+    // ✅ Fallbacks (avoid "function not defined" blank page)
+    async function _listUsersSafe(){
+      if (typeof listUsers === "function") return await listUsers();
+      if (typeof listAllUsers === "function") return await listAllUsers();
+      throw new Error("listUsers/listAllUsers missing in app.js");
+    }
+    async function _getUserSafe(id){
+      if (typeof getUserByIdFS === "function") return await getUserByIdFS(id);
+      if (typeof getUserById === "function") return await getUserById(id);
+      return null;
+    }
+
     async function updateSelectedClientInfo(){
       const cid = selectedClientId();
-      if(!cid){
-        document.getElementById("selClientInfo").textContent = "-";
-        return;
-      }
-      const u = await getUserByIdFS(cid);
-      document.getElementById("selClientInfo").textContent =
-        u ? `${u.name} (${u.id||u.clientId||cid}) • ${u.phone} • Points: ${u.points||0}` : cid;
+      var out = document.getElementById("selClientInfo");
+      if(!out) return;
+      if(!cid){ out.textContent="-"; return; }
+      const u = await _getUserSafe(cid);
+      out.textContent = u ? `${u.name} (${u.clientId||u.id||cid}) • ${u.phone} • Points: ${u.points||0}` : cid;
     }
 
     async function renderHistory(){
@@ -366,6 +357,11 @@
 
       if(!cid){
         tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
+        return;
+      }
+
+      if (typeof playsForUser !== "function") {
+        tb.innerHTML = `<tr><td colspan="7" class="small">Error: playsForUser missing in app.js</td></tr>`;
         return;
       }
 
@@ -380,33 +376,39 @@
         const resCol = r.resultColor || "-";
         const resBS  = r.resultBigSmall || "-";
         return `<tr>
-          <td data-label="Date">${fmtDate(r.createdAt)}</td>
-          <td data-label="Period">${r.period || "-"}</td>
-          <td data-label="Mode">${r.modeLabel || "-"}</td>
-          <td data-label="Bet">${(r.betLabel||"-")} (${r.betAmount||0})</td>
-          <td data-label="Result">${resNum} / ${resCol} / ${resBS} • <b>${(r.result||"-")}</b></td>
-          <td data-label="Before">${r.before || 0}</td>
-          <td data-label="After">${r.after || 0}</td>
+          <td>${(typeof fmtDate==="function") ? fmtDate(r.createdAt) : (r.createdAt||"-")}</td>
+          <td>${r.period || "-"}</td>
+          <td>${r.modeLabel || "-"}</td>
+          <td>${(r.betLabel||"-")} (${r.betAmount||0})</td>
+          <td>${resNum} / ${resCol} / ${resBS} • <b>${(r.result||"-")}</b></td>
+          <td>${r.before || 0}</td>
+          <td>${r.after || 0}</td>
         </tr>`;
       }).join("");
     }
 
     async function loadClientsUI(){
-      // admin.html expects listUsers() -> app.js now provides it
-      const users = await listUsers();
-      users.sort((a,b)=> (a.role===b.role ? String(a.clientId||a.id).localeCompare(String(b.clientId||b.id)) : (a.role==="admin" ? -1 : 1)));
+      const users = await _listUsersSafe();
 
-      // dropdown: only role user
+      users.sort((a,b)=>{
+        const ar = a.role||"", br=b.role||"";
+        if (ar!==br) return (ar==="admin" ? -1 : 1);
+        const aid = String(a.clientId||a.id||"");
+        const bid = String(b.clientId||b.id||"");
+        return aid.localeCompare(bid);
+      });
+
+      // dropdown (only role=user)
       var sel=document.getElementById("selClient");
-      sel.innerHTML = "";
-      const clients = users.filter(u => u.role === "user");
+      sel.innerHTML="";
+      const clients = users.filter(u => (u.role==="user"));
 
       if(!clients.length){
         var opt=document.createElement("option");
         opt.value="";
         opt.textContent="No clients";
         sel.appendChild(opt);
-      }else{
+      } else {
         clients.forEach(u=>{
           var opt=document.createElement("option");
           opt.value = u.clientId || u.id;
@@ -415,7 +417,7 @@
         });
       }
 
-      // table
+      // clients table
       var tb=document.getElementById("clientsBody");
       if(!tb) return;
 
@@ -424,16 +426,17 @@
         return;
       }
 
-      tb.innerHTML = users.map(u => {
+      tb.innerHTML = users.map(u=>{
         const pts = (typeof u.points==="number") ? u.points : 0;
         const id  = u.clientId || u.id || "-";
+        const created = (typeof fmtDate==="function") ? fmtDate(u.createdAt) : (u.createdAt||"-");
         return `<tr>
-          <td data-label="Client ID">${id}</td>
-          <td data-label="Name">${u.name || "-"}</td>
-          <td data-label="Phone">${u.phone || "-"}</td>
-          <td data-label="Role">${u.role || "-"}</td>
-          <td data-label="Points">${pts} <span class="mini">(${fmtINR(pts)})</span></td>
-          <td data-label="Created">${fmtDate(u.createdAt)}</td>
+          <td>${id}</td>
+          <td>${u.name || "-"}</td>
+          <td>${u.phone || "-"}</td>
+          <td>${u.role || "-"}</td>
+          <td>${pts} <span class="mini">(${fmtINR(pts)})</span></td>
+          <td>${created}</td>
         </tr>`;
       }).join("");
 
@@ -441,7 +444,7 @@
       await renderHistory();
     }
 
-    // Password toggle (all)
+    // ✅ Password toggle
     document.addEventListener("click", function(e){
       var btn = e.target.closest(".pw-toggle");
       if(!btn) return;
@@ -454,9 +457,9 @@
 
     document.addEventListener("DOMContentLoaded", async function(){
       try{
-        // basic sanity
-        if(typeof requireAdminAsync!=="function") {
-          errBar("Error: app.js not loaded or requireAdminAsync missing. Hard refresh (Ctrl+Shift+R).");
+        if(typeof requireAdminAsync!=="function"){
+          errBar("Error: app.js not loaded OR requireAdminAsync missing. Hard refresh (Ctrl+Shift+R) / clear cache.");
+          document.body.style.visibility="visible";
           return;
         }
 
@@ -466,124 +469,150 @@
         document.body.style.visibility="visible";
         document.getElementById("adminName").textContent = ADMIN.name || "Admin";
 
-        document.getElementById("btnLogout").onclick = logout;
+        // logout
+        document.getElementById("btnLogout").onclick = (typeof logout==="function") ? logout : function(){ location.replace("login.html"); };
 
+        // reload
         document.getElementById("btnReload").onclick = async function(){
           errBar("");
           hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
           await loadClientsUI();
         };
 
+        // dropdown change
         document.getElementById("selClient").addEventListener("change", async function(){
           await updateSelectedClientInfo();
           await renderHistory();
         });
 
+        // save admin
         document.getElementById("btnSaveAdmin").onclick = async function(){
           hideBox("admMsg");
+          if(typeof updateAdminProfile!=="function") return showBox("admMsg","Error: updateAdminProfile missing in app.js");
           const nm = (document.getElementById("admNewName").value||"").trim();
           const pw = (document.getElementById("admNewPass").value||"").trim();
-          const r = await updateAdminProfile(ADMIN.clientId||ADMIN.id, nm, pw);
-          if(!r || !r.ok) return showBox("admMsg", r?.msg || "Failed");
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await updateAdminProfile(id, nm, pw);
+          if(!r || !r.ok) return showBox("admMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("admMsg","Saved.");
-          const fresh = await getUserByIdFS(ADMIN.clientId||ADMIN.id);
+          const fresh = await _getUserSafe(id);
           document.getElementById("adminName").textContent = fresh ? (fresh.name||"Admin") : "Admin";
           document.getElementById("admNewPass").value="";
         };
 
+        // create client
         document.getElementById("btnCreateClient").onclick = async function(){
           hideBox("createMsg");
+          if(typeof adminCreateClient!=="function") return showBox("createMsg","Error: adminCreateClient missing in app.js");
           const name = (document.getElementById("cName").value||"").trim();
           const phone = (document.getElementById("cPhone").value||"").trim();
           const pass = (document.getElementById("cPass").value||"").trim();
-
-          const r = await adminCreateClient({name, phone, password: pass}, (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("createMsg", r?.msg || "Failed");
-          showBox("createMsg", `Client created: ${r.user.clientId}`);
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await adminCreateClient({name, phone, password: pass}, id);
+          if(!r || !r.ok) return showBox("createMsg", (r && r.msg) ? r.msg : "Failed");
+          showBox("createMsg", `Client created: ${r.user.clientId || r.user.id}`);
           document.getElementById("cName").value="";
           document.getElementById("cPhone").value="";
           document.getElementById("cPass").value="";
           await loadClientsUI();
         };
 
+        // credit
         document.getElementById("btnCredit").onclick = async function(){
           hideBox("actMsg");
+          if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
           const cid = selectedClientId();
           const amt = Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const r = await adjustPoints(cid, +amt, "Admin Credit", (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await adjustPoints(cid, +amt, "Admin Credit", id);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg", `Credited. New points: ${r.points}`);
           await loadClientsUI();
         };
 
+        // debit
         document.getElementById("btnDebit").onclick = async function(){
           hideBox("actMsg");
+          if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
           const cid = selectedClientId();
           const amt = Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const r = await adjustPoints(cid, -amt, "Admin Debit", (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await adjustPoints(cid, -amt, "Admin Debit", id);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg", `Debited. New points: ${r.points}`);
           await loadClientsUI();
         };
 
+        // reset password
         document.getElementById("btnResetPass").onclick = async function(){
           hideBox("actMsg");
+          if(typeof adminResetClientPassword!=="function") return showBox("actMsg","Error: adminResetClientPassword missing in app.js");
           const cid = selectedClientId();
           const np = (document.getElementById("resetPass").value||"").trim();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!np || np.length<4) return showBox("actMsg","Password min 4 chars.");
-          const r = await adminResetClientPassword(cid, np, (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await adminResetClientPassword(cid, np, id);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg","Password reset done.");
           document.getElementById("resetPass").value="";
         };
 
+        // clear history
         document.getElementById("btnClearHistory").onclick = async function(){
           hideBox("actMsg");
+          if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear selected client history?")) return;
-          const r = await clearClientHistory(cid, false, (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const r = await clearClientHistory(cid, false);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg","History cleared.");
           await renderHistory();
         };
 
+        // clear + reset
         document.getElementById("btnClearAll").onclick = async function(){
           hideBox("actMsg");
+          if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear history AND reset wallet to 0?")) return;
-          const r = await clearClientHistory(cid, true, (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const r = await clearClientHistory(cid, true);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg","Cleared + Wallet reset.");
           await loadClientsUI();
         };
 
+        // delete client
         document.getElementById("btnDeleteClient").onclick = async function(){
           hideBox("actMsg");
+          if(typeof deleteClient!=="function") return showBox("actMsg","Error: deleteClient missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Delete client permanently?")) return;
-          const r = await deleteClient(cid, (ADMIN.clientId||ADMIN.id));
-          if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
+          const id = ADMIN.clientId || ADMIN.id;
+          const r = await deleteClient(cid, id);
+          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
           showBox("actMsg","Client deleted.");
           await loadClientsUI();
         };
 
+        // refresh history
         document.getElementById("btnRefreshHistory").onclick = async function(){
           await updateSelectedClientInfo();
           await renderHistory();
         };
 
         await loadClientsUI();
+
       }catch(e){
         document.body.style.visibility="visible";
-        errBar("Error: " + (e?.message || String(e)));
+        errBar("Error: " + (e && e.message ? e.message : String(e)));
       }
     });
   </script>
