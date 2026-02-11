@@ -4,98 +4,174 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login</title>
+  <link rel="icon" type="image/x-icon" href="images/logo.png">
   <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* small fix for password eye icon */
+    .pw-wrap{ position:relative; }
+    .pw-toggle{
+      position:absolute;
+      right:10px;
+      top:34px;
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      font-size:18px;
+      line-height:1;
+      padding:6px;
+      opacity:.9;
+      user-select:none;
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="container" style="max-width:480px;margin:80px auto;">
-  <div class="card">
-    <h2>Login</h2>
-
-    <div class="input">
-      <label>Phone / Client ID</label>
-      <input id="pid" autocomplete="off">
+  <!-- ===== Header ===== -->
+  <div class="nav">
+    <div class="container">
+      <div class="row header-row">
+        <div class="brand">
+          <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo">
+          </a>
+        </div>
+        <div class="row-actions"></div>
+      </div>
     </div>
-
-    <div class="input">
-      <label>Password</label>
-      <input id="pass" type="password">
-    </div>
-
-    <button id="btnLogin" class="btn">Login</button>
-
-    <div id="msg" class="notice" style="display:none;margin-top:10px;"></div>
   </div>
-</div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <!-- ===== Login Card ===== -->
+  <div class="container">
+    <div class="card" style="max-width:520px;margin:20px auto;">
+      <div class="h2">Login</div>
 
-<script>
-firebase.initializeApp({
-  apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-  authDomain: "wingo-app-f68dd.firebaseapp.com",
-  projectId: "wingo-app-f68dd"
-});
-</script>
+      <!-- ✅ FORM (prevent refresh) -->
+      <form id="loginForm" autocomplete="off">
+        <div class="input">
+          <label>Phone or Client ID</label>
+          <input id="pid" placeholder="98xxxxxxxx or C12345 / ADMIN1" autocomplete="username" />
+        </div>
 
-<script src="app.js"></script>
+        <div class="input pw-wrap">
+          <label>Password</label>
+          <input id="pass" type="password" placeholder="Password" autocomplete="current-password" />
+          <button type="button" class="pw-toggle" id="togglePass" aria-label="Toggle password">👁️</button>
+        </div>
 
-<script>
-const msg = document.getElementById("msg");
-const btn = document.getElementById("btnLogin");
+        <button class="btn" id="btnLogin" type="submit">Login</button>
+      </form>
 
-function show(m){
-  msg.style.display="block";
-  msg.textContent=m;
-}
+      <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+    </div>
+  </div>
 
-btn.onclick = async function(e){
-  e.preventDefault();      // 🔥 VERY IMPORTANT
-  e.stopPropagation();     // 🔥 NO REFRESH
+  <!-- ✅ Firebase SDK FIRST -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  msg.style.display="none";
+  <script>
+    window.firebaseConfig = {
+      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+      authDomain: "wingo-app-f68dd.firebaseapp.com",
+      projectId: "wingo-app-f68dd",
+      storageBucket: "wingo-app-f68dd.firebasestorage.app",
+      messagingSenderId: "533037771285",
+      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
+      measurementId: "G-RJ1XX4FX3W"
+    };
+  </script>
 
-  const pid = pidEl.value.trim();
-  const pass = passEl.value.trim();
+  <!-- ✅ app.js AFTER config -->
+  <script src="app.js"></script>
 
-  if(!pid || !pass){
-    show("Enter ID and password");
-    return;
-  }
+  <script>
+    (function(){
+      const form = document.getElementById("loginForm");
+      const pidEl = document.getElementById("pid");
+      const passEl = document.getElementById("pass");
+      const btn = document.getElementById("btnLogin");
+      const msgEl = document.getElementById("msg");
+      const toggleBtn = document.getElementById("togglePass");
 
-  btn.disabled = true;
+      function showMsg(text){
+        msgEl.style.display="block";
+        msgEl.textContent = text;
+      }
+      function hideMsg(){
+        msgEl.style.display="none";
+        msgEl.textContent = "";
+      }
 
-  const res = await loginSecure({
-    phoneOrId: pid,
-    password: pass
-  });
+      function redirectByRole(user){
+        if(!user) return;
+        window.location.href = (user.role === "admin") ? "admin.html" : "game.html";
+      }
 
-  btn.disabled = false;
+      // ✅ password show/hide
+      toggleBtn.addEventListener("click", function(){
+        if(passEl.type === "password"){
+          passEl.type = "text";
+          toggleBtn.textContent = "🙈";
+        }else{
+          passEl.type = "password";
+          toggleBtn.textContent = "👁️";
+        }
+      });
 
-  if(!res || !res.ok){
-    show(res?.msg || "Login failed");
-    return;
-  }
+      // ✅ ENTER KEY submit will also call this (no refresh due to preventDefault)
+      form.addEventListener("submit", async function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        hideMsg();
 
-  // ✅ SAVE SESSION
-  localStorage.setItem("jyra_user", JSON.stringify(res.user));
+        // ✅ sanity check
+        if(typeof window.loginSecure !== "function"){
+          showMsg("Error: loginSecure is not defined. app.js load nahi hua (path / cache issue).");
+          return;
+        }
 
-  // ✅ REDIRECT
-  if(res.user.role === "admin"){
-    location.href = "admin.html";
-  } else {
-    location.href = "game.html";
-  }
-};
+        const phoneOrId = (pidEl.value || "").trim();
+        const password  = (passEl.value || "").trim();
 
-// ENTER KEY FIX
-document.addEventListener("keydown", e=>{
-  if(e.key==="Enter") btn.click();
-});
-</script>
+        if(!phoneOrId || !password){
+          showMsg("Please enter ID/Phone and Password.");
+          return;
+        }
 
+        btn.disabled = true;
+        btn.textContent = "Logging in...";
+
+        try{
+          const r = await window.loginSecure({ phoneOrId, password });
+
+          if(!r || !r.ok){
+            showMsg(r?.msg || "Login failed.");
+            return;
+          }
+
+          // ✅ redirect
+          redirectByRole(r.user);
+
+        }catch(err){
+          showMsg("Error: " + (err?.message || String(err)));
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "Login";
+        }
+      });
+
+      // ✅ already logged-in redirect (if your app.js has currentUserAsync)
+      (async function(){
+        try{
+          if(typeof window.currentUserAsync === "function"){
+            const u = await window.currentUserAsync();
+            if(u) redirectByRole(u);
+          }
+        }catch(_){}
+      })();
+    })();
+  </script>
 </body>
 </html>
