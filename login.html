@@ -1,162 +1,149 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Login</title>
   <link rel="icon" type="image/x-icon" href="images/logo.png">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css"/>
+
+  <style>
+    .pw-wrap{ position:relative; }
+    .pw-toggle{
+      position:absolute;
+      right:10px;
+      top:34px;
+      background:none;
+      border:0;
+      cursor:pointer;
+      font-size:18px;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- ===== Header ===== -->
-  <div class="nav">
-    <div class="container">
-      <div class="row header-row">
-        <div class="brand">
-          <a href="index.html">
-            <img src="logo.png" alt="Logo" class="logo">
-          </a>
-        </div>
-        <div class="row-actions"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== Login Card ===== -->
+<!-- ===== Header ===== -->
+<div class="nav">
   <div class="container">
-    <div class="card" style="max-width:520px;margin:20px auto;">
-      <div class="h2">Login</div>
-
-      <div class="input">
-        <label>Phone or Client ID</label>
-        <input id="pid" placeholder="98xxxxxxxx or C12345 / ADMIN1" autocomplete="username" />
+    <div class="row header-row">
+      <div class="brand">
+        <a href="index.html">
+          <img src="logo.png" class="logo" alt="Logo">
+        </a>
       </div>
-
-      <div class="input pw-wrap">
-        <label>Password</label>
-        <input id="pass" type="password" placeholder="Password" autocomplete="current-password" />
-        <button type="button" class="pw-toggle" data-target="pass" aria-label="Toggle password">👁️</button>
-      </div>
-
-      <button class="btn" id="btnLogin" type="button">Login</button>
-
-      <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
     </div>
   </div>
+</div>
 
-  <!-- ✅ Firebase SDK FIRST -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<!-- ===== Login Card ===== -->
+<div class="container">
+  <div class="card" style="max-width:520px;margin:20px auto;">
+    <div class="h2">Login</div>
 
-  <script>
-    // ✅ Your Firebase config
-    window.firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-  </script>
+    <div class="input">
+      <label>Phone or Client ID</label>
+      <input id="pid" placeholder="98xxxxxxxx / C12345 / ADMIN1"/>
+    </div>
 
-  <!-- ✅ app.js AFTER config -->
-  <script src="app.js"></script>
+    <div class="input pw-wrap">
+      <label>Password</label>
+      <input id="pass" type="password" placeholder="Password"/>
+      <button type="button" class="pw-toggle" data-target="pass">👁️</button>
+    </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async function () {
+    <!-- 🔥 IMPORTANT: type="button" -->
+    <button class="btn" id="btnLogin" type="button">Login</button>
 
-      function showMsg(text) {
-        var el = document.getElementById("msg");
-        if (!el) return;
-        el.style.display = "block";
-        el.textContent = text;
+    <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ===== Firebase (ORDER IMPORTANT) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+<script>
+  window.firebaseConfig = {
+    apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+    authDomain: "wingo-app-f68dd.firebaseapp.com",
+    projectId: "wingo-app-f68dd",
+    storageBucket: "wingo-app-f68dd.firebasestorage.app",
+    messagingSenderId: "533037771285",
+    appId: "1:533037771285:web:d72372f86108a8379dbc1c"
+  };
+</script>
+
+<script src="app.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("btnLogin");
+
+  function showMsg(t){
+    msg.style.display="block";
+    msg.textContent=t;
+  }
+  function hideMsg(){
+    msg.style.display="none";
+    msg.textContent="";
+  }
+
+  /* 🔐 Password show / hide */
+  document.addEventListener("click", function(e){
+    const b = e.target.closest(".pw-toggle");
+    if(!b) return;
+    const i = document.getElementById(b.dataset.target);
+    if(i.type==="password"){ i.type="text"; b.textContent="🙈"; }
+    else { i.type="password"; b.textContent="👁️"; }
+  });
+
+  /* 🚫 ENTER key refresh stop */
+  document.addEventListener("keydown", function(e){
+    if(e.key==="Enter") btn.click();
+  });
+
+  /* ✅ LOGIN */
+  btn.addEventListener("click", async function(e){
+    e.preventDefault();            // 🔥 page refresh STOP
+    hideMsg();
+
+    const phoneOrId = pid.value.trim();
+    const password  = pass.value.trim();
+
+    if(!phoneOrId || !password){
+      showMsg("Enter ID/Phone & Password");
+      return;
+    }
+
+    btn.disabled = true;
+
+    try{
+      const r = await loginSecure({ phoneOrId, password });
+      btn.disabled = false;
+
+      if(!r || !r.ok){
+        showMsg(r?.msg || "Login failed");
+        return;
       }
 
-      function hideMsg() {
-        var el = document.getElementById("msg");
-        if (!el) return;
-        el.style.display = "none";
-        el.textContent = "";
+      // ✅ session already set inside loginSecure
+      if(r.user.role === "admin"){
+        location.href = "admin.html";
+      }else{
+        location.href = "game.html";
       }
 
-      function redirectByRole(user) {
-        if (!user) return;
-        window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
-      }
+    }catch(err){
+      btn.disabled = false;
+      showMsg(err.message || "Error");
+    }
+  });
 
-      // If already logged in
-      try {
-        const u = await currentUserAsync();
-        if (u) {
-          redirectByRole(u);
-          return;
-        }
-      } catch (e) { }
+});
+</script>
 
-      // Enter key = login
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          var btn = document.getElementById("btnLogin");
-          if (btn) btn.click();
-        }
-      });
-
-      // Password show/hide
-      document.addEventListener("click", function (e) {
-        var btn = e.target.closest(".pw-toggle");
-        if (!btn) return;
-
-        var targetId = btn.getAttribute("data-target");
-        var inp = document.getElementById(targetId);
-        if (!inp) return;
-
-        if (inp.type === "password") {
-          inp.type = "text";
-          btn.textContent = "🙈";
-        } else {
-          inp.type = "password";
-          btn.textContent = "👁️";
-        }
-      });
-
-      // Login click
-      var loginBtn = document.getElementById("btnLogin");
-      if (loginBtn) {
-        loginBtn.addEventListener("click", async function () {
-          hideMsg();
-
-          var phoneOrId = (document.getElementById("pid").value || "").trim();
-          var password = (document.getElementById("pass").value || "");
-
-          if (!phoneOrId || !password) {
-            showMsg("Please enter ID/Phone and Password.");
-            return;
-          }
-
-          loginBtn.disabled = true;
-
-          try {
-            const r = await loginSecure({ phoneOrId, password });
-            loginBtn.disabled = false;
-
-            if (!r || !r.ok) {
-              showMsg((r && r.msg) ? r.msg : "Login failed.");
-              return;
-            }
-
-            redirectByRole(r.user);
-          } catch (err) {
-            loginBtn.disabled = false;
-            showMsg("Error: " + (err && err.message ? err.message : err));
-          }
-        });
-      }
-    });
-  </script>
 </body>
-
 </html>
