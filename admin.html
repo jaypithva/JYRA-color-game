@@ -8,9 +8,40 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    /* Keep your design same, only fixes + responsive tables + password toggle */
-    body { visibility: hidden; }
+    /* Never keep page hidden forever */
+    body { visibility: visible; }
 
+    /* ===== Small utilities ===== */
+    .mini{ font-size:12px; opacity:.75; }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      font-weight:800;font-size:12px;white-space:nowrap;
+    }
+
+    /* ===== Make selects mobile-friendly ===== */
+    select, input{
+      -webkit-appearance: none;
+      appearance: auto;
+    }
+    select{
+      width:100%;
+      min-height:44px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      outline: none;
+      pointer-events: auto;
+      touch-action: manipulation;
+    }
+
+    .row-actions{ gap:10px; flex-wrap:wrap; }
+
+    /* ===== Password toggle ===== */
     .pw-wrap{ position:relative; }
     .pw-toggle{
       position:absolute;
@@ -23,9 +54,19 @@
       line-height:1;
       padding:6px;
       opacity:.9;
+      color: inherit;
     }
 
-    /* Responsive tables (Client Bet History / Txns) */
+    /* ===== Layout ===== */
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:900px){ .grid3{ grid-template-columns:1fr 1fr; } }
+    @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
+
+    /* ===== Responsive tables ===== */
     .table-wrap{
       width:100%;
       overflow:auto;
@@ -33,9 +74,9 @@
       border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
     }
-    .table-wrap .table{ min-width: 860px; }
+    .table-wrap .table{ min-width: 920px; } /* desktop */
 
-    /* Mobile: show tables as cards */
+    /* Mobile: convert table to cards */
     @media (max-width:720px){
       .table-wrap{ border:0; overflow:visible; }
       table.table, table.table thead, table.table tbody, table.table th, table.table td, table.table tr{
@@ -64,27 +105,16 @@
       }
     }
 
-    .grid3{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width:900px){ .grid3{ grid-template-columns:1fr 1fr; } }
-    @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
-
-    .row-actions{ gap:10px; flex-wrap:wrap; }
-    .mini{ font-size:12px; opacity:.75; }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.04);
-      font-weight:800;
-      font-size:12px;
-      white-space:nowrap;
+    /* Error banner */
+    .errbar{
+      display:none;
+      margin:14px 0 0;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,120,120,.35);
+      background: rgba(255,80,80,.12);
+      color: rgba(255,255,255,.92);
+      font-weight:700;
     }
   </style>
 </head>
@@ -107,12 +137,15 @@
 
   <div class="container">
 
-    <!-- ===== Admin Profile ===== -->
+    <!-- Global error (never blank) -->
+    <div class="errbar" id="globalErr"></div>
+
+    <!-- ===== Admin Panel ===== -->
     <div class="card">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
           <div class="h2" style="margin:0;">Admin Panel</div>
-          <div class="small">Manage clients, wallet, and bet history (cross-device Firestore)</div>
+          <div class="small">Manage clients, wallet, and bet history</div>
         </div>
         <button class="btn secondary small" id="btnReload" type="button">Reload</button>
       </div>
@@ -120,6 +153,7 @@
       <div class="hr"></div>
 
       <div class="grid3">
+        <!-- Update Admin -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Update Profile</div>
 
@@ -141,6 +175,7 @@
           <div class="notice" id="admMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
+        <!-- Create Client -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Create Client</div>
 
@@ -165,13 +200,18 @@
           <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
+        <!-- Quick Actions -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Quick Actions</div>
 
           <div class="input">
             <label>Select Client</label>
-            <select id="selClient"></select>
-            <div class="mini" style="margin-top:6px;">Selected: <b id="selClientInfo">-</b></div>
+            <select id="selClient">
+              <option value="">Loading…</option>
+            </select>
+            <div class="mini" style="margin-top:6px;">
+              Selected: <b id="selClientInfo">-</b>
+            </div>
           </div>
 
           <div class="input">
@@ -209,11 +249,9 @@
 
     <!-- ===== Clients List ===== -->
     <div class="card" style="margin-top:14px;">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Clients</div>
-          <div class="small">All clients list</div>
-        </div>
+      <div>
+        <div class="h2" style="margin:0;">Clients</div>
+        <div class="small">All users list</div>
       </div>
 
       <div class="hr"></div>
@@ -283,17 +321,36 @@
     };
   </script>
 
+  <!-- Your app functions -->
   <script src="app.js"></script>
 
   <script>
+    /* ======================
+       Safe UI helpers
+    ====================== */
+    function $(id){ return document.getElementById(id); }
+
+    function showGlobalErr(msg){
+      var el = $("globalErr");
+      if(!el) return;
+      el.style.display = "block";
+      el.textContent = msg;
+    }
+    function clearGlobalErr(){
+      var el = $("globalErr");
+      if(!el) return;
+      el.style.display = "none";
+      el.textContent = "";
+    }
+
     function showBox(id, text){
-      var el=document.getElementById(id);
+      var el=$(id);
       if(!el) return;
       el.style.display="block";
       el.textContent=text;
     }
     function hideBox(id){
-      var el=document.getElementById(id);
+      var el=$(id);
       if(!el) return;
       el.style.display="none";
       el.textContent="";
@@ -303,247 +360,379 @@
       return "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2, maximumFractionDigits:2});
     }
 
+    function pickPointsFromResponse(r){
+      // handles: {points}, {data:{points}}, {user:{points}}
+      if(!r) return null;
+      if(typeof r.points === "number") return r.points;
+      if(r.data && typeof r.data.points === "number") return r.data.points;
+      if(r.user && typeof r.user.points === "number") return r.user.points;
+      return null;
+    }
+
     function selectedClientId(){
-      var s=document.getElementById("selClient");
+      var s=$("selClient");
       return s ? String(s.value||"") : "";
     }
 
-    async function loadClientsUI(){
-      const users = await listUsers();
-      users.sort((a,b)=> (a.role===b.role ? String(a.id).localeCompare(String(b.id)) : (a.role==="admin" ? -1 : 1)));
-
-      // dropdown
-      var sel=document.getElementById("selClient");
-      sel.innerHTML = "";
-      const clients = users.filter(u => u.role === "user");
-      clients.forEach(u=>{
-        var opt=document.createElement("option");
-        opt.value=u.id;
-        opt.textContent = `${u.id} • ${u.name} • ${u.phone}`;
-        sel.appendChild(opt);
-      });
-
-      // table
-      var tb=document.getElementById("clientsBody");
-      if(!tb) return;
-
-      if(users.length===0){
-        tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
-        return;
+    function requireFn(name){
+      if(typeof window[name] !== "function"){
+        throw new Error("Missing function in app.js: " + name + "()");
       }
-
-      tb.innerHTML = users.map(u => {
-        const pts = (typeof u.points==="number") ? u.points : 0;
-        return `<tr>
-          <td data-label="Client ID">${u.id || "-"}</td>
-          <td data-label="Name">${u.name || "-"}</td>
-          <td data-label="Phone">${u.phone || "-"}</td>
-          <td data-label="Role">${u.role || "-"}</td>
-          <td data-label="Points">${pts} <span class="mini">(${fmtINR(pts)})</span></td>
-          <td data-label="Created">${fmtDate(u.createdAt)}</td>
-        </tr>`;
-      }).join("");
-
-      // select info
-      if(clients.length){
-        await updateSelectedClientInfo();
-      }else{
-        document.getElementById("selClientInfo").textContent = "No clients";
-        document.getElementById("histBody").innerHTML = `<tr><td colspan="7" class="small">No client selected.</td></tr>`;
-      }
+      return window[name];
     }
 
-    async function updateSelectedClientInfo(){
-      const cid = selectedClientId();
-      if(!cid){
-        document.getElementById("selClientInfo").textContent = "-";
-        return;
-      }
-      const u = await getUserByIdFS(cid);
-      document.getElementById("selClientInfo").textContent = u ? `${u.name} (${u.id}) • ${u.phone} • Points: ${u.points||0}` : cid;
-    }
+    /* ======================
+       Page-level error guard
+    ====================== */
+    window.addEventListener("error", function(ev){
+      showGlobalErr("JS Error: " + (ev.message || "Unknown error"));
+    });
+    window.addEventListener("unhandledrejection", function(ev){
+      var m = (ev && ev.reason && ev.reason.message) ? ev.reason.message : String(ev.reason || "Promise error");
+      showGlobalErr("Error: " + m);
+    });
 
-    async function renderHistory(){
-      const cid = selectedClientId();
-      const tb = document.getElementById("histBody");
-      if(!tb) return;
-
-      if(!cid){
-        tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
-        return;
-      }
-
-      const rows = await playsForUser(cid, 30);
-      if(!rows.length){
-        tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
-        return;
-      }
-
-      tb.innerHTML = rows.map(r=>{
-        const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
-        const resCol = r.resultColor || "-";
-        const resBS  = r.resultBigSmall || "-";
-        return `<tr>
-          <td data-label="Date">${fmtDate(r.createdAt)}</td>
-          <td data-label="Period">${r.period || "-"}</td>
-          <td data-label="Mode">${r.modeLabel || "-"}</td>
-          <td data-label="Bet">${(r.betLabel||"-")} (${r.betAmount||0})</td>
-          <td data-label="Result">${resNum} / ${resCol} / ${resBS} • <b>${(r.result||"-")}</b></td>
-          <td data-label="Before">${r.before || 0}</td>
-          <td data-label="After">${r.after || 0}</td>
-        </tr>`;
-      }).join("");
-    }
-
+    /* Password toggle */
     document.addEventListener("click", function(e){
       var btn = e.target.closest(".pw-toggle");
       if(!btn) return;
       var id = btn.getAttribute("data-target");
-      var inp = document.getElementById(id);
+      var inp = $(id);
       if(!inp) return;
       if(inp.type==="password"){ inp.type="text"; btn.textContent="🙈"; }
       else { inp.type="password"; btn.textContent="👁️"; }
     });
 
-    document.addEventListener("DOMContentLoaded", async function(){
-      const ADMIN = await requireAdminAsync();
-      if(!ADMIN) return;
+    /* ======================
+       UI renderers
+    ====================== */
+    async function updateSelectedClientInfo(){
+      const cid = selectedClientId();
+      if(!cid){
+        $("selClientInfo").textContent = "-";
+        return;
+      }
 
-      document.body.style.visibility = "visible";
-      document.getElementById("adminName").textContent = ADMIN.name || "Admin";
+      // try Firestore getter
+      if(typeof window.getUserByIdFS === "function"){
+        const u = await window.getUserByIdFS(cid);
+        $("selClientInfo").textContent = u ? `${u.name} (${u.id}) • ${u.phone} • Points: ${u.points||0}` : cid;
+        return;
+      }
 
-      // logout
-      document.getElementById("btnLogout").onclick = logout;
+      // fallback: maybe getUserById exists (localStorage version)
+      if(typeof window.getUserById === "function"){
+        const u = window.getUserById(cid);
+        $("selClientInfo").textContent = u ? `${u.name} (${u.id}) • ${u.phone} • Points: ${u.points||0}` : cid;
+        return;
+      }
 
-      // reload
-      document.getElementById("btnReload").onclick = async function(){
-        hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
-        await loadClientsUI();
-        await renderHistory();
-      };
+      $("selClientInfo").textContent = cid;
+    }
 
-      // dropdown change
-      document.getElementById("selClient").addEventListener("change", async function(){
-        await updateSelectedClientInfo();
-        await renderHistory();
+    async function loadClientsUI(keepSelected=true){
+      clearGlobalErr();
+
+      const listUsers = requireFn("listUsers"); // must exist for admin panel
+      const users = await listUsers();
+
+      users.sort((a,b)=>{
+        const ar = a.role||"", br = b.role||"";
+        if(ar !== br) return (ar==="admin" ? -1 : 1);
+        return String(a.id||"").localeCompare(String(b.id||""));
       });
 
-      // save admin profile
-      document.getElementById("btnSaveAdmin").onclick = async function(){
-        hideBox("admMsg");
-        const nm = (document.getElementById("admNewName").value||"").trim();
-        const pw = (document.getElementById("admNewPass").value||"").trim();
-        const r = await updateAdminProfile(ADMIN.id, nm, pw);
-        if(!r || !r.ok) return showBox("admMsg", r && r.msg ? r.msg : "Failed");
-        showBox("admMsg", "Saved.");
-        const fresh = await getUserByIdFS(ADMIN.id);
-        document.getElementById("adminName").textContent = fresh ? (fresh.name||"Admin") : "Admin";
-        document.getElementById("admNewPass").value = "";
-      };
+      // dropdown
+      const sel = $("selClient");
+      const prev = keepSelected ? selectedClientId() : "";
+      sel.innerHTML = "";
 
-      // create client
-      document.getElementById("btnCreateClient").onclick = async function(){
-        hideBox("createMsg");
-        const name = (document.getElementById("cName").value||"").trim();
-        const phone = (document.getElementById("cPhone").value||"").trim();
-        const pass = (document.getElementById("cPass").value||"").trim();
+      const clients = users.filter(u => (u.role||"") === "user");
+      if(!clients.length){
+        sel.innerHTML = `<option value="">No clients</option>`;
+      }else{
+        sel.innerHTML = `<option value="">-- Select client --</option>` + clients.map(u=>{
+          const label = `${u.id} • ${u.name} • ${u.phone}`;
+          return `<option value="${String(u.id||"").replace(/"/g,'&quot;')}">${label}</option>`;
+        }).join("");
+      }
 
-        const r = await adminCreateClient({name, phone, password: pass}, ADMIN.id);
-        if(!r || !r.ok) return showBox("createMsg", r && r.msg ? r.msg : "Failed");
-        showBox("createMsg", `Client created: ${r.user.id}`);
-        document.getElementById("cName").value="";
-        document.getElementById("cPhone").value="";
-        document.getElementById("cPass").value="";
-        await loadClientsUI();
-      };
+      // restore selection
+      if(prev){
+        sel.value = prev;
+        if(sel.value !== prev){
+          // prev not found, select first client if exists
+          if(clients.length) sel.value = clients[0].id;
+        }
+      }else{
+        if(clients.length) sel.value = clients[0].id;
+      }
 
-      // credit/debit
-      document.getElementById("btnCredit").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        const amt = Number(document.getElementById("amt").value||0);
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-        const r = await adjustPoints(cid, +amt, "Admin Credit", ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg", `Credited. New points: ${r.points}`);
-        await loadClientsUI();
-        await renderHistory();
-      };
+      // clients table
+      const tb = $("clientsBody");
+      if(!users.length){
+        tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
+      }else{
+        tb.innerHTML = users.map(u=>{
+          const pts = (typeof u.points==="number") ? u.points : 0;
+          return `<tr>
+            <td data-label="Client ID">${u.id || "-"}</td>
+            <td data-label="Name">${u.name || "-"}</td>
+            <td data-label="Phone">${u.phone || "-"}</td>
+            <td data-label="Role">${u.role || "-"}</td>
+            <td data-label="Points">${pts} <span class="mini">(${fmtINR(pts)})</span></td>
+            <td data-label="Created">${(typeof window.fmtDate==="function") ? window.fmtDate(u.createdAt) : (u.createdAt||"-")}</td>
+          </tr>`;
+        }).join("");
+      }
 
-      document.getElementById("btnDebit").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        const amt = Number(document.getElementById("amt").value||0);
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-        const r = await adjustPoints(cid, -amt, "Admin Debit", ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg", `Debited. New points: ${r.points}`);
-        await loadClientsUI();
-        await renderHistory();
-      };
+      await updateSelectedClientInfo();
+    }
 
-      // reset password
-      document.getElementById("btnResetPass").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        const np = (document.getElementById("resetPass").value||"").trim();
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!np || np.length<4) return showBox("actMsg","Password min 4 chars.");
-        const r = await adminResetClientPassword(cid, np, ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg","Password reset done.");
-        document.getElementById("resetPass").value="";
-      };
+    async function renderHistory(){
+      const cid = selectedClientId();
+      const tb = $("histBody");
+      if(!cid){
+        tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
+        return;
+      }
 
-      // clear history
-      document.getElementById("btnClearHistory").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!confirm("Clear selected client history?")) return;
-        const r = await clearClientHistory(cid, false, ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg","History cleared.");
-        await renderHistory();
-      };
+      if(typeof window.playsForUser !== "function"){
+        tb.innerHTML = `<tr><td colspan="7" class="small">Error: playsForUser() not found in app.js</td></tr>`;
+        return;
+      }
 
-      // clear + reset wallet
-      document.getElementById("btnClearAll").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!confirm("Clear history AND reset wallet to 0?")) return;
-        const r = await clearClientHistory(cid, true, ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg","Cleared + Wallet reset.");
-        await loadClientsUI();
-        await renderHistory();
-      };
+      const rows = await window.playsForUser(cid, 30); // your Firestore version uses (userId, limit)
+      const list = Array.isArray(rows) ? rows : [];
 
-      // delete client
-      document.getElementById("btnDeleteClient").onclick = async function(){
-        hideBox("actMsg");
-        const cid = selectedClientId();
-        if(!cid) return showBox("actMsg","Select client first.");
-        if(!confirm("Delete client permanently?")) return;
-        const r = await deleteClient(cid, ADMIN.id);
-        if(!r || !r.ok) return showBox("actMsg", r && r.msg ? r.msg : "Failed");
-        showBox("actMsg","Client deleted.");
-        await loadClientsUI();
-        await renderHistory();
-      };
+      if(!list.length){
+        tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
+        return;
+      }
 
-      // refresh bet history
-      document.getElementById("btnRefreshHistory").onclick = async function(){
-        await updateSelectedClientInfo();
-        await renderHistory();
-      };
+      tb.innerHTML = list.map(r=>{
+        const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
+        const resCol = r.resultColor || "-";
+        const resBS  = r.resultBigSmall || "-";
+        const fdate = (typeof window.fmtDate==="function") ? window.fmtDate(r.createdAt) : (r.createdAt||"-");
+        return `<tr>
+          <td data-label="Date">${fdate}</td>
+          <td data-label="Period">${r.period || "-"}</td>
+          <td data-label="Mode">${r.modeLabel || "-"}</td>
+          <td data-label="Bet">${(r.betLabel||"-")} (${r.betAmount||0})</td>
+          <td data-label="Result">${resNum} / ${resCol} / ${resBS} • <b>${(r.result||"-")}</b></td>
+          <td data-label="Before">${r.before ?? 0}</td>
+          <td data-label="After">${r.after ?? 0}</td>
+        </tr>`;
+      }).join("");
+    }
 
-      // initial load
-      await loadClientsUI();
+    /* ======================
+       Actions
+    ====================== */
+    async function doCreditDebit(delta){
+      hideBox("actMsg");
+      const cid = selectedClientId();
+      const amt = Number($("amt").value||0);
+
+      if(!cid) return showBox("actMsg","Select client first.");
+      if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
+
+      if(typeof window.adjustPoints !== "function"){
+        return showBox("actMsg","Error: adjustPoints() not found in app.js");
+      }
+
+      const ADMIN = window.__ADMIN__;
+      const note = (delta>0) ? "Admin Credit" : "Admin Debit";
+
+      const r = await window.adjustPoints(cid, delta*amt, note, (ADMIN ? ADMIN.id : null));
+      if(!r || r.ok === false){
+        return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+      }
+
+      const pts = pickPointsFromResponse(r);
+      showBox("actMsg", (delta>0 ? "Credited" : "Debited") + (pts!=null ? (". New points: " + pts) : ". Done."));
+
+      await loadClientsUI(true);
       await renderHistory();
+    }
+
+    /* ======================
+       Init
+    ====================== */
+    document.addEventListener("DOMContentLoaded", async function(){
+      try{
+        clearGlobalErr();
+
+        // Must exist
+        const requireAdminAsync = requireFn("requireAdminAsync");
+        const logout = requireFn("logout");
+
+        // get admin
+        const ADMIN = await requireAdminAsync();
+        if(!ADMIN) return;
+
+        window.__ADMIN__ = ADMIN;
+        $("adminName").textContent = ADMIN.name || "Admin";
+
+        $("btnLogout").onclick = logout;
+
+        // Select change (mobile reliable)
+        $("selClient").addEventListener("change", async function(){
+          await updateSelectedClientInfo();
+          await renderHistory();
+        });
+
+        // Reload
+        $("btnReload").onclick = async function(){
+          hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
+          await loadClientsUI(true);
+          await renderHistory();
+        };
+
+        // Update admin profile
+        $("btnSaveAdmin").onclick = async function(){
+          hideBox("admMsg");
+          if(typeof window.updateAdminProfile !== "function"){
+            return showBox("admMsg","Error: updateAdminProfile() not found in app.js");
+          }
+          const nm = ($("admNewName").value||"").trim();
+          const pw = ($("admNewPass").value||"").trim();
+
+          const r = await window.updateAdminProfile(ADMIN.id, nm, pw);
+          if(!r || r.ok === false){
+            return showBox("admMsg", (r && r.msg) ? r.msg : "Failed");
+          }
+          showBox("admMsg","Saved.");
+          $("admNewPass").value = "";
+          await loadClientsUI(true);
+        };
+
+        // Create client
+        $("btnCreateClient").onclick = async function(){
+          hideBox("createMsg");
+
+          // Your firestore admin function name
+          if(typeof window.adminCreateClient !== "function" && typeof window.registerUserSecure !== "function"){
+            return showBox("createMsg","Error: adminCreateClient() / registerUserSecure() not found in app.js");
+          }
+
+          const name = ($("cName").value||"").trim();
+          const phone = ($("cPhone").value||"").trim();
+          const pass = ($("cPass").value||"").trim();
+
+          let r;
+          if(typeof window.adminCreateClient === "function"){
+            r = await window.adminCreateClient({name, phone, password: pass}, ADMIN.id);
+          }else{
+            // fallback old localStorage register
+            r = await window.registerUserSecure({name, phone, password: pass});
+          }
+
+          if(!r || r.ok === false){
+            return showBox("createMsg", (r && r.msg) ? r.msg : "Failed");
+          }
+
+          const uid = (r.user && r.user.id) ? r.user.id : "Created";
+          showBox("createMsg","Client created: " + uid);
+
+          $("cName").value=""; $("cPhone").value=""; $("cPass").value="";
+          await loadClientsUI(true);
+          await renderHistory();
+        };
+
+        // Credit / Debit
+        $("btnCredit").onclick = () => doCreditDebit(+1);
+        $("btnDebit").onclick  = () => doCreditDebit(-1);
+
+        // Reset client password
+        $("btnResetPass").onclick = async function(){
+          hideBox("actMsg");
+          const cid = selectedClientId();
+          const np = ($("resetPass").value||"").trim();
+          if(!cid) return showBox("actMsg","Select client first.");
+          if(!np || np.length < 4) return showBox("actMsg","Password min 4 chars.");
+
+          if(typeof window.adminResetClientPassword !== "function"){
+            return showBox("actMsg","Error: adminResetClientPassword() not found in app.js");
+          }
+
+          const r = await window.adminResetClientPassword(cid, np, ADMIN.id);
+          if(!r || r.ok === false) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+
+          showBox("actMsg","Password reset done.");
+          $("resetPass").value="";
+        };
+
+        // Clear history
+        $("btnClearHistory").onclick = async function(){
+          hideBox("actMsg");
+          const cid = selectedClientId();
+          if(!cid) return showBox("actMsg","Select client first.");
+          if(!confirm("Clear selected client history?")) return;
+
+          if(typeof window.clearClientHistory !== "function"){
+            return showBox("actMsg","Error: clearClientHistory() not found in app.js");
+          }
+
+          const r = await window.clearClientHistory(cid, false, ADMIN.id);
+          if(!r || r.ok === false) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+
+          showBox("actMsg","History cleared.");
+          await renderHistory();
+        };
+
+        // Clear + reset wallet
+        $("btnClearAll").onclick = async function(){
+          hideBox("actMsg");
+          const cid = selectedClientId();
+          if(!cid) return showBox("actMsg","Select client first.");
+          if(!confirm("Clear history AND reset wallet to 0?")) return;
+
+          if(typeof window.clearClientHistory !== "function"){
+            return showBox("actMsg","Error: clearClientHistory() not found in app.js");
+          }
+
+          const r = await window.clearClientHistory(cid, true, ADMIN.id);
+          if(!r || r.ok === false) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+
+          showBox("actMsg","Cleared + Wallet reset.");
+          await loadClientsUI(true);
+          await renderHistory();
+        };
+
+        // Delete client
+        $("btnDeleteClient").onclick = async function(){
+          hideBox("actMsg");
+          const cid = selectedClientId();
+          if(!cid) return showBox("actMsg","Select client first.");
+          if(!confirm("Delete client permanently?")) return;
+
+          if(typeof window.deleteClient !== "function"){
+            return showBox("actMsg","Error: deleteClient() not found in app.js");
+          }
+
+          const r = await window.deleteClient(cid, ADMIN.id);
+          if(!r || r.ok === false) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+
+          showBox("actMsg","Client deleted.");
+          await loadClientsUI(false);
+          await renderHistory();
+        };
+
+        // Refresh history
+        $("btnRefreshHistory").onclick = async function(){
+          await updateSelectedClientInfo();
+          await renderHistory();
+        };
+
+        // initial
+        await loadClientsUI(false);
+        await renderHistory();
+
+      }catch(err){
+        showGlobalErr(err && err.message ? err.message : String(err));
+      }
     });
   </script>
 </body>
