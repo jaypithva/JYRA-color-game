@@ -1,16 +1,14 @@
 /* =====================================================
    Firebase + Firestore Cross-Device App (NO blank pages)
-   - Works with compat SDK (firebase-app-compat, firestore-compat)
+   - Works with compat SDK
    - Global functions: loginSecure, registerUserSecure, adjustPoints, playsForUser, etc.
 ===================================================== */
 
 (function () {
   "use strict";
 
-  // ====== CONFIG ======
   const SESSION_KEY = "club_session_v2";
 
-  // Fixed admin login (you can login with ADMIN1 or phone)
   const DEFAULT_ADMIN = {
     clientId: "ADMIN1",
     role: "admin",
@@ -36,34 +34,21 @@
     return firebase.firestore();
   }
 
-  function db() {
-    return ensureFirebase();
-  }
+  function db() { return ensureFirebase(); }
 
   // ====== HELPERS ======
-  function nowISO() {
-    return new Date().toISOString();
-  }
-
-  function safeNum(n) {
-    n = Number(n);
-    return Number.isFinite(n) ? n : 0;
-  }
+  function nowISO() { return new Date().toISOString(); }
+  function safeNum(n) { n = Number(n); return Number.isFinite(n) ? n : 0; }
 
   function fmtDate(iso) {
-    try {
-      return new Date(iso).toLocaleString("en-IN");
-    } catch (e) {
-      return String(iso || "-");
-    }
+    try { return new Date(iso).toLocaleString("en-IN"); }
+    catch (e) { return String(iso || "-"); }
   }
 
   async function sha256(text) {
     const enc = new TextEncoder().encode(String(text));
     const buf = await crypto.subtle.digest("SHA-256", enc);
-    return Array.from(new Uint8Array(buf))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
   function setSession(userId) {
@@ -85,17 +70,9 @@
   }
 
   // ====== FIRESTORE PATHS ======
-  function userRef(userId) {
-    return db().collection("users").doc(userId);
-  }
-
-  function txnsCol(userId) {
-    return userRef(userId).collection("txns");
-  }
-
-  function playsCol(userId) {
-    return userRef(userId).collection("plays");
-  }
+  function userRef(userId) { return db().collection("users").doc(userId); }
+  function txnsCol(userId) { return userRef(userId).collection("txns"); }
+  function playsCol(userId) { return userRef(userId).collection("plays"); }
 
   // ====== USER READS ======
   async function getUserById(userId) {
@@ -104,18 +81,11 @@
   }
 
   async function getUserByPhone(phone) {
-    // phone must be stored correctly in doc field "phone"
-    const q = await db()
-      .collection("users")
-      .where("phone", "==", String(phone))
-      .limit(1)
-      .get();
-
+    const q = await db().collection("users").where("phone", "==", String(phone)).limit(1).get();
     if (q.empty) return null;
     return q.docs[0].data();
   }
 
-  // cache current user profile
   async function currentUserAsync() {
     const sess = getSession();
     if (!sess || !sess.userId) return null;
@@ -126,16 +96,14 @@
     return u;
   }
 
-  function currentUser() {
-    return window.__ME || null;
-  }
+  function currentUser() { return window.__ME || null; }
 
   function logout() {
     clearSession();
     window.location.replace("login.html");
   }
 
-  // ====== GUARDD ======
+  // ====== GUARDS ======
   async function requireLoginAsync() {
     const u = await currentUserAsync();
     if (!u) {
@@ -154,14 +122,13 @@
     return u;
   }
 
-  // ====== BOOTSTRAP ADMIN (if missing) ======
+  // ====== BOOTSTRAP ADMIN DOC ======
   async function ensureAdminDoc() {
     const ref = userRef(DEFAULT_ADMIN.clientId);
     const snap = await ref.get();
     if (snap.exists) return;
 
     const passwordHash = await sha256(DEFAULT_ADMIN.password);
-
     await ref.set({
       clientId: DEFAULT_ADMIN.clientId,
       role: DEFAULT_ADMIN.role,
@@ -183,15 +150,12 @@
 
     let user = null;
 
-    // Try by ID first (doc id = clientId)
     const byId = await getUserById(key);
     if (byId) user = byId;
 
-    // If not found by ID, try phone
     if (!user) user = await getUserByPhone(key);
 
     if (!user) return { ok: false, msg: "User not found" };
-
     if (!user.passwordHash) return { ok: false, msg: "Password not set for this profile" };
 
     const hash = await sha256(password || "");
@@ -199,7 +163,6 @@
 
     setSession(user.clientId);
     window.__ME = user;
-
     return { ok: true, user };
   }
 
@@ -213,19 +176,14 @@
     if (!name || !phone || !password) return { ok: false, msg: "All fields required" };
     if (!/^\d{10}$/.test(phone)) return { ok: false, msg: "Phone must be 10 digits" };
 
-    // check phone duplicate
     const q = await db().collection("users").where("phone", "==", phone).limit(1).get();
     if (!q.empty) return { ok: false, msg: "Phone already exists" };
 
-    // generate client id similar to old: C + random digits
     const clientId = "C" + Math.floor(10000 + Math.random() * 90000);
 
     const ref = userRef(clientId);
     const exists = await ref.get();
-    if (exists.exists) {
-      // rare collision
-      return { ok: false, msg: "Try again (ID collision)" };
-    }
+    if (exists.exists) return { ok: false, msg: "Try again (ID collision)" };
 
     const passwordHash = await sha256(password);
 
@@ -244,7 +202,14 @@
     return { ok: true, user };
   }
 
-  // ====== POINTS + TXNS (Firestore Transaction) ======
+  // ====== ADMIN CREATE CLIENT (alias used by admin.html) ======
+  async function adminCreateClient({ name, phone, password }, adminId) {
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    return await registerUserSecure({ name, phone, password });
+  }
+
+  // ====== POINTS + TXNS ======
   async function adjustPoints(userId, delta, note, byAdminId = null) {
     userId = String(userId || "").trim();
     const d = Number(delta);
@@ -279,7 +244,6 @@
         return next;
       });
 
-      // refresh cache if same user
       if (window.__ME && window.__ME.clientId === userId) {
         window.__ME = await getUserById(userId);
       }
@@ -349,7 +313,6 @@
     if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
     if (clientId === DEFAULT_ADMIN.clientId) return { ok: false, msg: "Cannot delete admin" };
 
-    // delete txns + plays (best-effort)
     const txSnap = await txnsCol(clientId).get();
     const plSnap = await playsCol(clientId).get();
     const batch = db().batch();
@@ -362,7 +325,13 @@
     return { ok: true };
   }
 
-  async function clearClientHistory(clientId, resetWallet = false) {
+  async function clearClientHistory(clientId, resetWallet = false, adminId = null) {
+    // optional admin check (if provided)
+    if (adminId) {
+      const a = await getUserById(adminId);
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    }
+
     const txSnap = await txnsCol(clientId).get();
     const plSnap = await playsCol(clientId).get();
     const batch = db().batch();
@@ -370,12 +339,10 @@
     txSnap.docs.forEach((d) => batch.delete(d.ref));
     plSnap.docs.forEach((d) => batch.delete(d.ref));
 
-    if (resetWallet) {
-      batch.update(userRef(clientId), { points: 0, updatedAt: nowISO() });
-    }
+    if (resetWallet) batch.update(userRef(clientId), { points: 0, updatedAt: nowISO() });
+
     await batch.commit();
 
-    // refresh cache
     if (window.__ME && window.__ME.clientId === clientId) {
       window.__ME = await getUserById(clientId);
     }
@@ -388,7 +355,11 @@
     return q.docs.map((d) => d.data());
   }
 
-  // ====== Expose globals (so "loginSecure is not defined" NEVER happens) ======
+  // ====== ALIASES (for your admin.html older calls) ======
+  async function listUsers() { return await listAllUsers(); }
+  async function getUserByIdFS(userId) { return await getUserById(userId); }
+
+  // ====== EXPOSE GLOBALS ======
   window.fmtDate = fmtDate;
   window.sha256 = sha256;
 
@@ -400,6 +371,7 @@
 
   window.loginSecure = loginSecure;
   window.registerUserSecure = registerUserSecure;
+  window.adminCreateClient = adminCreateClient;
 
   window.adjustPoints = adjustPoints;
   window.userTxns = userTxns;
@@ -413,6 +385,9 @@
   window.clearClientHistory = clearClientHistory;
 
   window.logout = logout;
+
   window.listAllUsers = listAllUsers;
+  window.listUsers = listUsers;
+  window.getUserByIdFS = getUserByIdFS;
 
 })();
