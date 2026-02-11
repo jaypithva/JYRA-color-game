@@ -1,149 +1,155 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login</title>
   <link rel="icon" type="image/x-icon" href="images/logo.png">
-  <link rel="stylesheet" href="styles.css"/>
-
-  <style>
-    .pw-wrap{ position:relative; }
-    .pw-toggle{
-      position:absolute;
-      right:10px;
-      top:34px;
-      background:none;
-      border:0;
-      cursor:pointer;
-      font-size:18px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-<!-- ===== Header ===== -->
-<div class="nav">
-  <div class="container">
-    <div class="row header-row">
-      <div class="brand">
-        <a href="index.html">
-          <img src="logo.png" class="logo" alt="Logo">
-        </a>
+  <!-- ===== Header ===== -->
+  <div class="nav">
+    <div class="container">
+      <div class="row header-row">
+        <div class="brand">
+          <a href="index.html">
+            <img src="logo.png" alt="Logo" class="logo">
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ===== Login Card ===== -->
-<div class="container">
-  <div class="card" style="max-width:520px;margin:20px auto;">
-    <div class="h2">Login</div>
+  <!-- ===== Login Card ===== -->
+  <div class="container">
 
-    <div class="input">
-      <label>Phone or Client ID</label>
-      <input id="pid" placeholder="98xxxxxxxx / C12345 / ADMIN1"/>
-    </div>
+    <!-- ❗ FORM added + submit disabled -->
+    <form id="loginForm" onsubmit="return false;">
+      <div class="card" style="max-width:520px;margin:20px auto;">
+        <div class="h2">Login</div>
 
-    <div class="input pw-wrap">
-      <label>Password</label>
-      <input id="pass" type="password" placeholder="Password"/>
-      <button type="button" class="pw-toggle" data-target="pass">👁️</button>
-    </div>
+        <div class="input">
+          <label>Phone or Client ID</label>
+          <input id="pid" placeholder="98xxxxxxxx or C123 / ADMIN1" autocomplete="off">
+        </div>
 
-    <!-- 🔥 IMPORTANT: type="button" -->
-    <button class="btn" id="btnLogin" type="button">Login</button>
+        <div class="input pw-wrap">
+          <label>Password</label>
+          <input id="pass" type="password" placeholder="Password" autocomplete="off">
+          <button type="button" class="pw-toggle" id="togglePass">👁️</button>
+        </div>
 
-    <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+        <!-- ❗ type=button (NOT submit) -->
+        <button class="btn" id="btnLogin" type="button">Login</button>
+
+        <div class="notice" id="msg" style="display:none;margin-top:10px;"></div>
+      </div>
+    </form>
   </div>
-</div>
 
-<!-- ===== Firebase (ORDER IMPORTANT) ===== -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <!-- ===== Firebase SDK ===== -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-<script>
-  window.firebaseConfig = {
-    apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-    authDomain: "wingo-app-f68dd.firebaseapp.com",
-    projectId: "wingo-app-f68dd",
-    storageBucket: "wingo-app-f68dd.firebasestorage.app",
-    messagingSenderId: "533037771285",
-    appId: "1:533037771285:web:d72372f86108a8379dbc1c"
-  };
-</script>
+  <script>
+    // Firebase config
+    window.firebaseConfig = {
+      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+      authDomain: "wingo-app-f68dd.firebaseapp.com",
+      projectId: "wingo-app-f68dd",
+      storageBucket: "wingo-app-f68dd.firebasestorage.app",
+      messagingSenderId: "533037771285",
+      appId: "1:533037771285:web:d72372f86108a8379dbc1c"
+    };
+  </script>
 
-<script src="app.js"></script>
+  <!-- ✅ app.js MUST be loaded -->
+  <script src="app.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-  const msg = document.getElementById("msg");
-  const btn = document.getElementById("btnLogin");
+      const form = document.getElementById("loginForm");
+      const btnLogin = document.getElementById("btnLogin");
+      const msg = document.getElementById("msg");
 
-  function showMsg(t){
-    msg.style.display="block";
-    msg.textContent=t;
-  }
-  function hideMsg(){
-    msg.style.display="none";
-    msg.textContent="";
-  }
+      /* ===== HARD STOP: form submit ===== */
+      form.addEventListener("submit", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      });
 
-  /* 🔐 Password show / hide */
-  document.addEventListener("click", function(e){
-    const b = e.target.closest(".pw-toggle");
-    if(!b) return;
-    const i = document.getElementById(b.dataset.target);
-    if(i.type==="password"){ i.type="text"; b.textContent="🙈"; }
-    else { i.type="password"; b.textContent="👁️"; }
-  });
+      /* ===== Enter key fix ===== */
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+          e.preventDefault();
+          btnLogin.click();
+        }
+      });
 
-  /* 🚫 ENTER key refresh stop */
-  document.addEventListener("keydown", function(e){
-    if(e.key==="Enter") btn.click();
-  });
+      /* ===== Show / Hide password ===== */
+      document.getElementById("togglePass").onclick = function(){
+        const p = document.getElementById("pass");
+        if(p.type === "password"){
+          p.type = "text";
+          this.textContent = "🙈";
+        }else{
+          p.type = "password";
+          this.textContent = "👁️";
+        }
+      };
 
-  /* ✅ LOGIN */
-  btn.addEventListener("click", async function(e){
-    e.preventDefault();            // 🔥 page refresh STOP
-    hideMsg();
-
-    const phoneOrId = pid.value.trim();
-    const password  = pass.value.trim();
-
-    if(!phoneOrId || !password){
-      showMsg("Enter ID/Phone & Password");
-      return;
-    }
-
-    btn.disabled = true;
-
-    try{
-      const r = await loginSecure({ phoneOrId, password });
-      btn.disabled = false;
-
-      if(!r || !r.ok){
-        showMsg(r?.msg || "Login failed");
-        return;
+      function showMsg(t){
+        msg.style.display = "block";
+        msg.textContent = t;
       }
 
-      // ✅ session already set inside loginSecure
-      if(r.user.role === "admin"){
-        location.href = "admin.html";
-      }else{
-        location.href = "game.html";
+      function hideMsg(){
+        msg.style.display = "none";
+        msg.textContent = "";
       }
 
-    }catch(err){
-      btn.disabled = false;
-      showMsg(err.message || "Error");
-    }
-  });
+      function redirectByRole(user){
+        if(!user) return;
+        window.location.replace(user.role === "admin" ? "admin.html" : "game.html");
+      }
 
-});
-</script>
+      /* ===== Login click ===== */
+      btnLogin.onclick = async function(){
+        hideMsg();
+
+        const phoneOrId = document.getElementById("pid").value.trim();
+        const password  = document.getElementById("pass").value;
+
+        if(!phoneOrId || !password){
+          showMsg("Enter ID/Phone and Password");
+          return;
+        }
+
+        btnLogin.disabled = true;
+
+        try{
+          const r = await loginSecure({ phoneOrId, password });
+          btnLogin.disabled = false;
+
+          if(!r || !r.ok){
+            showMsg(r && r.msg ? r.msg : "Login failed");
+            return;
+          }
+
+          redirectByRole(r.user);
+
+        }catch(err){
+          btnLogin.disabled = false;
+          showMsg("Error: " + err.message);
+        }
+      };
+    });
+  </script>
 
 </body>
 </html>
