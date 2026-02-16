@@ -10,58 +10,95 @@
   <style>
     body{ visibility:hidden; }
 
+    /* Error banner */
     .errbar{
-      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
-      border:1px solid rgba(255,90,90,.35);background:rgba(255,60,60,.12);
-      color:#ffd6d6;font-weight:800;
+      display:none;
+      margin:12px 0 0;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,90,90,.35);
+      background:rgba(255,60,60,.12);
+      color:#ffd6d6;
+      font-weight:800;
     }
 
+    /* Password toggle */
     .pw-wrap{ position:relative; }
     .pw-toggle{
-      position:absolute;right:10px;top:34px;border:0;background:transparent;cursor:pointer;
-      font-size:18px;line-height:1;padding:6px;opacity:.9;user-select:none;
+      position:absolute;
+      right:10px;
+      top:34px;
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      font-size:18px;
+      line-height:1;
+      padding:6px;
+      opacity:.9;
+      user-select:none;
     }
 
+    /* Select mobile fix */
     select{
-      width:100%;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);color:#fff;font-size:16px;outline:none;
-      -webkit-appearance:none;appearance:none;
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      font-size:16px;
+      outline:none;
+      -webkit-appearance:none;
+      appearance:none;
     }
     select option{ color:#111; }
 
-    /* tables: keep table, only horizontal scroll on small */
+    /* Tables: always table, mobile scroll only */
     .table-wrap{
-      width:100%;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);touch-action:pan-x pan-y;
+      width:100%;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      touch-action: pan-x pan-y;
     }
-    .table-wrap .table{ width:100%; border-collapse:collapse; min-width:980px; }
+    .table-wrap .table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
     @media (max-width:720px){
-      .table-wrap{ overflow-x:auto; overflow-y:hidden; }
       .table-wrap .table{ min-width:1100px; }
       table.table th, table.table td{ white-space:nowrap; }
     }
 
-    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .grid3{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:12px;
+    }
     @media (max-width:900px){ .grid3{ grid-template-columns:1fr 1fr; } }
     @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
 
     .row-actions{ gap:10px; flex-wrap:wrap; }
     .mini{ font-size:12px; opacity:.75; }
-
     .pill{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);
-      font-weight:800;font-size:12px;white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      font-weight:800;
+      font-size:12px;
+      white-space:nowrap;
     }
-
-    .pill.ok{ border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); }
-    .pill.warn{ border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.10); }
-
-    .hide{ display:none !important; }
   </style>
 </head>
 
 <body>
+  <!-- ===== Header ===== -->
   <div class="nav">
     <div class="container">
       <div class="row header-row">
@@ -69,8 +106,7 @@
           <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
         </div>
         <div class="row-actions">
-          <div class="pill">User: <span id="adminName">-</span></div>
-          <div class="pill warn" id="adminWalletPill" style="display:none;">Admin Wallet: <span id="adminWalletText">0</span></div>
+          <div class="pill">Admin: <span id="adminName">-</span></div>
           <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
         </div>
       </div>
@@ -80,11 +116,13 @@
   <div class="container">
     <div class="errbar" id="errBar"></div>
 
+    <!-- ===== Admin Panel ===== -->
     <div class="card">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
           <div class="h2" style="margin:0;">Admin Panel</div>
-          <div class="small">SuperAdmin → Admin Wallet → Client system (Firestore)</div>
+          <div class="small">Manage clients, wallet, and bet history</div>
+          <div class="mini" id="hintLine" style="margin-top:6px; display:none;"></div>
         </div>
         <button class="btn secondary small" id="btnReload" type="button">Reload</button>
       </div>
@@ -92,12 +130,12 @@
       <div class="hr"></div>
 
       <div class="grid3">
-        <!-- Update Profile -->
+        <!-- Update Admin -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Update Profile</div>
 
           <div class="input">
-            <label>Name</label>
+            <label>Admin Name</label>
             <input id="admNewName" placeholder="New name" />
           </div>
 
@@ -114,45 +152,34 @@
           <div class="notice" id="admMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
-        <!-- Create User (Client/Admin) -->
+        <!-- Create Client -->
         <div class="card" style="padding:12px;">
-          <div class="h2" style="margin-top:0;">Create User</div>
+          <div class="h2" style="margin-top:0;">Create Client</div>
 
           <div class="input">
-            <label>Create As</label>
-            <select id="createRole">
-              <option value="user">Client</option>
-              <option value="admin">Admin (Only SuperAdmin)</option>
-            </select>
-            <div class="mini" style="margin-top:6px;">If you are not SuperAdmin, Admin create will be blocked.</div>
+            <label>Client Name</label>
+            <input id="cName" placeholder="Client name" />
           </div>
-
-          <div class="input">
-            <label>Name</label>
-            <input id="cName" placeholder="Name" />
-          </div>
-
           <div class="input">
             <label>Phone (10 digit)</label>
             <input id="cPhone" placeholder="98xxxxxxxx" inputmode="numeric" />
           </div>
-
           <div class="input pw-wrap">
             <label>Password</label>
-            <input id="cPass" type="password" placeholder="Password" />
+            <input id="cPass" type="password" placeholder="Client password" />
             <button type="button" class="pw-toggle" data-target="cPass" aria-label="Toggle password">👁️</button>
           </div>
 
           <div class="row-actions">
-            <button class="btn" id="btnCreateUser" type="button">Create</button>
+            <button class="btn" id="btnCreateClient" type="button">Create</button>
           </div>
 
           <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
-        <!-- Quick Actions (Client Points) -->
+        <!-- Quick Actions -->
         <div class="card" style="padding:12px;">
-          <div class="h2" style="margin-top:0;">Client Wallet Actions</div>
+          <div class="h2" style="margin-top:0;">Quick Actions</div>
 
           <div class="input">
             <label>Select Client</label>
@@ -161,7 +188,7 @@
           </div>
 
           <div class="input">
-            <label>Amount</label>
+            <label>Wallet Amount</label>
             <input id="amt" type="number" min="1" placeholder="Enter points" />
           </div>
 
@@ -191,47 +218,14 @@
           <div class="notice" id="actMsg" style="display:none;margin-top:10px;"></div>
         </div>
       </div>
-
-      <!-- ✅ SuperAdmin Panel -->
-      <div class="hr"></div>
-      <div class="card hide" id="superPanel" style="padding:12px;">
-        <div class="row-actions" style="justify-content:space-between;">
-          <div>
-            <div class="h2" style="margin:0;">Super Admin Panel</div>
-            <div class="small">Topup Admin Wallet (Admin can only credit clients up to this limit)</div>
-          </div>
-          <div class="pill ok">Role: SUPERADMIN</div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="grid3" style="grid-template-columns: 1.2fr 1fr 1fr;">
-          <div class="input">
-            <label>Select Admin</label>
-            <select id="selAdmin"></select>
-            <div class="mini" style="margin-top:6px;">Selected: <b id="selAdminInfo">-</b></div>
-          </div>
-
-          <div class="input">
-            <label>Topup Amount</label>
-            <input id="admTopAmt" type="number" min="1" placeholder="Enter points" />
-          </div>
-
-          <div class="row-actions" style="align-items:flex-end;">
-            <button class="btn" id="btnTopupAdmin" type="button">Topup Admin Wallet</button>
-          </div>
-        </div>
-
-        <div class="notice" id="superMsg" style="display:none;margin-top:10px;"></div>
-      </div>
     </div>
 
-    <!-- Users List -->
+    <!-- ===== Clients List ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
-          <div class="h2" style="margin:0;">Users</div>
-          <div class="small">Admins + Clients list</div>
+          <div class="h2" style="margin:0;">Clients</div>
+          <div class="small">Clients (SuperAdmin hidden)</div>
         </div>
       </div>
 
@@ -241,23 +235,20 @@
         <table class="table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>Client ID</th>
               <th>Name</th>
               <th>Phone</th>
               <th>Role</th>
-              <th>Client Points</th>
-              <th>Admin Wallet</th>
-              <th>Admin Used</th>
-              <th>Admin Remaining</th>
+              <th>Points</th>
               <th>Created</th>
             </tr>
           </thead>
-          <tbody id="usersBody"></tbody>
+          <tbody id="clientsBody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Client Bet History -->
+    <!-- ===== Client Bet History ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
@@ -286,7 +277,6 @@
         </table>
       </div>
     </div>
-
   </div>
 
   <!-- Firebase compat FIRST -->
@@ -309,61 +299,66 @@
   <script src="app.js"></script>
 
   <script>
+    // ===== UI Helpers =====
     function errBar(msg){
       var el=document.getElementById("errBar");
       if(!el) return;
       if(!msg){ el.style.display="none"; el.textContent=""; return; }
-      el.style.display="block"; el.textContent=msg;
+      el.style.display="block";
+      el.textContent=msg;
     }
     function showBox(id,text){
-      var el=document.getElementById(id); if(!el) return;
-      el.style.display="block"; el.textContent=text;
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.style.display="block";
+      el.textContent=text;
     }
     function hideBox(id){
-      var el=document.getElementById(id); if(!el) return;
-      el.style.display="none"; el.textContent="";
+      var el=document.getElementById(id);
+      if(!el) return;
+      el.style.display="none";
+      el.textContent="";
     }
     function fmtINR(n){
-      n=Number(n||0);
+      n = Number(n||0);
       return "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2, maximumFractionDigits:2});
     }
+
     function selectedClientId(){
       var s=document.getElementById("selClient");
       return s ? String(s.value||"") : "";
     }
 
-    async function getUserSafe(id){
+    // ===== Safe wrappers =====
+    async function _listUsersSafe(){
+      if(typeof listUsers==="function") return await listUsers();
+      if(typeof listAllUsers==="function") return await listAllUsers();
+      throw new Error("listUsers/listAllUsers missing in app.js");
+    }
+    async function _getUserSafe(id){
       if(typeof getUserByIdFS==="function") return await getUserByIdFS(id);
-      if(typeof getUserById==="function") return await getUserById(id);
       return null;
     }
 
-    async function loadAllUsers(){
-      if(typeof listUsers==="function") return await listUsers();
-      if(typeof listAllUsers==="function") return await listAllUsers();
-      throw new Error("listUsers/listAllUsers missing");
-    }
-
-    function setAdminWalletPill(me){
-      var pill=document.getElementById("adminWalletPill");
-      var text=document.getElementById("adminWalletText");
-      if(!pill || !text) return;
-
-      if(!me || me.role!=="admin"){ pill.style.display="none"; return; }
-      const wallet = Number(me.adminWallet||0);
-      const used = Number(me.adminUsed||0);
-      const rem = Math.max(0, wallet-used);
-      text.textContent = rem + " (Remaining)";
-      pill.style.display="inline-flex";
+    // ===== IMPORTANT FILTER: hide superadmin everywhere =====
+    function isSuperAdminUser(u){
+      const role = String(u?.role||"").toLowerCase();
+      const cid  = String(u?.clientId||u?.id||"").trim();
+      // hide if role says superadmin OR known id SUPER1 OR name contains "super admin"
+      if(role==="superadmin") return true;
+      if(cid.toUpperCase()==="SUPER1") return true;
+      if(String(u?.name||"").toLowerCase().includes("super admin")) return true;
+      return false;
     }
 
     async function updateSelectedClientInfo(){
       const cid = selectedClientId();
-      var out = document.getElementById("selClientInfo");
+      const out = document.getElementById("selClientInfo");
       if(!out) return;
       if(!cid){ out.textContent="-"; return; }
-      const u = await getUserSafe(cid);
-      out.textContent = u ? `${u.name} (${u.clientId||u.id||cid}) • ${u.phone} • Points: ${u.points||0}` : cid;
+
+      const u = await _getUserSafe(cid);
+      out.textContent = u ? `${u.name} (${u.clientId||u.id||cid}) • ${u.phone||"-"} • Points: ${u.points||0}` : cid;
     }
 
     async function renderHistory(){
@@ -375,15 +370,18 @@
         tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
         return;
       }
+
       if(typeof playsForUser!=="function"){
         tb.innerHTML = `<tr><td colspan="7" class="small">Error: playsForUser missing in app.js</td></tr>`;
         return;
       }
+
       const rows = await playsForUser(cid, 30);
       if(!rows.length){
         tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
         return;
       }
+
       tb.innerHTML = rows.map(r=>{
         const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
         const resCol = r.resultColor || "-";
@@ -400,110 +398,66 @@
       }).join("");
     }
 
-    async function loadUI(){
-      const users = await loadAllUsers();
+    async function loadClientsUI(){
+      const raw = await _listUsersSafe();
 
-      // dropdown clients
-      const sel = document.getElementById("selClient");
-      sel.innerHTML = "";
-      const clients = users.filter(u => u.role === "user");
-      if(!clients.length){
-        const opt=document.createElement("option");
-        opt.value=""; opt.textContent="No clients";
-        sel.appendChild(opt);
-      }else{
-        clients
-          .sort((a,b)=> String(a.clientId||a.id).localeCompare(String(b.clientId||b.id)))
-          .forEach(u=>{
-            const opt=document.createElement("option");
-            opt.value = u.clientId || u.id;
-            opt.textContent = `${u.clientId || u.id} • ${u.name} • ${u.phone}`;
-            sel.appendChild(opt);
-          });
-      }
+      // ✅ hide superadmin
+      const users = raw.filter(u => !isSuperAdminUser(u));
 
-      // superadmin admin list
-      const selAdmin = document.getElementById("selAdmin");
-      selAdmin.innerHTML = "";
-      const admins = users.filter(u => u.role === "admin");
-      if(!admins.length){
-        const opt=document.createElement("option");
-        opt.value=""; opt.textContent="No admins";
-        selAdmin.appendChild(opt);
-      }else{
-        admins
-          .sort((a,b)=> String(a.clientId||a.id).localeCompare(String(b.clientId||b.id)))
-          .forEach(u=>{
-            const opt=document.createElement("option");
-            opt.value = u.clientId || u.id;
-            const wallet = Number(u.adminWallet||0), used=Number(u.adminUsed||0), rem=Math.max(0, wallet-used);
-            opt.textContent = `${u.clientId||u.id} • ${u.name} • Rem:${rem}`;
-            selAdmin.appendChild(opt);
-          });
-      }
-
-      // users table
-      const tb = document.getElementById("usersBody");
-      if(!tb) return;
-      if(!users.length){
-        tb.innerHTML = `<tr><td colspan="9" class="small">No users found.</td></tr>`;
-        return;
-      }
-
+      // sort: admin first, then users
       users.sort((a,b)=>{
-        const ar=a.role||"", br=b.role||"";
-        const pr = (x)=> x==="superadmin" ? 0 : (x==="admin" ? 1 : 2);
-        if(pr(ar)!==pr(br)) return pr(ar)-pr(br);
+        const ar=String(a.role||"");
+        const br=String(b.role||"");
+        if(ar!==br) return (ar==="admin" ? -1 : 1);
         return String(a.clientId||a.id||"").localeCompare(String(b.clientId||b.id||""));
       });
 
-      tb.innerHTML = users.map(u=>{
-        const id = u.clientId || u.id || "-";
-        const pts = Number(u.points||0);
-        const wallet = Number(u.adminWallet||0);
-        const used = Number(u.adminUsed||0);
-        const rem = Math.max(0, wallet-used);
-        const created = (typeof fmtDate==="function") ? fmtDate(u.createdAt) : (u.createdAt||"-");
-        return `<tr>
-          <td>${id}</td>
-          <td>${u.name || "-"}</td>
-          <td>${u.phone || "-"}</td>
-          <td>${u.role || "-"}</td>
-          <td>${pts} <span class="mini">(${fmtINR(pts)})</span></td>
-          <td>${wallet}</td>
-          <td>${used}</td>
-          <td><b>${rem}</b></td>
-          <td>${created}</td>
-        </tr>`;
-      }).join("");
+      // dropdown: only role=user (never admin, never superadmin)
+      var sel=document.getElementById("selClient");
+      sel.innerHTML="";
+      const clients = users.filter(u => String(u.role||"").toLowerCase()==="user");
+
+      if(!clients.length){
+        const opt=document.createElement("option");
+        opt.value="";
+        opt.textContent="No clients";
+        sel.appendChild(opt);
+      }else{
+        clients.forEach(u=>{
+          const opt=document.createElement("option");
+          opt.value = u.clientId || u.id;
+          opt.textContent = `${u.clientId||u.id} • ${u.name||"-"} • ${u.phone||"-"}`;
+          sel.appendChild(opt);
+        });
+      }
+
+      // table
+      var tb=document.getElementById("clientsBody");
+      if(!tb) return;
+
+      if(!users.length){
+        tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
+      }else{
+        tb.innerHTML = users.map(u=>{
+          const pts = (typeof u.points==="number") ? u.points : 0;
+          const id  = u.clientId || u.id || "-";
+          const created = (typeof fmtDate==="function") ? fmtDate(u.createdAt) : (u.createdAt||"-");
+          return `<tr>
+            <td>${id}</td>
+            <td>${u.name||"-"}</td>
+            <td>${u.phone||"-"}</td>
+            <td>${u.role||"-"}</td>
+            <td>${pts} <span class="mini">(${fmtINR(pts)})</span></td>
+            <td>${created}</td>
+          </tr>`;
+        }).join("");
+      }
 
       await updateSelectedClientInfo();
       await renderHistory();
-      await updateSelectedAdminInfo(users);
     }
 
-    async function updateSelectedAdminInfo(usersCached){
-      const el = document.getElementById("selAdminInfo");
-      const selAdmin = document.getElementById("selAdmin");
-      if(!el || !selAdmin) return;
-
-      const id = String(selAdmin.value||"");
-      if(!id){ el.textContent="-"; return; }
-
-      let u = null;
-      if(Array.isArray(usersCached)){
-        u = usersCached.find(x => (x.clientId||x.id) === id) || null;
-      }
-      if(!u) u = await getUserSafe(id);
-
-      if(!u){ el.textContent=id; return; }
-      const wallet = Number(u.adminWallet||0);
-      const used = Number(u.adminUsed||0);
-      const rem = Math.max(0, wallet-used);
-      el.textContent = `${u.name} (${id}) • Wallet:${wallet} • Used:${used} • Rem:${rem}`;
-    }
-
-    // password toggle
+    // Password toggle (all)
     document.addEventListener("click", function(e){
       var btn = e.target.closest(".pw-toggle");
       if(!btn) return;
@@ -522,81 +476,62 @@
           return;
         }
 
-        const ME = await requireAdminAsync(); // admin or superadmin
-        if(!ME) return;
+        const ADMIN = await requireAdminAsync();
+        if(!ADMIN) return;
 
-        document.body.style.visibility="visible";
-        document.getElementById("adminName").textContent = (ME.name||"User") + " ("+(ME.role||"-")+")";
-        setAdminWalletPill(ME);
-
-        // show super panel only for superadmin
-        const superPanel = document.getElementById("superPanel");
-        if(superPanel){
-          if(ME.role==="superadmin") superPanel.classList.remove("hide");
-          else superPanel.classList.add("hide");
+        // ✅ If someone made role superadmin by mistake, block here
+        if(String(ADMIN.role||"").toLowerCase()==="superadmin"){
+          errBar("This page is for Admin only. SuperAdmin should use superadmin panel.");
+          document.body.style.visibility="visible";
+          return;
         }
 
-        // logout
+        document.body.style.visibility="visible";
+        document.getElementById("adminName").textContent = ADMIN.name || "Admin";
+
         document.getElementById("btnLogout").onclick = (typeof logout==="function") ? logout : function(){ location.replace("login.html"); };
 
-        // reload
         document.getElementById("btnReload").onclick = async function(){
           errBar("");
-          hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg"); hideBox("superMsg");
-          await loadUI();
-          // refresh wallet badge
-          const fresh = await getUserSafe(ME.clientId||ME.id);
-          setAdminWalletPill(fresh);
+          hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
+          await loadClientsUI();
         };
 
-        // dropdown changes
         document.getElementById("selClient").addEventListener("change", async function(){
           await updateSelectedClientInfo();
           await renderHistory();
         });
 
-        document.getElementById("selAdmin").addEventListener("change", async function(){
-          const all = await loadAllUsers();
-          await updateSelectedAdminInfo(all);
-        });
-
-        // save profile
         document.getElementById("btnSaveAdmin").onclick = async function(){
           hideBox("admMsg");
           if(typeof updateAdminProfile!=="function") return showBox("admMsg","Error: updateAdminProfile missing in app.js");
           const nm = (document.getElementById("admNewName").value||"").trim();
           const pw = (document.getElementById("admNewPass").value||"").trim();
-          const id = ME.clientId || ME.id;
+          const id = ADMIN.clientId || ADMIN.id;
           const r = await updateAdminProfile(id, nm, pw);
           if(!r || !r.ok) return showBox("admMsg", r?.msg || "Failed");
           showBox("admMsg","Saved.");
           document.getElementById("admNewPass").value="";
-          const fresh = await getUserSafe(id);
-          document.getElementById("adminName").textContent = (fresh?.name||"User") + " ("+(fresh?.role||"-")+")";
         };
 
-        // create user (client/admin)
-        document.getElementById("btnCreateUser").onclick = async function(){
+        document.getElementById("btnCreateClient").onclick = async function(){
           hideBox("createMsg");
-          if(typeof createUserAsRole!=="function") return showBox("createMsg","Error: createUserAsRole missing in app.js");
-
-          const role = String(document.getElementById("createRole").value||"user");
+          if(typeof adminCreateClient!=="function") return showBox("createMsg","Error: adminCreateClient missing in app.js");
           const name = (document.getElementById("cName").value||"").trim();
           const phone = (document.getElementById("cPhone").value||"").trim();
           const pass = (document.getElementById("cPass").value||"").trim();
+          const id = ADMIN.clientId || ADMIN.id;
 
-          const id = ME.clientId || ME.id;
-          const r = await createUserAsRole({ role, name, phone, password: pass }, id);
+          const r = await adminCreateClient({name, phone, password: pass}, id);
           if(!r || !r.ok) return showBox("createMsg", r?.msg || "Failed");
 
-          showBox("createMsg", `${role==="admin" ? "Admin" : "Client"} created: ${r.user.clientId||r.user.id}`);
+          showBox("createMsg", `Client created: ${r.user.clientId || r.user.id}`);
           document.getElementById("cName").value="";
           document.getElementById("cPhone").value="";
           document.getElementById("cPass").value="";
-          await loadUI();
+          await loadClientsUI();
         };
 
-        // credit client
         document.getElementById("btnCredit").onclick = async function(){
           hideBox("actMsg");
           if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
@@ -604,20 +539,14 @@
           const amt = Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
+          const id = ADMIN.clientId || ADMIN.id;
 
-          const by = ME.clientId || ME.id;
-          const r = await adjustPoints(cid, +amt, "Admin Credit", by);
+          const r = await adjustPoints(cid, +amt, "Admin Credit", id);
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
-
           showBox("actMsg", `Credited. New points: ${r.points}`);
-          await loadUI();
-
-          // refresh wallet badge (admin only)
-          const fresh = await getUserSafe(by);
-          setAdminWalletPill(fresh);
+          await loadClientsUI();
         };
 
-        // debit client
         document.getElementById("btnDebit").onclick = async function(){
           hideBox("actMsg");
           if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
@@ -625,16 +554,14 @@
           const amt = Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
+          const id = ADMIN.clientId || ADMIN.id;
 
-          const by = ME.clientId || ME.id;
-          const r = await adjustPoints(cid, -amt, "Admin Debit", by);
+          const r = await adjustPoints(cid, -amt, "Admin Debit", id);
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
-
           showBox("actMsg", `Debited. New points: ${r.points}`);
-          await loadUI();
+          await loadClientsUI();
         };
 
-        // reset password
         document.getElementById("btnResetPass").onclick = async function(){
           hideBox("actMsg");
           if(typeof adminResetClientPassword!=="function") return showBox("actMsg","Error: adminResetClientPassword missing in app.js");
@@ -642,81 +569,56 @@
           const np = (document.getElementById("resetPass").value||"").trim();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!np || np.length<4) return showBox("actMsg","Password min 4 chars.");
-          const by = ME.clientId || ME.id;
-          const r = await adminResetClientPassword(cid, np, by);
+          const id = ADMIN.clientId || ADMIN.id;
+
+          const r = await adminResetClientPassword(cid, np, id);
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
           showBox("actMsg","Password reset done.");
           document.getElementById("resetPass").value="";
         };
 
-        // clear history
         document.getElementById("btnClearHistory").onclick = async function(){
           hideBox("actMsg");
           if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear selected client history?")) return;
-          const r = await clearClientHistory(cid, false);
+          const r = await clearClientHistory(cid, false, (ADMIN.clientId||ADMIN.id));
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
           showBox("actMsg","History cleared.");
           await renderHistory();
         };
 
-        // clear + reset
         document.getElementById("btnClearAll").onclick = async function(){
           hideBox("actMsg");
           if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear history AND reset wallet to 0?")) return;
-          const r = await clearClientHistory(cid, true);
+          const r = await clearClientHistory(cid, true, (ADMIN.clientId||ADMIN.id));
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
           showBox("actMsg","Cleared + Wallet reset.");
-          await loadUI();
+          await loadClientsUI();
         };
 
-        // delete client
         document.getElementById("btnDeleteClient").onclick = async function(){
           hideBox("actMsg");
           if(typeof deleteClient!=="function") return showBox("actMsg","Error: deleteClient missing in app.js");
           const cid = selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Delete client permanently?")) return;
-          const by = ME.clientId || ME.id;
-          const r = await deleteClient(cid, by);
+          const r = await deleteClient(cid, (ADMIN.clientId||ADMIN.id));
           if(!r || !r.ok) return showBox("actMsg", r?.msg || "Failed");
           showBox("actMsg","Client deleted.");
-          await loadUI();
+          await loadClientsUI();
         };
 
-        // refresh history
         document.getElementById("btnRefreshHistory").onclick = async function(){
           await updateSelectedClientInfo();
           await renderHistory();
         };
 
-        // superadmin topup admin wallet
-        document.getElementById("btnTopupAdmin").onclick = async function(){
-          hideBox("superMsg");
-          if(ME.role!=="superadmin") return showBox("superMsg","Only SuperAdmin can topup admin wallet.");
-          if(typeof superAdminGiveAdminWallet!=="function") return showBox("superMsg","Error: superAdminGiveAdminWallet missing in app.js");
-
-          const aid = String(document.getElementById("selAdmin").value||"");
-          const amt = Number(document.getElementById("admTopAmt").value||0);
-          if(!aid) return showBox("superMsg","Select admin first.");
-          if(!amt || amt<=0) return showBox("superMsg","Enter amount.");
-
-          const r = await superAdminGiveAdminWallet(aid, amt, (ME.clientId||ME.id), "Admin Wallet Topup");
-          if(!r || !r.ok) return showBox("superMsg", r?.msg || "Failed");
-
-          showBox("superMsg", `Topup done. Admin wallet: ${r.adminWallet}`);
-          document.getElementById("admTopAmt").value="";
-          await loadUI();
-        };
-
-        // initial load
-        await loadUI();
-
+        await loadClientsUI();
       }catch(e){
         document.body.style.visibility="visible";
         errBar("Error: " + (e?.message || String(e)));
