@@ -2,243 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Panel</title>
-
-<link rel="icon" href="images/logo.png">
 <link rel="stylesheet" href="styles.css">
-
 <style>
 body{visibility:hidden}
-
-/* ===== COMMON ===== */
-.section-title{
-  font-size:20px;
-  font-weight:800;
-  margin-bottom:6px;
-}
-.section-sub{
-  font-size:13px;
-  opacity:.75;
-}
-.card{
-  background:#111;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:14px;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
+.card{background:#111;padding:14px;border-radius:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.grid{grid-template-columns:1fr}}
-
-.btn{
-  padding:12px 14px;
-  border-radius:12px;
-  border:none;
-  background:#4f46e5;
-  color:#fff;
-  font-weight:700;
-}
-.btn.secondary{background:#222}
-.btn.danger{background:#b91c1c}
-.btn.small{padding:8px 10px;font-size:13px}
-
-.input label{font-size:13px;opacity:.7}
-.input input, select{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  background:#1c1c1c;
-  border:1px solid #333;
-  color:#fff;
-  margin-top:6px;
-}
-
-.notice{
-  margin-top:10px;
-  font-size:13px;
-  padding:10px;
-  border-radius:10px;
-  background:#0f172a;
-}
-
-/* ===== BET HISTORY ===== */
-.table-wrap{display:block}
+.bet-card{background:#0b0b0b;border:1px solid #222;border-radius:14px;padding:12px;margin-bottom:10px}
+.bet-card div{font-size:13px;margin-bottom:4px}
+.table-wrap{overflow:auto}
 @media(max-width:720px){.table-wrap{display:none}}
-
-.bet-cards{display:none}
-@media(max-width:720px){
-  .bet-cards{display:block}
-}
-
-.bet-card{
-  background:#0b0b0b;
-  border-radius:14px;
-  padding:12px;
-  margin-bottom:10px;
-  border:1px solid #222;
-}
-.bet-card div{
-  font-size:13px;
-  margin-bottom:4px;
-}
-.bet-card b{color:#a5b4fc}
-
-/* ===== SUPER ADMIN ===== */
-.superadmin{
-  border:1px solid #1e293b;
-  background:#020617;
-}
+@media(min-width:721px){.bet-cards{display:none}}
 </style>
 </head>
 
 <body>
 
-<div class="nav">
-  <div class="container row header-row">
-    <div class="brand">
-      <img src="logo.png" class="logo">
-    </div>
-    <div class="row-actions">
-      <span class="pill">👤 <b id="adminName">-</b></span>
-      <button class="btn secondary small" onclick="logout()">Logout</button>
-    </div>
-  </div>
-</div>
-
 <div class="container">
-
-<!-- ===== SUPER ADMIN PANEL ===== -->
-<div class="card superadmin" id="superAdminBox" style="display:none">
-  <div class="section-title">👑 Super Admin</div>
-  <div class="section-sub">Create Admin & Manage Admin Points</div>
-
-  <div class="grid">
-    <div>
-      <div class="input">
-        <label>Admin ID</label>
-        <input id="sa_adminId">
-      </div>
-      <div class="input">
-        <label>Name</label>
-        <input id="sa_name">
-      </div>
-      <div class="input">
-        <label>Phone</label>
-        <input id="sa_phone">
-      </div>
-      <div class="input">
-        <label>Password</label>
-        <input id="sa_pass" type="password">
-      </div>
-      <button class="btn" onclick="createAdmin()">Create Admin</button>
-    </div>
-
-    <div>
-      <div class="input">
-        <label>Admin ID</label>
-        <input id="sa_pts_admin">
-      </div>
-      <div class="input">
-        <label>Add Points</label>
-        <input id="sa_pts">
-      </div>
-      <button class="btn secondary" onclick="addAdminPoints()">Add Points</button>
-    </div>
+  <div class="card">
+    <h2>Admin Panel</h2>
+    <div id="who"></div>
+    <button onclick="logout()">Logout</button>
   </div>
 
-  <div class="notice" id="saMsg" style="display:none"></div>
-</div>
-
-<!-- ===== CLIENT BET HISTORY ===== -->
-<div class="card">
-  <div class="section-title">🎮 Client Bet History</div>
-  <div class="section-sub">Last 30 bets</div>
-
-  <!-- DESKTOP TABLE -->
-  <div class="table-wrap">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Date</th><th>Period</th><th>Mode</th>
-          <th>Bet</th><th>Result</th><th>Before</th><th>After</th>
-        </tr>
-      </thead>
-      <tbody id="histTable"></tbody>
-    </table>
+  <div class="card" id="superBox" style="display:none">
+    <h3>Super Admin</h3>
+    <input id="aid" placeholder="Admin ID">
+    <input id="aname" placeholder="Name">
+    <input id="aphone" placeholder="Phone">
+    <input id="apass" placeholder="Password">
+    <button onclick="createAdmin()">Create Admin</button><br><br>
+    <input id="pid" placeholder="Admin ID">
+    <input id="pts" placeholder="Points">
+    <button onclick="addPts()">Add Points</button>
+    <div id="saMsg"></div>
   </div>
 
-  <!-- MOBILE CARDS -->
-  <div class="bet-cards" id="histCards"></div>
+  <div class="card">
+    <h3>Client Bet History</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Date</th><th>Bet</th><th>Result</th><th>Wallet</th></tr>
+        </thead>
+        <tbody id="histT"></tbody>
+      </table>
+    </div>
+    <div class="bet-cards" id="histC"></div>
+  </div>
 </div>
 
-</div>
-
-<!-- ===== FIREBASE ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+<script>
+window.firebaseConfig={
+  apiKey:"AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+  authDomain:"wingo-app-f68dd.firebaseapp.com",
+  projectId:"wingo-app-f68dd"
+};
+</script>
 
 <script src="app.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", async ()=>{
-  const me = await requireAdminAsync();
+document.addEventListener("DOMContentLoaded",async()=>{
+  const me=await requireAdminAsync();
   if(!me) return;
 
   document.body.style.visibility="visible";
-  adminName.textContent = me.name || me.clientId;
+  who.textContent = me.name+" ("+me.role+")";
 
-  // SUPER ADMIN CHECK
-  if(me.role==="superadmin"){
-    superAdminBox.style.display="block";
-  }
+  if(me.role==="superadmin") superBox.style.display="block";
 
-  await loadHistory();
-});
-
-async function loadHistory(){
-  const users = await listAllUsers();
-  const client = users.find(u=>u.role==="user");
+  const users=await listAllUsers();
+  const client=users.find(u=>u.role==="user");
   if(!client) return;
 
-  const rows = await playsForUser(client.clientId,30);
-
-  histTable.innerHTML = rows.map(r=>`
-    <tr>
-      <td>${fmtDate(r.createdAt)}</td>
-      <td>${r.period||"-"}</td>
-      <td>${r.modeLabel||"-"}</td>
-      <td>${r.betLabel} (${r.betAmount})</td>
-      <td>${r.result||"-"}</td>
-      <td>${r.before||0}</td>
-      <td>${r.after||0}</td>
-    </tr>
+  const rows=await playsForUser(client.clientId,30);
+  histT.innerHTML = rows.map(r=>`
+    <tr><td>${r.createdAt}</td><td>${r.betLabel||"-"}</td><td>${r.result||"-"}</td><td>${r.before}→${r.after}</td></tr>
   `).join("");
-
-  histCards.innerHTML = rows.map(r=>`
+  histC.innerHTML = rows.map(r=>`
     <div class="bet-card">
-      <div><b>Date:</b> ${fmtDate(r.createdAt)}</div>
-      <div><b>Period:</b> ${r.period}</div>
-      <div><b>Bet:</b> ${r.betLabel} (${r.betAmount})</div>
-      <div><b>Result:</b> ${r.result}</div>
-      <div><b>Wallet:</b> ${r.before} → ${r.after}</div>
+      <div>Date: ${r.createdAt}</div>
+      <div>Bet: ${r.betLabel}</div>
+      <div>Result: ${r.result}</div>
+      <div>Wallet: ${r.before} → ${r.after}</div>
     </div>
   `).join("");
-}
+});
 
-/* ===== SUPER ADMIN FUNCTIONS ===== */
 async function createAdmin(){
-  saMsg.style.display="none";
-  const r = await superCreateAdmin({
-    clientId: sa_adminId.value,
-    name: sa_name.value,
-    phone: sa_phone.value,
-    password: sa_pass.value
-  }, (await currentUserAsync()).clientId);
-
-  saMsg.style.display="block";
-  saMsg.textContent = r.ok ? "Admin Cr
+  const me=await currentUserAsync();
+  const r=await superCreateAdmin({
+    clientId:aid.value,
+    name:aname.value,
+    phone:aphone.value,
+    password:apass.value
+  }, me.clientId);
+  saMsg.textContent = r.ok?"Admin Created":r.msg;
+}
+async function addPts(){
+  const me=await currentUserAsync();
+  const r=await superAddAdminPoints(pid.value,Number(pts.value),me.clientId);
+  saMsg.textContent = r.ok?"Points Added":r.msg;
+}
+</script>
+</body>
+</html>
