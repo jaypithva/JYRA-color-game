@@ -1,381 +1,433 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin</title>
-  <link rel="icon" type="image/x-icon" href="images/logo.png">
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin</title>
+    <link rel="icon" type="image/x-icon" href="images/logo.png">
+    <link rel="stylesheet" href="styles.css" />
 
-  <style>
-    body { visibility: hidden; }
-
-    /* Error banner */
-    .errbar{
-      display:none;
-      margin:12px 0 0;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,90,90,.35);
-      background:rgba(255,60,60,.12);
-      color:#ffd6d6;
-      font-weight:800;
-    }
-
-    /* Password toggle */
-    .pw-wrap{ position:relative; }
-    .pw-toggle{
-      position:absolute;
-      right:10px;
-      top:34px;
-      border:0;
-      background:transparent;
-      cursor:pointer;
-      font-size:18px;
-      line-height:1;
-      padding:6px;
-      opacity:.9;
-      user-select:none;
-    }
-
-    /* Mobile select fix */
-    select{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      color:#fff;
-      font-size:16px; /* iOS zoom/selection fix */
-      outline:none;
-      -webkit-appearance:none;
-      appearance:none;
-    }
-    select option{ color:#111; }
-
-    /* ✅ Keep tables as tables everywhere. Just horizontal scroll on small screens */
-    .table-wrap{
-      width:100%;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      touch-action: pan-x pan-y;
-    }
-    .table-wrap .table{
-      width:100%;
-      border-collapse:collapse;
-      min-width: 980px; /* readable columns */
-    }
-    @media (max-width:720px){
-      .table-wrap{ overflow-x:auto; overflow-y:hidden; }
-      .table-wrap .table{ min-width: 1100px; }
-      table.table th, table.table td{ white-space:nowrap; }
-    }
-
-    .grid3{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width:900px){ .grid3{ grid-template-columns:1fr 1fr; } }
-    @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
-
-    .row-actions{ gap:10px; flex-wrap:wrap; }
-    .mini{ font-size:12px; opacity:.75; }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.04);
-      font-weight:800;
-      font-size:12px;
-      white-space:nowrap;
-    }
-  </style>
+    <style>
+        body {
+            visibility: hidden;
+        }
+        /* Error banner */
+        
+        .errbar {
+            display: none;
+            margin: 12px 0 0;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 90, 90, .35);
+            background: rgba(255, 60, 60, .12);
+            color: #ffd6d6;
+            font-weight: 800;
+        }
+        /* Password toggle */
+        
+        .pw-wrap {
+            position: relative;
+        }
+        
+        .pw-toggle {
+            position: absolute;
+            right: 10px;
+            top: 34px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 6px;
+            opacity: .9;
+            user-select: none;
+        }
+        /* Mobile select fix */
+        
+        select {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .04);
+            color: #fff;
+            font-size: 16px;
+            /* iOS zoom/selection fix */
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        select option {
+            color: #111;
+        }
+        /* ✅ Keep tables as tables everywhere. Just horizontal scroll on small screens */
+        
+        .table-wrap {
+            width: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            touch-action: pan-x pan-y;
+        }
+        
+        .table-wrap .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 980px;
+            /* readable columns */
+        }
+        
+        @media (max-width:720px) {
+            .table-wrap {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            .table-wrap .table {
+                min-width: 1100px;
+            }
+            table.table th,
+            table.table td {
+                white-space: nowrap;
+            }
+        }
+        
+        .grid3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        
+        @media (max-width:900px) {
+            .grid3 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width:620px) {
+            .grid3 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .row-actions {
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .mini {
+            font-size: 12px;
+            opacity: .75;
+        }
+        
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(255, 255, 255, .04);
+            font-weight: 800;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 
 <body>
-  <!-- ===== Header ===== -->
-  <div class="nav">
+    <!-- ===== Header ===== -->
+    <div class="nav">
+        <div class="container">
+            <div class="row header-row">
+                <div class="brand">
+                    <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+                </div>
+                <div class="row-actions">
+                    <div class="pill">Admin: <span id="adminName">-</span></div>
+                    <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-      <div class="row header-row">
-        <div class="brand">
-          <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+        <div class="errbar" id="errBar"></div>
+
+        <!-- ===== Admin Panel ===== -->
+        <div class="card">
+            <div class="row-actions" style="justify-content:space-between;">
+                <div>
+                    <div class="h2" style="margin:0;">Admin Panel</div>
+                    <div class="small">Manage clients, wallet, and bet history (cross-device Firestore)</div>
+                </div>
+                <button class="btn secondary small" id="btnReload" type="button">Reload</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="grid3">
+                <!-- Update Admin -->
+                <div class="card" style="padding:12px;">
+                    <div class="h2" style="margin-top:0;">Update Profile</div>
+
+                    <div class="input">
+                        <label>Admin Name</label>
+                        <input id="admNewName" placeholder="New name" />
+                    </div>
+
+                    <div class="input pw-wrap">
+                        <label>New Password (min 4)</label>
+                        <input id="admNewPass" type="password" placeholder="New password" />
+                        <button type="button" class="pw-toggle" data-target="admNewPass" aria-label="Toggle password">👁️</button>
+                    </div>
+
+                    <div class="row-actions">
+                        <button class="btn" id="btnSaveAdmin" type="button">Save</button>
+                    </div>
+
+                    <div class="notice" id="admMsg" style="display:none;margin-top:10px;"></div>
+                </div>
+
+                <!-- Create Client -->
+                <div class="card" style="padding:12px;">
+                    <div class="h2" style="margin-top:0;">Create Client</div>
+
+                    <div class="input">
+                        <label>Client Name</label>
+                        <input id="cName" placeholder="Client name" />
+                    </div>
+                    <div class="input">
+                        <label>Phone (10 digit)</label>
+                        <input id="cPhone" placeholder="98xxxxxxxx" inputmode="numeric" />
+                    </div>
+                    <div class="input pw-wrap">
+                        <label>Password</label>
+                        <input id="cPass" type="password" placeholder="Client password" />
+                        <button type="button" class="pw-toggle" data-target="cPass" aria-label="Toggle password">👁️</button>
+                    </div>
+
+                    <div class="row-actions">
+                        <button class="btn" id="btnCreateClient" type="button">Create</button>
+                    </div>
+
+                    <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card" style="padding:12px;">
+                    <div class="h2" style="margin-top:0;">Quick Actions</div>
+
+                    <div class="input">
+                        <label>Select Client</label>
+                        <select id="selClient"></select>
+                        <div class="mini" style="margin-top:6px;">Selected: <b id="selClientInfo">-</b></div>
+                    </div>
+
+                    <div class="input">
+                        <label>Wallet Amount</label>
+                        <input id="amt" type="number" min="1" placeholder="Enter points" />
+                    </div>
+
+                    <div class="row-actions">
+                        <button class="btn" id="btnCredit" type="button">Credit</button>
+                        <button class="btn secondary" id="btnDebit" type="button">Debit</button>
+                    </div>
+
+                    <div class="hr"></div>
+
+                    <div class="input pw-wrap" style="margin-bottom:0;">
+                        <label>Reset Client Password</label>
+                        <input id="resetPass" type="password" placeholder="New password" />
+                        <button type="button" class="pw-toggle" data-target="resetPass" aria-label="Toggle password">👁️</button>
+                    </div>
+
+                    <div class="row-actions" style="margin-top:10px;">
+                        <button class="btn secondary" id="btnResetPass" type="button">Reset</button>
+                        <button class="btn secondary" id="btnClearHistory" type="button">Clear History</button>
+                        <button class="btn secondary" id="btnClearAll" type="button">Clear + Reset Wallet</button>
+                    </div>
+
+                    <div class="row-actions" style="margin-top:10px;">
+                        <button class="btn danger" id="btnDeleteClient" type="button">Delete Client</button>
+                    </div>
+
+                    <div class="notice" id="actMsg" style="display:none;margin-top:10px;"></div>
+                </div>
+            </div>
         </div>
-        <div class="row-actions">
-          <div class="pill">Admin: <span id="adminName">-</span></div>
-          <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="container">
-    <div class="errbar" id="errBar"></div>
+        <!-- ===== Clients List ===== -->
+        <div class="card" style="margin-top:14px;">
+            <div class="row-actions" style="justify-content:space-between;">
+                <div>
+                    <div class="h2" style="margin:0;">Clients</div>
+                    <div class="small">All users list</div>
+                </div>
+            </div>
 
-    <!-- ===== Admin Panel ===== -->
-    <div class="card">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Admin Panel</div>
-          <div class="small">Manage clients, wallet, and bet history (cross-device Firestore)</div>
-        </div>
-        <button class="btn secondary small" id="btnReload" type="button">Reload</button>
-      </div>
+            <div class="hr"></div>
 
-      <div class="hr"></div>
-
-      <div class="grid3">
-        <!-- Update Admin -->
-        <div class="card" style="padding:12px;">
-          <div class="h2" style="margin-top:0;">Update Profile</div>
-
-          <div class="input">
-            <label>Admin Name</label>
-            <input id="admNewName" placeholder="New name" />
-          </div>
-
-          <div class="input pw-wrap">
-            <label>New Password (min 4)</label>
-            <input id="admNewPass" type="password" placeholder="New password" />
-            <button type="button" class="pw-toggle" data-target="admNewPass" aria-label="Toggle password">👁️</button>
-          </div>
-
-          <div class="row-actions">
-            <button class="btn" id="btnSaveAdmin" type="button">Save</button>
-          </div>
-
-          <div class="notice" id="admMsg" style="display:none;margin-top:10px;"></div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Client ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Points</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsBody"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Create Client -->
-        <div class="card" style="padding:12px;">
-          <div class="h2" style="margin-top:0;">Create Client</div>
+        <!-- ===== Client Bet History ===== -->
+        <div class="card" style="margin-top:14px;">
+            <div class="row-actions" style="justify-content:space-between;">
+                <div>
+                    <div class="h2" style="margin:0;">Client Bet History</div>
+                    <div class="small">Last 30 plays of selected client</div>
+                </div>
+                <button class="btn secondary small" id="btnRefreshHistory" type="button">Refresh</button>
+            </div>
 
-          <div class="input">
-            <label>Client Name</label>
-            <input id="cName" placeholder="Client name" />
-          </div>
-          <div class="input">
-            <label>Phone (10 digit)</label>
-            <input id="cPhone" placeholder="98xxxxxxxx" inputmode="numeric" />
-          </div>
-          <div class="input pw-wrap">
-            <label>Password</label>
-            <input id="cPass" type="password" placeholder="Client password" />
-            <button type="button" class="pw-toggle" data-target="cPass" aria-label="Toggle password">👁️</button>
-          </div>
+            <div class="hr"></div>
 
-          <div class="row-actions">
-            <button class="btn" id="btnCreateClient" type="button">Create</button>
-          </div>
-
-          <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Period</th>
+                            <th>Mode</th>
+                            <th>Bet</th>
+                            <th>Result</th>
+                            <th>Before</th>
+                            <th>After</th>
+                        </tr>
+                    </thead>
+                    <tbody id="histBody"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="card" style="padding:12px;">
-          <div class="h2" style="margin-top:0;">Quick Actions</div>
-
-          <div class="input">
-            <label>Select Client</label>
-            <select id="selClient"></select>
-            <div class="mini" style="margin-top:6px;">Selected: <b id="selClientInfo">-</b></div>
-          </div>
-
-          <div class="input">
-            <label>Wallet Amount</label>
-            <input id="amt" type="number" min="1" placeholder="Enter points" />
-          </div>
-
-          <div class="row-actions">
-            <button class="btn" id="btnCredit" type="button">Credit</button>
-            <button class="btn secondary" id="btnDebit" type="button">Debit</button>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="input pw-wrap" style="margin-bottom:0;">
-            <label>Reset Client Password</label>
-            <input id="resetPass" type="password" placeholder="New password" />
-            <button type="button" class="pw-toggle" data-target="resetPass" aria-label="Toggle password">👁️</button>
-          </div>
-
-          <div class="row-actions" style="margin-top:10px;">
-            <button class="btn secondary" id="btnResetPass" type="button">Reset</button>
-            <button class="btn secondary" id="btnClearHistory" type="button">Clear History</button>
-            <button class="btn secondary" id="btnClearAll" type="button">Clear + Reset Wallet</button>
-          </div>
-
-          <div class="row-actions" style="margin-top:10px;">
-            <button class="btn danger" id="btnDeleteClient" type="button">Delete Client</button>
-          </div>
-
-          <div class="notice" id="actMsg" style="display:none;margin-top:10px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== Clients List ===== -->
-    <div class="card" style="margin-top:14px;">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Clients</div>
-          <div class="small">All users list</div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Client ID</th>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Points</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody id="clientsBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ===== Client Bet History ===== -->
-    <div class="card" style="margin-top:14px;">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Client Bet History</div>
-          <div class="small">Last 30 plays of selected client</div>
-        </div>
-        <button class="btn secondary small" id="btnRefreshHistory" type="button">Refresh</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Period</th>
-              <th>Mode</th>
-              <th>Bet</th>
-              <th>Result</th>
-              <th>Before</th>
-              <th>After</th>
-            </tr>
-          </thead>
-          <tbody id="histBody"></tbody>
-        </table>
-      </div>
     </div>
 
-  </div>
+    <!-- Firebase compat FIRST -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <!-- Firebase compat FIRST -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script>
+        window.firebaseConfig = {
+            apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
+            authDomain: "wingo-app-f68dd.firebaseapp.com",
+            projectId: "wingo-app-f68dd",
+            storageBucket: "wingo-app-f68dd.firebasestorage.app",
+            messagingSenderId: "533037771285",
+            appId: "1:533037771285:web:d72372f86108a8379dbc1c",
+            measurementId: "G-RJ1XX4FX3W"
+        };
+    </script>
 
-  <script>
-    window.firebaseConfig = {
-      apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
-      authDomain: "wingo-app-f68dd.firebaseapp.com",
-      projectId: "wingo-app-f68dd",
-      storageBucket: "wingo-app-f68dd.firebasestorage.app",
-      messagingSenderId: "533037771285",
-      appId: "1:533037771285:web:d72372f86108a8379dbc1c",
-      measurementId: "G-RJ1XX4FX3W"
-    };
-  </script>
+    <script src="app.js"></script>
 
-  <script src="app.js"></script>
+    <script>
+        function errBar(msg) {
+            var el = document.getElementById("errBar");
+            if (!el) return;
+            if (!msg) {
+                el.style.display = "none";
+                el.textContent = "";
+                return;
+            }
+            el.style.display = "block";
+            el.textContent = msg;
+        }
 
-  <script>
-    function errBar(msg){
-      var el=document.getElementById("errBar");
-      if(!el) return;
-      if(!msg){ el.style.display="none"; el.textContent=""; return; }
-      el.style.display="block";
-      el.textContent = msg;
-    }
+        function showBox(id, text) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.style.display = "block";
+            el.textContent = text;
+        }
 
-    function showBox(id, text){
-      var el=document.getElementById(id);
-      if(!el) return;
-      el.style.display="block";
-      el.textContent=text;
-    }
-    function hideBox(id){
-      var el=document.getElementById(id);
-      if(!el) return;
-      el.style.display="none";
-      el.textContent="";
-    }
-    function fmtINR(n){
-      n = Number(n||0);
-      return "₹" + n.toLocaleString("en-IN",{minimumFractionDigits:2, maximumFractionDigits:2});
-    }
-    function selectedClientId(){
-      var s=document.getElementById("selClient");
-      return s ? String(s.value||"") : "";
-    }
+        function hideBox(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.style.display = "none";
+            el.textContent = "";
+        }
 
-    // ✅ Fallbacks (avoid "function not defined" blank page)
-    async function _listUsersSafe(){
-      if (typeof listUsers === "function") return await listUsers();
-      if (typeof listAllUsers === "function") return await listAllUsers();
-      throw new Error("listUsers/listAllUsers missing in app.js");
-    }
-    async function _getUserSafe(id){
-      if (typeof getUserByIdFS === "function") return await getUserByIdFS(id);
-      if (typeof getUserById === "function") return await getUserById(id);
-      return null;
-    }
+        function fmtINR(n) {
+            n = Number(n || 0);
+            return "₹" + n.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
 
-    async function updateSelectedClientInfo(){
-      const cid = selectedClientId();
-      var out = document.getElementById("selClientInfo");
-      if(!out) return;
-      if(!cid){ out.textContent="-"; return; }
-      const u = await _getUserSafe(cid);
-      out.textContent = u ? `${u.name} (${u.clientId||u.id||cid}) • ${u.phone} • Points: ${u.points||0}` : cid;
-    }
+        function selectedClientId() {
+            var s = document.getElementById("selClient");
+            return s ? String(s.value || "") : "";
+        }
 
-    async function renderHistory(){
-      const cid = selectedClientId();
-      const tb = document.getElementById("histBody");
-      if(!tb) return;
+        // ✅ Fallbacks (avoid "function not defined" blank page)
+        async function _listUsersSafe() {
+            if (typeof listUsers === "function") return await listUsers();
+            if (typeof listAllUsers === "function") return await listAllUsers();
+            throw new Error("listUsers/listAllUsers missing in app.js");
+        }
+        async function _getUserSafe(id) {
+            if (typeof getUserByIdFS === "function") return await getUserByIdFS(id);
+            if (typeof getUserById === "function") return await getUserById(id);
+            return null;
+        }
 
-      if(!cid){
-        tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
-        return;
-      }
+        async function updateSelectedClientInfo() {
+            const cid = selectedClientId();
+            var out = document.getElementById("selClientInfo");
+            if (!out) return;
+            if (!cid) {
+                out.textContent = "-";
+                return;
+            }
+            const u = await _getUserSafe(cid);
+            out.textContent = u ? `${u.name} (${u.clientId||u.id||cid}) • ${u.phone} • Points: ${u.points||0}` : cid;
+        }
 
-      if (typeof playsForUser !== "function") {
-        tb.innerHTML = `<tr><td colspan="7" class="small">Error: playsForUser missing in app.js</td></tr>`;
-        return;
-      }
+        async function renderHistory() {
+            const cid = selectedClientId();
+            const tb = document.getElementById("histBody");
+            if (!tb) return;
 
-      const rows = await playsForUser(cid, 30);
-      if(!rows.length){
-        tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
-        return;
-      }
+            if (!cid) {
+                tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
+                return;
+            }
 
-      tb.innerHTML = rows.map(r=>{
-        const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
-        const resCol = r.resultColor || "-";
-        const resBS  = r.resultBigSmall || "-";
-        return `<tr>
+            if (typeof playsForUser !== "function") {
+                tb.innerHTML = `<tr><td colspan="7" class="small">Error: playsForUser missing in app.js</td></tr>`;
+                return;
+            }
+
+            const rows = await playsForUser(cid, 30);
+            if (!rows.length) {
+                tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
+                return;
+            }
+
+            tb.innerHTML = rows.map(r => {
+                const resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
+                const resCol = r.resultColor || "-";
+                const resBS = r.resultBigSmall || "-";
+                return `<tr>
           <td>${(typeof fmtDate==="function") ? fmtDate(r.createdAt) : (r.createdAt||"-")}</td>
           <td>${r.period || "-"}</td>
           <td>${r.modeLabel || "-"}</td>
@@ -384,53 +436,54 @@
           <td>${r.before || 0}</td>
           <td>${r.after || 0}</td>
         </tr>`;
-      }).join("");
-    }
+            }).join("");
+        }
 
-    async function loadClientsUI(){
-      const users = await _listUsersSafe();
+        async function loadClientsUI() {
+            const users = await _listUsersSafe();
 
-      users.sort((a,b)=>{
-        const ar = a.role||"", br=b.role||"";
-        if (ar!==br) return (ar==="admin" ? -1 : 1);
-        const aid = String(a.clientId||a.id||"");
-        const bid = String(b.clientId||b.id||"");
-        return aid.localeCompare(bid);
-      });
+            users.sort((a, b) => {
+                const ar = a.role || "",
+                    br = b.role || "";
+                if (ar !== br) return (ar === "admin" ? -1 : 1);
+                const aid = String(a.clientId || a.id || "");
+                const bid = String(b.clientId || b.id || "");
+                return aid.localeCompare(bid);
+            });
 
-      // dropdown (only role=user)
-      var sel=document.getElementById("selClient");
-      sel.innerHTML="";
-      const clients = users.filter(u => (u.role==="user"));
+            // dropdown (only role=user)
+            var sel = document.getElementById("selClient");
+            sel.innerHTML = "";
+            const clients = users.filter(u => (u.role === "user"));
 
-      if(!clients.length){
-        var opt=document.createElement("option");
-        opt.value="";
-        opt.textContent="No clients";
-        sel.appendChild(opt);
-      } else {
-        clients.forEach(u=>{
-          var opt=document.createElement("option");
-          opt.value = u.clientId || u.id;
-          opt.textContent = `${u.clientId || u.id} • ${u.name} • ${u.phone}`;
-          sel.appendChild(opt);
-        });
-      }
+            if (!clients.length) {
+                var opt = document.createElement("option");
+                opt.value = "";
+                opt.textContent = "No clients";
+                sel.appendChild(opt);
+            } else {
+                clients.forEach(u => {
+                    var opt = document.createElement("option");
+                    opt.value = u.clientId || u.id;
+                    opt.textContent = `${u.clientId || u.id} • ${u.name} • ${u.phone}`;
+                    sel.appendChild(opt);
+                });
+            }
 
-      // clients table
-      var tb=document.getElementById("clientsBody");
-      if(!tb) return;
+            // clients table
+            var tb = document.getElementById("clientsBody");
+            if (!tb) return;
 
-      if(!users.length){
-        tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
-        return;
-      }
+            if (!users.length) {
+                tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
+                return;
+            }
 
-      tb.innerHTML = users.map(u=>{
-        const pts = (typeof u.points==="number") ? u.points : 0;
-        const id  = u.clientId || u.id || "-";
-        const created = (typeof fmtDate==="function") ? fmtDate(u.createdAt) : (u.createdAt||"-");
-        return `<tr>
+            tb.innerHTML = users.map(u => {
+                const pts = (typeof u.points === "number") ? u.points : 0;
+                const id = u.clientId || u.id || "-";
+                const created = (typeof fmtDate === "function") ? fmtDate(u.createdAt) : (u.createdAt || "-");
+                return `<tr>
           <td>${id}</td>
           <td>${u.name || "-"}</td>
           <td>${u.phone || "-"}</td>
@@ -438,183 +491,197 @@
           <td>${pts} <span class="mini">(${fmtINR(pts)})</span></td>
           <td>${created}</td>
         </tr>`;
-      }).join("");
+            }).join("");
 
-      await updateSelectedClientInfo();
-      await renderHistory();
-    }
-
-    // ✅ Password toggle
-    document.addEventListener("click", function(e){
-      var btn = e.target.closest(".pw-toggle");
-      if(!btn) return;
-      var id = btn.getAttribute("data-target");
-      var inp = document.getElementById(id);
-      if(!inp) return;
-      if(inp.type==="password"){ inp.type="text"; btn.textContent="🙈"; }
-      else { inp.type="password"; btn.textContent="👁️"; }
-    });
-
-    document.addEventListener("DOMContentLoaded", async function(){
-      try{
-        if(typeof requireAdminAsync!=="function"){
-          errBar("Error: app.js not loaded OR requireAdminAsync missing. Hard refresh (Ctrl+Shift+R) / clear cache.");
-          document.body.style.visibility="visible";
-          return;
+            await updateSelectedClientInfo();
+            await renderHistory();
         }
 
-        const ADMIN = await requireAdminAsync();
-        if(!ADMIN) return;
-
-        document.body.style.visibility="visible";
-        document.getElementById("adminName").textContent = ADMIN.name || "Admin";
-
-        // logout
-        document.getElementById("btnLogout").onclick = (typeof logout==="function") ? logout : function(){ location.replace("login.html"); };
-
-        // reload
-        document.getElementById("btnReload").onclick = async function(){
-          errBar("");
-          hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
-          await loadClientsUI();
-        };
-
-        // dropdown change
-        document.getElementById("selClient").addEventListener("change", async function(){
-          await updateSelectedClientInfo();
-          await renderHistory();
+        // ✅ Password toggle
+        document.addEventListener("click", function(e) {
+            var btn = e.target.closest(".pw-toggle");
+            if (!btn) return;
+            var id = btn.getAttribute("data-target");
+            var inp = document.getElementById(id);
+            if (!inp) return;
+            if (inp.type === "password") {
+                inp.type = "text";
+                btn.textContent = "🙈";
+            } else {
+                inp.type = "password";
+                btn.textContent = "👁️";
+            }
         });
 
-        // save admin
-        document.getElementById("btnSaveAdmin").onclick = async function(){
-          hideBox("admMsg");
-          if(typeof updateAdminProfile!=="function") return showBox("admMsg","Error: updateAdminProfile missing in app.js");
-          const nm = (document.getElementById("admNewName").value||"").trim();
-          const pw = (document.getElementById("admNewPass").value||"").trim();
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await updateAdminProfile(id, nm, pw);
-          if(!r || !r.ok) return showBox("admMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("admMsg","Saved.");
-          const fresh = await _getUserSafe(id);
-          document.getElementById("adminName").textContent = fresh ? (fresh.name||"Admin") : "Admin";
-          document.getElementById("admNewPass").value="";
-        };
+        document.addEventListener("DOMContentLoaded", async function() {
+            try {
+                if (typeof requireAdminAsync !== "function") {
+                    errBar("Error: app.js not loaded OR requireAdminAsync missing. Hard refresh (Ctrl+Shift+R) / clear cache.");
+                    document.body.style.visibility = "visible";
+                    return;
+                }
 
-        // create client
-        document.getElementById("btnCreateClient").onclick = async function(){
-          hideBox("createMsg");
-          if(typeof adminCreateClient!=="function") return showBox("createMsg","Error: adminCreateClient missing in app.js");
-          const name = (document.getElementById("cName").value||"").trim();
-          const phone = (document.getElementById("cPhone").value||"").trim();
-          const pass = (document.getElementById("cPass").value||"").trim();
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adminCreateClient({name, phone, password: pass}, id);
-          if(!r || !r.ok) return showBox("createMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("createMsg", `Client created: ${r.user.clientId || r.user.id}`);
-          document.getElementById("cName").value="";
-          document.getElementById("cPhone").value="";
-          document.getElementById("cPass").value="";
-          await loadClientsUI();
-        };
+                const ADMIN = await requireAdminAsync();
+                if (!ADMIN) return;
 
-        // credit
-        document.getElementById("btnCredit").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
-          const cid = selectedClientId();
-          const amt = Number(document.getElementById("amt").value||0);
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adjustPoints(cid, +amt, "Admin Credit", id);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg", `Credited. New points: ${r.points}`);
-          await loadClientsUI();
-        };
+                document.body.style.visibility = "visible";
+                document.getElementById("adminName").textContent = ADMIN.name || "Admin";
 
-        // debit
-        document.getElementById("btnDebit").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof adjustPoints!=="function") return showBox("actMsg","Error: adjustPoints missing in app.js");
-          const cid = selectedClientId();
-          const amt = Number(document.getElementById("amt").value||0);
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adjustPoints(cid, -amt, "Admin Debit", id);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg", `Debited. New points: ${r.points}`);
-          await loadClientsUI();
-        };
+                // logout
+                document.getElementById("btnLogout").onclick = (typeof logout === "function") ? logout : function() {
+                    location.replace("login.html");
+                };
 
-        // reset password
-        document.getElementById("btnResetPass").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof adminResetClientPassword!=="function") return showBox("actMsg","Error: adminResetClientPassword missing in app.js");
-          const cid = selectedClientId();
-          const np = (document.getElementById("resetPass").value||"").trim();
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!np || np.length<4) return showBox("actMsg","Password min 4 chars.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adminResetClientPassword(cid, np, id);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg","Password reset done.");
-          document.getElementById("resetPass").value="";
-        };
+                // reload
+                document.getElementById("btnReload").onclick = async function() {
+                    errBar("");
+                    hideBox("admMsg");
+                    hideBox("createMsg");
+                    hideBox("actMsg");
+                    await loadClientsUI();
+                };
 
-        // clear history
-        document.getElementById("btnClearHistory").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
-          const cid = selectedClientId();
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!confirm("Clear selected client history?")) return;
-          const r = await clearClientHistory(cid, false);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg","History cleared.");
-          await renderHistory();
-        };
+                // dropdown change
+                document.getElementById("selClient").addEventListener("change", async function() {
+                    await updateSelectedClientInfo();
+                    await renderHistory();
+                });
 
-        // clear + reset
-        document.getElementById("btnClearAll").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof clearClientHistory!=="function") return showBox("actMsg","Error: clearClientHistory missing in app.js");
-          const cid = selectedClientId();
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!confirm("Clear history AND reset wallet to 0?")) return;
-          const r = await clearClientHistory(cid, true);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg","Cleared + Wallet reset.");
-          await loadClientsUI();
-        };
+                // save admin
+                document.getElementById("btnSaveAdmin").onclick = async function() {
+                    hideBox("admMsg");
+                    if (typeof updateAdminProfile !== "function") return showBox("admMsg", "Error: updateAdminProfile missing in app.js");
+                    const nm = (document.getElementById("admNewName").value || "").trim();
+                    const pw = (document.getElementById("admNewPass").value || "").trim();
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await updateAdminProfile(id, nm, pw);
+                    if (!r || !r.ok) return showBox("admMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("admMsg", "Saved.");
+                    const fresh = await _getUserSafe(id);
+                    document.getElementById("adminName").textContent = fresh ? (fresh.name || "Admin") : "Admin";
+                    document.getElementById("admNewPass").value = "";
+                };
 
-        // delete client
-        document.getElementById("btnDeleteClient").onclick = async function(){
-          hideBox("actMsg");
-          if(typeof deleteClient!=="function") return showBox("actMsg","Error: deleteClient missing in app.js");
-          const cid = selectedClientId();
-          if(!cid) return showBox("actMsg","Select client first.");
-          if(!confirm("Delete client permanently?")) return;
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await deleteClient(cid, id);
-          if(!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("actMsg","Client deleted.");
-          await loadClientsUI();
-        };
+                // create client
+                document.getElementById("btnCreateClient").onclick = async function() {
+                    hideBox("createMsg");
+                    if (typeof adminCreateClient !== "function") return showBox("createMsg", "Error: adminCreateClient missing in app.js");
+                    const name = (document.getElementById("cName").value || "").trim();
+                    const phone = (document.getElementById("cPhone").value || "").trim();
+                    const pass = (document.getElementById("cPass").value || "").trim();
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await adminCreateClient({
+                        name,
+                        phone,
+                        password: pass
+                    }, id);
+                    if (!r || !r.ok) return showBox("createMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("createMsg", `Client created: ${r.user.clientId || r.user.id}`);
+                    document.getElementById("cName").value = "";
+                    document.getElementById("cPhone").value = "";
+                    document.getElementById("cPass").value = "";
+                    await loadClientsUI();
+                };
 
-        // refresh history
-        document.getElementById("btnRefreshHistory").onclick = async function(){
-          await updateSelectedClientInfo();
-          await renderHistory();
-        };
+                // credit
+                document.getElementById("btnCredit").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof adjustPoints !== "function") return showBox("actMsg", "Error: adjustPoints missing in app.js");
+                    const cid = selectedClientId();
+                    const amt = Number(document.getElementById("amt").value || 0);
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!amt || amt <= 0) return showBox("actMsg", "Enter amount.");
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await adjustPoints(cid, +amt, "Admin Credit", id);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", `Credited. New points: ${r.points}`);
+                    await loadClientsUI();
+                };
 
-        await loadClientsUI();
+                // debit
+                document.getElementById("btnDebit").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof adjustPoints !== "function") return showBox("actMsg", "Error: adjustPoints missing in app.js");
+                    const cid = selectedClientId();
+                    const amt = Number(document.getElementById("amt").value || 0);
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!amt || amt <= 0) return showBox("actMsg", "Enter amount.");
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await adjustPoints(cid, -amt, "Admin Debit", id);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", `Debited. New points: ${r.points}`);
+                    await loadClientsUI();
+                };
 
-      }catch(e){
-        document.body.style.visibility="visible";
-        errBar("Error: " + (e && e.message ? e.message : String(e)));
-      }
-    });
-  </script>
+                // reset password
+                document.getElementById("btnResetPass").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof adminResetClientPassword !== "function") return showBox("actMsg", "Error: adminResetClientPassword missing in app.js");
+                    const cid = selectedClientId();
+                    const np = (document.getElementById("resetPass").value || "").trim();
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!np || np.length < 4) return showBox("actMsg", "Password min 4 chars.");
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await adminResetClientPassword(cid, np, id);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", "Password reset done.");
+                    document.getElementById("resetPass").value = "";
+                };
+
+                // clear history
+                document.getElementById("btnClearHistory").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof clearClientHistory !== "function") return showBox("actMsg", "Error: clearClientHistory missing in app.js");
+                    const cid = selectedClientId();
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!confirm("Clear selected client history?")) return;
+                    const r = await clearClientHistory(cid, false);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", "History cleared.");
+                    await renderHistory();
+                };
+
+                // clear + reset
+                document.getElementById("btnClearAll").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof clearClientHistory !== "function") return showBox("actMsg", "Error: clearClientHistory missing in app.js");
+                    const cid = selectedClientId();
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!confirm("Clear history AND reset wallet to 0?")) return;
+                    const r = await clearClientHistory(cid, true);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", "Cleared + Wallet reset.");
+                    await loadClientsUI();
+                };
+
+                // delete client
+                document.getElementById("btnDeleteClient").onclick = async function() {
+                    hideBox("actMsg");
+                    if (typeof deleteClient !== "function") return showBox("actMsg", "Error: deleteClient missing in app.js");
+                    const cid = selectedClientId();
+                    if (!cid) return showBox("actMsg", "Select client first.");
+                    if (!confirm("Delete client permanently?")) return;
+                    const id = ADMIN.clientId || ADMIN.id;
+                    const r = await deleteClient(cid, id);
+                    if (!r || !r.ok) return showBox("actMsg", (r && r.msg) ? r.msg : "Failed");
+                    showBox("actMsg", "Client deleted.");
+                    await loadClientsUI();
+                };
+
+                // refresh history
+                document.getElementById("btnRefreshHistory").onclick = async function() {
+                    await updateSelectedClientInfo();
+                    await renderHistory();
+                };
+
+                await loadClientsUI();
+
+            } catch (e) {
+                document.body.style.visibility = "visible";
+                errBar("Error: " + (e && e.message ? e.message : String(e)));
+            }
+        });
+    </script>
 </body>
+
 </html>
