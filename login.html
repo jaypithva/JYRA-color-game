@@ -43,9 +43,10 @@
     <div class="card" style="max-width:520px;margin:20px auto;">
       <div class="h2">Login</div>
 
+      <!-- ✅ NO form submit refresh (we fully control) -->
       <div class="input">
         <label>Phone or Client ID</label>
-        <input id="pid" placeholder="98xxxxxxxx or C12345 / ADMIN1 / SUPER1" autocomplete="username" />
+        <input id="pid" placeholder="98xxxxxxxx or C12345 / ADMIN1" autocomplete="username" />
       </div>
 
       <div class="input pw-wrap">
@@ -80,7 +81,7 @@
   <script src="app.js"></script>
 
   <script>
-    (function () {
+    (function(){
       const pidEl = document.getElementById("pid");
       const passEl = document.getElementById("pass");
       const btn = document.getElementById("btnLogin");
@@ -90,21 +91,13 @@
       function showMsg(t){ msgEl.style.display="block"; msgEl.textContent=t; }
       function hideMsg(){ msgEl.style.display="none"; msgEl.textContent=""; }
 
-      // ✅ FIX: superadmin + admin both go to admin.html
       function redirectByRole(u){
         if(!u) return;
-        const role = String(u.role || "").toLowerCase();
-        if(role === "admin" || role === "superadmin"){
-          window.location.replace("admin.html");
-        }else{
-          window.location.replace("game.html");
-        }
+        window.location.href = (u.role==="admin") ? "admin.html" : "game.html";
       }
 
       // ✅ password toggle
-      toggleBtn.addEventListener("click", function(e){
-        e.preventDefault();
-        e.stopPropagation();
+      toggleBtn.addEventListener("click", function(){
         if(passEl.type==="password"){ passEl.type="text"; toggleBtn.textContent="🙈"; }
         else{ passEl.type="password"; toggleBtn.textContent="👁️"; }
       });
@@ -125,12 +118,12 @@
         hideMsg();
 
         if(typeof window.loginSecure !== "function"){
-          showMsg("Error: app.js not loaded (loginSecure missing). Hard refresh (Ctrl+Shift+R).");
+          showMsg("Error: app.js not loaded (loginSecure missing). Check file path + hard refresh (Ctrl+Shift+R).");
           return;
         }
 
         const phoneOrId = (pidEl.value||"").trim();
-        const password  = (passEl.value||"").trim();
+        const password = (passEl.value||"").trim();
 
         if(!phoneOrId || !password){
           showMsg("Please enter ID/Phone and Password.");
@@ -138,7 +131,6 @@
         }
 
         btn.disabled = true;
-        const oldText = btn.textContent;
         btn.textContent = "Logging in...";
 
         try{
@@ -152,7 +144,7 @@
           showMsg("Error: " + (err?.message || String(err)));
         }finally{
           btn.disabled = false;
-          btn.textContent = oldText;
+          btn.textContent = "Login";
         }
       });
 
