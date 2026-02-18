@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JVBET1803 - Login (Demo)</title>
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
+    <style>
+        .logoOnly {
+            height: 44px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            margin: 0 auto 14px
+        }
+        
+        .card {
+            max-width: 520px;
+            margin: 22px auto;
+            padding: 18px;
+            border-radius: 18px
+        }
+        
+        .msg {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(0, 0, 0, .18);
+            min-height: 42px
+        }
+        
+        .muted {
+            opacity: .75
+        }
+    </style>
+</head>
+
+<body class="bg">
+    <main class="wrap">
+        <section class="card">
+            <!-- ✅ Only Logo Image -->
+            <a href="index.html">
+                <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803" />
+
+                <p class="muted" style="text-align:center;margin-top:-4px;">
+                    Welcome JVBet
+                </p>
+            </a>
+            <div style="margin-top:14px;">
+                <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off" />
+                <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
+
+                <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">
+          Login
+        </button>
+
+                <div class="msg" id="msg">Enter ID & Password.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ✅ app.js must be loaded before inline script -->
+    <script src="assets/js/app.js?v=1"></script>
+
+    <script>
+        // If already logged in, redirect
+        try {
+            var s = getSession();
+            if (s && s.role === "admin") location.href = "pages/admin.html";
+            if (s && s.role === "client") location.href = "pages/casino.html";
+        } catch (e) {}
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function setMsg(t) {
+            var el = $("msg");
+            if (el) el.textContent = t || "-";
+        }
+
+        function doLogin() {
+            var idOrPhone = $("id").value.trim();
+            var password = $("pass").value.trim();
+            setMsg("");
+
+            try {
+                var role = loginAny({
+                    idOrPhone: idOrPhone,
+                    password: password
+                });
+                if (role === "admin") location.href = "pages/admin.html";
+                else location.href = "pages/casino.html";
+            } catch (e) {
+                setMsg(e.message || String(e));
+            }
+        }
+
+        $("loginBtn").addEventListener("click", doLogin);
+
+        // Enter key login
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") doLogin();
+        });
+    </script>
+</body>
+
+</html>
