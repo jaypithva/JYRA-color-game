@@ -2,136 +2,105 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>JVBET1803 - Login</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JVBET1803 - Login</title>
 
-    <link rel="stylesheet" href="assets/css/style.css" />
-    <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
-    <style>
-        .logoOnly {
-            height: 44px;
-            width: auto;
-            display: block;
-            object-fit: contain;
-            margin: 0 auto 14px
-        }
-        
-        .card {
-            max-width: 520px;
-            margin: 22px auto;
-            padding: 18px;
-            border-radius: 18px
-        }
-        
-        .msg {
-            margin-top: 10px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            min-height: 42px
-        }
-        
-        .muted {
-            opacity: .75
-        }
-    </style>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
+
+  <style>
+    .logoOnly {
+      height: 44px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+      margin: 0 auto 14px
+    }
+
+    .card {
+      max-width: 520px;
+      margin: 22px auto;
+      padding: 18px;
+      border-radius: 18px
+    }
+
+    .msg {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(0, 0, 0, .18);
+      min-height: 42px
+    }
+
+    .muted {
+      opacity: .75
+    }
+  </style>
 </head>
 
 <body class="bg">
-    <main class="wrap">
-        <section class="card">
-            <!-- ✅ Only Logo Image -->
-            <a href="index.html">
-                <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803" />
+  <main class="wrap">
+    <section class="card">
+      <a href="index.html">
+        <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803" />
+        <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
+      </a>
 
-                <p class="muted" style="text-align:center;margin-top:-4px;">
-                    Welcome JVBet
-                </p>
-            </a>
-            <div style="margin-top:14px;">
-                <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off" />
-                <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
+      <div style="margin-top:14px;">
+        <!-- NOTE: yaha ID/Phone ki jagah EMAIL rakho (Firebase Auth email/password use karega) -->
+        <input class="input" id="email" placeholder="Email" autocomplete="off" />
+        <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
 
-                <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">
+        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">
           Login
         </button>
 
-                <div class="msg" id="msg">Enter ID & Password.</div>
-            </div>
-        </section>
-    </main>
+        <div class="msg" id="msg">Enter Email & Password.</div>
+      </div>
+    </section>
+  </main>
 
-    <!-- ✅ app.js must be loaded before inline script -->
-    <script src="assets/js/app.js?v=1"></script>
+  <!-- ✅ Firebase + App (MODULES) -->
+  <script type="module" src="./assets/js/firebase-init.js"></script>
+  <script type="module" src="./assets/js/app.js"></script>
 
-    <script>
-        // If already logged in, redirect
-        try {
-            var s = getSession();
-            if (s && s.role === "admin") location.href = "pages/admin.html";
-            if (s && s.role === "client") location.href = "pages/casino.html";
-        } catch (e) {}
+  <!-- ✅ Page Logic -->
+  <script type="module">
+    import { doLogin, getSession } from "./assets/js/app.js";
 
-        function $(id) {
-            return document.getElementById(id);
-        }
+    const msg = document.getElementById("msg");
 
-        function setMsg(t) {
-            var el = $("msg");
-            if (el) el.textContent = t || "-";
-        }
-
-        function doLogin() {
-            var idOrPhone = $("id").value.trim();
-            var password = $("pass").value.trim();
-            setMsg("");
-
-            try {
-                var role = loginAny({
-                    idOrPhone: idOrPhone,
-                    password: password
-                });
-                if (role === "admin") location.href = "pages/admin.html";
-                else location.href = "pages/casino.html";
-            } catch (e) {
-                setMsg(e.message || String(e));
-            }
-        }
-
-        $("loginBtn").addEventListener("click", doLogin);
-
-        // Enter key login
-        document.addEventListener("keydown", function(e) {
-            if (e.key === "Enter") doLogin();
-        });
-    </script>
-    <script type="module">
-  import { doLogin } from "./assets/js/app.js";
-
-  const msg = document.getElementById("msg");
-
-  document.getElementById("loginBtn").addEventListener("click", async () => {
+    // already logged in -> redirect
     try {
-      msg.textContent = "Logging in...";
-      const email = document.getElementById("email").value.trim();
-      const pass  = document.getElementById("pass").value;
+      const s = getSession();
+      if (s && s.role === "admin") location.href = "./pages/admin.html";
+      if (s && s.role !== "admin") location.href = "./pages/casino.html";
+    } catch (e) {}
 
-      const s = await doLogin(email, pass);
+    async function handleLogin() {
+      try {
+        msg.textContent = "Logging in...";
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("pass").value;
 
-      // role ke hisab se redirect
-      if (s.role === "admin") location.href = "./pages/admin.html";
-      else location.href = "./pages/casino.html";
+        const s = await doLogin(email, pass);
 
-    } catch (e) {
-      msg.textContent = e.message || String(e);
+        if (s.role === "admin") location.href = "./pages/admin.html";
+        else location.href = "./pages/casino.html";
+
+      } catch (e) {
+        msg.textContent = e.message || String(e);
+      }
     }
-  });
-</script>
 
-    <script type="module" src="./assets/js/firebase-init.js"></script>
-    <script type="module" src="./assets/js/app.js"></script>
+    document.getElementById("loginBtn").addEventListener("click", handleLogin);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") handleLogin();
+    });
+  </script>
 </body>
 
 </html>
