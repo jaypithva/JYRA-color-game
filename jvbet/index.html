@@ -107,6 +107,29 @@
             if (e.key === "Enter") doLogin();
         });
     </script>
+    <script type="module">
+  import { doLogin } from "./assets/js/app.js";
+
+  const msg = document.getElementById("msg");
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    try {
+      msg.textContent = "Logging in...";
+      const email = document.getElementById("email").value.trim();
+      const pass  = document.getElementById("pass").value;
+
+      const s = await doLogin(email, pass);
+
+      // role ke hisab se redirect
+      if (s.role === "admin") location.href = "./pages/admin.html";
+      else location.href = "./pages/casino.html";
+
+    } catch (e) {
+      msg.textContent = e.message || String(e);
+    }
+  });
+</script>
+
     <script type="module" src="./assets/js/firebase-init.js"></script>
     <script type="module" src="./assets/js/app.js"></script>
 </body>
