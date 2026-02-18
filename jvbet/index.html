@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,33 +9,10 @@
   <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
 
   <style>
-    .logoOnly {
-      height: 44px;
-      width: auto;
-      display: block;
-      object-fit: contain;
-      margin: 0 auto 14px
-    }
-
-    .card {
-      max-width: 520px;
-      margin: 22px auto;
-      padding: 18px;
-      border-radius: 18px
-    }
-
-    .msg {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, .12);
-      background: rgba(0, 0, 0, .18);
-      min-height: 42px
-    }
-
-    .muted {
-      opacity: .75
-    }
+    .logoOnly{height:44px;width:auto;display:block;object-fit:contain;margin:0 auto 14px}
+    .card{max-width:520px;margin:22px auto;padding:18px;border-radius:18px}
+    .msg{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:42px}
+    .muted{opacity:.75}
   </style>
 </head>
 
@@ -49,58 +25,48 @@
       </a>
 
       <div style="margin-top:14px;">
-        <!-- NOTE: yaha ID/Phone ki jagah EMAIL rakho (Firebase Auth email/password use karega) -->
+        <!-- ✅ Email required for Firebase Auth login -->
         <input class="input" id="email" placeholder="Email" autocomplete="off" />
         <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
 
-        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">
-          Login
-        </button>
+        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">Login</button>
 
         <div class="msg" id="msg">Enter Email & Password.</div>
       </div>
     </section>
   </main>
 
-  <!-- ✅ Firebase + App (MODULES) -->
-  <script type="module" src="./assets/js/firebase-init.js"></script>
-  <script type="module" src="./assets/js/app.js"></script>
-
-  <!-- ✅ Page Logic -->
+  <!-- ✅ Only MODULE scripts -->
   <script type="module">
     import { doLogin, getSession } from "./assets/js/app.js";
 
     const msg = document.getElementById("msg");
 
-    // already logged in -> redirect
-    try {
+    // if already logged in
+    try{
       const s = getSession();
-      if (s && s.role === "admin") location.href = "./pages/admin.html";
-      if (s && s.role !== "admin") location.href = "./pages/casino.html";
-    } catch (e) {}
+      if (s && s.role === "admin") location.href = "pages/admin.html";
+      if (s && s.role === "client") location.href = "pages/casino.html";
+    }catch(e){}
 
-    async function handleLogin() {
-      try {
+    async function loginNow(){
+      try{
         msg.textContent = "Logging in...";
         const email = document.getElementById("email").value.trim();
-        const pass = document.getElementById("pass").value;
+        const pass  = document.getElementById("pass").value;
 
         const s = await doLogin(email, pass);
 
-        if (s.role === "admin") location.href = "./pages/admin.html";
-        else location.href = "./pages/casino.html";
+        if (s.role === "admin") location.href = "pages/admin.html";
+        else location.href = "pages/casino.html";
 
-      } catch (e) {
+      }catch(e){
         msg.textContent = e.message || String(e);
       }
     }
 
-    document.getElementById("loginBtn").addEventListener("click", handleLogin);
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") handleLogin();
-    });
+    document.getElementById("loginBtn").addEventListener("click", loginNow);
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") loginNow(); });
   </script>
 </body>
-
 </html>
