@@ -35,38 +35,34 @@
   </main>
 
   <!-- ✅ Load your existing app.js (non-module) -->
-  <script src="assets/js/app.js?v=2"></script>
+ <script src="./assets/js/app.js?v=2"></script>
 
-  <script>
-    function $(id){ return document.getElementById(id); }
-    function setMsg(t){ $("msg").textContent = t || "-"; }
+<script>
+  console.log("app.js loaded?", typeof window.loginAny);
 
-    // If already logged in, redirect
-    try {
-      var s = getSession();
-      if (s && s.role === "admin") location.href = "pages/admin.html";
-      if (s && s.role === "client") location.href = "pages/casino.html";
-    } catch(e){}
+  function $(id){ return document.getElementById(id); }
+  function setMsg(t){ $("msg").textContent = t || "-"; }
 
-    function doLogin(){
-      try{
-        setMsg("Logging in...");
-        var idOrPhone = $("id").value.trim();
-        var password  = $("pass").value.trim();
+  function doLogin(){
+    try{
+      setMsg("Logging in...");
+      var idOrPhone = $("id").value.trim();
+      var password  = $("pass").value.trim();
 
-        var role = loginAny({ idOrPhone: idOrPhone, password: password });
-        if (role === "admin") location.href = "pages/admin.html";
-        else location.href = "pages/casino.html";
+      var role = loginAny({ idOrPhone: idOrPhone, password: password });
 
-      }catch(e){
-        setMsg(e.message || String(e));
-      }
+      if (role === "admin") location.href = "pages/admin.html";
+      else location.href = "pages/casino.html";
+    }catch(e){
+      setMsg(e.message || String(e));
     }
+  }
 
-    $("loginBtn").addEventListener("click", doLogin);
-    document.addEventListener("keydown", function(e){
-      if(e.key === "Enter") doLogin();
-    });
-  </script>
+  document.getElementById("loginBtn").addEventListener("click", doLogin);
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Enter") doLogin();
+  });
+</script>
+
 </body>
 </html>
