@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>JVBET1803 - Login</title>
 
-  <link rel="stylesheet" href="./assets/css/style.css" />
-  <link rel="shortcut icon" href="./assets/image/jvbet-logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
 
   <style>
     .logoOnly{height:44px;width:auto;display:block;object-fit:contain;margin:0 auto 14px}
@@ -19,56 +19,54 @@
 <body class="bg">
   <main class="wrap">
     <section class="card">
-
-      <img class="logoOnly" src="./assets/image/jvbet-logo.png" alt="JVBET1803" />
-      <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
+      <a href="index.html">
+        <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803" />
+        <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
+      </a>
 
       <div style="margin-top:14px;">
         <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off" />
         <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
 
         <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">Login</button>
-
         <div class="msg" id="msg">Enter ID/Phone & Password.</div>
       </div>
     </section>
   </main>
 
-  <script type="module">
-    import { doLoginByIdOrPhone, getSession } from "./assets/js/app.js";
+  <!-- ✅ Load your existing app.js (non-module) -->
+  <script src="assets/js/app.js?v=2"></script>
 
-    const msg = document.getElementById("msg");
+  <script>
+    function $(id){ return document.getElementById(id); }
+    function setMsg(t){ $("msg").textContent = t || "-"; }
 
-    // already logged in
-    try{
-      const s = await getSession();
-      if (s && s.role === "admin") location.href = "./pages/admin.html";
-      if (s && s.role === "client") location.href = "./pages/casino.html";
-    }catch(e){}
+    // If already logged in, redirect
+    try {
+      var s = getSession();
+      if (s && s.role === "admin") location.href = "pages/admin.html";
+      if (s && s.role === "client") location.href = "pages/casino.html";
+    } catch(e){}
 
-    async function loginNow(){
+    function doLogin(){
       try{
-        msg.textContent = "Logging in...";
-        const idOrPhone = document.getElementById("id").value.trim();
-        const pass = document.getElementById("pass").value.trim();
+        setMsg("Logging in...");
+        var idOrPhone = $("id").value.trim();
+        var password  = $("pass").value.trim();
 
-        if(!idOrPhone || !pass){
-          msg.textContent = "Enter ID/Phone & Password";
-          return;
-        }
-
-        const s = await doLoginByIdOrPhone(idOrPhone, pass);
-
-        if (s.role === "admin") location.href = "./pages/admin.html";
-        else location.href = "./pages/casino.html";
+        var role = loginAny({ idOrPhone: idOrPhone, password: password });
+        if (role === "admin") location.href = "pages/admin.html";
+        else location.href = "pages/casino.html";
 
       }catch(e){
-        msg.textContent = e.message || String(e);
+        setMsg(e.message || String(e));
       }
     }
 
-    document.getElementById("loginBtn").addEventListener("click", loginNow);
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") loginNow(); });
+    $("loginBtn").addEventListener("click", doLogin);
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Enter") doLogin();
+    });
   </script>
 </body>
 </html>
