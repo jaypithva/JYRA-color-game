@@ -29,13 +29,12 @@
     .lockClosed{border-color:rgba(255,77,109,.45)}
 
     .prevBox{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:44px}
-    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:800;letter-spacing:.3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:900;letter-spacing:.3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 
     .card3{display:flex;gap:12px;justify-content:center;align-items:center}
     .flipCard{width:72px;height:92px;perspective:800px}
     .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
     .flipCard.flipped .flipInner{transform:rotateY(180deg)}
-    /* ✅ FIX: card text overflow */
     .flipFace{
       position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
       font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);
@@ -60,6 +59,32 @@
     .scrollBox{margin-top:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:auto;-webkit-overflow-scrolling:touch;max-height:260px}
     .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
     @media (max-width:700px){.scrollBox{max-height:220px}.scrollBox table{min-width:700px}}
+
+    /* ✅ NEW: "My Bet" premium mini table */
+    .miniTable{
+      margin-top:10px;border-radius:16px;border:1px solid rgba(212,175,55,.20);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
+      overflow:hidden
+    }
+    .miniTableHead{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.20)
+    }
+    .miniTitle{font-weight:900;letter-spacing:.2px}
+    .miniSub{opacity:.85;font-size:12px;white-space:nowrap}
+    .miniTable table{width:100%;border-collapse:collapse}
+    .miniTable th,.miniTable td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;white-space:nowrap}
+    .miniTable th{font-weight:800;opacity:.9;font-size:12px}
+    .miniTable td{font-weight:800}
+    .miniPill{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);font-weight:900;font-size:12px
+    }
+    .stPending{border-color:rgba(255,193,7,.40)}
+    .stWin{border-color:rgba(34,197,94,.45)}
+    .stLoss{border-color:rgba(255,77,109,.45)}
+    .stTie{border-color:rgba(43,111,255,.45)}
   </style>
 </head>
 
@@ -119,6 +144,27 @@
           <div style="margin-top:10px">
             <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="dtPrev"></div>
+          </div>
+
+          <!-- ✅ NEW: My Bet box (DT) -->
+          <div class="miniTable" id="dtMyBetBox">
+            <div class="miniTableHead">
+              <div>
+                <div class="miniTitle">My Bet (This Round)</div>
+                <div class="miniSub" id="dtMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="dtMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniTable">
+              <table>
+                <thead>
+                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
+                </thead>
+                <tbody id="dtMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <p class="muted" style="margin-top:10px">
@@ -210,6 +256,27 @@
             <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="tpPrev"></div>
           </div>
+
+          <!-- ✅ NEW: My Bet box (TP) -->
+          <div class="miniTable" id="tpMyBetBox">
+            <div class="miniTableHead">
+              <div>
+                <div class="miniTitle">My Bet (This Round)</div>
+                <div class="miniSub" id="tpMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="tpMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniTable">
+              <table>
+                <thead>
+                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
+                </thead>
+                <tbody id="tpMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <div class="casinoBoard">
@@ -288,6 +355,27 @@
           <div style="margin-top:10px">
             <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="rPrev"></div>
+          </div>
+
+          <!-- ✅ NEW: My Bet box (Roulette) -->
+          <div class="miniTable" id="rMyBetBox">
+            <div class="miniTableHead">
+              <div>
+                <div class="miniTitle">My Bet (This Round)</div>
+                <div class="miniSub" id="rMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="rMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniTable">
+              <table>
+                <thead>
+                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
+                </thead>
+                <tbody id="rMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -379,6 +467,7 @@
     function getBets(){return loadJSON(K_BETS,[])}
     function setBets(b){saveJSON(K_BETS,b||[])}
     function fmtDate(ts){return new Date(ts||Date.now()).toLocaleString()}
+
     function getClientBets(cid){
       return getBets().filter(b=>b.clientId===cid).sort((a,b)=>(b.at||0)-(a.at||0))
     }
@@ -485,8 +574,8 @@
       const bets=getBets(); const i=bets.findIndex(b=>b.betId===betId);
       if(i>=0){bets[i]=Object.assign({},bets[i],patch); setBets(bets);}
     }
-    function getPending(game,roundId){
-      return getClientBets(ME_ID).find(b=>b.game===game && b.roundId===roundId && b.result==="PENDING")||null;
+    function findMyBetForRound(game, roundId){
+      return getClientBets(ME_ID).find(b=>b.game===game && b.roundId===roundId) || null;
     }
 
     async function refreshTop(){
@@ -498,9 +587,7 @@
       const st=statsWinLoss(ME_ID);
       document.getElementById("w").textContent=st.win;
       document.getElementById("l").textContent=st.loss;
-
-      // ✅ Always render last result from Firestore after refresh
-      renderAllLastResults();
+      renderAllLastResults(); // ✅ always
     }
 
     async function addPoints(delta){
@@ -556,56 +643,92 @@
       )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
     }
 
-    /* ================= FIRESTORE LAST RESULT (PER CLIENT, CROSS-DEVICE) =================
-       Stored inside users/{ME_ID} as:
-       lastResults: { DragonTiger: "DRAGON", TeenPatti: "PLAYER", Roulette: "RED 17" }
-    ================================================================================ */
-
-    function gameToPrevEl(game){
-      return (game==="DragonTiger") ? "dtPrev" : (game==="TeenPatti") ? "tpPrev" : "rPrev";
-    }
-
+    /* ================= FIRESTORE LAST RESULT (PER CLIENT) =================
+      users/{ME_ID}:
+      lastResults: { DragonTiger: "...", TeenPatti: "...", Roulette: "..." }
+      lastResultsUpdatedAt: { DragonTiger: 123, ... }
+    ====================================================================== */
+    function gameToPrevEl(game){ return (game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev"; }
     function renderLastResultFor(game){
       const el=document.getElementById(gameToPrevEl(game));
       const v=(ME_USER && ME_USER.lastResults && ME_USER.lastResults[game]) ? String(ME_USER.lastResults[game]) : "";
-      el.innerHTML = v ? ('<span class="resChip">'+ v +'</span>') : '<span class="muted">No result</span>';
+      el.innerHTML = v ? ('<span class="resChip">'+v+'</span>') : '<span class="muted">No result</span>';
     }
-
     function renderAllLastResults(){
       renderLastResultFor("DragonTiger");
       renderLastResultFor("TeenPatti");
       renderLastResultFor("Roulette");
     }
-
     async function setLastResultFS(game, value){
-      // update local cache immediately (so UI shows instantly)
+      // instant UI (local cache)
       if(!ME_USER) ME_USER = {};
       if(!ME_USER.lastResults) ME_USER.lastResults = {};
       ME_USER.lastResults[game] = value;
       renderLastResultFor(game);
 
-      // write to Firestore (cross device)
       const patch = {};
       patch["lastResults."+game] = value;
       patch["lastResultsUpdatedAt."+game] = Date.now();
       await db.collection("users").doc(ME_ID).set(patch, { merge:true });
     }
 
-    /* Optional: live listen (agar aap dusre device se result update kare to yaha bhi show ho) */
-    let unsubUserLive = null;
+    let unsubUserLive=null;
     function startUserLiveListener(){
       try{
         if(unsubUserLive) unsubUserLive();
         unsubUserLive = db.collection("users").doc(ME_ID).onSnapshot((doc)=>{
           if(!doc.exists) return;
           ME_USER = Object.assign({}, ME_USER||{}, doc.data()||{});
-          renderAllLastResults();
           document.getElementById("pts").textContent=Number(ME_USER.points||0);
+          renderAllLastResults(); // ✅ continuous
         });
       }catch(e){}
     }
 
-    /* ================= RANDOM / GAME LOGIC ================= */
+    /* ================= NEW: "My Bet" UI renderer ================= */
+    function pillClassForStatus(st){
+      if(st==="PENDING") return "miniPill stPending";
+      if(st==="WIN") return "miniPill stWin";
+      if(st==="LOSS") return "miniPill stLoss";
+      if(st==="TIE") return "miniPill stTie";
+      return "miniPill";
+    }
+    function renderMyBet(game, roundId){
+      const map = {
+        DragonTiger:{sub:"dtMyBetSub", status:"dtMyBetStatus", body:"dtMyBetBody"},
+        TeenPatti:{sub:"tpMyBetSub", status:"tpMyBetStatus", body:"tpMyBetBody"},
+        Roulette:{sub:"rMyBetSub", status:"rMyBetStatus", body:"rMyBetBody"},
+      };
+      const ids = map[game];
+      if(!ids) return;
+
+      const subEl=document.getElementById(ids.sub);
+      const statusEl=document.getElementById(ids.status);
+      const bodyEl=document.getElementById(ids.body);
+
+      const b = findMyBetForRound(game, roundId);
+      subEl.textContent = "Round #"+roundId+" • Client "+ME_ID;
+
+      if(!b){
+        statusEl.className = "miniPill";
+        statusEl.textContent = "NO BET";
+        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
+        return;
+      }
+
+      statusEl.className = pillClassForStatus(b.result);
+      statusEl.textContent = b.result || "—";
+
+      bodyEl.innerHTML =
+        "<tr>"
+          +"<td class='gold'>"+(b.pick||"-")+"</td>"
+          +"<td class='gold'>"+Number(b.stake||0)+"</td>"
+          +"<td>"+Number(b.roundId||roundId)+"</td>"
+          +"<td>"+fmtDate(b.at)+"</td>"
+        +"</tr>";
+    }
+
+    /* ================= RNG / GAME LOGIC ================= */
     function randCard(){return 1+Math.floor(Math.random()*13)}
     function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
     function drawDT(){const d=randCard(),t=randCard();const res=(d===t)?"TIE":(d>t?"DRAGON":"TIGER");return {d,t,res}}
@@ -623,77 +746,88 @@
       setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
     }
 
+    /* ✅ IMPORTANT FIX:
+       Ab result HAR ROUND me generate hoga (bet ho ya na ho) aur Firestore me save hoga.
+       Isliye "No result" problem solve + result continuously show.
+    */
     async function revealDT(r){
-      const pb=getPending("DragonTiger",r.roundId);
-      if(!pb){r.revealed=true;setRound(ME_ID,"DragonTiger",r);return;}
       setTimeout(async ()=>{
         const d=drawDT();
 
         flipReset();
         flipShow(cardStr(d.d),cardStr(d.t),d.res);
-
         document.getElementById("dtLast").textContent=d.res;
 
-        // ✅ Save last result to Firestore (client wise)
         await setLastResultFS("DragonTiger", d.res);
 
-        let out="LOSS";
-        if(d.res==="TIE") out="TIE";
-        else if(pb.pick===d.res) out="WIN";
+        const myBet = findMyBetForRound("DragonTiger", r.roundId);
+        if(myBet && myBet.result==="PENDING"){
+          let out="LOSS";
+          if(d.res==="TIE") out="TIE";
+          else if(myBet.pick===d.res) out="WIN";
 
-        await settleBet({betId:pb.betId,outcome:out});
+          await settleBet({betId:myBet.betId,outcome:out});
+          document.getElementById("dtMsg").textContent="RESULT: "+out;
+
+          if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
+          else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
+          else {showToast("loss","❌ LOSS","Try next round");vib(120);}
+        }else{
+          document.getElementById("dtMsg").textContent="ROUND RESULT: "+d.res;
+        }
+
         setPastTable("DragonTiger","dtPast","dtWait");
-        document.getElementById("dtMsg").textContent="RESULT: "+out;
-
-        if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
-        else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
-        else {showToast("loss","❌ LOSS","Try next round");vib(120);}
+        renderMyBet("DragonTiger", r.roundId);
 
         r.revealed=true;setRound(ME_ID,"DragonTiger",r);
-      },1200);
+      },900);
     }
 
     async function revealTP(r){
-      const pb=getPending("TeenPatti",r.roundId);
-      if(!pb){r.revealed=true;setRound(ME_ID,"TeenPatti",r);return;}
       setTimeout(async ()=>{
         const d=drawTP();
-
-        // ✅ Save last result to Firestore
         await setLastResultFS("TeenPatti", d.res);
 
-        let out="LOSS";
-        if(d.res==="TIE") out="TIE";
-        else if(pb.pick===d.res) out="WIN";
-
-        await settleBet({betId:pb.betId,outcome:out});
-        document.getElementById("tpStatus").textContent=out;
+        const myBet = findMyBetForRound("TeenPatti", r.roundId);
+        if(myBet && myBet.result==="PENDING"){
+          let out="LOSS";
+          if(d.res==="TIE") out="TIE";
+          else if(myBet.pick===d.res) out="WIN";
+          await settleBet({betId:myBet.betId,outcome:out});
+          document.getElementById("tpStatus").textContent=out;
+          document.getElementById("tpMsg").textContent="RESULT: "+out;
+        }else{
+          document.getElementById("tpStatus").textContent="-";
+          document.getElementById("tpMsg").textContent="ROUND RESULT: "+d.res;
+        }
 
         setPastTable("TeenPatti","tpPast","tpWait");
-        document.getElementById("tpMsg").textContent="RESULT: "+out;
+        renderMyBet("TeenPatti", r.roundId);
 
         r.revealed=true;setRound(ME_ID,"TeenPatti",r);
-      },1200);
+      },900);
     }
 
     async function revealR(r){
-      const pb=getPending("Roulette",r.roundId);
-      if(!pb){r.revealed=true;setRound(ME_ID,"Roulette",r);return;}
       setTimeout(async ()=>{
         const d=drawR();
         const val = d.color+" "+d.n;
-
-        // ✅ Save last result to Firestore
         await setLastResultFS("Roulette", val);
 
-        const out=(pb.pick===d.color)?"WIN":"LOSS";
-        await settleBet({betId:pb.betId,outcome:out});
+        const myBet = findMyBetForRound("Roulette", r.roundId);
+        if(myBet && myBet.result==="PENDING"){
+          const out=(myBet.pick===d.color)?"WIN":"LOSS";
+          await settleBet({betId:myBet.betId,outcome:out});
+          document.getElementById("rMsg").textContent="RESULT: "+out;
+        }else{
+          document.getElementById("rMsg").textContent="ROUND RESULT: "+val;
+        }
 
         setPastTable("Roulette","rPast","rWait");
-        document.getElementById("rMsg").textContent="RESULT: "+out;
+        renderMyBet("Roulette", r.roundId);
 
         r.revealed=true;setRound(ME_ID,"Roulette",r);
-      },1200);
+      },900);
     }
 
     async function tick(game,timerId,fillId,roundEl,lockEl,btnEl,revealFn,beepKey){
@@ -711,6 +845,9 @@
       const lock=document.getElementById(lockEl);
       const btn=document.getElementById(btnEl);
 
+      // ✅ keep "My Bet" panel always updated for current round
+      renderMyBet(game, r.roundId);
+
       if(left<=0){
         btn.disabled=true;btn.style.opacity=".6";setLock(lock,"CLOSED");
         if(!r.revealed) await revealFn(r);
@@ -724,11 +861,14 @@
         return;
       }
 
+      const myBetThisRound = findMyBetForRound(game, r.roundId);
+      const hasPlaced = !!myBetThisRound; // even if status later changes
+
       if(isOpen(r)){
-        if(r.betPlaced){btn.disabled=true;btn.style.opacity=".6";setLock(lock,"PLACED");}
+        if(hasPlaced){btn.disabled=true;btn.style.opacity=".6";setLock(lock,"PLACED");}
         else {btn.disabled=false;btn.style.opacity="1";setLock(lock,"OPEN");}
       }else{
-        btn.disabled=true;btn.style.opacity=".6";setLock(lock,r.betPlaced?"PLACED":"LOCKED");
+        btn.disabled=true;btn.style.opacity=".6";setLock(lock,hasPlaced?"PLACED":"LOCKED");
       }
     }
 
@@ -744,11 +884,12 @@
       try{
         const r=ensureRound(ME_ID,"DragonTiger");
         if(!isOpen(r)) return document.getElementById("dtMsg").textContent="Locked (play only when timer > 15)";
-        if(r.betPlaced) return document.getElementById("dtMsg").textContent="Already played";
-        r.betPlaced=true; setRound(ME_ID,"DragonTiger",r);
+        if(findMyBetForRound("DragonTiger", r.roundId)) return document.getElementById("dtMsg").textContent="Already played";
+
         await placePendingBet({game:"DragonTiger",pick:getDTPick(),stake:dtStake.value,roundId:r.roundId});
         document.getElementById("dtMsg").textContent="PLAY SUBMITTED";
         setPastTable("DragonTiger","dtPast","dtWait");
+        renderMyBet("DragonTiger", r.roundId);
         showToast("tie","🕒 SUBMITTED","Result at 0 sec"); vib(40);
       }catch(e){document.getElementById("dtMsg").textContent=e.message||String(e)}
     });
@@ -757,11 +898,12 @@
       try{
         const r=ensureRound(ME_ID,"TeenPatti");
         if(!isOpen(r)) return document.getElementById("tpMsg").textContent="Locked (play only when timer > 15)";
-        if(r.betPlaced) return document.getElementById("tpMsg").textContent="Already played";
-        r.betPlaced=true; setRound(ME_ID,"TeenPatti",r);
+        if(findMyBetForRound("TeenPatti", r.roundId)) return document.getElementById("tpMsg").textContent="Already played";
+
         await placePendingBet({game:"TeenPatti",pick:getTPPick(),stake:tpStake.value,roundId:r.roundId});
         document.getElementById("tpMsg").textContent="PLAY SUBMITTED";
         setPastTable("TeenPatti","tpPast","tpWait");
+        renderMyBet("TeenPatti", r.roundId);
       }catch(e){document.getElementById("tpMsg").textContent=e.message||String(e)}
     });
 
@@ -769,11 +911,12 @@
       try{
         const r=ensureRound(ME_ID,"Roulette");
         if(!isOpen(r)) return document.getElementById("rMsg").textContent="Locked (play only when timer > 15)";
-        if(r.betPlaced) return document.getElementById("rMsg").textContent="Already played";
-        r.betPlaced=true; setRound(ME_ID,"Roulette",r);
+        if(findMyBetForRound("Roulette", r.roundId)) return document.getElementById("rMsg").textContent="Already played";
+
         await placePendingBet({game:"Roulette",pick:getRPick(),stake:rStake.value,roundId:r.roundId});
         document.getElementById("rMsg").textContent="PLAY SUBMITTED";
         setPastTable("Roulette","rPast","rWait");
+        renderMyBet("Roulette", r.roundId);
       }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
     });
 
@@ -796,17 +939,18 @@
       if(snap.data()?.isBlocked) return logout();
 
       await refreshTop();
-
-      // ✅ live listener: lastResults/points cross-device
       startUserLiveListener();
 
-      // ✅ last 10 bets
       setPastTable("DragonTiger","dtPast","dtWait");
       setPastTable("TeenPatti","tpPast","tpWait");
       setPastTable("Roulette","rPast","rWait");
 
-      // ✅ last results render right away
       renderAllLastResults();
+
+      // ✅ init MyBet boxes
+      renderMyBet("DragonTiger", ensureRound(ME_ID,"DragonTiger").roundId);
+      renderMyBet("TeenPatti", ensureRound(ME_ID,"TeenPatti").roundId);
+      renderMyBet("Roulette", ensureRound(ME_ID,"Roulette").roundId);
 
       setInterval(async ()=>{
         await tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtPlay",revealDT,"DT");
