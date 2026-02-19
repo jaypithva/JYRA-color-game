@@ -6,109 +6,144 @@
   <title>JVBET1803 - Login</title>
 
   <link rel="stylesheet" href="assets/css/style.css"/>
-  <link rel="shortcut icon" href="assets/image/jvbet-logo.png"/>
+  <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon"/>
 
   <style>
-    .logoOnly{height:44px;margin:0 auto 14px;display:block}
+    .logoOnly{height:44px;width:auto;display:block;object-fit:contain;margin:0 auto 14px}
     .card{max-width:520px;margin:22px auto;padding:18px;border-radius:18px}
-    .msg{margin-top:10px;padding:10px;border-radius:12px;min-height:42px}
+    .msg{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:42px}
+    .muted{opacity:.75}
   </style>
 </head>
 
 <body class="bg">
-<main class="wrap">
-<section class="card">
+  <main class="wrap">
+    <section class="card">
+      <a href="index.html" style="text-decoration:none;color:inherit">
+        <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803"/>
+        <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
+      </a>
 
-  <img class="logoOnly" src="assets/image/jvbet-logo.png"/>
-  <p style="text-align:center;opacity:.7">Welcome JVBet</p>
+      <div style="margin-top:14px;">
+        <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off"/>
+        <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;"/>
 
-  <input class="input" id="id" placeholder="ClientID / Phone Number"/>
-  <input class="input" id="pass" type="password" placeholder="Password" style="margin-top:10px"/>
+        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">Login</button>
 
-  <button class="btn" id="loginBtn" style="width:100%;margin-top:12px">
-    Login
-  </button>
+        <div class="msg" id="msg">Enter ID/Phone & Password.</div>
+      </div>
+    </section>
+  </main>
 
-  <div class="msg" id="msg">Enter ID & Password</div>
+  <!-- ✅ Firebase CDN (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-</section>
-</main>
+  <script>
+  /* ================= FIREBASE INIT ================= */
+  firebase.initializeApp({
+    apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+    authDomain: "jvbet-bbf90.firebaseapp.com",
+    projectId: "jvbet-bbf90",
+    storageBucket: "jvbet-bbf90.appspot.com",
+    messagingSenderId: "824871692224",
+    appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+  });
 
-<!-- ✅ Firebase CDN (NO MODULE / NO IMPORT) -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  var db = firebase.firestore();
 
-<script>
-/* ================= FIREBASE INIT ================= */
-firebase.initializeApp({
-  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-  authDomain: "jvbet-bbf90.firebaseapp.com",
-  projectId: "jvbet-bbf90",
-  storageBucket: "jvbet-bbf90.appspot.com",
-  messagingSenderId: "824871692224",
-  appId: "1:824871692224:web:f74baa642b1f43b78aca25"
-});
+  /* ================= HELPERS ================= */
+  function $(id){ return document.getElementById(id); }
+  function setMsg(t){ $("msg").textContent = t || ""; }
 
-const db = firebase.firestore();
+  async function sha256(str){
+    var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(x){
+      return x.toString(16).padStart(2,"0");
+    }).join("");
+  }
 
-/* ================= HELPERS ================= */
-function msg(t){ document.getElementById("msg").innerText = t; }
+  function saveSession(userId, u){
+    localStorage.setItem("jvbet_session", JSON.stringify({
+      id: userId,
+      clientId: u.clientId || userId,
+      role: u.role || "client",
+      name: u.name || ""
+    }));
+  }
 
-async function sha256(str){
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
-}
+  function goNext(role){
+    if(role === "admin") location.href = "pages/admin.html";
+    else location.href = "pages/casino.html";
+  }
 
-/* ================= LOGIN ================= */
-document.getElementById("loginBtn").onclick = async () => {
-  try{
-    msg("Checking...");
+  // ✅ Auto redirect if already logged in
+  (function(){
+    try{
+      var s = JSON.parse(localStorage.getItem("jvbet_session") || "null");
+      if(s && s.role) goNext(s.role);
+    }catch(e){}
+  })();
 
-    const id   = document.getElementById("id").value.trim();
-    const pass = document.getElementById("pass").value;
-
-    if(!id || !pass) throw "Enter ID & Password";
-
-    const ref = db.collection("users").doc(id);
-    const snap = await ref.get();
-
-    if(!snap.exists) throw "User not found";
-
-    const u = snap.data();
-    if(u.isBlocked) throw "User blocked";
-
-    // password check
-    if(u.password){
-      if(u.password !== pass) throw "Wrong password";
-    }else if(u.passwordHash){
-      const h = await sha256(pass);
-      if(h !== u.passwordHash) throw "Wrong password";
-    }else{
-      throw "Password not set";
+  /* ================= FIND USER BY ID OR PHONE ================= */
+  async function findUserByIdOrPhone(input){
+    // 1) try doc(id) as ClientID
+    var snap = await db.collection("users").doc(input).get();
+    if(snap.exists){
+      return { userId: input, data: snap.data() };
     }
 
-    // save session
-    localStorage.setItem("jvbet_session", JSON.stringify({
-      id: id,
-      role: u.role,
-      name: u.name
-    }));
+    // 2) try phone query
+    var q = await db.collection("users").where("phone","==",input).limit(1).get();
+    if(!q.empty){
+      var d = q.docs[0];
+      return { userId: d.id, data: d.data() };
+    }
 
-    // redirect
-    location.href = (u.role === "admin")
-      ? "pages/admin.html"
-      : "pages/casino.html";
-
-  }catch(e){
-    msg(e.toString());
+    return null;
   }
-};
 
-// Enter key
-document.addEventListener("keydown",e=>{
-  if(e.key==="Enter") document.getElementById("loginBtn").click();
-});
-</script>
+  /* ================= LOGIN ================= */
+  async function doLogin(){
+    try{
+      setMsg("Checking...");
 
+      var input = $("id").value.trim();
+      var pass  = $("pass").value;
+
+      if(!input || !pass) throw new Error("Enter ID/Phone & Password");
+
+      var result = await findUserByIdOrPhone(input);
+      if(!result) throw new Error("User not found (ID/Phone)");
+
+      var u = result.data;
+      var userId = result.userId;
+
+      if(u.isBlocked) throw new Error("Account blocked");
+
+      // ✅ Password check (plain OR hash)
+      if(u.password){
+        if(String(u.password) !== String(pass)) throw new Error("Wrong password");
+      }else if(u.passwordHash){
+        var h = await sha256(pass);
+        if(String(h) !== String(u.passwordHash)) throw new Error("Wrong password");
+      }else{
+        throw new Error("Password not set in Firestore");
+      }
+
+      saveSession(userId, u);
+      setMsg("Login successful...");
+      goNext(u.role || "client");
+
+    }catch(e){
+      setMsg(e.message || String(e));
+    }
+  }
+
+  $("loginBtn").addEventListener("click", doLogin);
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Enter") doLogin();
+  });
+  </script>
 </body>
 </html>
