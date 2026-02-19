@@ -144,6 +144,7 @@
           <div class="wg-meta">
             <div class="wg-meta-label">Period</div>
             <div class="wg-meta-value" id="periodId">-</div>
+            <div class="small" id="periodLine" style="margin-top:6px;opacity:.9;line-height:1.4"></div>
           </div>
         </div>
 
@@ -170,6 +171,9 @@
       <div class="hr"></div>
 
       <div class="wg-tabs">
+        <!-- UI label same, but internal:
+             1 Min => 30s (1 period)
+             3 Min => 90s (3 periods) -->
         <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
         <button class="wg-tab" id="tab3m" type="button">3 Min</button>
       </div>
@@ -249,6 +253,13 @@
           </div>
 
           <div class="notice" id="roundMsg" style="display:none;margin-top:10px;"></div>
+
+          <div class="hr"></div>
+          <div class="h2" style="margin-top:0;">Last 5 Results</div>
+          <div class="small" style="margin-bottom:8px;">Visible to all users (even without bet)</div>
+          <div id="last5Box" class="ticket" style="padding:12px;">
+            <div id="last5Body" class="small" style="line-height:1.6;">Loading…</div>
+          </div>
 
           <div class="hr"></div>
           <div class="small">Rule: Bet place hote hi amount minus hota hai. Win pe <b>+2x</b> add hota hai.</div>
@@ -333,10 +344,8 @@
     function showMsg(id, text) { var el = document.getElementById(id); if (el) { el.style.display = "block"; el.textContent = text; } }
     function hideMsg(id) { var el = document.getElementById(id); if (el) { el.style.display = "none"; el.textContent = ""; } }
     function pad2(n) { return (n < 10 ? "0" : "") + n; }
-    function makePeriodId() {
-      var d = new Date();
-      return "" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
-    }
+
+    // Local mapping (kept same as your previous logic)
     function numberToColor(n) {
       if (n === 0 || n === 5) return "Violet";
       if (n === 1 || n === 3 || n === 7 || n === 9) return "Green";
@@ -345,14 +354,21 @@
     function numberToBigSmall(n) { return (n >= 5) ? "Big" : "Small"; }
 
     var USER = null;
-    var MODE_SEC = 60;
+
+    // ✅ internal modes:
+    // 1 Min tab => 30 seconds
+    // 3 Min tab => 90 seconds (3 periods line-by-line)
+    var MODE_SEC = 30;
     var timer = null;
-    var remain = 60;
+    var remain = 30;
     var BET_OPEN_SEC = 30;
+
     var activeBet = null;
     var selectedBet = null;
 
-    function bettingAllowed() { return remain > (MODE_SEC - BET_OPEN_SEC); }
+    function bettingAllowed() {
+      return remain > (MODE_SEC - BET_OPEN_SEC);
+    }
 
     function updateBetWindowUI() {
       var el = document.getElementById("betWindow");
@@ -425,6 +441,7 @@
     }
 
     async function renderLatestResultFromHistory() {
+      // Keep your old behavior if user has history, but primary "Latest Result" now comes from results engine.
       const me = await currentUserAsync();
       if (!me) return;
 
@@ -458,9 +475,11 @@
         var resCol = r.resultColor || "-";
         var resBS = r.resultBigSmall || "-";
 
+        var perCell = (r.periods && r.periods.length) ? r.periods.join("<br>") : (r.period || "-");
+
         return "<tr>" +
           "<td>" + fmtDate(r.createdAt) + "</td>" +
-          "<td>" + (r.period || "-") + "</td>" +
+          "<td>" + perCell + "</td>" +
           "<td>" + (r.modeLabel || "-") + "</td>" +
           "<td>" + (r.betLabel || "-") + " (" + (r.betAmount || 0) + ")</td>" +
           "<td>" + (resNum + " / " + resCol + " / " + resBS) + "</td>" +
@@ -472,53 +491,36 @@
 
     function setMode(sec) {
       MODE_SEC = sec;
-      remain = MODE_SEC;
 
       var t1 = document.getElementById("tab1m");
       var t3 = document.getElementById("tab3m");
       if (t1 && t3) {
-        if (sec === 60) { t1.classList.add("active"); t3.classList.remove("active"); }
+        if (sec === 30) { t1.classList.add("active"); t3.classList.remove("active"); }
         else { t3.classList.add("active"); t1.classList.remove("active"); }
       }
       startNewRound();
     }
 
-    async function startNewRound() {
-      if (timer) { clearInterval(timer); timer = null; }
+    function remainingInModeBlock() {
+      // clock-based
+      var s = window.GAME ? window.GAME.secondsSinceISTMidnight() : 0;
+      var into = s % MODE_SEC;
+      return MODE_SEC - into;
+    }
 
-      activeBet = null;
-      selectedBet = null;
-      clearSelectionUI();
+    function currentPeriodsForBet() {
+      var count = Math.max(1, Math.round(MODE_SEC / 30)); // 30 => 1, 90 => 3
+      return window.GAME ? window.GAME.nextPeriodsIST(count) : ["-"];
+    }
 
-      var selBet = document.getElementById("selBet");
-      var amt = document.getElementById("betAmt");
-      if (selBet) selBet.value = "";
-      if (amt) amt.value = "";
-      setText("betAmtInr", fmtINR(0));
-      hideMsg("betMsg");
-      hideMsg("roundMsg");
+    function renderPeriodUI() {
+      if (!window.GAME) return;
+      var per = window.GAME.currentPeriodIST();
+      setText("periodId", per);
 
-      var period = makePeriodId();
-      setText("periodId", period);
-
-      await renderLatestResultFromHistory();
-
-      remain = MODE_SEC;
-      setTimerUI(remain, MODE_SEC);
-      updateBetWindowUI();
-
-      timer = setInterval(async function () {
-        remain -= 1;
-        if (remain < 0) remain = 0;
-
-        setTimerUI(remain, MODE_SEC);
-        updateBetWindowUI();
-
-        if (remain === 0) {
-          await finishRound();
-          await startNewRound();
-        }
-      }, 1000);
+      var arr = currentPeriodsForBet();
+      var pl = document.getElementById("periodLine");
+      if (pl) pl.textContent = arr.join("\n");
     }
 
     function showResultPopup(o) {
@@ -550,15 +552,21 @@
     }
 
     async function finishRound() {
-      var n = Math.floor(Math.random() * 10);
-      var col = numberToColor(n);
-      var bs = numberToBigSmall(n);
+      if (!window.GAME) return;
+
+      // ended period = previous 30s period
+      var endedPeriod = GAME.periodByOffset(-1);
+      var resultDoc = await GAME.ensureResultExists(endedPeriod);
+
+      var n = resultDoc.resultNumber;
+      var col = resultDoc.resultColor;
+      var bs = resultDoc.resultBigSmall;
 
       setText("resNum", String(n));
       setText("resColor", col);
       setText("resBS", bs);
 
-      var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
+      var period = endedPeriod;
 
       if (!activeBet) {
         showMsg("roundMsg", "Round ended. No bet placed.");
@@ -575,20 +583,23 @@
         await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)", null);
       }
 
-      // refresh cache
       const me = await currentUserAsync();
       const after = me ? (me.points || 0) : 0;
 
       await addPlayRow({
         userId: USER.clientId,
         createdAt: new Date().toISOString(),
+
         period: activeBet.period,
+        periods: activeBet.periods || [activeBet.period], // ✅ line-by-line
+
         modeSec: activeBet.modeSec,
-        modeLabel: (activeBet.modeSec === 60 ? "1 Min" : "3 Min"),
+        modeLabel: (activeBet.modeSec === 30 ? "1 Min" : "3 Min"),
         betType: activeBet.type,
         betValue: activeBet.value,
         betLabel: activeBet.label,
         betAmount: activeBet.amount,
+
         resultNumber: n,
         resultColor: col,
         resultBigSmall: bs,
@@ -604,7 +615,7 @@
       var bonusVal = isWin ? (activeBet.amount * 2) : (-activeBet.amount);
       showResultPopup({
         win: isWin,
-        period: activeBet.period,
+        period: period,
         num: n,
         color: col,
         bs: bs,
@@ -612,6 +623,48 @@
       });
 
       activeBet = null;
+    }
+
+    async function startNewRound() {
+      if (!window.GAME) {
+        showMsg("roundMsg", "GAME engine not loaded. Please ensure app.js updated.");
+        return;
+      }
+
+      if (timer) { clearInterval(timer); timer = null; }
+
+      activeBet = null;
+      selectedBet = null;
+      clearSelectionUI();
+
+      var selBet = document.getElementById("selBet");
+      var amt = document.getElementById("betAmt");
+      if (selBet) selBet.value = "";
+      if (amt) amt.value = "";
+      setText("betAmtInr", fmtINR(0));
+      hideMsg("betMsg");
+      hideMsg("roundMsg");
+
+      // ✅ backfill last 5 so downtime gaps are covered
+      await GAME.backfillLastNResults(5);
+
+      renderPeriodUI();
+
+      remain = remainingInModeBlock();
+      setTimerUI(remain, MODE_SEC);
+      updateBetWindowUI();
+
+      timer = setInterval(async function () {
+        remain = remainingInModeBlock();
+
+        setTimerUI(remain, MODE_SEC);
+        updateBetWindowUI();
+        renderPeriodUI();
+
+        if (remain === 0) {
+          await finishRound();
+        }
+      }, 250);
     }
 
     async function confirmBet() {
@@ -623,7 +676,9 @@
         return;
       }
 
-      var period = (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-");
+      var period = (window.GAME ? window.GAME.currentPeriodIST() : (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-"));
+      var periods = currentPeriodsForBet(); // ✅ line-by-line periods
+
       var amt = Number(document.getElementById("betAmt").value);
 
       if (!selectedBet) return showMsg("betMsg", "Please select Color / Number / Big-Small.");
@@ -641,12 +696,32 @@
         label: selectedBet.label,
         amount: amt,
         period: period,
+        periods: periods,
         modeSec: MODE_SEC,
         beforePoints: before
       };
 
-      showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Wait for result.");
+      showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Periods: " + periods.join(" / "));
       await renderWallet();
+    }
+
+    function renderLast5(rows) {
+      var cur = window.GAME ? window.GAME.currentPeriodIST() : "";
+      var list = (rows || []).filter(function (r) { return r.period !== cur; }).slice(0, 5);
+
+      var box = document.getElementById("last5Body");
+      if (!box) return;
+
+      if (!list.length) { box.textContent = "No results yet."; return; }
+
+      box.innerHTML = list.map(function (r) {
+        return (
+          "<div style='display:flex;justify-content:space-between;gap:10px;'>" +
+          "<div><b>" + r.period + "</b></div>" +
+          "<div>" + r.resultNumber + " / " + r.resultColor + " / " + r.resultBigSmall + "</div>" +
+          "</div>"
+        );
+      }).join("");
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
@@ -671,8 +746,8 @@
 
       var t1 = document.getElementById("tab1m");
       var t3 = document.getElementById("tab3m");
-      if (t1) t1.onclick = function () { setMode(60); };
-      if (t3) t3.onclick = function () { setMode(180); };
+      if (t1) t1.onclick = function () { setMode(30); };
+      if (t3) t3.onclick = function () { setMode(90); };
 
       var g = document.getElementById("btnGreen");
       var v = document.getElementById("btnViolet");
@@ -736,10 +811,30 @@
         await renderLatestResultFromHistory();
       };
 
+      // Initial
       await renderWallet();
       await renderHistory();
       await renderLatestResultFromHistory();
-      setMode(60);
+
+      // ✅ realtime last 5 results for everyone
+      if (window.GAME) {
+        await GAME.backfillLastNResults(5);
+
+        GAME.listenLastNResults(6, function (rows) {
+          renderLast5(rows);
+
+          // Also update Latest Result from global results
+          var cur = GAME.currentPeriodIST();
+          var done = (rows || []).filter(function (r) { return r.period !== cur; })[0];
+          if (done) {
+            setText("resNum", String(done.resultNumber));
+            setText("resColor", done.resultColor);
+            setText("resBS", done.resultBigSmall);
+          }
+        });
+      }
+
+      setMode(30);
 
       setInterval(renderWallet, 1500);
     });
