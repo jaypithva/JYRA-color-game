@@ -35,14 +35,13 @@
     .flipCard{width:72px;height:92px;perspective:800px}
     .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
     .flipCard.flipped .flipInner{transform:rotateY(180deg)}
-
-    /* ✅ FIX: Card text overflow (DT result like DRAGON/TIGER/TIE) */
+    /* ✅ FIX: card text overflow */
     .flipFace{
       position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
       font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.06);backface-visibility:hidden;
-      padding:6px; text-align:center; line-height:1.05;
-      overflow:hidden; word-break:break-word;
+      padding:6px;text-align:center;line-height:1.05;
+      overflow:hidden;word-break:break-word;
       font-size:clamp(14px, 3.2vw, 22px);
     }
     .flipBack{transform:rotateY(180deg)}
@@ -94,6 +93,7 @@
       <div class="grid">
         <div class="card">
           <h3>Dragon Tiger</h3>
+
           <div class="aiLiveBox shake">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
@@ -117,7 +117,7 @@
           </div>
 
           <div style="margin-top:10px">
-            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="dtPrev"></div>
           </div>
 
@@ -183,6 +183,7 @@
       <div class="grid">
         <div class="card">
           <h3>Teen Patti — Live Demo (Points)</h3>
+
           <div class="aiLiveBox shake">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
@@ -206,7 +207,7 @@
           </div>
 
           <div style="margin-top:10px">
-            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="tpPrev"></div>
           </div>
         </div>
@@ -261,6 +262,7 @@
       <div class="grid">
         <div class="card">
           <h3>Roulette — Live Demo (Points)</h3>
+
           <div class="aiLiveBox shake">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
@@ -284,7 +286,7 @@
           </div>
 
           <div style="margin-top:10px">
-            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="muted">Latest Result (Saved in Firestore)</div>
             <div class="prevBox" id="rPrev"></div>
           </div>
         </div>
@@ -396,25 +398,7 @@
     }
     function vib(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 
-    /* ✅ FIX-1: Last result client-wise (so wrong client ka result nahi dikhega) */
-    function prevKey(cid, game){ return "jvbet_last_"+cid+"_"+game; }
-    function setLastResult(cid, game, val){
-      localStorage.setItem(prevKey(cid, game), String(val));
-      renderLastResult(cid, game);
-    }
-    function getLastResult(cid, game){
-      return localStorage.getItem(prevKey(cid, game)) || "";
-    }
-    function renderLastResult(cid, game){
-      const id=(game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev";
-      const el=document.getElementById(id);
-      const v=getLastResult(cid, game);
-      el.innerHTML = v
-        ? ('<span class="resChip">'+ v +'</span>')
-        : '<span class="muted">No result</span>';
-    }
-
-    /* ================= BET UI BIND ================= */
+    /* ================= TABS ================= */
     document.querySelectorAll(".tabbtn").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active"));
@@ -459,7 +443,7 @@
     const getRPick=bindBetBoxes("rBets","rPickShow");
     const rStake=document.getElementById("rStake"); bindChips(document.getElementById("rl"),rStake);
 
-    /* ================= GAME ENGINE (FAST) ================= */
+    /* ================= GAME ENGINE ================= */
     const TOTAL_SEC=30, LOCK_REMAINING=15;
     const lastBeep={DT:-1,TP:-1,R:-1};
 
@@ -470,6 +454,7 @@
     function setRound(cid,game,r){saveJSON(roundKey(cid,game),r)}
     function secondsLeft(r){return Math.ceil(TOTAL_SEC - ((Date.now()-r.startedAt)/1000))}
     function isOpen(r){return secondsLeft(r)>LOCK_REMAINING}
+
     function ensureRound(cid,game){
       let r=getRound(cid,game);
       const now=Date.now();
@@ -484,6 +469,7 @@
       }
       return getRound(cid,game);
     }
+
     function setLock(el,state){
       el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
       if(state==="OPEN"){el.classList.add("lockOpen");el.textContent="OPEN";}
@@ -506,13 +492,17 @@
     async function refreshTop(){
       const snap=await db.collection("users").doc(ME_ID).get();
       if(!snap.exists) return;
-      ME_USER=snap.data();
+      ME_USER=snap.data() || {};
       document.getElementById("cid").textContent=ME_ID;
       document.getElementById("pts").textContent=Number(ME_USER.points||0);
       const st=statsWinLoss(ME_ID);
       document.getElementById("w").textContent=st.win;
       document.getElementById("l").textContent=st.loss;
+
+      // ✅ Always render last result from Firestore after refresh
+      renderAllLastResults();
     }
+
     async function addPoints(delta){
       await db.collection("users").doc(ME_ID).set({
         points: firebase.firestore.FieldValue.increment(delta)
@@ -530,6 +520,7 @@
       await refreshTop();
       return betId;
     }
+
     async function settleBet({betId,outcome}){
       const bets=getBets(); const b=bets.find(x=>x.betId===betId);
       if(!b) return;
@@ -539,7 +530,7 @@
       await refreshTop();
     }
 
-    /* ✅ FIX-2: Last 10 bets (this client) show in each game table (including PENDING) */
+    /* ✅ Last 10 bets (THIS client) per game */
     function setPastTable(game,tableId,waitId){
       const bets=getClientBets(ME_ID).filter(b=>b.game===game).slice(0,10);
       const tb=document.querySelector("#"+tableId+" tbody");
@@ -558,13 +549,63 @@
     }
 
     function renderHistory(){
-      const bets=getClientBets(ME_ID).slice(0,200); // last 200 for this client
+      const bets=getClientBets(ME_ID).slice(0,200);
       const tb=document.querySelector("#bh tbody");
       tb.innerHTML=bets.map(b=>(
         "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
       )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
     }
 
+    /* ================= FIRESTORE LAST RESULT (PER CLIENT, CROSS-DEVICE) =================
+       Stored inside users/{ME_ID} as:
+       lastResults: { DragonTiger: "DRAGON", TeenPatti: "PLAYER", Roulette: "RED 17" }
+    ================================================================================ */
+
+    function gameToPrevEl(game){
+      return (game==="DragonTiger") ? "dtPrev" : (game==="TeenPatti") ? "tpPrev" : "rPrev";
+    }
+
+    function renderLastResultFor(game){
+      const el=document.getElementById(gameToPrevEl(game));
+      const v=(ME_USER && ME_USER.lastResults && ME_USER.lastResults[game]) ? String(ME_USER.lastResults[game]) : "";
+      el.innerHTML = v ? ('<span class="resChip">'+ v +'</span>') : '<span class="muted">No result</span>';
+    }
+
+    function renderAllLastResults(){
+      renderLastResultFor("DragonTiger");
+      renderLastResultFor("TeenPatti");
+      renderLastResultFor("Roulette");
+    }
+
+    async function setLastResultFS(game, value){
+      // update local cache immediately (so UI shows instantly)
+      if(!ME_USER) ME_USER = {};
+      if(!ME_USER.lastResults) ME_USER.lastResults = {};
+      ME_USER.lastResults[game] = value;
+      renderLastResultFor(game);
+
+      // write to Firestore (cross device)
+      const patch = {};
+      patch["lastResults."+game] = value;
+      patch["lastResultsUpdatedAt."+game] = Date.now();
+      await db.collection("users").doc(ME_ID).set(patch, { merge:true });
+    }
+
+    /* Optional: live listen (agar aap dusre device se result update kare to yaha bhi show ho) */
+    let unsubUserLive = null;
+    function startUserLiveListener(){
+      try{
+        if(unsubUserLive) unsubUserLive();
+        unsubUserLive = db.collection("users").doc(ME_ID).onSnapshot((doc)=>{
+          if(!doc.exists) return;
+          ME_USER = Object.assign({}, ME_USER||{}, doc.data()||{});
+          renderAllLastResults();
+          document.getElementById("pts").textContent=Number(ME_USER.points||0);
+        });
+      }catch(e){}
+    }
+
+    /* ================= RANDOM / GAME LOGIC ================= */
     function randCard(){return 1+Math.floor(Math.random()*13)}
     function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
     function drawDT(){const d=randCard(),t=randCard();const res=(d===t)?"TIE":(d>t?"DRAGON":"TIGER");return {d,t,res}}
@@ -587,18 +628,20 @@
       if(!pb){r.revealed=true;setRound(ME_ID,"DragonTiger",r);return;}
       setTimeout(async ()=>{
         const d=drawDT();
-        flipReset(); flipShow(cardStr(d.d),cardStr(d.t),d.res);
+
+        flipReset();
+        flipShow(cardStr(d.d),cardStr(d.t),d.res);
+
         document.getElementById("dtLast").textContent=d.res;
 
-        /* ✅ client wise store */
-        setLastResult(ME_ID, "DragonTiger", d.res);
+        // ✅ Save last result to Firestore (client wise)
+        await setLastResultFS("DragonTiger", d.res);
 
         let out="LOSS";
         if(d.res==="TIE") out="TIE";
         else if(pb.pick===d.res) out="WIN";
 
         await settleBet({betId:pb.betId,outcome:out});
-
         setPastTable("DragonTiger","dtPast","dtWait");
         document.getElementById("dtMsg").textContent="RESULT: "+out;
 
@@ -616,8 +659,8 @@
       setTimeout(async ()=>{
         const d=drawTP();
 
-        /* ✅ client wise store */
-        setLastResult(ME_ID, "TeenPatti", d.res);
+        // ✅ Save last result to Firestore
+        await setLastResultFS("TeenPatti", d.res);
 
         let out="LOSS";
         if(d.res==="TIE") out="TIE";
@@ -638,9 +681,10 @@
       if(!pb){r.revealed=true;setRound(ME_ID,"Roulette",r);return;}
       setTimeout(async ()=>{
         const d=drawR();
+        const val = d.color+" "+d.n;
 
-        /* ✅ client wise store */
-        setLastResult(ME_ID, "Roulette", d.color+" "+d.n);
+        // ✅ Save last result to Firestore
+        await setLastResultFS("Roulette", val);
 
         const out=(pb.pick===d.color)?"WIN":"LOSS";
         await settleBet({betId:pb.betId,outcome:out});
@@ -695,6 +739,7 @@
       if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
     }
 
+    /* ================= PLAY BUTTONS ================= */
     document.getElementById("dtPlay").addEventListener("click", async ()=>{
       try{
         const r=ensureRound(ME_ID,"DragonTiger");
@@ -732,6 +777,7 @@
       }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
     });
 
+    /* ================= VIEWERS FAKE ================= */
     setInterval(()=>{
       const el=id=>document.getElementById(id);
       el("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
@@ -739,6 +785,7 @@
       el("rView").textContent="👁 "+(150+Math.floor(Math.random()*25));
     },2500);
 
+    /* ================= INIT ================= */
     (async function init(){
       const s=getSession();
       if(!s||!s.id) return logout();
@@ -750,15 +797,16 @@
 
       await refreshTop();
 
-      /* ✅ show last 10 (this client) */
+      // ✅ live listener: lastResults/points cross-device
+      startUserLiveListener();
+
+      // ✅ last 10 bets
       setPastTable("DragonTiger","dtPast","dtWait");
       setPastTable("TeenPatti","tpPast","tpWait");
       setPastTable("Roulette","rPast","rWait");
 
-      /* ✅ last result show (client wise) */
-      renderLastResult(ME_ID,"DragonTiger");
-      renderLastResult(ME_ID,"TeenPatti");
-      renderLastResult(ME_ID,"Roulette");
+      // ✅ last results render right away
+      renderAllLastResults();
 
       setInterval(async ()=>{
         await tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtPlay",revealDT,"DT");
