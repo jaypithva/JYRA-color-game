@@ -2,79 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Casino Demo - JVBET1803</title>
+  <title>Casino - JVBET1803</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
   <style>
-    /* --- Mobile scroll box for tables (Last Plays + History) --- */
-    .scrollBox{
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      border-radius: 14px;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      max-height: 320px;
-      margin-top: 10px;
-    }
-    @media (min-width: 900px){
-      .scrollBox{ max-height: 420px; }
-    }
+    .aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
+    .aiLiveTop{position:absolute;top:10px;left:10px;display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);z-index:2;max-width:calc(100% - 20px)}
+    .liveDot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 14px rgba(255,59,59,.85);animation:pulse 1.2s infinite;flex:0 0 auto}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
+    .liveTxt{font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
+    .aiVid{width:100%;height:320px;object-fit:cover;display:block;filter:contrast(1.05) saturate(1.05);background:#000}
+    @media (max-width:900px){.aiVid{height:220px}}
 
-    /* keep table width on mobile */
-    .scrollBox table{
-      min-width: 720px;
-    }
+    .timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .timerPill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22);min-width:220px;max-width:100%}
+    .timerNum{font-weight:900}
+    .timerBar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;min-width:120px}
+    .timerFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35))}
+    .pillSmall{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
+    .lockOpen{border-color:rgba(34,197,94,.45)}
+    .lockPlaced{border-color:rgba(43,111,255,.45)}
+    .lockLocked{border-color:rgba(255,193,7,.45)}
+    .lockClosed{border-color:rgba(255,77,109,.45)}
 
-    /* --- Last 5 results chips wrap --- */
-    .prevBox {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      padding: 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, .12);
-      background: rgba(0, 0, 0, .18);
-      min-height: 44px;
-    }
-    .resChip {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(212, 175, 55, .28);
-      background: rgba(0, 0, 0, .25);
-      font-weight: 800;
-      letter-spacing: .3px;
-      white-space: nowrap;
-    }
+    .prevBox{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:44px}
+    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:800;letter-spacing:.3px;white-space:nowrap}
 
-    /* --- Toast --- */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, .78);
-      border: 1px solid rgba(212, 175, 55, .35);
-      color: #fff;
-      padding: 12px 14px;
-      border-radius: 14px;
-      z-index: 9999;
-      display: none;
-      max-width: 92vw;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
-    }
-    .toast.show { display:block; }
-    .toast .t { font-weight: 900; }
-    .toast.win { border-color: rgba(34, 197, 94, .55); }
-    .toast.loss { border-color: rgba(255, 77, 109, .55); }
-    .toast.tie { border-color: rgba(43, 111, 255, .55); }
+    .card3{display:flex;gap:12px;justify-content:center;align-items:center}
+    .flipCard{width:72px;height:92px;perspective:800px}
+    .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
+    .flipCard.flipped .flipInner{transform:rotateY(180deg)}
+    .flipFace{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);backface-visibility:hidden}
+    .flipBack{transform:rotateY(180deg)}
 
-    /* --- small fixes --- */
-    .row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .muted { opacity:.75; }
-    .gold { color:#d4af37; font-weight:900; }
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(0,0,0,.78);border:1px solid rgba(212,175,55,.35);color:#fff;padding:12px 14px;border-radius:14px;z-index:9999;display:none;max-width:92vw;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+    .toast.show{display:block}
+    .toast .t{font-weight:900}
+    .toast.win{border-color:rgba(34,197,94,.55)}
+    .toast.loss{border-color:rgba(255,77,109,.55)}
+    .toast.tie{border-color:rgba(43,111,255,.55)}
+
+    /* ✅ Mobile responsive scrolling boxes */
+    .scrollBox{margin-top:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:auto;-webkit-overflow-scrolling:touch;max-height:260px}
+    .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
+    @media (max-width:700px){.scrollBox{max-height:220px}.scrollBox table{min-width:700px}}
   </style>
 </head>
 
@@ -86,8 +60,8 @@
   </header>
 
   <main class="wrap">
-    <div class="row" style="justify-content:space-between;margin-bottom:12px">
-      <div class="row">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+      <div class="row" style="flex-wrap:wrap">
         <span class="badge">Client: <span class="gold" id="cid">-</span></span>
         <span class="badge">Points: <span class="gold" id="pts">0</span></span>
         <span class="badge">Win: <span class="gold" id="w">0</span></span>
@@ -103,38 +77,55 @@
       <button class="tabbtn" data-tab="hist" type="button">History</button>
     </div>
 
-    <!-- DRAGON TIGER -->
+    <!-- ======================= DRAGON TIGER ======================= -->
     <section class="panel active" id="dt">
       <div class="grid">
         <div class="card">
           <h3>Dragon Tiger</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE</span>
+              <span class="liveView" id="dtView">👁 128</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span>
+              <span>Round ends in:</span>
+              <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="dtFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
+            <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
+          </div>
 
           <div style="margin-top:10px">
-            <div class="muted">Last 5 Results</div>
+            <div class="muted">Latest Result (only 1)</div>
             <div class="prevBox" id="dtPrev"></div>
           </div>
 
           <p class="muted" style="margin-top:10px">
-            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows at 0 sec.
+            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
           </p>
-
-          <div class="row" style="justify-content:space-between;margin-top:10px">
-            <span class="badge">Round: <span class="gold" id="dtRound">-</span></span>
-            <span class="badge">Timer: <span class="gold" id="dtTimer">30</span>s</span>
-            <span class="badge" id="dtLock">OPEN</span>
-          </div>
         </div>
 
         <div class="casinoBoard">
           <div class="cTop">
+            <div class="topBox"><div class="topTitle">Last Result</div><div class="topValue" id="dtLast">-</div></div>
             <div class="topBox">
-              <div class="topTitle">Selected</div>
-              <div class="topValue gold" id="dtPickShow">DRAGON</div>
+              <div class="topTitle" style="text-align:center">Cards</div>
+              <div class="card3">
+                <div class="flipCard" id="fcD"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtD">?</div></div></div>
+                <div class="flipCard" id="fcT"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtT">?</div></div></div>
+                <div class="flipCard" id="fcR"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtR">?</div></div></div>
+              </div>
             </div>
-            <div class="topBox">
-              <div class="topTitle">Last Result</div>
-              <div class="topValue" id="dtLast">-</div>
-            </div>
+            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="dtPickShow">DRAGON</div></div>
           </div>
 
           <div class="cMid">
@@ -151,14 +142,13 @@
               <div class="chip" data-v="100">100</div>
               <div class="chip" data-v="500">500</div>
               <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
+              <div class="chip" data-v="5000">5000</div> <!-- ✅ FIX -->
             </div>
 
             <div class="stakeBox">
               <input class="stakeInput" id="dtStake" type="number" placeholder="Enter Bet">
               <button class="btn" id="dtPlay" type="button">Place Bet</button>
             </div>
-
             <span class="badge" id="dtMsg">-</span>
           </div>
         </div>
@@ -167,38 +157,55 @@
       <div class="card" style="margin-top:14px">
         <h3>Last Plays (Dragon Tiger)</h3>
         <div class="muted" id="dtWait"></div>
-
         <div class="scrollBox">
           <table class="table" id="dtPast">
-            <thead>
-              <tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- TEEN PATTI -->
+    <!-- ======================= TEEN PATTI ======================= -->
     <section class="panel" id="tp">
       <div class="grid">
         <div class="card">
-          <h3>Teen Patti</h3>
-
-          <div style="margin-top:10px">
-            <div class="muted">Last 5 Results</div>
-            <div class="prevBox" id="tpPrev"></div>
+          <h3>Teen Patti — Live Demo (Points)</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE DEMO DEALER</span>
+              <span class="liveView" id="tpView">👁 212</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
+            </video>
           </div>
 
-          <div class="row" style="justify-content:space-between;margin-top:10px">
-            <span class="badge">Round: <span class="gold" id="tpRound">-</span></span>
-            <span class="badge">Timer: <span class="gold" id="tpTimer">30</span>s</span>
-            <span class="badge" id="tpLock">OPEN</span>
-            <span class="badge">Selected: <span class="gold" id="tpPickShow">PLAYER</span></span>
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="tpFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
+            <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result (only 1)</div>
+            <div class="prevBox" id="tpPrev"></div>
           </div>
         </div>
 
         <div class="casinoBoard">
+          <div class="cTop">
+            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="tpPickShow2">PLAYER</div></div>
+            <div class="topBox"><div class="topTitle">Round</div><div class="topValue" id="tpRound2">-</div></div>
+            <div class="topBox"><div class="topTitle">Status</div><div class="topValue" id="tpStatus">-</div></div>
+          </div>
+
           <div class="cMid">
             <div class="betRow" id="tpBets">
               <div class="betBox active" data-pick="PLAYER"><div class="betName">PLAYER</div><div class="betMul">2x</div></div>
@@ -220,7 +227,6 @@
               <input class="stakeInput" id="tpStake" type="number" placeholder="Enter points">
               <button class="btn" id="tpPlay" type="button">PLAY (POINTS)</button>
             </div>
-
             <span class="badge" id="tpMsg">-</span>
           </div>
         </div>
@@ -229,34 +235,45 @@
       <div class="card" style="margin-top:14px">
         <h3>Last Plays (Teen Patti)</h3>
         <div class="muted" id="tpWait"></div>
-
         <div class="scrollBox">
           <table class="table" id="tpPast">
-            <thead>
-              <tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- ROULETTE -->
+    <!-- ======================= ROULETTE ======================= -->
     <section class="panel" id="rl">
       <div class="grid">
         <div class="card">
-          <h3>Roulette</h3>
-
-          <div style="margin-top:10px">
-            <div class="muted">Last 5 Results</div>
-            <div class="prevBox" id="rPrev"></div>
+          <h3>Roulette — Live Demo (Points)</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE DEMO DEALER</span>
+              <span class="liveView" id="rView">👁 156</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
+            </video>
           </div>
 
-          <div class="row" style="justify-content:space-between;margin-top:10px">
-            <span class="badge">Round: <span class="gold" id="rRound">-</span></span>
-            <span class="badge">Timer: <span class="gold" id="rTimer">30</span>s</span>
-            <span class="badge" id="rLock">OPEN</span>
-            <span class="badge">Selected: <span class="gold" id="rPickShow">RED</span></span>
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="rTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="rFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
+            <div class="pillSmall lockOpen" id="rLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result (only 1)</div>
+            <div class="prevBox" id="rPrev"></div>
           </div>
         </div>
 
@@ -281,7 +298,6 @@
               <input class="stakeInput" id="rStake" type="number" placeholder="Enter points">
               <button class="btn" id="rPlay" type="button">PLAY (POINTS)</button>
             </div>
-
             <span class="badge" id="rMsg">-</span>
           </div>
         </div>
@@ -290,34 +306,24 @@
       <div class="card" style="margin-top:14px">
         <h3>Last Plays (Roulette)</h3>
         <div class="muted" id="rWait"></div>
-
         <div class="scrollBox">
           <table class="table" id="rPast">
-            <thead>
-              <tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- HISTORY -->
+    <!-- ======================= HISTORY ======================= -->
     <section class="panel" id="hist">
       <div class="card">
         <h3>Full Play History</h3>
-
-        <div class="scrollBox">
+        <div class="scrollBox" style="max-height:360px">
           <table class="table" id="bh">
-            <thead>
-              <tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Result</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
             <tbody></tbody>
           </table>
-        </div>
-
-        <div class="muted" style="margin-top:8px">
-          ✅ Mobile me box ke andar scroll hoga (left-right + up-down).
         </div>
       </div>
     </section>
@@ -328,7 +334,7 @@
     <div class="muted" id="toastBody">-</div>
   </div>
 
-  <!-- Firebase compat -->
+  <!-- ✅ Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
@@ -344,501 +350,357 @@
     });
     const db = firebase.firestore();
 
-    /* ================= SESSION (support old + new keys) ================= */
-    const K_SESSION_NEW = "jvbet_session";
-    const K_SESSION_OLD = "jvbet_session_v1";
+    /* ================= SESSION + STORAGE ================= */
+    const K_SESSION_A="jvbet_session";
+    const K_SESSION_B="jvbet_session_v1";
+    const K_BETS="jvbet_bets_v1";
 
-    function getSession(){
-      try{
-        const a = localStorage.getItem(K_SESSION_NEW);
-        if(a) return JSON.parse(a);
-      }catch(e){}
-      try{
-        const b = localStorage.getItem(K_SESSION_OLD);
-        if(b) return JSON.parse(b);
-      }catch(e){}
-      return null;
+    function loadJSON(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
+    function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
+    function getSession(){return loadJSON(K_SESSION_A,null)||loadJSON(K_SESSION_B,null)}
+    function clearSession(){localStorage.removeItem(K_SESSION_A);localStorage.removeItem(K_SESSION_B)}
+    function logout(){clearSession();location.href="../index.html"}
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    function getBets(){return loadJSON(K_BETS,[])}
+    function setBets(b){saveJSON(K_BETS,b||[])}
+    function fmtDate(ts){return new Date(ts||Date.now()).toLocaleString()}
+    function getClientBets(cid){return getBets().filter(b=>b.clientId===cid).sort((a,b)=>(b.at||0)-(a.at||0))}
+    function statsWinLoss(cid){
+      const bets=getClientBets(cid).filter(b=>b.result && b.result!=="PENDING");
+      let w=0,l=0; bets.forEach(b=>{if(b.result==="WIN")w++; else if(b.result==="LOSS")l++;});
+      return {win:w,loss:l};
     }
 
-    function clearSession(){
-      localStorage.removeItem(K_SESSION_NEW);
-      localStorage.removeItem(K_SESSION_OLD);
+    /* ================= UI ================= */
+    function showToast(type,title,body){
+      const t=document.getElementById("toast");
+      t.className="toast show "+(type||"");
+      document.getElementById("toastTitle").textContent=title;
+      document.getElementById("toastBody").textContent=body||"";
+      setTimeout(()=>t.className="toast",2200);
+    }
+    function vib(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+    function prevKey(game){return "jvbet_last_"+game}
+    function setLastResult(game,val){localStorage.setItem(prevKey(game),String(val));renderLastResult(game)}
+    function getLastResult(game){return localStorage.getItem(prevKey(game))||""}
+    function renderLastResult(game){
+      const id=(game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev";
+      const el=document.getElementById(id);
+      const v=getLastResult(game);
+      el.innerHTML=v?('<span class="resChip">'+v+'</span>'):'<span class="muted">No result</span>';
     }
 
-    function requireClient(){
-      const s = getSession();
-      if(!s || (s.role !== "client" && s.role !== "admin")){
-        location.href = "../index.html";
-        return null;
-      }
-      // admin ko bhi casino me allow kar diya (optional)
-      return s;
-    }
-
-    /* ================= UI HELPERS ================= */
-    function fmtDate(ms){
-      try{
-        return new Date(Number(ms)).toLocaleString();
-      }catch(e){ return String(ms); }
-    }
-
-    function showToast(type, title, body) {
-      var t = document.getElementById("toast");
-      t.className = "toast show " + (type || "");
-      document.getElementById("toastTitle").textContent = title;
-      document.getElementById("toastBody").textContent = body || "";
-      setTimeout(function(){ t.className = "toast"; }, 2500);
-    }
-
-    function vib(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
-
-    /* ================= FIRESTORE PATHS ================= */
-    function userRef(uid){ return db.collection("users").doc(uid); }
-    function resultsRef(game){ return db.collection("gameResults").doc(game); }
-    function stateRef(game){ return db.collection("gameState").doc(game); }
-    function betsRef(uid){ return db.collection("users").doc(uid).collection("bets"); }
-
-    /* ================= LAST 5 RESULTS (subscribe) ================= */
-    function renderLast5(game, elId){
-      return resultsRef(game).onSnapshot((snap)=>{
-        const el = document.getElementById(elId);
-        if(!el) return;
-        const arr = (snap.exists && Array.isArray(snap.data().last5)) ? snap.data().last5 : [];
-        if(!arr.length){
-          el.innerHTML = '<span class="muted">No result</span>';
-          return;
-        }
-        el.innerHTML = arr.slice().reverse().map(v=>`<span class="resChip">${v}</span>`).join("");
-      });
-    }
-
-    async function pushResultTx(game, value){
-      await db.runTransaction(async (tx)=>{
-        const ref = resultsRef(game);
-        const snap = await tx.get(ref);
-        const data = snap.exists ? snap.data() : {};
-        let arr = Array.isArray(data.last5) ? data.last5.slice() : [];
-        arr.push(String(value));
-        if(arr.length > 5) arr = arr.slice(arr.length - 5);
-        tx.set(ref, {
-          last5: arr,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge:true });
-      });
-    }
-
-    /* ================= GLOBAL ROUND (shared) =================
-       NOTE: Static site limitation:
-       - Agar koi user online nahi hoga, round auto-generate nahi hoga.
-       - Always-running ke liye Firebase Cloud Functions Scheduler best hai.
-    */
-    const TOTAL_SEC = 30;
-    const LOCK_REMAINING = 15;
-
-    function newRound(){
-      const nowMs = Date.now();
-      const rid = "R-" + nowMs + "-" + Math.floor(Math.random()*999999);
-      return { roundId: rid, startAtMs: nowMs, endAtMs: nowMs + TOTAL_SEC*1000, lastResult:"" };
-    }
-
-    async function ensureGlobalRound(game){
-      const ref = stateRef(game);
-      await db.runTransaction(async (tx)=>{
-        const snap = await tx.get(ref);
-        if(!snap.exists){
-          tx.set(ref, newRound(), { merge:true });
-          return;
-        }
-        const st = snap.data() || {};
-        const endAt = Number(st.endAtMs || 0);
-        if(!endAt || Date.now() > endAt + 2000){
-          tx.set(ref, newRound(), { merge:true });
-        }
-      });
-    }
-
-    /* Host tries to publish result at round end.
-       Whoever is active can act as host.
-    */
-    async function tryPublishResult(game){
-      const ref = stateRef(game);
-      await db.runTransaction(async (tx)=>{
-        const snap = await tx.get(ref);
-        if(!snap.exists) return;
-        const st = snap.data() || {};
-        const endAt = Number(st.endAtMs || 0);
-        const publishedFor = st.publishedForRoundId || "";
-        if(!endAt) return;
-        if(Date.now() < endAt) return; // not ended
-        if(publishedFor === st.roundId) return; // already published
-
-        // generate result
-        let res = "-";
-        if(game === "DragonTiger"){
-          const d = 1 + Math.floor(Math.random()*13);
-          const t = 1 + Math.floor(Math.random()*13);
-          res = (d===t) ? "TIE" : (d>t ? "DRAGON" : "TIGER");
-        } else if(game === "TeenPatti"){
-          const r = Math.random();
-          res = (r<0.45) ? "PLAYER" : (r<0.9 ? "BANKER" : "TIE");
-        } else if(game === "Roulette"){
-          const n = Math.floor(Math.random()*37);
-          const color = (n===0) ? "GREEN" : (n%2===0 ? "BLACK" : "RED");
-          res = color + " " + n;
-        }
-
-        // save into state
-        tx.set(ref, {
-          lastResult: res,
-          publishedForRoundId: st.roundId,
-          publishedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge:true });
-      });
-    }
-
-    /* ================= BETS + POINTS (per user) ================= */
-    async function placeBet(uid, game, pick, stake, roundId){
-      stake = Number(stake || 0);
-      if(stake<=0) throw new Error("Enter valid points");
-      // lock check is handled in UI
-
-      await db.runTransaction(async (tx)=>{
-        const uref = userRef(uid);
-        const usnap = await tx.get(uref);
-        if(!usnap.exists) throw new Error("User missing");
-        const u = usnap.data() || {};
-        const pts = Number(u.points || 0);
-        if(stake > pts) throw new Error("Not enough points");
-
-        // create bet doc
-        const bref = betsRef(uid).doc();
-        tx.set(bref, {
-          at: Date.now(),
-          game: game,
-          pick: pick,
-          stake: stake,
-          roundId: roundId,
-          result: "PENDING"
-        });
-
-        // deduct points
-        tx.set(uref, { points: pts - stake }, { merge:true });
-      });
-    }
-
-    async function settleUserPending(uid, game, roundId, lastResult){
-      // find pending bets for this game+round
-      const qs = await betsRef(uid)
-        .where("game","==",game)
-        .where("roundId","==",roundId)
-        .where("result","==","PENDING")
-        .get();
-
-      if(qs.empty) return;
-
-      for(const doc of qs.docs){
-        await db.runTransaction(async (tx)=>{
-          const bref = betsRef(uid).doc(doc.id);
-          const bsnap = await tx.get(bref);
-          if(!bsnap.exists) return;
-          const b = bsnap.data() || {};
-          if(b.result !== "PENDING") return;
-
-          let outcome = "LOSS";
-          if(game === "Roulette"){
-            // lastResult: "RED 15"
-            const parts = String(lastResult).split(" ");
-            const color = parts[0] || "";
-            outcome = (b.pick === color) ? "WIN" : "LOSS";
-          } else {
-            if(String(lastResult) === "TIE") outcome = "TIE";
-            else outcome = (b.pick === String(lastResult)) ? "WIN" : "LOSS";
-          }
-
-          // points payout
-          const uref = userRef(uid);
-          const usnap = await tx.get(uref);
-          const u = usnap.data() || {};
-          const curPts = Number(u.points || 0);
-          const stake = Number(b.stake || 0);
-
-          let add = 0;
-          if(outcome === "WIN") add = stake * 2;
-          if(outcome === "TIE") add = stake;
-
-          tx.set(bref, { result: outcome, settledAt: Date.now(), resultValue: String(lastResult) }, { merge:true });
-          if(add>0) tx.set(uref, { points: curPts + add }, { merge:true });
-        });
-      }
-    }
-
-    /* ================= UI BINDINGS ================= */
-    function bindBetBoxes(containerId, showId) {
-      const cont = document.getElementById(containerId);
-      const show = document.getElementById(showId);
-      let pick = (cont.querySelector(".betBox.active") || {}).dataset ? cont.querySelector(".betBox.active").dataset.pick : "";
-
-      show.textContent = pick || "-";
-      cont.querySelectorAll(".betBox").forEach(function(box){
-        box.addEventListener("click", function(){
-          cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
-          box.classList.add("active");
-          pick = box.dataset.pick || "";
-          show.textContent = pick || "-";
-        });
-      });
-      return function(){ return pick; };
-    }
-
-    function bindChips(scopeEl, inputEl){
-      scopeEl.querySelectorAll(".chip").forEach(function(ch){
-        ch.addEventListener("click", function(){
-          const v = Number(ch.dataset.v || 0);
-          const cur = Number(inputEl.value || 0);
-          inputEl.value = cur + v;
-        });
-      });
-    }
-
-    function setLock(id, txt){
-      const el = document.getElementById(id);
-      if(!el) return;
-      el.textContent = txt;
-    }
-
-    /* ================= LOAD + RUN ================= */
-    const s = requireClient();
-    const uid = (s && (s.id || s.clientId || s.uid)) ? (s.id || s.clientId || s.uid) : null;
-    if(!uid){ location.href = "../index.html"; }
-
-    // logout
-    document.getElementById("logoutBtn").addEventListener("click", function(){
-      clearSession();
-      location.href = "../index.html";
-    });
-
-    // tabs
-    document.querySelectorAll(".tabbtn").forEach(function(btn){
-      btn.addEventListener("click", function(){
+    /* ================= BET UI BIND ================= */
+    document.querySelectorAll(".tabbtn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
         document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active"));
         document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById(btn.dataset.tab).classList.add("active");
-        if(btn.dataset.tab === "hist") renderHistory();
+        if(btn.dataset.tab==="hist") renderHistory();
       });
     });
 
-    // picks + chips
-    const getDTPick = bindBetBoxes("dtBets","dtPickShow");
-    const getTPPick = bindBetBoxes("tpBets","tpPickShow");
-    const getRPick  = bindBetBoxes("rBets","rPickShow");
+    function bindBetBoxes(containerId, showId, showId2){
+      const cont=document.getElementById(containerId);
+      const show=document.getElementById(showId);
+      const show2=showId2?document.getElementById(showId2):null;
+      let pick=(cont.querySelector(".betBox.active")||{}).dataset?.pick || "";
+      show.textContent=pick; if(show2) show2.textContent=pick;
+      cont.querySelectorAll(".betBox").forEach(box=>{
+        box.addEventListener("click", ()=>{
+          cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
+          box.classList.add("active");
+          pick=box.dataset.pick||"";
+          show.textContent=pick; if(show2) show2.textContent=pick;
+        });
+      });
+      return ()=>pick;
+    }
+    function bindChips(scopeEl, inputEl){
+      scopeEl.querySelectorAll(".chip").forEach(ch=>{
+        ch.addEventListener("click", ()=>{
+          const v=Number(ch.dataset.v||0);
+          inputEl.value=Number(inputEl.value||0)+v;
+        });
+      });
+    }
 
-    bindChips(document.getElementById("dt"), document.getElementById("dtStake"));
-    bindChips(document.getElementById("tp"), document.getElementById("tpStake"));
-    bindChips(document.getElementById("rl"), document.getElementById("rStake"));
+    const getDTPick=bindBetBoxes("dtBets","dtPickShow");
+    const dtStake=document.getElementById("dtStake"); bindChips(document.getElementById("dt"),dtStake);
 
-    // subscribe user points + basic
-    let unsubUser = userRef(uid).onSnapshot((snap)=>{
-      if(!snap.exists){
-        clearSession();
-        location.href = "../index.html";
+    const getTPPick=bindBetBoxes("tpBets","tpPickShow","tpPickShow2");
+    const tpStake=document.getElementById("tpStake"); bindChips(document.getElementById("tp"),tpStake);
+
+    const getRPick=bindBetBoxes("rBets","rPickShow");
+    const rStake=document.getElementById("rStake"); bindChips(document.getElementById("rl"),rStake);
+
+    /* ================= GAME ENGINE (FAST) ================= */
+    const TOTAL_SEC=30, LOCK_REMAINING=15;
+    const lastBeep={DT:-1,TP:-1,R:-1};
+
+    let ME_ID=null, ME_USER=null;
+
+    function roundKey(cid,game){return "jvbet_round_"+cid+"_"+game}
+    function getRound(cid,game){return loadJSON(roundKey(cid,game),null)}
+    function setRound(cid,game,r){saveJSON(roundKey(cid,game),r)}
+    function secondsLeft(r){return Math.ceil(TOTAL_SEC - ((Date.now()-r.startedAt)/1000))}
+    function isOpen(r){return secondsLeft(r)>LOCK_REMAINING}
+    function ensureRound(cid,game){
+      let r=getRound(cid,game);
+      const now=Date.now();
+      if(!r||!r.startedAt){r={roundId:1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};setRound(cid,game,r);return r;}
+      if(secondsLeft(r)<=-3){r={roundId:(Number(r.roundId)||0)+1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};setRound(cid,game,r);}
+      return getRound(cid,game);
+    }
+    function setLock(el,state){
+      el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
+      if(state==="OPEN"){el.classList.add("lockOpen");el.textContent="OPEN";}
+      if(state==="PLACED"){el.classList.add("lockPlaced");el.textContent="PLAYED";}
+      if(state==="LOCKED"){el.classList.add("lockLocked");el.textContent="LOCKED";}
+      if(state==="CLOSED"){el.classList.add("lockClosed");el.textContent="CLOSED";}
+    }
+
+    function placeBetLocal(obj){
+      const bets=getBets(); bets.unshift(obj); setBets(bets);
+    }
+    function updateBet(betId,patch){
+      const bets=getBets(); const i=bets.findIndex(b=>b.betId===betId);
+      if(i>=0){bets[i]=Object.assign({},bets[i],patch); setBets(bets);}
+    }
+    function getPending(game,roundId){
+      return getClientBets(ME_ID).find(b=>b.game===game && b.roundId===roundId && b.result==="PENDING")||null;
+    }
+
+    async function refreshTop(){
+      const snap=await db.collection("users").doc(ME_ID).get();
+      if(!snap.exists) return;
+      ME_USER=snap.data();
+      document.getElementById("cid").textContent=ME_ID;
+      document.getElementById("pts").textContent=Number(ME_USER.points||0);
+      const st=statsWinLoss(ME_ID);
+      document.getElementById("w").textContent=st.win;
+      document.getElementById("l").textContent=st.loss;
+    }
+    async function addPoints(delta){
+      await db.collection("users").doc(ME_ID).set({
+        points: firebase.firestore.FieldValue.increment(delta)
+      }, {merge:true});
+    }
+
+    async function placePendingBet({game,pick,stake,roundId}){
+      stake=Number(stake||0);
+      if(!stake||stake<=0) throw new Error("Enter valid points");
+      if(Number(ME_USER?.points||0)<stake) throw new Error("Not enough points");
+      await addPoints(-stake);
+
+      const betId="B"+Date.now()+"_"+Math.floor(Math.random()*9999);
+      placeBetLocal({betId,clientId:ME_ID,game,pick,stake,roundId,at:Date.now(),result:"PENDING"});
+      await refreshTop();
+      return betId;
+    }
+    async function settleBet({betId,outcome}){
+      const bets=getBets(); const b=bets.find(x=>x.betId===betId);
+      if(!b) return;
+      updateBet(betId,{result:outcome});
+      if(outcome==="WIN") await addPoints(b.stake*2);
+      else if(outcome==="TIE") await addPoints(b.stake);
+      await refreshTop();
+    }
+
+    function setPastTable(game,tableId){
+      const bets=getClientBets(ME_ID).filter(b=>b.game===game && b.result!=="PENDING").slice(0,10);
+      const tb=document.querySelector("#"+tableId+" tbody");
+      tb.innerHTML=bets.map(b=>(
+        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
+      )).join("") || "<tr><td colspan='4' class='muted'>No history</td></tr>";
+    }
+    function renderHistory(){
+      const bets=getClientBets(ME_ID).filter(b=>b.result!=="PENDING");
+      const tb=document.querySelector("#bh tbody");
+      tb.innerHTML=bets.map(b=>(
+        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
+      )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+    }
+
+    function randCard(){return 1+Math.floor(Math.random()*13)}
+    function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
+    function drawDT(){const d=randCard(),t=randCard();const res=(d===t)?"TIE":(d>t?"DRAGON":"TIGER");return {d,t,res}}
+    function drawTP(){return {res:["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]}}
+    function drawR(){const n=Math.floor(Math.random()*37);const c=(n===0)?"GREEN":(n%2===0?"BLACK":"RED");return {n,color:c}}
+
+    function flipReset(){
+      ["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.remove("flipped"));
+      ["dtD","dtT","dtR"].forEach(id=>document.getElementById(id).textContent="?");
+    }
+    function flipShow(d,t,r){
+      document.getElementById("dtD").textContent=d;
+      document.getElementById("dtT").textContent=t;
+      document.getElementById("dtR").textContent=r;
+      setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
+    }
+
+    async function revealDT(r){
+      const pb=getPending("DragonTiger",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"DragonTiger",r);return;}
+      setTimeout(async ()=>{
+        const d=drawDT();
+        flipReset(); flipShow(cardStr(d.d),cardStr(d.t),d.res);
+        document.getElementById("dtLast").textContent=d.res;
+        setLastResult("DragonTiger",d.res);
+
+        let out="LOSS";
+        if(d.res==="TIE") out="TIE";
+        else if(pb.pick===d.res) out="WIN";
+
+        await settleBet({betId:pb.betId,outcome:out});
+        setPastTable("DragonTiger","dtPast");
+        document.getElementById("dtMsg").textContent="RESULT: "+out;
+
+        if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
+        else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
+        else {showToast("loss","❌ LOSS","Try next round");vib(120);}
+
+        r.revealed=true;setRound(ME_ID,"DragonTiger",r);
+      },1200);
+    }
+
+    async function revealTP(r){
+      const pb=getPending("TeenPatti",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"TeenPatti",r);return;}
+      setTimeout(async ()=>{
+        const d=drawTP(); setLastResult("TeenPatti",d.res);
+        let out="LOSS";
+        if(d.res==="TIE") out="TIE";
+        else if(pb.pick===d.res) out="WIN";
+        await settleBet({betId:pb.betId,outcome:out});
+        document.getElementById("tpStatus").textContent=out;
+        setPastTable("TeenPatti","tpPast");
+        document.getElementById("tpMsg").textContent="RESULT: "+out;
+        r.revealed=true;setRound(ME_ID,"TeenPatti",r);
+      },1200);
+    }
+
+    async function revealR(r){
+      const pb=getPending("Roulette",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"Roulette",r);return;}
+      setTimeout(async ()=>{
+        const d=drawR();
+        setLastResult("Roulette", d.color+" "+d.n);
+        const out=(pb.pick===d.color)?"WIN":"LOSS";
+        await settleBet({betId:pb.betId,outcome:out});
+        setPastTable("Roulette","rPast");
+        document.getElementById("rMsg").textContent="RESULT: "+out;
+        r.revealed=true;setRound(ME_ID,"Roulette",r);
+      },1200);
+    }
+
+    async function tick(game,timerId,fillId,roundEl,lockEl,btnEl,revealFn,beepKey){
+      const r=ensureRound(ME_ID,game);
+      document.getElementById(roundEl).textContent=r.roundId;
+      if(game==="TeenPatti") document.getElementById("tpRound2").textContent=r.roundId;
+
+      const left=secondsLeft(r);
+      document.getElementById(timerId).textContent=Math.max(0,left);
+      document.getElementById(fillId).style.width=Math.max(0,Math.min(100,(left/TOTAL_SEC)*100))+"%";
+
+      if(left<=3 && left>0 && lastBeep[beepKey]!==left){lastBeep[beepKey]=left; vib(20);}
+      if(left>3) lastBeep[beepKey]=-1;
+
+      const lock=document.getElementById(lockEl);
+      const btn=document.getElementById(btnEl);
+
+      if(left<=0){
+        btn.disabled=true;btn.style.opacity=".6";setLock(lock,"CLOSED");
+        if(!r.revealed) await revealFn(r);
+        if(r.revealed && !r.nextStarted){
+          r.nextStarted=true;setRound(ME_ID,game,r);
+          setTimeout(()=>{startNext(ME_ID,game); if(game==="DragonTiger"){flipReset();document.getElementById("dtMsg").textContent="-";}},700);
+        }
         return;
       }
-      const u = snap.data() || {};
-      document.getElementById("cid").textContent = u.clientId || uid;
-      document.getElementById("pts").textContent = Number(u.points || 0);
-    });
 
-    // last 5 subscribe
-    let unsubDT = renderLast5("DragonTiger","dtPrev");
-    let unsubTP = renderLast5("TeenPatti","tpPrev");
-    let unsubR  = renderLast5("Roulette","rPrev");
-
-    // ensure rounds exist (global)
-    ensureGlobalRound("DragonTiger");
-    ensureGlobalRound("TeenPatti");
-    ensureGlobalRound("Roulette");
-
-    // state listeners for result publish + settle
-    function watchGame(game, roundEl, timerEl, lockEl, lastEl, pastTableId){
-      return stateRef(game).onSnapshot(async (snap)=>{
-        if(!snap.exists) return;
-        const st = snap.data() || {};
-        const endAt = Number(st.endAtMs || 0);
-        const rid = st.roundId || "-";
-        const lastResult = st.lastResult || "";
-
-        // show round + timer
-        document.getElementById(roundEl).textContent = rid;
-        const left = Math.max(0, Math.ceil((endAt - Date.now())/1000));
-        document.getElementById(timerEl).textContent = left;
-
-        // lock UI
-        if(left > LOCK_REMAINING) setLock(lockEl, "OPEN");
-        else if(left > 0) setLock(lockEl, "LOCKED");
-        else setLock(lockEl, "CLOSED");
-
-        // show last result on board
-        if(lastResult){
-          document.getElementById(lastEl).textContent = lastResult;
-        }
-
-        // if round ended: host try publish result
-        if(left <= 0){
-          try{
-            await tryPublishResult(game);
-          }catch(e){}
-        }
-
-        // if published for this round: settle my pending bet
-        if(st.publishedForRoundId === rid && lastResult){
-          try{
-            await settleUserPending(uid, game, rid, lastResult);
-            await loadPast(game, pastTableId);
-            await loadWinLoss(); // update W/L
-          }catch(e){}
-        }
-      });
-    }
-
-    // Win/Loss simple count from bets subcollection
-    async function loadWinLoss(){
-      const qs = await betsRef(uid).where("result","in",["WIN","LOSS"]).get();
-      let win=0, loss=0;
-      qs.forEach(d=>{
-        const r = (d.data()||{}).result;
-        if(r==="WIN") win++;
-        if(r==="LOSS") loss++;
-      });
-      document.getElementById("w").textContent = win;
-      document.getElementById("l").textContent = loss;
-    }
-
-    async function loadPast(game, tableId){
-      const qs = await betsRef(uid)
-        .where("game","==",game)
-        .where("result","in",["WIN","LOSS","TIE"])
-        .orderBy("at","desc")
-        .limit(10)
-        .get();
-
-      const tb = document.querySelector("#"+tableId+" tbody");
-      if(!tb) return;
-
-      if(qs.empty){
-        tb.innerHTML = "<tr><td colspan='4' class='muted'>No history</td></tr>";
-        return;
+      if(isOpen(r)){
+        if(r.betPlaced){btn.disabled=true;btn.style.opacity=".6";setLock(lock,"PLACED");}
+        else {btn.disabled=false;btn.style.opacity="1";setLock(lock,"OPEN");}
+      }else{
+        btn.disabled=true;btn.style.opacity=".6";setLock(lock,r.betPlaced?"PLACED":"LOCKED");
       }
-      let html = "";
-      qs.forEach(doc=>{
-        const b = doc.data() || {};
-        html += "<tr>" +
-          "<td>"+fmtDate(b.at)+"</td>" +
-          "<td>"+(b.pick||"-")+"</td>" +
-          "<td class='gold'>"+Number(b.stake||0)+"</td>" +
-          "<td>"+(b.result||"-")+"</td>" +
-        "</tr>";
-      });
-      tb.innerHTML = html;
     }
 
-    async function renderHistory(){
-      const qs = await betsRef(uid)
-        .where("result","in",["WIN","LOSS","TIE"])
-        .orderBy("at","desc")
-        .limit(200)
-        .get();
-
-      const tb = document.querySelector("#bh tbody");
-      if(!tb) return;
-
-      if(qs.empty){
-        tb.innerHTML = "<tr><td colspan='5' class='muted'>No history</td></tr>";
-        return;
-      }
-      let html = "";
-      qs.forEach(doc=>{
-        const b = doc.data() || {};
-        html += "<tr>" +
-          "<td>"+fmtDate(b.at)+"</td>" +
-          "<td>"+(b.game||"-")+"</td>" +
-          "<td>"+(b.pick||"-")+"</td>" +
-          "<td class='gold'>"+Number(b.stake||0)+"</td>" +
-          "<td>"+(b.result||"-")+"</td>" +
-        "</tr>";
-      });
-      tb.innerHTML = html;
+    function startNext(cid,game){
+      const r={roundId:(Number(getRound(cid,game)?.roundId)||0)+1,startedAt:Date.now(),betPlaced:false,revealed:false,nextStarted:false};
+      setRound(cid,game,r);
+      if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
+      if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
     }
 
-    // Watch games
-    let unsubStateDT = watchGame("DragonTiger","dtRound","dtTimer","dtLock","dtLast","dtPast");
-    let unsubStateTP = watchGame("TeenPatti","tpRound","tpTimer","tpLock","tpMsg","tpPast"); // tpMsg me last show as status (simple)
-    let unsubStateR  = watchGame("Roulette","rRound","rTimer","rLock","rMsg","rPast");       // rMsg me last show as status (simple)
-
-    // Place bet buttons
-    document.getElementById("dtPlay").addEventListener("click", async function(){
+    document.getElementById("dtPlay").addEventListener("click", async ()=>{
       try{
-        const stSnap = await stateRef("DragonTiger").get();
-        const st = stSnap.data() || {};
-        const endAt = Number(st.endAtMs||0);
-        const left = Math.max(0, Math.ceil((endAt - Date.now())/1000));
-        if(left <= LOCK_REMAINING) throw new Error("Locked (play only when timer > 15)");
-
-        await placeBet(uid, "DragonTiger", getDTPick(), document.getElementById("dtStake").value, st.roundId);
-        document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
-        showToast("tie","🕒 PLAY SUBMITTED","Result will show at 0 sec");
-        vib(40);
-      }catch(e){
-        document.getElementById("dtMsg").textContent = e.message || String(e);
-      }
+        const r=ensureRound(ME_ID,"DragonTiger");
+        if(!isOpen(r)) return document.getElementById("dtMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("dtMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"DragonTiger",r);
+        await placePendingBet({game:"DragonTiger",pick:getDTPick(),stake:dtStake.value,roundId:r.roundId});
+        document.getElementById("dtMsg").textContent="PLAY SUBMITTED";
+        showToast("tie","🕒 SUBMITTED","Result at 0 sec"); vib(40);
+      }catch(e){document.getElementById("dtMsg").textContent=e.message||String(e)}
     });
 
-    document.getElementById("tpPlay").addEventListener("click", async function(){
+    document.getElementById("tpPlay").addEventListener("click", async ()=>{
       try{
-        const stSnap = await stateRef("TeenPatti").get();
-        const st = stSnap.data() || {};
-        const endAt = Number(st.endAtMs||0);
-        const left = Math.max(0, Math.ceil((endAt - Date.now())/1000));
-        if(left <= LOCK_REMAINING) throw new Error("Locked (play only when timer > 15)");
-
-        await placeBet(uid, "TeenPatti", getTPPick(), document.getElementById("tpStake").value, st.roundId);
-        document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
-        showToast("tie","🕒 PLAY SUBMITTED","Result will show at 0 sec");
-        vib(40);
-      }catch(e){
-        document.getElementById("tpMsg").textContent = e.message || String(e);
-      }
+        const r=ensureRound(ME_ID,"TeenPatti");
+        if(!isOpen(r)) return document.getElementById("tpMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("tpMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"TeenPatti",r);
+        await placePendingBet({game:"TeenPatti",pick:getTPPick(),stake:tpStake.value,roundId:r.roundId});
+        document.getElementById("tpMsg").textContent="PLAY SUBMITTED";
+      }catch(e){document.getElementById("tpMsg").textContent=e.message||String(e)}
     });
 
-    document.getElementById("rPlay").addEventListener("click", async function(){
+    document.getElementById("rPlay").addEventListener("click", async ()=>{
       try{
-        const stSnap = await stateRef("Roulette").get();
-        const st = stSnap.data() || {};
-        const endAt = Number(st.endAtMs||0);
-        const left = Math.max(0, Math.ceil((endAt - Date.now())/1000));
-        if(left <= LOCK_REMAINING) throw new Error("Locked (play only when timer > 15)");
-
-        await placeBet(uid, "Roulette", getRPick(), document.getElementById("rStake").value, st.roundId);
-        document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
-        showToast("tie","🕒 PLAY SUBMITTED","Result will show at 0 sec");
-        vib(40);
-      }catch(e){
-        document.getElementById("rMsg").textContent = e.message || String(e);
-      }
+        const r=ensureRound(ME_ID,"Roulette");
+        if(!isOpen(r)) return document.getElementById("rMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("rMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"Roulette",r);
+        await placePendingBet({game:"Roulette",pick:getRPick(),stake:rStake.value,roundId:r.roundId});
+        document.getElementById("rMsg").textContent="PLAY SUBMITTED";
+      }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
     });
 
-    // init load
-    loadPast("DragonTiger","dtPast");
-    loadPast("TeenPatti","tpPast");
-    loadPast("Roulette","rPast");
-    loadWinLoss();
+    setInterval(()=>{
+      const el=id=>document.getElementById(id);
+      el("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
+      el("tpView").textContent="👁 "+(200+Math.floor(Math.random()*25));
+      el("rView").textContent="👁 "+(150+Math.floor(Math.random()*25));
+    },2500);
 
-    // small tick: keep ensuring rounds (in case doc deleted)
-    setInterval(function(){
-      ensureGlobalRound("DragonTiger");
-      ensureGlobalRound("TeenPatti");
-      ensureGlobalRound("Roulette");
-    }, 5000);
+    (async function init(){
+      const s=getSession();
+      if(!s||!s.id) return logout();
+      ME_ID=s.id;
+
+      const snap=await db.collection("users").doc(ME_ID).get();
+      if(!snap.exists) return logout();
+      if(snap.data()?.isBlocked) return logout();
+
+      await refreshTop();
+
+      setPastTable("DragonTiger","dtPast");
+      setPastTable("TeenPatti","tpPast");
+      setPastTable("Roulette","rPast");
+      renderLastResult("DragonTiger");
+      renderLastResult("TeenPatti");
+      renderLastResult("Roulette");
+
+      setInterval(async ()=>{
+        await tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtPlay",revealDT,"DT");
+        await tick("TeenPatti","tpTimer","tpFill","tpRound","tpLock","tpPlay",revealTP,"TP");
+        await tick("Roulette","rTimer","rFill","rRound","rLock","rPlay",revealR,"R");
+      },250);
+    })().catch(()=>{});
   </script>
 </body>
 </html>
