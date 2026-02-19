@@ -1,852 +1,631 @@
 <!doctype html>
 <html>
-
 <head>
-    <meta charset="utf-8" />
-    <title>Admin Panel - JVBET1803</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon">
+  <meta charset="utf-8" />
+  <title>Admin Panel - JVBET1803</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon">
 
-    <style>
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 12px
-        }
-        
-        .logoOnly {
-            height: 60px;
-            width: auto;
-            display: block;
-            object-fit: contain
-        }
-        
-        .card2 {
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .20);
-            border-radius: 16px;
-            padding: 14px;
-            box-shadow: 0 18px 60px rgba(0, 0, 0, .25)
-        }
-        
-        .grid2 {
-            display: grid;
-            grid-template-columns: 1.1fr .9fr;
-            gap: 12px
-        }
-        
-        @media (max-width:980px) {
-            .grid2 {
-                grid-template-columns: 1fr
-            }
-        }
-        
-        .formRow {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px
-        }
-        
-        @media (max-width:720px) {
-            .formRow {
-                grid-template-columns: 1fr
-            }
-        }
-        
-        .inp {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .22);
-            color: #fff;
-            outline: none;
-            margin-top: 6px;
-        }
-        
-        .inp::placeholder {
-            color: rgba(255, 255, 255, .5)
-        }
-        
-        .btnRow {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px
-        }
-        
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(212, 175, 55, .25);
-            background: rgba(0, 0, 0, .18)
-        }
-        
-        .tableWrap {
-            width: 100%;
-            overflow: auto;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .12)
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 980px
-        }
-        
-        th,
-        td {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-            text-align: left;
-            white-space: nowrap
-        }
-        
-        th {
-            position: sticky;
-            top: 0;
-            background: rgba(0, 0, 0, .45);
-            backdrop-filter: blur(6px);
-            z-index: 2;
-            font-weight: 900
-        }
-        
-        .muted {
-            opacity: .75
-        }
-        
-        .gold {
-            color: #d4af37;
-            font-weight: 900
-        }
-        
-        .tag {
-            padding: 6px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            font-weight: 800
-        }
-        
-        .tag.ok {
-            border-color: rgba(34, 197, 94, .45)
-        }
-        
-        .tag.bad {
-            border-color: rgba(255, 77, 109, .45)
-        }
-        
-        .miniBtn {
-            padding: 8px 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(212, 175, 55, .25);
-            background: rgba(0, 0, 0, .18);
-            color: #fff;
-            cursor: pointer;
-            font-weight: 800
-        }
-        
-        .miniBtn:hover {
-            filter: brightness(1.05)
-        }
-        
-        .miniBtn.danger {
-            border-color: rgba(255, 77, 109, .55)
-        }
-        
-        .miniBtn.blue {
-            border-color: rgba(43, 111, 255, .55)
-        }
-        
-        .miniBtn.green {
-            border-color: rgba(34, 197, 94, .55)
-        }
-        
-        .miniBtn:disabled {
-            opacity: .45;
-            cursor: not-allowed
-        }
-        
-        .miniStack {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap
-        }
-        
-        .msg {
-            margin-top: 10px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            min-height: 42px
-        }
-        
-        .smallHelp {
-            font-size: 12px;
-            opacity: .8;
-            margin-top: 6px
-        }
-        
-        .row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap
-        }
-        /* Mobile list view for clients */
-        
-        .mList {
-            display: none;
-            gap: 10px;
-            flex-direction: column;
-            margin-top: 12px
-        }
-        
-        .mCard {
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .16);
-            border-radius: 16px;
-            padding: 12px
-        }
-        
-        .mGrid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px
-        }
-        
-        .mKey {
-            opacity: .75;
-            font-size: 12px
-        }
-        
-        .mVal {
-            font-weight: 900
-        }
-        
-        @media (max-width:860px) {
-            .tableWrap {
-                display: none;
-            }
-            table {
-                min-width: 0;
-            }
-            .mList {
-                display: flex;
-            }
-        }
-    </style>
+  <style>
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .logoOnly{height:60px;width:auto;display:block;object-fit:contain}
+    .card2{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.20);border-radius:16px;padding:14px;box-shadow:0 18px 60px rgba(0,0,0,.25)}
+    .grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+    @media (max-width:980px){.grid2{grid-template-columns:1fr}}
+    .formRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media (max-width:720px){.formRow{grid-template-columns:1fr}}
+    .inp{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:#fff;outline:none;margin-top:6px}
+    .inp::placeholder{color:rgba(255,255,255,.5)}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.18)}
+    .tableWrap{width:100%;overflow:auto;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.12)}
+    table{width:100%;border-collapse:collapse;min-width:980px}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;white-space:nowrap}
+    th{position:sticky;top:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:2;font-weight:900}
+    .muted{opacity:.75}
+    .gold{color:#d4af37;font-weight:900}
+    .tag{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);font-weight:800}
+    .tag.ok{border-color:rgba(34,197,94,.45)}
+    .tag.bad{border-color:rgba(255,77,109,.45)}
+    .miniBtn{padding:8px 10px;border-radius:12px;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.18);color:#fff;cursor:pointer;font-weight:800}
+    .miniBtn:hover{filter:brightness(1.05)}
+    .miniBtn.danger{border-color:rgba(255,77,109,.55)}
+    .miniBtn.blue{border-color:rgba(43,111,255,.55)}
+    .miniBtn.green{border-color:rgba(34,197,94,.55)}
+    .miniBtn:disabled{opacity:.45;cursor:not-allowed}
+    .miniStack{display:flex;gap:8px;flex-wrap:wrap}
+    .msg{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:42px}
+    .smallHelp{font-size:12px;opacity:.8;margin-top:6px}
+    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .mList{display:none;gap:10px;flex-direction:column;margin-top:12px}
+    .mCard{border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);border-radius:16px;padding:12px}
+    .mGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .mKey{opacity:.75;font-size:12px}
+    .mVal{font-weight:900}
+    @media (max-width:860px){
+      .tableWrap{display:none;}
+      table{min-width:0;}
+      .mList{display:flex;}
+    }
+  </style>
 </head>
 
 <body class="bg">
-    <header class="header">
-        <div class="head-inner">
-            <a href="../index.html">
-                <img class="logoOnly" src="../assets/image/jvbet-logo.png" alt="JVBET1803"></a>
-        </div>
-    </header>
-
-    <main class="wrap">
-
-        <div class="topbar">
-            <div class="row" style="gap:10px;flex-wrap:wrap">
-                <span class="pill">Role: <span class="gold">ADMIN</span></span>
-                <span class="pill">Total Clients: <span class="gold" id="totalClients">0</span></span>
-                <!-- <span class="pill">Mode: <span class="gold">Demo Points</span></span> -->
-            </div>
-            <button class="btn" type="button" id="logoutBtn">Logout</button>
-        </div>
-
-        <div class="grid2">
-            <section class="card2">
-                <h3 style="margin:0">Create Client (Admin Only)</h3>
-                <div class="smallHelp">Only admin can create clients. Register page not needed.</div>
-
-                <div class="formRow">
-                    <div>
-                        <div class="muted">Client ID</div><input class="inp" id="cId" placeholder="e.g. J1803"></div>
-                    <div>
-                        <div class="muted">Client Name</div><input class="inp" id="cName" placeholder="e.g. Jay"></div>
-                    <div>
-                        <div class="muted">Phone</div><input class="inp" id="cPhone" placeholder="e.g. 9xxxxxxxxx"></div>
-                    <div>
-                        <div class="muted">Password</div><input class="inp" id="cPass" placeholder="Set password" type="password"></div>
-                    <div>
-                        <div class="muted">Starting Points</div><input class="inp" id="cPoints" placeholder="e.g. 5000" type="number"></div>
-                    <!-- <div>
-                        <div class="muted">Note</div><input class="inp" value="Demo points only" disabled></div> -->
-                </div>
-
-                <div class="btnRow">
-                    <button class="btn" type="button" id="createBtn">Create Client</button>
-                    <button class="miniBtn blue" type="button" id="seedBtn">Create Demo Client</button>
-                </div>
-
-                <div class="msg" id="msg">Admin panel ready.</div>
-            </section>
-
-            <section class="card2">
-                <h3 style="margin:0">Quick Actions</h3>
-                <!-- <div class="smallHelp">Select client from table OR type ClientID/Phone.</div> -->
-
-                <div class="formRow" style="margin-top:12px">
-                    <div>
-                        <div class="muted">Search</div><input class="inp" id="q" placeholder="Client ID / Phone"></div>
-                    <div>
-                        <div class="muted">Reset Password</div><input class="inp" id="newPass" placeholder="Set new password" type="password"></div>
-                    <div>
-                        <div class="muted">Points Amount</div><input class="inp" id="amt" placeholder="e.g. 100" type="number"></div>
-                    <!-- <div>
-                        <div class="muted"> </div><input class="inp" value="Lock: only admin can change points" disabled></div> -->
-                </div>
-
-                <div class="btnRow">
-                    <button class="miniBtn" type="button" id="findBtn">Find</button>
-                    <button class="miniBtn green" type="button" id="creditBtn">Add Points</button>
-                    <button class="miniBtn danger" type="button" id="debitBtn">Minus Points</button>
-                    <button class="miniBtn" type="button" id="passBtn">Change Password</button>
-                </div>
-
-                <div class="btnRow">
-                    <button class="miniBtn" type="button" id="blockBtn">Block/Unblock</button>
-                    <button class="miniBtn danger" type="button" id="delBtn">Delete Client</button>
-                    <button class="miniBtn" type="button" id="clearBetsBtn">Clear Bet History</button>
-                </div>
-
-                <div class="msg" id="selBox">Selected: <span class="gold" id="sel">None</span></div>
-            </section>
-        </div>
-
-        <section class="card2" style="margin-top:12px">
-            <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
-                <h3 style="margin:0">Clients Table</h3>
-                <div class="row" style="gap:10px;flex-wrap:wrap">
-                    <input class="inp" id="filter" placeholder="Filter by ID/Name/Phone..." style="max-width:320px">
-                    <button class="miniBtn" type="button" id="refreshBtn">Refresh</button>
-                </div>
-            </div>
-
-            <!-- Desktop table -->
-            <div class="tableWrap" style="margin-top:10px">
-                <table id="tbl">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Client ID</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Password</th>
-                            <th>Points</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody"></tbody>
-                </table>
-            </div>
-
-            <!-- Mobile list -->
-            <div class="mList" id="mList"></div>
-
-            <!-- <div class="smallHelp">Mobile me list view aayega, Desktop me table.</div> -->
-        </section>
-
-    </main>
-
-    <script>
-        // ===== Storage =====
-        var K_SESSION = "jvbet_session_v1";
-        var K_CLIENTS = "jvbet_clients_v1";
-        var K_BETS = "jvbet_bets_v1";
-
-        var DEFAULT_ADMIN = {
-            clientId: "ADMIN1",
-            phone: "9316740061",
-            password: "Jay@1803",
-            role: "admin",
-            points: 0,
-            isBlocked: false,
-            name: "Admin"
-        };
-
-        function $(id) {
-            return document.getElementById(id);
-        }
-
-        function safe(v) {
-            return (v === null || v === undefined) ? "" : String(v);
-        }
-
-        function num(v) {
-            var n = Number(v);
-            return isFinite(n) ? n : 0;
-        }
-
-        function loadJSON(k, f) {
-            try {
-                var r = localStorage.getItem(k);
-                return r ? JSON.parse(r) : f
-            } catch (e) {
-                return f
-            }
-        }
-
-        function saveJSON(k, o) {
-            localStorage.setItem(k, JSON.stringify(o));
-        }
-
-        function getSession() {
-            return loadJSON(K_SESSION, null);
-        }
-
-        function setSession(s) {
-            saveJSON(K_SESSION, s || null);
-        }
-
-        function logout() {
-            setSession(null);
-        }
-
-        function getClients() {
-            var list = loadJSON(K_CLIENTS, []);
-            var has = false;
-            for (var i = 0; i < list.length; i++) {
-                if (list[i] && list[i].role === "admin") {
-                    has = true;
-                    break;
-                }
-            }
-            if (!has) {
-                list.unshift(DEFAULT_ADMIN);
-                saveJSON(K_CLIENTS, list);
-            }
-            return list;
-        }
-
-        function saveClients(list) {
-            saveJSON(K_CLIENTS, list || []);
-        }
-
-        function findClientById(id) {
-            id = safe(id).trim().toLowerCase();
-            if (!id) return null;
-            var list = getClients();
-            for (var i = 0; i < list.length; i++) {
-                if (safe(list[i].clientId).toLowerCase() === id) return list[i];
-            }
-            return null;
-        }
-
-        function findClientByPhone(p) {
-            p = safe(p).trim();
-            if (!p) return null;
-            var list = getClients();
-            for (var i = 0; i < list.length; i++) {
-                if (safe(list[i].phone) === p) return list[i];
-            }
-            return null;
-        }
-
-        function findClientByIdOrPhone(v) {
-            v = safe(v).trim();
-            return findClientById(v) || findClientByPhone(v);
-        }
-
-        function updateClient(id, patch) {
-            var list = getClients();
-            for (var i = 0; i < list.length; i++) {
-                if (safe(list[i].clientId).toLowerCase() === safe(id).toLowerCase()) {
-                    for (var k in patch) {
-                        if (patch.hasOwnProperty(k)) list[i][k] = patch[k];
-                    }
-                    saveClients(list);
-                    return list[i];
-                }
-            }
-            throw new Error("Client not found");
-        }
-
-        // ✅ SAFE admin guard (no blank screen)
-        function requireAdminSafe() {
-            var s = getSession();
-            if (!s || s.role !== "admin") {
-                setMsg("⚠️ Please login as ADMIN first (ADMIN1).");
-                // still allow rendering so table doesn't look blank:
-                // return false;
-                // If you want strict redirect, uncomment:
-                // location.href="../index.html";
-                return false;
-            }
-            return true;
-        }
-
-        function adminCreateClient(input) {
-            var clientId = safe(input.clientId).trim();
-            var phone = safe(input.phone).trim();
-            var password = safe(input.password).trim();
-            var points = num(input.points);
-            var name = safe(input.name).trim();
-
-            if (!clientId) throw new Error("Client ID required");
-            if (!password) throw new Error("Password required");
-            if (findClientById(clientId)) throw new Error("Client ID already exists");
-            if (phone && findClientByPhone(phone)) throw new Error("Phone already exists");
-
-            var list = getClients();
-            var obj = {
-                clientId: clientId,
-                phone: phone,
-                password: password,
-                role: "client",
-                points: points,
-                isBlocked: false,
-                name: name
-            };
-            list.push(obj);
-            saveClients(list);
-            return obj;
-        }
-
-        function adminCredit(id, amt) {
-            amt = num(amt);
-            if (amt <= 0) throw new Error("Enter valid amount");
-            var c = findClientById(id);
-            if (!c) throw new Error("Client not found");
-            updateClient(c.clientId, {
-                points: num(c.points) + amt
-            });
-        }
-
-        function adminDebit(id, amt) {
-            amt = num(amt);
-            if (amt <= 0) throw new Error("Enter valid amount");
-            var c = findClientById(id);
-            if (!c) throw new Error("Client not found");
-            var p = num(c.points) - amt;
-            if (p < 0) p = 0;
-            updateClient(c.clientId, {
-                points: p
-            });
-        }
-
-        function adminToggleBlock(id) {
-            var c = findClientById(id);
-            if (!c) throw new Error("Client not found");
-            updateClient(c.clientId, {
-                isBlocked: !c.isBlocked
-            });
-        }
-
-        function adminChangeClientPassword(id, np) {
-            np = safe(np).trim();
-            if (!np) throw new Error("New password required");
-            var c = findClientById(id);
-            if (!c) throw new Error("Client not found");
-            updateClient(c.clientId, {
-                password: np
-            });
-        }
-
-        function adminDeleteClient(id) {
-            if (safe(id).toUpperCase() === "ADMIN1") throw new Error("Admin delete not allowed");
-            var list = getClients(),
-                out = [],
-                found = false;
-            for (var i = 0; i < list.length; i++) {
-                if (safe(list[i].clientId).toLowerCase() === safe(id).toLowerCase()) {
-                    found = true;
-                    continue;
-                }
-                out.push(list[i]);
-            }
-            if (!found) throw new Error("Client not found");
-            saveClients(out);
-
-            var bets = loadJSON(K_BETS, []);
-            var outB = [];
-            for (var j = 0; j < bets.length; j++) {
-                if (safe(bets[j].clientId).toLowerCase() === safe(id).toLowerCase()) continue;
-                outB.push(bets[j]);
-            }
-            saveJSON(K_BETS, outB);
-        }
-
-        function adminClearBetHistory(id) {
-            var bets = loadJSON(K_BETS, []);
-            var outB = [];
-            for (var j = 0; j < bets.length; j++) {
-                if (safe(bets[j].clientId).toLowerCase() === safe(id).toLowerCase()) continue;
-                outB.push(bets[j]);
-            }
-            saveJSON(K_BETS, outB);
-        }
-
-        // UI helpers
-        var selected = "";
-
-        function setMsg(t) {
-            var el = $("msg");
-            if (!el) return;
-            el.textContent = (t || "-");
-        }
-
-        function setSelected(id) {
-            selected = id || "";
-            if ($("sel")) $("sel").textContent = selected ? selected : "None";
-            if ($("selBox")) $("selBox").innerHTML = "Selected: <span class='gold'>" + (selected ? selected : "None") + "</span>";
-        }
-
-        function mustClient() {
-            var v = $("q").value.trim();
-            if (!v) v = selected;
-            if (!v) throw new Error("Select client OR type ClientID/Phone");
-            var c = findClientByIdOrPhone(v);
-            if (!c) throw new Error("Client not found");
-            setSelected(c.clientId);
-            return c.clientId;
-        }
-
-        function render() {
-            var clients = getClients();
-            $("totalClients").textContent = clients.length;
-
-            var f = safe($("filter").value).trim().toLowerCase();
-            var list = [];
-            for (var i = 0; i < clients.length; i++) {
-                var c = clients[i];
-                var ok = true;
-                if (f) {
-                    ok = safe(c.clientId).toLowerCase().indexOf(f) !== -1 ||
-                        safe(c.name).toLowerCase().indexOf(f) !== -1 ||
-                        safe(c.phone).toLowerCase().indexOf(f) !== -1;
-                }
-                if (ok) list.push(c);
-            }
-
-            // Desktop table
-            var tb = $("tbody");
-            if (!list.length) {
-                tb.innerHTML = "<tr><td colspan='8' class='muted'>No clients</td></tr>";
-            } else {
-                var html = "";
-                for (var k = 0; k < list.length; k++) {
-                    var c2 = list[k];
-                    var status = c2.isBlocked ? "BLOCKED" : "ACTIVE";
-                    var tagClass = c2.isBlocked ? "bad" : "ok";
-                    var isAdmin = (c2.role === "admin");
-                    html += "<tr>";
-                    html += "<td>" + (k + 1) + "</td>";
-                    html += "<td class='gold'>" + safe(c2.clientId) + "</td>";
-                    html += "<td>" + (safe(c2.name) || "-") + "</td>";
-                    html += "<td>" + (safe(c2.phone) || "-") + "</td>";
-                    html += "<td>" + (safe(c2.password) || "-") + "</td>";
-                    html += "<td class='gold'>" + Number(c2.points || 0) + "</td>";
-                    html += "<td><span class='tag " + tagClass + "'>" + status + "</span></td>";
-                    html += "<td><div class='miniStack'>" +
-                        "<button type='button' class='miniBtn' data-act='select' data-id='" + safe(c2.clientId) + "'>Select</button>" +
-                        "<button type='button' class='miniBtn blue' data-act='block' data-id='" + safe(c2.clientId) + "'>Block</button>" +
-                        "<button type='button' class='miniBtn danger' data-act='delete' data-id='" + safe(c2.clientId) + "' " + (isAdmin ? "disabled" : "") + ">Delete</button>" +
-                        "</div></td>";
-                    html += "</tr>";
-                }
-                tb.innerHTML = html;
-            }
-
-            // Mobile list
-            var m = $("mList");
-            if (!list.length) {
-                m.innerHTML = "<div class='muted'>No clients</div>";
-            } else {
-                var mh = "";
-                for (var x = 0; x < list.length; x++) {
-                    var c3 = list[x];
-                    var st = c3.isBlocked ? "BLOCKED" : "ACTIVE";
-                    mh += "<div class='mCard'>" +
-                        "<div class='row' style='justify-content:space-between'>" +
-                        "<div class='gold'>" + safe(c3.clientId) + "</div>" +
-                        "<span class='tag " + (c3.isBlocked ? "bad" : "ok") + "'>" + st + "</span>" +
-                        "</div>" +
-                        "<div class='mGrid' style='margin-top:8px'>" +
-                        "<div><div class='mKey'>Name</div><div class='mVal'>" + (safe(c3.name) || "-") + "</div></div>" +
-                        "<div><div class='mKey'>Phone</div><div class='mVal'>" + (safe(c3.phone) || "-") + "</div></div>" +
-                        "<div><div class='mKey'>Password</div><div class='mVal'>" + (safe(c3.password) || "-") + "</div></div>" +
-                        "<div><div class='mKey'>Points</div><div class='mVal gold'>" + Number(c3.points || 0) + "</div></div>" +
-                        "</div>" +
-                        "<div class='miniStack' style='margin-top:10px'>" +
-                        "<button type='button' class='miniBtn' data-act='select' data-id='" + safe(c3.clientId) + "'>Select</button>" +
-                        "<button type='button' class='miniBtn blue' data-act='block' data-id='" + safe(c3.clientId) + "'>Block</button>" +
-                        "<button type='button' class='miniBtn danger' data-act='delete' data-id='" + safe(c3.clientId) + "' " + (c3.role === "admin" ? "disabled" : "") + ">Delete</button>" +
-                        "</div>" +
-                        "</div>";
-                }
-                m.innerHTML = mh;
-            }
-        }
-
-        // Event delegation for desktop table + mobile list
-        document.addEventListener("click", function(e) {
-            var btn = e.target && e.target.closest ? e.target.closest("button[data-act]") : null;
-            if (!btn) return;
-
-            var act = btn.getAttribute("data-act");
-            var id = btn.getAttribute("data-id");
-            if (!act || !id) return;
-
-            try {
-                if (act === "select") {
-                    $("q").value = id;
-                    setSelected(id);
-                    setMsg("Selected: " + id);
-                } else if (act === "block") {
-                    adminToggleBlock(id);
-                    setMsg("Block toggled: " + id);
-                    render();
-                } else if (act === "delete") {
-                    if (btn.disabled) return;
-                    if (!confirm("Delete " + id + " ?")) return;
-                    adminDeleteClient(id);
-                    if (selected === id) setSelected("");
-                    setMsg("Deleted: " + id);
-                    render();
-                }
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("logoutBtn").addEventListener("click", function() {
-            logout();
-            location.href = "../index.html";
-        });
-
-        $("createBtn").addEventListener("click", function() {
-            try {
-                var c = adminCreateClient({
-                    clientId: $("cId").value,
-                    phone: $("cPhone").value,
-                    password: $("cPass").value,
-                    points: $("cPoints").value,
-                    name: $("cName").value
-                });
-                setMsg("Client created: " + c.clientId);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("seedBtn").addEventListener("click", function() {
-            try {
-                var demoId = "J" + Math.floor(1000 + Math.random() * 9000);
-                var c = adminCreateClient({
-                    clientId: demoId,
-                    phone: "",
-                    password: "1234",
-                    points: 5000,
-                    name: "Demo"
-                });
-                setMsg("Demo created: " + c.clientId + " (pass: 1234)");
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("findBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                var c = findClientById(id);
-                setMsg("Found: " + id + " | Points: " + Number(c.points || 0));
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("creditBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                adminCredit(id, $("amt").value);
-                setMsg("Added points: " + id);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("debitBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                adminDebit(id, $("amt").value);
-                setMsg("Minus points: " + id);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("passBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                adminChangeClientPassword(id, $("newPass").value);
-                setMsg("Password changed: " + id);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("blockBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                adminToggleBlock(id);
-                setMsg("Block toggled: " + id);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("delBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                if (!confirm("Delete " + id + " ?")) return;
-                adminDeleteClient(id);
-                setSelected("");
-                setMsg("Deleted: " + id);
-                render();
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("clearBetsBtn").addEventListener("click", function() {
-            try {
-                var id = mustClient();
-                adminClearBetHistory(id);
-                setMsg("Bet history cleared: " + id);
-            } catch (err) {
-                setMsg(err.message || String(err));
-            }
-        });
-
-        $("refreshBtn").addEventListener("click", render);
-        $("filter").addEventListener("input", render);
-
-        // init
-        requireAdminSafe(); // ✅ won't break UI
-        render();
-    </script>
+<header class="header">
+  <div class="head-inner">
+    <a href="../index.html">
+      <img class="logoOnly" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="topbar">
+    <div class="row" style="gap:10px;flex-wrap:wrap">
+      <span class="pill">Role: <span class="gold">ADMIN</span></span>
+      <span class="pill">Total Clients: <span class="gold" id="totalClients">0</span></span>
+    </div>
+    <button class="btn" type="button" id="logoutBtn">Logout</button>
+  </div>
+
+  <div class="grid2">
+    <section class="card2">
+      <h3 style="margin:0">Create Client (Admin Only)</h3>
+      <div class="smallHelp">Only admin can create clients. (Saved in Firestore)</div>
+
+      <div class="formRow">
+        <div><div class="muted">Client ID</div><input class="inp" id="cId" placeholder="e.g. J1803"></div>
+        <div><div class="muted">Client Name</div><input class="inp" id="cName" placeholder="e.g. Jay"></div>
+        <div><div class="muted">Phone</div><input class="inp" id="cPhone" placeholder="e.g. 9xxxxxxxxx"></div>
+        <div><div class="muted">Password</div><input class="inp" id="cPass" placeholder="Set password" type="password"></div>
+        <div><div class="muted">Starting Points</div><input class="inp" id="cPoints" placeholder="e.g. 5000" type="number"></div>
+      </div>
+
+      <div class="btnRow">
+        <button class="btn" type="button" id="createBtn">Create Client</button>
+        <button class="miniBtn blue" type="button" id="seedBtn">Create Demo Client</button>
+      </div>
+
+      <div class="msg" id="msg">Admin panel ready.</div>
+    </section>
+
+    <section class="card2">
+      <h3 style="margin:0">Quick Actions</h3>
+
+      <div class="formRow" style="margin-top:12px">
+        <div><div class="muted">Search</div><input class="inp" id="q" placeholder="Client ID / Phone"></div>
+        <div><div class="muted">Reset Password</div><input class="inp" id="newPass" placeholder="Set new password" type="password"></div>
+        <div><div class="muted">Points Amount</div><input class="inp" id="amt" placeholder="e.g. 100" type="number"></div>
+      </div>
+
+      <div class="btnRow">
+        <button class="miniBtn" type="button" id="findBtn">Find</button>
+        <button class="miniBtn green" type="button" id="creditBtn">Add Points</button>
+        <button class="miniBtn danger" type="button" id="debitBtn">Minus Points</button>
+        <button class="miniBtn" type="button" id="passBtn">Change Password</button>
+      </div>
+
+      <div class="btnRow">
+        <button class="miniBtn" type="button" id="blockBtn">Block/Unblock</button>
+        <button class="miniBtn danger" type="button" id="delBtn">Delete Client</button>
+        <button class="miniBtn" type="button" id="clearBetsBtn">Clear Bet History</button>
+      </div>
+
+      <div class="msg" id="selBox">Selected: <span class="gold" id="sel">None</span></div>
+    </section>
+  </div>
+
+  <section class="card2" style="margin-top:12px">
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <h3 style="margin:0">Clients Table</h3>
+      <div class="row" style="gap:10px;flex-wrap:wrap">
+        <input class="inp" id="filter" placeholder="Filter by ID/Name/Phone..." style="max-width:320px">
+        <button class="miniBtn" type="button" id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+
+    <div class="tableWrap" style="margin-top:10px">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Client ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Password</th>
+            <th>Points</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="mList" id="mList"></div>
+  </section>
+
+</main>
+
+<!-- ✅ Firebase (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================= FIREBASE INIT ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+  authDomain: "jvbet-bbf90.firebaseapp.com",
+  projectId: "jvbet-bbf90",
+  storageBucket: "jvbet-bbf90.appspot.com",
+  messagingSenderId: "824871692224",
+  appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+});
+var db = firebase.firestore();
+
+/* ================= SESSION (same as index.html) ================= */
+var SESSION_KEY = "jvbet_session"; // ✅ MUST match index.html
+
+function getSession(){
+  try{
+    var s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+    if(!s) return null;
+    return {
+      clientId: s.clientId || s.id || "",
+      role: s.role || "",
+      name: s.name || ""
+    };
+  }catch(e){
+    return null;
+  }
+}
+function clearSession(){
+  localStorage.removeItem(SESSION_KEY);
+  // (optional) clear old keys too
+  localStorage.removeItem("jvbet_session_v1");
+  localStorage.removeItem("jvbet_session_v1");
+}
+
+/* ================= HELPERS ================= */
+function $(id){ return document.getElementById(id); }
+function safe(v){ return (v===null || v===undefined) ? "" : String(v); }
+function num(v){ var n=Number(v); return isFinite(n)?n:0; }
+function setMsg(t){ if($("msg")) $("msg").textContent = t || "-"; }
+function setSelected(id){
+  window.__selected = id || "";
+  if($("sel")) $("sel").textContent = window.__selected ? window.__selected : "None";
+  if($("q") && window.__selected) $("q").value = window.__selected;
+}
+window.__selected = "";
+
+/* hash (optional) */
+async function sha256(str){
+  var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(x){ return x.toString(16).padStart(2,"0"); }).join("");
+}
+
+/* ================= ADMIN GUARD ================= */
+(function(){
+  var s = getSession();
+  if(!s || s.role !== "admin"){
+    alert("Please login as ADMIN first (ADMIN1).");
+    location.href = "../index.html";
+    return;
+  }
+})();
+
+/* ================= FIRESTORE FUNCTIONS ================= */
+var usersCol = db.collection("users");
+var betsCol  = db.collection("bets"); // if you don't have, clear bets will just message
+
+async function getUserByClientId(clientId){
+  clientId = safe(clientId).trim();
+  if(!clientId) return null;
+  var snap = await usersCol.doc(clientId).get();
+  if(!snap.exists) return null;
+  return { id: snap.id, data: snap.data() };
+}
+
+async function getUserByPhone(phone){
+  phone = safe(phone).trim();
+  if(!phone) return null;
+  var q = await usersCol.where("phone","==",phone).limit(1).get();
+  if(q.empty) return null;
+  var d = q.docs[0];
+  return { id: d.id, data: d.data() };
+}
+
+async function findUserByIdOrPhone(v){
+  v = safe(v).trim();
+  if(!v) return null;
+
+  // try doc id first
+  var byId = await getUserByClientId(v);
+  if(byId) return byId;
+
+  // phone
+  var byPhone = await getUserByPhone(v);
+  if(byPhone) return byPhone;
+
+  return null;
+}
+
+async function createClient(input){
+  var clientId = safe(input.clientId).trim();
+  var name     = safe(input.name).trim();
+  var phone    = safe(input.phone).trim();
+  var pass     = safe(input.password);
+  var points   = num(input.points);
+
+  if(!clientId) throw new Error("Client ID required");
+  if(!pass) throw new Error("Password required");
+  if(points < 0) points = 0;
+
+  // check exists
+  var exist = await usersCol.doc(clientId).get();
+  if(exist.exists) throw new Error("Client ID already exists");
+
+  // phone unique (optional)
+  if(phone){
+    var ph = await usersCol.where("phone","==",phone).limit(1).get();
+    if(!ph.empty) throw new Error("Phone already exists");
+  }
+
+  // store BOTH (for compatibility). Better: store only passwordHash.
+  var passHash = await sha256(pass);
+
+  await usersCol.doc(clientId).set({
+    clientId: clientId,
+    name: name,
+    phone: phone,
+    role: "client",
+    points: points,
+    isBlocked: false,
+    password: pass,          // ⚠️ not secure, but keeping because your UI shows password
+    passwordHash: passHash,  // ✅ future-safe
+    createdAt: Date.now()
+  }, { merge:true });
+
+  return clientId;
+}
+
+async function updatePoints(clientId, delta){
+  var ref = usersCol.doc(clientId);
+  await db.runTransaction(async function(tx){
+    var snap = await tx.get(ref);
+    if(!snap.exists) throw new Error("Client not found");
+    var u = snap.data();
+    var p = num(u.points) + num(delta);
+    if(p < 0) p = 0;
+    tx.update(ref, { points: p });
+  });
+}
+
+async function setPassword(clientId, newPass){
+  newPass = safe(newPass);
+  if(!newPass) throw new Error("New password required");
+  var passHash = await sha256(newPass);
+  await usersCol.doc(clientId).update({
+    password: newPass,       // ⚠️ not secure (but matches your table)
+    passwordHash: passHash
+  });
+}
+
+async function toggleBlock(clientId){
+  var ref = usersCol.doc(clientId);
+  await db.runTransaction(async function(tx){
+    var snap = await tx.get(ref);
+    if(!snap.exists) throw new Error("Client not found");
+    var u = snap.data();
+    tx.update(ref, { isBlocked: !u.isBlocked });
+  });
+}
+
+async function deleteClient(clientId){
+  if(safe(clientId).toUpperCase() === "ADMIN1") throw new Error("Admin delete not allowed");
+  await usersCol.doc(clientId).delete();
+}
+
+async function clearBetHistory(clientId){
+  // Only works if you have bets collection with field clientId
+  // If you don't have this collection, it will just show message.
+  var q = await betsCol.where("clientId","==",clientId).limit(200).get();
+  if(q.empty){
+    throw new Error("No bets found (or bets collection missing).");
+  }
+  var batch = db.batch();
+  q.docs.forEach(function(d){ batch.delete(d.ref); });
+  await batch.commit();
+}
+
+/* ================= RENDER ================= */
+async function loadAllUsers(){
+  // You can orderBy("clientId") if field exists
+  var snap = await usersCol.orderBy("clientId").get();
+  var out = [];
+  snap.forEach(function(doc){
+    var d = doc.data() || {};
+    out.push({
+      clientId: doc.id,
+      name: d.name || "",
+      phone: d.phone || "",
+      role: d.role || "client",
+      points: num(d.points),
+      isBlocked: !!d.isBlocked,
+      password: d.password || "",
+      passwordHash: d.passwordHash || ""
+    });
+  });
+  return out;
+}
+
+async function render(){
+  try{
+    setMsg("Loading...");
+    var clients = await loadAllUsers();
+    $("totalClients").textContent = clients.length;
+
+    var f = safe($("filter").value).trim().toLowerCase();
+    var list = clients.filter(function(c){
+      if(!f) return true;
+      return safe(c.clientId).toLowerCase().indexOf(f) !== -1 ||
+             safe(c.name).toLowerCase().indexOf(f) !== -1 ||
+             safe(c.phone).toLowerCase().indexOf(f) !== -1;
+    });
+
+    var tb = $("tbody");
+    if(!list.length){
+      tb.innerHTML = "<tr><td colspan='8' class='muted'>No clients</td></tr>";
+    }else{
+      var html = "";
+      for(var i=0;i<list.length;i++){
+        var c = list[i];
+        var status = c.isBlocked ? "BLOCKED" : "ACTIVE";
+        var tagClass = c.isBlocked ? "bad" : "ok";
+        var isAdmin = (c.role === "admin");
+        var passShow = c.password ? c.password : (c.passwordHash ? "HASH" : "-");
+
+        html += "<tr>";
+        html += "<td>"+(i+1)+"</td>";
+        html += "<td class='gold'>"+safe(c.clientId)+"</td>";
+        html += "<td>"+(safe(c.name)||"-")+"</td>";
+        html += "<td>"+(safe(c.phone)||"-")+"</td>";
+        html += "<td>"+safe(passShow)+"</td>";
+        html += "<td class='gold'>"+Number(c.points||0)+"</td>";
+        html += "<td><span class='tag "+tagClass+"'>"+status+"</span></td>";
+        html += "<td><div class='miniStack'>"
+              + "<button type='button' class='miniBtn' data-act='select' data-id='"+safe(c.clientId)+"'>Select</button>"
+              + "<button type='button' class='miniBtn blue' data-act='block' data-id='"+safe(c.clientId)+"'>Block</button>"
+              + "<button type='button' class='miniBtn danger' data-act='delete' data-id='"+safe(c.clientId)+"' "+(isAdmin?"disabled":"")+">Delete</button>"
+              + "</div></td>";
+        html += "</tr>";
+      }
+      tb.innerHTML = html;
+    }
+
+    var m = $("mList");
+    if(!list.length){
+      m.innerHTML = "<div class='muted'>No clients</div>";
+    }else{
+      var mh = "";
+      for(var j=0;j<list.length;j++){
+        var c2 = list[j];
+        var st = c2.isBlocked ? "BLOCKED" : "ACTIVE";
+        var passShow2 = c2.password ? c2.password : (c2.passwordHash ? "HASH" : "-");
+        mh += "<div class='mCard'>"
+            + "<div class='row' style='justify-content:space-between'>"
+            + "<div class='gold'>"+safe(c2.clientId)+"</div>"
+            + "<span class='tag "+(c2.isBlocked?"bad":"ok")+"'>"+st+"</span>"
+            + "</div>"
+            + "<div class='mGrid' style='margin-top:8px'>"
+            + "<div><div class='mKey'>Name</div><div class='mVal'>"+(safe(c2.name)||"-")+"</div></div>"
+            + "<div><div class='mKey'>Phone</div><div class='mVal'>"+(safe(c2.phone)||"-")+"</div></div>"
+            + "<div><div class='mKey'>Password</div><div class='mVal'>"+safe(passShow2)+"</div></div>"
+            + "<div><div class='mKey'>Points</div><div class='mVal gold'>"+Number(c2.points||0)+"</div></div>"
+            + "</div>"
+            + "<div class='miniStack' style='margin-top:10px'>"
+            + "<button type='button' class='miniBtn' data-act='select' data-id='"+safe(c2.clientId)+"'>Select</button>"
+            + "<button type='button' class='miniBtn blue' data-act='block' data-id='"+safe(c2.clientId)+"'>Block</button>"
+            + "<button type='button' class='miniBtn danger' data-act='delete' data-id='"+safe(c2.clientId)+"' "+(c2.role==="admin"?"disabled":"")+">Delete</button>"
+            + "</div>"
+            + "</div>";
+      }
+      m.innerHTML = mh;
+    }
+
+    setMsg("Admin panel ready.");
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+}
+
+/* ================= ACTIONS ================= */
+function mustClientId(){
+  var v = safe($("q").value).trim();
+  if(!v) v = window.__selected;
+  if(!v) throw new Error("Select client OR type ClientID/Phone");
+  return v;
+}
+
+document.addEventListener("click", async function(e){
+  var btn = e.target && e.target.closest ? e.target.closest("button[data-act]") : null;
+  if(!btn) return;
+
+  var act = btn.getAttribute("data-act");
+  var id  = btn.getAttribute("data-id");
+  if(!act || !id) return;
+
+  try{
+    if(act==="select"){
+      setSelected(id);
+      setMsg("Selected: "+id);
+    }else if(act==="block"){
+      await toggleBlock(id);
+      setMsg("Block toggled: "+id);
+      await render();
+    }else if(act==="delete"){
+      if(btn.disabled) return;
+      if(!confirm("Delete "+id+" ?")) return;
+      await deleteClient(id);
+      if(window.__selected===id) setSelected("");
+      setMsg("Deleted: "+id);
+      await render();
+    }
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* ✅ LOGOUT FIX */
+$("logoutBtn").addEventListener("click", function(){
+  clearSession();
+  location.href = "../index.html";
+});
+
+/* CREATE */
+$("createBtn").addEventListener("click", async function(){
+  try{
+    var id = await createClient({
+      clientId: $("cId").value,
+      name: $("cName").value,
+      phone: $("cPhone").value,
+      password: $("cPass").value,
+      points: $("cPoints").value
+    });
+    setMsg("Client created: "+id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* DEMO */
+$("seedBtn").addEventListener("click", async function(){
+  try{
+    var demoId = "J" + Math.floor(1000 + Math.random()*9000);
+    await createClient({
+      clientId: demoId,
+      name: "Demo",
+      phone: "",
+      password: "1234",
+      points: 5000
+    });
+    setMsg("Demo created: "+demoId+" (pass: 1234)");
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* FIND */
+$("findBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    setSelected(u.id);
+    setMsg("Found: "+u.id+" | Points: "+Number(u.data.points||0));
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* ADD POINTS */
+$("creditBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    await updatePoints(u.id, +num($("amt").value));
+    setSelected(u.id);
+    setMsg("Added points: "+u.id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* MINUS POINTS */
+$("debitBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    await updatePoints(u.id, -num($("amt").value));
+    setSelected(u.id);
+    setMsg("Minus points: "+u.id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* CHANGE PASSWORD */
+$("passBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    await setPassword(u.id, $("newPass").value);
+    setSelected(u.id);
+    setMsg("Password changed: "+u.id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* BLOCK */
+$("blockBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    await toggleBlock(u.id);
+    setSelected(u.id);
+    setMsg("Block toggled: "+u.id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* DELETE */
+$("delBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    if(!confirm("Delete "+u.id+" ?")) return;
+    await deleteClient(u.id);
+    setSelected("");
+    setMsg("Deleted: "+u.id);
+    await render();
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+/* CLEAR BETS */
+$("clearBetsBtn").addEventListener("click", async function(){
+  try{
+    var v = mustClientId();
+    var u = await findUserByIdOrPhone(v);
+    if(!u) throw new Error("Client not found");
+    await clearBetHistory(u.id);
+    setMsg("Bet history cleared: "+u.id);
+  }catch(err){
+    setMsg(err.message || String(err));
+  }
+});
+
+$("refreshBtn").addEventListener("click", render);
+$("filter").addEventListener("input", render);
+
+/* INIT */
+render();
+</script>
 </body>
-
 </html>
