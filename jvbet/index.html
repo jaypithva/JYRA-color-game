@@ -34,35 +34,37 @@
     </section>
   </main>
 
-  <!-- ✅ Load your existing app.js (non-module) -->
- <script src="./assets/js/app.js?v=2"></script>
+  <!-- ✅ Only 1 module entry -->
+  <script type="module">
+    import { doLogin, getSession } from "./assets/js/app.js";
 
-<script>
-  console.log("app.js loaded?", typeof window.loginAny);
+    const msg = document.getElementById("msg");
+    const $ = (id) => document.getElementById(id);
 
-  function $(id){ return document.getElementById(id); }
-  function setMsg(t){ $("msg").textContent = t || "-"; }
-
-  function doLogin(){
+    // Already logged in? redirect
     try{
-      setMsg("Logging in...");
-      var idOrPhone = $("id").value.trim();
-      var password  = $("pass").value.trim();
+      const s = getSession();
+      if (s && s.role === "admin") location.href = "pages/admin.html";
+      if (s && s.role === "client") location.href = "pages/casino.html";
+    }catch(e){}
 
-      var role = loginAny({ idOrPhone: idOrPhone, password: password });
+    async function loginNow(){
+      try{
+        msg.textContent = "Logging in...";
+        const idOrPhone = $("id").value.trim();
+        const pass      = $("pass").value;
 
-      if (role === "admin") location.href = "pages/admin.html";
-      else location.href = "pages/casino.html";
-    }catch(e){
-      setMsg(e.message || String(e));
+        const s = await doLogin(idOrPhone, pass);
+
+        if (s.role === "admin") location.href = "pages/admin.html";
+        else location.href = "pages/casino.html";
+      }catch(e){
+        msg.textContent = e.message || String(e);
+      }
     }
-  }
 
-  document.getElementById("loginBtn").addEventListener("click", doLogin);
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Enter") doLogin();
-  });
-</script>
-
+    $("loginBtn").addEventListener("click", loginNow);
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") loginNow(); });
+  </script>
 </body>
 </html>
