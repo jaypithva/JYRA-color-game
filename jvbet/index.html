@@ -1,70 +1,114 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>JVBET1803 - Login</title>
 
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/style.css"/>
+  <link rel="shortcut icon" href="assets/image/jvbet-logo.png"/>
 
   <style>
-    .logoOnly{height:44px;width:auto;display:block;object-fit:contain;margin:0 auto 14px}
+    .logoOnly{height:44px;margin:0 auto 14px;display:block}
     .card{max-width:520px;margin:22px auto;padding:18px;border-radius:18px}
-    .msg{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:42px}
-    .muted{opacity:.75}
+    .msg{margin-top:10px;padding:10px;border-radius:12px;min-height:42px}
   </style>
 </head>
 
 <body class="bg">
-  <main class="wrap">
-    <section class="card">
-      <a href="index.html">
-        <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803" />
-        <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
-      </a>
+<main class="wrap">
+<section class="card">
 
-      <div style="margin-top:14px;">
-        <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off" />
-        <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;" />
+  <img class="logoOnly" src="assets/image/jvbet-logo.png"/>
+  <p style="text-align:center;opacity:.7">Welcome JVBet</p>
 
-        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">Login</button>
-        <div class="msg" id="msg">Enter ID/Phone & Password.</div>
-      </div>
-    </section>
-  </main>
+  <input class="input" id="id" placeholder="ClientID / Phone Number"/>
+  <input class="input" id="pass" type="password" placeholder="Password" style="margin-top:10px"/>
 
-  <!-- ✅ Only 1 module entry -->
-  <script type="module">
-    import { doLogin, getSession } from "./assets/js/app.js";
+  <button class="btn" id="loginBtn" style="width:100%;margin-top:12px">
+    Login
+  </button>
 
-    const msg = document.getElementById("msg");
-    const $ = (id) => document.getElementById(id);
+  <div class="msg" id="msg">Enter ID & Password</div>
 
-    // Already logged in? redirect
-    try{
-      const s = getSession();
-      if (s && s.role === "admin") location.href = "pages/admin.html";
-      if (s && s.role === "client") location.href = "pages/casino.html";
-    }catch(e){}
+</section>
+</main>
 
-    async function loginNow(){
-      try{
-        msg.textContent = "Logging in...";
-        const idOrPhone = $("id").value.trim();
-        const pass      = $("pass").value;
+<!-- ✅ Firebase CDN (NO MODULE / NO IMPORT) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-        const s = await doLogin(idOrPhone, pass);
+<script>
+/* ================= FIREBASE INIT ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+  authDomain: "jvbet-bbf90.firebaseapp.com",
+  projectId: "jvbet-bbf90",
+  storageBucket: "jvbet-bbf90.appspot.com",
+  messagingSenderId: "824871692224",
+  appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+});
 
-        if (s.role === "admin") location.href = "pages/admin.html";
-        else location.href = "pages/casino.html";
-      }catch(e){
-        msg.textContent = e.message || String(e);
-      }
+const db = firebase.firestore();
+
+/* ================= HELPERS ================= */
+function msg(t){ document.getElementById("msg").innerText = t; }
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+/* ================= LOGIN ================= */
+document.getElementById("loginBtn").onclick = async () => {
+  try{
+    msg("Checking...");
+
+    const id   = document.getElementById("id").value.trim();
+    const pass = document.getElementById("pass").value;
+
+    if(!id || !pass) throw "Enter ID & Password";
+
+    const ref = db.collection("users").doc(id);
+    const snap = await ref.get();
+
+    if(!snap.exists) throw "User not found";
+
+    const u = snap.data();
+    if(u.isBlocked) throw "User blocked";
+
+    // password check
+    if(u.password){
+      if(u.password !== pass) throw "Wrong password";
+    }else if(u.passwordHash){
+      const h = await sha256(pass);
+      if(h !== u.passwordHash) throw "Wrong password";
+    }else{
+      throw "Password not set";
     }
 
-    $("loginBtn").addEventListener("click", loginNow);
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") loginNow(); });
-  </script>
+    // save session
+    localStorage.setItem("jvbet_session", JSON.stringify({
+      id: id,
+      role: u.role,
+      name: u.name
+    }));
+
+    // redirect
+    location.href = (u.role === "admin")
+      ? "pages/admin.html"
+      : "pages/casino.html";
+
+  }catch(e){
+    msg(e.toString());
+  }
+};
+
+// Enter key
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter") document.getElementById("loginBtn").click();
+});
+</script>
+
 </body>
 </html>
