@@ -1,258 +1,771 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Casino - JVBET1803</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <title>Casino - JVBET1803</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
-<link rel="stylesheet" href="../assets/css/style.css"/>
-<link rel="shortcut icon" href="../assets/image/jvbet-logo.png"/>
+  <style>
+    .aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
+    .aiLiveTop{position:absolute;top:10px;left:10px;display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);z-index:2;max-width:calc(100% - 20px)}
+    .liveDot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 14px rgba(255,59,59,.85);animation:pulse 1.2s infinite;flex:0 0 auto}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
+    .liveTxt{font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
+    .aiVid{width:100%;height:320px;object-fit:cover;display:block;filter:contrast(1.05) saturate(1.05);background:#000}
+    @media (max-width:900px){.aiVid{height:220px}}
 
-<style>
-.aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
-.aiVid{width:100%;height:260px;object-fit:cover;background:#000}
-@media(max-width:700px){.aiVid{height:200px}}
+    .timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .timerPill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22);min-width:220px;max-width:100%}
+    .timerNum{font-weight:900}
+    .timerBar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;min-width:120px}
+    .timerFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35))}
+    .pillSmall{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
+    .lockOpen{border-color:rgba(34,197,94,.45)}
+    .lockPlaced{border-color:rgba(43,111,255,.45)}
+    .lockLocked{border-color:rgba(255,193,7,.45)}
+    .lockClosed{border-color:rgba(255,77,109,.45)}
 
-.timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.timerPill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22)}
-.timerBar{flex:1;height:6px;border-radius:999px;background:#222;overflow:hidden}
-.timerFill{height:100%;background:linear-gradient(90deg,#d4af37,#fff);width:100%}
+    .prevBox{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:44px}
+    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:800;letter-spacing:.3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 
-.prevBox{display:flex;gap:6px;flex-wrap:wrap;padding:10px;border-radius:12px;background:rgba(0,0,0,.18)}
-.resChip{padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.35);font-weight:800}
+    .card3{display:flex;gap:12px;justify-content:center;align-items:center}
+    .flipCard{width:72px;height:92px;perspective:800px}
+    .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
+    .flipCard.flipped .flipInner{transform:rotateY(180deg)}
 
-.flipFace{font-size:20px;overflow:hidden;white-space:nowrap}
-@media(max-width:600px){.flipFace{font-size:16px}}
+    /* ✅ FIX: Card text overflow (DT result like DRAGON/TIGER/TIE) */
+    .flipFace{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);backface-visibility:hidden;
+      padding:6px; text-align:center; line-height:1.05;
+      overflow:hidden; word-break:break-word;
+      font-size:clamp(14px, 3.2vw, 22px);
+    }
+    .flipBack{transform:rotateY(180deg)}
+    @media (max-width:420px){
+      .flipCard{width:64px;height:86px}
+      .card3{gap:8px}
+    }
 
-.scrollBox{overflow:auto;max-height:240px}
-.scrollBox table{min-width:600px}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(0,0,0,.78);border:1px solid rgba(212,175,55,.35);color:#fff;padding:12px 14px;border-radius:14px;z-index:9999;display:none;max-width:92vw;box-shadow:0 16px 40px rgba(0,0,0,.45)}
+    .toast.show{display:block}
+    .toast .t{font-weight:900}
+    .toast.win{border-color:rgba(34,197,94,.55)}
+    .toast.loss{border-color:rgba(255,77,109,.55)}
+    .toast.tie{border-color:rgba(43,111,255,.55)}
 
-</style>
+    .scrollBox{margin-top:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:auto;-webkit-overflow-scrolling:touch;max-height:260px}
+    .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
+    @media (max-width:700px){.scrollBox{max-height:220px}.scrollBox table{min-width:700px}}
+  </style>
 </head>
 
 <body class="bg">
+  <header class="header">
+    <div class="head-inner">
+      <img class="logo" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
+    </div>
+  </header>
 
-<header class="header">
-<div class="head-inner">
-<img class="logo" src="../assets/image/jvbet-logo.png"/>
-</div>
-</header>
+  <main class="wrap">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+      <div class="row" style="flex-wrap:wrap">
+        <span class="badge">Client: <span class="gold" id="cid">-</span></span>
+        <span class="badge">Points: <span class="gold" id="pts">0</span></span>
+        <span class="badge">Win: <span class="gold" id="w">0</span></span>
+        <span class="badge">Loss: <span class="gold" id="l">0</span></span>
+      </div>
+      <button class="btn" type="button" id="logoutBtn">Logout</button>
+    </div>
 
-<main class="wrap">
+    <div class="tabs">
+      <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
+      <button class="tabbtn" data-tab="tp" type="button">Teen Patti</button>
+      <button class="tabbtn" data-tab="rl" type="button">Roulette</button>
+      <button class="tabbtn" data-tab="hist" type="button">History</button>
+    </div>
 
-<div class="row" style="justify-content:space-between;margin-bottom:12px">
-<div class="row">
-<span class="badge">Client: <span id="cid" class="gold">-</span></span>
-<span class="badge">Points: <span id="pts" class="gold">0</span></span>
-</div>
-<button class="btn" id="logoutBtn">Logout</button>
-</div>
+    <!-- ======================= DRAGON TIGER ======================= -->
+    <section class="panel active" id="dt">
+      <div class="grid">
+        <div class="card">
+          <h3>Dragon Tiger</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE</span>
+              <span class="liveView" id="dtView">👁 128</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
+            </video>
+          </div>
 
-<div class="tabs">
-<button class="tabbtn active" data-tab="dt">Dragon Tiger</button>
-<button class="tabbtn" data-tab="tp">Teen Patti</button>
-<button class="tabbtn" data-tab="rl">Roulette</button>
-<button class="tabbtn" data-tab="hist">History</button>
-</div>
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span>
+              <span>Round ends in:</span>
+              <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="dtFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
+            <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
+          </div>
 
-<!-- DRAGON TIGER -->
-<section class="panel active" id="dt">
-<div class="card">
-<h3>Dragon Tiger</h3>
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="prevBox" id="dtPrev"></div>
+          </div>
 
-<div class="timerWrap">
-<div class="timerPill">
-⏳ <span id="dtTimer">30</span>s
-<div class="timerBar"><div id="dtFill" class="timerFill"></div></div>
-</div>
-</div>
+          <p class="muted" style="margin-top:10px">
+            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
+          </p>
+        </div>
 
-<div class="prevBox" id="dtPrev"></div>
+        <div class="casinoBoard">
+          <div class="cTop">
+            <div class="topBox"><div class="topTitle">Last Result</div><div class="topValue" id="dtLast">-</div></div>
+            <div class="topBox">
+              <div class="topTitle" style="text-align:center">Cards</div>
+              <div class="card3">
+                <div class="flipCard" id="fcD"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtD">?</div></div></div>
+                <div class="flipCard" id="fcT"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtT">?</div></div></div>
+                <div class="flipCard" id="fcR"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtR">?</div></div></div>
+              </div>
+            </div>
+            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="dtPickShow">DRAGON</div></div>
+          </div>
 
-<input id="dtStake" type="number" placeholder="Enter Bet" class="stakeInput"/>
-<button id="dtPlay" class="btn">Place Bet</button>
-<div id="dtMsg"></div>
+          <div class="cMid">
+            <div class="betRow" id="dtBets">
+              <div class="betBox active" data-pick="DRAGON"><div class="betName">DRAGON</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIGER"><div class="betName">TIGER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
+            </div>
+          </div>
 
-<div class="scrollBox">
-<table class="table" id="dtPast">
-<thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
 
-</div>
-</section>
+            <div class="stakeBox">
+              <input class="stakeInput" id="dtStake" type="number" placeholder="Enter Bet">
+              <button class="btn" id="dtPlay" type="button">Place Bet</button>
+            </div>
+            <span class="badge" id="dtMsg">-</span>
+          </div>
+        </div>
+      </div>
 
-<!-- HISTORY -->
-<section class="panel" id="hist">
-<div class="card">
-<h3>Full History</h3>
-<div class="scrollBox">
-<table class="table" id="bh">
-<thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</div>
-</section>
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Dragon Tiger)</h3>
+        <div class="muted" id="dtWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="dtPast">
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-</main>
+    <!-- ======================= TEEN PATTI ======================= -->
+    <section class="panel" id="tp">
+      <div class="grid">
+        <div class="card">
+          <h3>Teen Patti — Live Demo (Points)</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE DEMO DEALER</span>
+              <span class="liveView" id="tpView">👁 212</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
+            </video>
+          </div>
 
-<!-- Firebase -->
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="tpFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
+            <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
+          </div>
 
-<script>
-/* ================= FIREBASE INIT ================= */
-firebase.initializeApp({
-  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-  authDomain: "jvbet-bbf90.firebaseapp.com",
-  projectId: "jvbet-bbf90",
-});
-const db = firebase.firestore();
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="prevBox" id="tpPrev"></div>
+          </div>
+        </div>
 
-/* ================= SESSION ================= */
-const session = JSON.parse(localStorage.getItem("jvbet_session"));
-if(!session){ location.href="../index.html"; }
-const CLIENT_ID = session.id;
-document.getElementById("cid").textContent = CLIENT_ID;
+        <div class="casinoBoard">
+          <div class="cTop">
+            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="tpPickShow2">PLAYER</div></div>
+            <div class="topBox"><div class="topTitle">Round</div><div class="topValue" id="tpRound2">-</div></div>
+            <div class="topBox"><div class="topTitle">Status</div><div class="topValue" id="tpStatus">-</div></div>
+          </div>
 
-document.getElementById("logoutBtn").onclick = ()=>{
-  localStorage.removeItem("jvbet_session");
-  location.href="../index.html";
-};
+          <div class="cMid">
+            <div class="betRow" id="tpBets">
+              <div class="betBox active" data-pick="PLAYER"><div class="betName">PLAYER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BANKER"><div class="betName">BANKER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
+            </div>
+          </div>
 
-/* ================= GAME CONFIG ================= */
-const TOTAL_SEC = 30;
-const LOCK_TIME = 15;
-let roundStart = Date.now();
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="10">10</div>
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+            </div>
 
-/* ================= STORAGE KEYS ================= */
-const RESULT_KEY = "jvbet_dt_results";
-const BET_KEY = "jvbet_bets";
+            <div class="stakeBox">
+              <input class="stakeInput" id="tpStake" type="number" placeholder="Enter points">
+              <button class="btn" id="tpPlay" type="button">PLAY (POINTS)</button>
+            </div>
+            <span class="badge" id="tpMsg">-</span>
+          </div>
+        </div>
+      </div>
 
-/* ================= LOAD ================= */
-function load(key, def){
-  try{ return JSON.parse(localStorage.getItem(key)) || def; }
-  catch(e){ return def; }
-}
-function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Teen Patti)</h3>
+        <div class="muted" id="tpWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="tpPast">
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-/* ================= RESULTS ================= */
-function addResult(res){
-  let arr = load(RESULT_KEY, []);
-  arr.unshift(res);
-  if(arr.length>5) arr = arr.slice(0,5);
-  save(RESULT_KEY, arr);
-  renderResults();
-}
-function renderResults(){
-  const box = document.getElementById("dtPrev");
-  const arr = load(RESULT_KEY, []);
-  box.innerHTML = arr.map(r=>`<span class="resChip">${r}</span>`).join("");
-}
+    <!-- ======================= ROULETTE ======================= -->
+    <section class="panel" id="rl">
+      <div class="grid">
+        <div class="card">
+          <h3>Roulette — Live Demo (Points)</h3>
+          <div class="aiLiveBox shake">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE DEMO DEALER</span>
+              <span class="liveView" id="rView">👁 156</span>
+            </div>
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
+            </video>
+          </div>
 
-/* ================= BETS ================= */
-function addBet(bet){
-  let arr = load(BET_KEY, []);
-  arr.unshift(bet);
-  save(BET_KEY, arr);
-}
-function renderLast10(){
-  const arr = load(BET_KEY, [])
-    .filter(b=>b.clientId===CLIENT_ID)
-    .slice(0,10);
+          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="rTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="rFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
+            <div class="pillSmall lockOpen" id="rLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
+          </div>
 
-  const tb = document.querySelector("#dtPast tbody");
-  tb.innerHTML = arr.map(b=>
-    `<tr>
-      <td>${new Date(b.time).toLocaleTimeString()}</td>
-      <td>${b.pick}</td>
-      <td>${b.stake}</td>
-      <td>${b.result}</td>
-    </tr>`
-  ).join("") || `<tr><td colspan="4">No history</td></tr>`;
-}
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result (Client Wise)</div>
+            <div class="prevBox" id="rPrev"></div>
+          </div>
+        </div>
 
-/* ================= TIMER ENGINE ================= */
-function secondsLeft(){
-  const diff = Math.floor((Date.now()-roundStart)/1000);
-  return TOTAL_SEC - diff;
-}
+        <div class="casinoBoard">
+          <div class="cMid">
+            <div class="betRow" id="rBets">
+              <div class="betBox active" data-pick="RED"><div class="betName">RED</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BLACK"><div class="betName">BLACK</div><div class="betMul">2x</div></div>
+            </div>
+          </div>
 
-function nextRound(){
-  roundStart = Date.now();
-}
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="10">10</div>
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+            </div>
 
-function drawResult(){
-  const picks = ["DRAGON","TIGER","TIE"];
-  return picks[Math.floor(Math.random()*3)];
-}
+            <div class="stakeBox">
+              <input class="stakeInput" id="rStake" type="number" placeholder="Enter points">
+              <button class="btn" id="rPlay" type="button">PLAY (POINTS)</button>
+            </div>
+            <span class="badge" id="rMsg">-</span>
+          </div>
+        </div>
+      </div>
 
-/* ================= MAIN TICK ================= */
-setInterval(()=>{
-  let left = secondsLeft();
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Roulette)</h3>
+        <div class="muted" id="rWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="rPast">
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-  if(left <= 0){
-    const result = drawResult();
-    addResult(result);
+    <!-- ======================= HISTORY ======================= -->
+    <section class="panel" id="hist">
+      <div class="card">
+        <h3>Full Play History (This Client)</h3>
+        <div class="scrollBox" style="max-height:360px">
+          <table class="table" id="bh">
+            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    const pending = load("pending_bet", null);
-    if(pending && pending.round === pendingRound){
-      pending.result = (pending.pick === result) ? "WIN" :
-                       (result==="TIE") ? "TIE" : "LOSS";
-      addBet(pending);
-      localStorage.removeItem("pending_bet");
+  <div class="toast" id="toast">
+    <div class="t" id="toastTitle">-</div>
+    <div class="muted" id="toastBody">-</div>
+  </div>
+
+  <!-- ✅ Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* ================= FIREBASE INIT ================= */
+    firebase.initializeApp({
+      apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+      authDomain: "jvbet-bbf90.firebaseapp.com",
+      projectId: "jvbet-bbf90",
+      storageBucket: "jvbet-bbf90.appspot.com",
+      messagingSenderId: "824871692224",
+      appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+    });
+    const db = firebase.firestore();
+
+    /* ================= SESSION + STORAGE ================= */
+    const K_SESSION_A="jvbet_session";
+    const K_SESSION_B="jvbet_session_v1";
+    const K_BETS="jvbet_bets_v1";
+
+    function loadJSON(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
+    function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
+    function getSession(){return loadJSON(K_SESSION_A,null)||loadJSON(K_SESSION_B,null)}
+    function clearSession(){localStorage.removeItem(K_SESSION_A);localStorage.removeItem(K_SESSION_B)}
+    function logout(){clearSession();location.href="../index.html"}
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    function getBets(){return loadJSON(K_BETS,[])}
+    function setBets(b){saveJSON(K_BETS,b||[])}
+    function fmtDate(ts){return new Date(ts||Date.now()).toLocaleString()}
+    function getClientBets(cid){
+      return getBets().filter(b=>b.clientId===cid).sort((a,b)=>(b.at||0)-(a.at||0))
+    }
+    function statsWinLoss(cid){
+      const bets=getClientBets(cid).filter(b=>b.result && b.result!=="PENDING");
+      let w=0,l=0; bets.forEach(b=>{if(b.result==="WIN")w++; else if(b.result==="LOSS")l++;});
+      return {win:w,loss:l};
     }
 
-    nextRound();
-  }
+    /* ================= UI ================= */
+    function showToast(type,title,body){
+      const t=document.getElementById("toast");
+      t.className="toast show "+(type||"");
+      document.getElementById("toastTitle").textContent=title;
+      document.getElementById("toastBody").textContent=body||"";
+      setTimeout(()=>t.className="toast",2200);
+    }
+    function vib(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 
-  if(left<0) left=0;
+    /* ✅ FIX-1: Last result client-wise (so wrong client ka result nahi dikhega) */
+    function prevKey(cid, game){ return "jvbet_last_"+cid+"_"+game; }
+    function setLastResult(cid, game, val){
+      localStorage.setItem(prevKey(cid, game), String(val));
+      renderLastResult(cid, game);
+    }
+    function getLastResult(cid, game){
+      return localStorage.getItem(prevKey(cid, game)) || "";
+    }
+    function renderLastResult(cid, game){
+      const id=(game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev";
+      const el=document.getElementById(id);
+      const v=getLastResult(cid, game);
+      el.innerHTML = v
+        ? ('<span class="resChip">'+ v +'</span>')
+        : '<span class="muted">No result</span>';
+    }
 
-  document.getElementById("dtTimer").textContent = left;
-  document.getElementById("dtFill").style.width = (left/TOTAL_SEC*100)+"%";
+    /* ================= BET UI BIND ================= */
+    document.querySelectorAll(".tabbtn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+        if(btn.dataset.tab==="hist") renderHistory();
+      });
+    });
 
-},500);
+    function bindBetBoxes(containerId, showId, showId2){
+      const cont=document.getElementById(containerId);
+      const show=document.getElementById(showId);
+      const show2=showId2?document.getElementById(showId2):null;
+      let pick=(cont.querySelector(".betBox.active")||{}).dataset?.pick || "";
+      show.textContent=pick; if(show2) show2.textContent=pick;
+      cont.querySelectorAll(".betBox").forEach(box=>{
+        box.addEventListener("click", ()=>{
+          cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
+          box.classList.add("active");
+          pick=box.dataset.pick||"";
+          show.textContent=pick; if(show2) show2.textContent=pick;
+        });
+      });
+      return ()=>pick;
+    }
+    function bindChips(scopeEl, inputEl){
+      scopeEl.querySelectorAll(".chip").forEach(ch=>{
+        ch.addEventListener("click", ()=>{
+          const v=Number(ch.dataset.v||0);
+          inputEl.value=Number(inputEl.value||0)+v;
+        });
+      });
+    }
 
-/* ================= PLAY ================= */
-let pendingRound = 1;
+    const getDTPick=bindBetBoxes("dtBets","dtPickShow");
+    const dtStake=document.getElementById("dtStake"); bindChips(document.getElementById("dt"),dtStake);
 
-document.getElementById("dtPlay").onclick = ()=>{
-  const left = secondsLeft();
-  if(left<=LOCK_TIME){
-    document.getElementById("dtMsg").textContent="Bet Locked";
-    return;
-  }
+    const getTPPick=bindBetBoxes("tpBets","tpPickShow","tpPickShow2");
+    const tpStake=document.getElementById("tpStake"); bindChips(document.getElementById("tp"),tpStake);
 
-  const stake = Number(document.getElementById("dtStake").value);
-  if(!stake || stake<=0){
-    document.getElementById("dtMsg").textContent="Enter Bet";
-    return;
-  }
+    const getRPick=bindBetBoxes("rBets","rPickShow");
+    const rStake=document.getElementById("rStake"); bindChips(document.getElementById("rl"),rStake);
 
-  const bet = {
-    clientId: CLIENT_ID,
-    pick: "DRAGON",
-    stake: stake,
-    round: pendingRound,
-    result: "PENDING",
-    time: Date.now()
-  };
+    /* ================= GAME ENGINE (FAST) ================= */
+    const TOTAL_SEC=30, LOCK_REMAINING=15;
+    const lastBeep={DT:-1,TP:-1,R:-1};
 
-  localStorage.setItem("pending_bet", JSON.stringify(bet));
-  document.getElementById("dtMsg").textContent="Bet Placed";
-};
+    let ME_ID=null, ME_USER=null;
 
-/* ================= INIT ================= */
-renderResults();
-renderLast10();
-setInterval(renderLast10,2000);
+    function roundKey(cid,game){return "jvbet_round_"+cid+"_"+game}
+    function getRound(cid,game){return loadJSON(roundKey(cid,game),null)}
+    function setRound(cid,game,r){saveJSON(roundKey(cid,game),r)}
+    function secondsLeft(r){return Math.ceil(TOTAL_SEC - ((Date.now()-r.startedAt)/1000))}
+    function isOpen(r){return secondsLeft(r)>LOCK_REMAINING}
+    function ensureRound(cid,game){
+      let r=getRound(cid,game);
+      const now=Date.now();
+      if(!r||!r.startedAt){
+        r={roundId:1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};
+        setRound(cid,game,r);
+        return r;
+      }
+      if(secondsLeft(r)<=-3){
+        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};
+        setRound(cid,game,r);
+      }
+      return getRound(cid,game);
+    }
+    function setLock(el,state){
+      el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
+      if(state==="OPEN"){el.classList.add("lockOpen");el.textContent="OPEN";}
+      if(state==="PLACED"){el.classList.add("lockPlaced");el.textContent="PLAYED";}
+      if(state==="LOCKED"){el.classList.add("lockLocked");el.textContent="LOCKED";}
+      if(state==="CLOSED"){el.classList.add("lockClosed");el.textContent="CLOSED";}
+    }
 
-</script>
+    function placeBetLocal(obj){
+      const bets=getBets(); bets.unshift(obj); setBets(bets);
+    }
+    function updateBet(betId,patch){
+      const bets=getBets(); const i=bets.findIndex(b=>b.betId===betId);
+      if(i>=0){bets[i]=Object.assign({},bets[i],patch); setBets(bets);}
+    }
+    function getPending(game,roundId){
+      return getClientBets(ME_ID).find(b=>b.game===game && b.roundId===roundId && b.result==="PENDING")||null;
+    }
 
+    async function refreshTop(){
+      const snap=await db.collection("users").doc(ME_ID).get();
+      if(!snap.exists) return;
+      ME_USER=snap.data();
+      document.getElementById("cid").textContent=ME_ID;
+      document.getElementById("pts").textContent=Number(ME_USER.points||0);
+      const st=statsWinLoss(ME_ID);
+      document.getElementById("w").textContent=st.win;
+      document.getElementById("l").textContent=st.loss;
+    }
+    async function addPoints(delta){
+      await db.collection("users").doc(ME_ID).set({
+        points: firebase.firestore.FieldValue.increment(delta)
+      }, {merge:true});
+    }
 
+    async function placePendingBet({game,pick,stake,roundId}){
+      stake=Number(stake||0);
+      if(!stake||stake<=0) throw new Error("Enter valid points");
+      if(Number(ME_USER?.points||0)<stake) throw new Error("Not enough points");
+      await addPoints(-stake);
+
+      const betId="B"+Date.now()+"_"+Math.floor(Math.random()*9999);
+      placeBetLocal({betId,clientId:ME_ID,game,pick,stake,roundId,at:Date.now(),result:"PENDING"});
+      await refreshTop();
+      return betId;
+    }
+    async function settleBet({betId,outcome}){
+      const bets=getBets(); const b=bets.find(x=>x.betId===betId);
+      if(!b) return;
+      updateBet(betId,{result:outcome});
+      if(outcome==="WIN") await addPoints(b.stake*2);
+      else if(outcome==="TIE") await addPoints(b.stake);
+      await refreshTop();
+    }
+
+    /* ✅ FIX-2: Last 10 bets (this client) show in each game table (including PENDING) */
+    function setPastTable(game,tableId,waitId){
+      const bets=getClientBets(ME_ID).filter(b=>b.game===game).slice(0,10);
+      const tb=document.querySelector("#"+tableId+" tbody");
+      const w=document.getElementById(waitId);
+      const pending=bets.filter(b=>b.result==="PENDING").length;
+      w.textContent = pending ? ("Pending bets: "+pending) : "";
+
+      tb.innerHTML = bets.map(b=>(
+        "<tr>"
+          +"<td>"+fmtDate(b.at)+"</td>"
+          +"<td>"+(b.pick||"-")+"</td>"
+          +"<td class='gold'>"+Number(b.stake||0)+"</td>"
+          +"<td>"+(b.result||"-")+"</td>"
+        +"</tr>"
+      )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
+    }
+
+    function renderHistory(){
+      const bets=getClientBets(ME_ID).slice(0,200); // last 200 for this client
+      const tb=document.querySelector("#bh tbody");
+      tb.innerHTML=bets.map(b=>(
+        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
+      )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+    }
+
+    function randCard(){return 1+Math.floor(Math.random()*13)}
+    function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
+    function drawDT(){const d=randCard(),t=randCard();const res=(d===t)?"TIE":(d>t?"DRAGON":"TIGER");return {d,t,res}}
+    function drawTP(){return {res:["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]}}
+    function drawR(){const n=Math.floor(Math.random()*37);const c=(n===0)?"GREEN":(n%2===0?"BLACK":"RED");return {n,color:c}}
+
+    function flipReset(){
+      ["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.remove("flipped"));
+      ["dtD","dtT","dtR"].forEach(id=>document.getElementById(id).textContent="?");
+    }
+    function flipShow(d,t,r){
+      document.getElementById("dtD").textContent=d;
+      document.getElementById("dtT").textContent=t;
+      document.getElementById("dtR").textContent=r;
+      setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
+    }
+
+    async function revealDT(r){
+      const pb=getPending("DragonTiger",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"DragonTiger",r);return;}
+      setTimeout(async ()=>{
+        const d=drawDT();
+        flipReset(); flipShow(cardStr(d.d),cardStr(d.t),d.res);
+        document.getElementById("dtLast").textContent=d.res;
+
+        /* ✅ client wise store */
+        setLastResult(ME_ID, "DragonTiger", d.res);
+
+        let out="LOSS";
+        if(d.res==="TIE") out="TIE";
+        else if(pb.pick===d.res) out="WIN";
+
+        await settleBet({betId:pb.betId,outcome:out});
+
+        setPastTable("DragonTiger","dtPast","dtWait");
+        document.getElementById("dtMsg").textContent="RESULT: "+out;
+
+        if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
+        else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
+        else {showToast("loss","❌ LOSS","Try next round");vib(120);}
+
+        r.revealed=true;setRound(ME_ID,"DragonTiger",r);
+      },1200);
+    }
+
+    async function revealTP(r){
+      const pb=getPending("TeenPatti",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"TeenPatti",r);return;}
+      setTimeout(async ()=>{
+        const d=drawTP();
+
+        /* ✅ client wise store */
+        setLastResult(ME_ID, "TeenPatti", d.res);
+
+        let out="LOSS";
+        if(d.res==="TIE") out="TIE";
+        else if(pb.pick===d.res) out="WIN";
+
+        await settleBet({betId:pb.betId,outcome:out});
+        document.getElementById("tpStatus").textContent=out;
+
+        setPastTable("TeenPatti","tpPast","tpWait");
+        document.getElementById("tpMsg").textContent="RESULT: "+out;
+
+        r.revealed=true;setRound(ME_ID,"TeenPatti",r);
+      },1200);
+    }
+
+    async function revealR(r){
+      const pb=getPending("Roulette",r.roundId);
+      if(!pb){r.revealed=true;setRound(ME_ID,"Roulette",r);return;}
+      setTimeout(async ()=>{
+        const d=drawR();
+
+        /* ✅ client wise store */
+        setLastResult(ME_ID, "Roulette", d.color+" "+d.n);
+
+        const out=(pb.pick===d.color)?"WIN":"LOSS";
+        await settleBet({betId:pb.betId,outcome:out});
+
+        setPastTable("Roulette","rPast","rWait");
+        document.getElementById("rMsg").textContent="RESULT: "+out;
+
+        r.revealed=true;setRound(ME_ID,"Roulette",r);
+      },1200);
+    }
+
+    async function tick(game,timerId,fillId,roundEl,lockEl,btnEl,revealFn,beepKey){
+      const r=ensureRound(ME_ID,game);
+      document.getElementById(roundEl).textContent=r.roundId;
+      if(game==="TeenPatti") document.getElementById("tpRound2").textContent=r.roundId;
+
+      const left=secondsLeft(r);
+      document.getElementById(timerId).textContent=Math.max(0,left);
+      document.getElementById(fillId).style.width=Math.max(0,Math.min(100,(left/TOTAL_SEC)*100))+"%";
+
+      if(left<=3 && left>0 && lastBeep[beepKey]!==left){lastBeep[beepKey]=left; vib(20);}
+      if(left>3) lastBeep[beepKey]=-1;
+
+      const lock=document.getElementById(lockEl);
+      const btn=document.getElementById(btnEl);
+
+      if(left<=0){
+        btn.disabled=true;btn.style.opacity=".6";setLock(lock,"CLOSED");
+        if(!r.revealed) await revealFn(r);
+        if(r.revealed && !r.nextStarted){
+          r.nextStarted=true;setRound(ME_ID,game,r);
+          setTimeout(()=>{
+            startNext(ME_ID,game);
+            if(game==="DragonTiger"){flipReset();document.getElementById("dtMsg").textContent="-";}
+          },700);
+        }
+        return;
+      }
+
+      if(isOpen(r)){
+        if(r.betPlaced){btn.disabled=true;btn.style.opacity=".6";setLock(lock,"PLACED");}
+        else {btn.disabled=false;btn.style.opacity="1";setLock(lock,"OPEN");}
+      }else{
+        btn.disabled=true;btn.style.opacity=".6";setLock(lock,r.betPlaced?"PLACED":"LOCKED");
+      }
+    }
+
+    function startNext(cid,game){
+      const r={roundId:(Number(getRound(cid,game)?.roundId)||0)+1,startedAt:Date.now(),betPlaced:false,revealed:false,nextStarted:false};
+      setRound(cid,game,r);
+      if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
+      if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
+    }
+
+    document.getElementById("dtPlay").addEventListener("click", async ()=>{
+      try{
+        const r=ensureRound(ME_ID,"DragonTiger");
+        if(!isOpen(r)) return document.getElementById("dtMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("dtMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"DragonTiger",r);
+        await placePendingBet({game:"DragonTiger",pick:getDTPick(),stake:dtStake.value,roundId:r.roundId});
+        document.getElementById("dtMsg").textContent="PLAY SUBMITTED";
+        setPastTable("DragonTiger","dtPast","dtWait");
+        showToast("tie","🕒 SUBMITTED","Result at 0 sec"); vib(40);
+      }catch(e){document.getElementById("dtMsg").textContent=e.message||String(e)}
+    });
+
+    document.getElementById("tpPlay").addEventListener("click", async ()=>{
+      try{
+        const r=ensureRound(ME_ID,"TeenPatti");
+        if(!isOpen(r)) return document.getElementById("tpMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("tpMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"TeenPatti",r);
+        await placePendingBet({game:"TeenPatti",pick:getTPPick(),stake:tpStake.value,roundId:r.roundId});
+        document.getElementById("tpMsg").textContent="PLAY SUBMITTED";
+        setPastTable("TeenPatti","tpPast","tpWait");
+      }catch(e){document.getElementById("tpMsg").textContent=e.message||String(e)}
+    });
+
+    document.getElementById("rPlay").addEventListener("click", async ()=>{
+      try{
+        const r=ensureRound(ME_ID,"Roulette");
+        if(!isOpen(r)) return document.getElementById("rMsg").textContent="Locked (play only when timer > 15)";
+        if(r.betPlaced) return document.getElementById("rMsg").textContent="Already played";
+        r.betPlaced=true; setRound(ME_ID,"Roulette",r);
+        await placePendingBet({game:"Roulette",pick:getRPick(),stake:rStake.value,roundId:r.roundId});
+        document.getElementById("rMsg").textContent="PLAY SUBMITTED";
+        setPastTable("Roulette","rPast","rWait");
+      }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
+    });
+
+    setInterval(()=>{
+      const el=id=>document.getElementById(id);
+      el("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
+      el("tpView").textContent="👁 "+(200+Math.floor(Math.random()*25));
+      el("rView").textContent="👁 "+(150+Math.floor(Math.random()*25));
+    },2500);
+
+    (async function init(){
+      const s=getSession();
+      if(!s||!s.id) return logout();
+      ME_ID=s.id;
+
+      const snap=await db.collection("users").doc(ME_ID).get();
+      if(!snap.exists) return logout();
+      if(snap.data()?.isBlocked) return logout();
+
+      await refreshTop();
+
+      /* ✅ show last 10 (this client) */
+      setPastTable("DragonTiger","dtPast","dtWait");
+      setPastTable("TeenPatti","tpPast","tpWait");
+      setPastTable("Roulette","rPast","rWait");
+
+      /* ✅ last result show (client wise) */
+      renderLastResult(ME_ID,"DragonTiger");
+      renderLastResult(ME_ID,"TeenPatti");
+      renderLastResult(ME_ID,"Roulette");
+
+      setInterval(async ()=>{
+        await tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtPlay",revealDT,"DT");
+        await tick("TeenPatti","tpTimer","tpFill","tpRound","tpLock","tpPlay",revealTP,"TP");
+        await tick("Roulette","rTimer","rFill","rRound","rLock","rPlay",revealR,"R");
+      },250);
+    })().catch(()=>{});
+  </script>
 </body>
 </html>
-
