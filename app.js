@@ -358,6 +358,168 @@
   // ====== ALIASES (for your admin.html older calls) ======
   async function listUsers() { return await listAllUsers(); }
   async function getUserByIdFS(userId) { return await getUserById(userId); }
+  // =====================================================
+  // GAME ENGINE (IST 30s Period + Results + Last-5)
+  // - Clock-driven (works even if site was closed)
+  // - Stores results in Firestore so everyone sees same last 5
+  // =====================================================
+
+  const GAME_CFG = {
+    cycleSec: 30,
+    resultsCol: "game_results_v1", // NEW collection
+    colors: ["GREEN", "RED", "VIOLET"], // aapke game ke hisaab se change ho sakta hai
+  };
+
+  function resultsRef(period) {
+    return db().collection(GAME_CFG.resultsCol).doc(String(period));
+  }
+  function resultsColRef() {
+    return db().collection(GAME_CFG.resultsCol);
+  }
+
+  // ---- IST helpers (no external libs) ----
+  function istNow() {
+    // IST = UTC + 5:30
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utcMs + (5.5 * 3600000));
+  }
+
+  function ymdIST(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}${mm}${dd}`;
+  }
+
+  function startOfISTDay(d) {
+    // Create IST midnight timestamp in real UTC ms
+    const y = d.getFullYear(), m = d.getMonth(), day = d.getDate();
+    // This date is in IST "calendar", but JS Date is UTC-based internally.
+    // We'll compute IST midnight by taking UTC midnight and subtracting 5:30 offset.
+    const istMidnightLocal = new Date(Date.UTC(y, m, day, 0, 0, 0));
+    // Convert "IST calendar midnight" to actual moment in UTC by subtracting IST offset
+    return new Date(istMidnightLocal.getTime() - (5.5 * 3600000));
+  }
+
+  function secondsSinceISTMidnight() {
+    const nowIst = istNow();
+    const istMidnightMoment = startOfISTDay(nowIst); // moment of IST midnight
+    const nowUtcMs = Date.now();
+    const diffSec = Math.floor((nowUtcMs - istMidnightMoment.getTime()) / 1000);
+    return Math.max(0, diffSec);
+  }
+
+  function periodIndexNow() {
+    const sec = secondsSinceISTMidnight();
+    return Math.floor(sec / GAME_CFG.cycleSec) + 1; // 1..2880
+  }
+
+  function makePeriodByIndex(dateYmd, idx) {
+    return `${dateYmd}-${String(idx).padStart(4, "0")}`;
+  }
+
+  function currentPeriodIST() {
+    const dateYmd = ymdIST(istNow());
+    return makePeriodByIndex(dateYmd, periodIndexNow());
+  }
+
+  function nextPeriodsIST(count = 3) {
+    const nowIst = istNow();
+    const dateYmd = ymdIST(nowIst);
+    const base = periodIndexNow();
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      arr.push(makePeriodByIndex(dateYmd, base + i));
+    }
+    return arr;
+  }
+
+  function remainingSecondsInCycle() {
+    const sec = secondsSinceISTMidnight();
+    const into = sec % GAME_CFG.cycleSec;
+    return GAME_CFG.cycleSec - into;
+  }
+
+  // ---- Deterministic result generator (phase-1) ----
+  async function autoResultForPeriod(period) {
+    // stable across devices (no secret). For higher security later use server secret seed.
+    const hex = await sha256(String(period));
+    const n = parseInt(hex.slice(0, 8), 16);
+    const color = GAME_CFG.colors[n % GAME_CFG.colors.length];
+    return color;
+  }
+
+  async function ensureResultExists(period) {
+    const ref = resultsRef(period);
+
+    // Use transaction to avoid duplicates when multiple users open at same time
+    await db().runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (snap.exists) return;
+
+      const color = await autoResultForPeriod(period);
+      tx.set(ref, {
+        period,
+        color,
+        createdAt: nowISO(),
+        source: "auto_v1",
+      });
+    });
+
+    const after = await ref.get();
+    return after.exists ? after.data() : null;
+  }
+
+  async function backfillLastNResults(n = 5) {
+    // Create missing docs for last N periods including current
+    const nowIst = istNow();
+    const dateYmd = ymdIST(nowIst);
+    const curIdx = periodIndexNow();
+
+    const periods = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const idx = curIdx - i;
+      if (idx >= 1) periods.push(makePeriodByIndex(dateYmd, idx));
+    }
+
+    // Ensure each exists
+    for (const p of periods) {
+      await ensureResultExists(p);
+    }
+
+    return periods;
+  }
+
+  async function fetchLastNResults(n = 5) {
+    const q = await resultsColRef()
+      .orderBy("period", "desc")
+      .limit(Number(n || 5))
+      .get();
+    return q.docs.map((d) => d.data());
+  }
+
+  function listenLastNResults(n = 5, onChange) {
+    return resultsColRef()
+      .orderBy("period", "desc")
+      .limit(Number(n || 5))
+      .onSnapshot((snap) => {
+        const rows = snap.docs.map((d) => d.data());
+        if (typeof onChange === "function") onChange(rows);
+      });
+  }
+
+  // ---- Expose game helpers globally for game.html ----
+  window.GAME = {
+    cfg: GAME_CFG,
+    currentPeriodIST,
+    nextPeriodsIST,
+    remainingSecondsInCycle,
+    backfillLastNResults,
+    fetchLastNResults,
+    listenLastNResults,
+    ensureResultExists,
+  };
 
   // ====== EXPOSE GLOBALS ======
   window.fmtDate = fmtDate;
@@ -391,3 +553,4 @@
   window.getUserByIdFS = getUserByIdFS;
 
 })();
+
