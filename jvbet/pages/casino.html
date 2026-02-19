@@ -1,936 +1,258 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Casino - JVBET1803</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../assets/css/style.css" />
-  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
+<meta charset="utf-8"/>
+<title>Casino - JVBET1803</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-  <style>
-    .aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
-    .aiLiveTop{position:absolute;top:10px;left:10px;display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);z-index:2;max-width:calc(100% - 20px)}
-    .liveDot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 14px rgba(255,59,59,.85);animation:pulse 1.2s infinite;flex:0 0 auto}
-    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
-    .liveTxt{font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
-    .aiVid{width:100%;height:320px;object-fit:cover;display:block;filter:contrast(1.05) saturate(1.05);background:#000}
-    @media (max-width:900px){.aiVid{height:220px}}
+<link rel="stylesheet" href="../assets/css/style.css"/>
+<link rel="shortcut icon" href="../assets/image/jvbet-logo.png"/>
 
-    .timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .timerPill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22);min-width:220px;max-width:100%}
-    .timerNum{font-weight:900}
-    .timerBar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;min-width:120px}
-    .timerFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35))}
-    .pillSmall{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
-    .lockOpen{border-color:rgba(34,197,94,.45)}
-    .lockPlaced{border-color:rgba(43,111,255,.45)}
-    .lockLocked{border-color:rgba(255,193,7,.45)}
-    .lockClosed{border-color:rgba(255,77,109,.45)}
+<style>
+.aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
+.aiVid{width:100%;height:260px;object-fit:cover;background:#000}
+@media(max-width:700px){.aiVid{height:200px}}
 
-    .prevBox{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:44px}
-    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:800;letter-spacing:.3px;white-space:nowrap}
+.timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.timerPill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22)}
+.timerBar{flex:1;height:6px;border-radius:999px;background:#222;overflow:hidden}
+.timerFill{height:100%;background:linear-gradient(90deg,#d4af37,#fff);width:100%}
 
-    .card3{display:flex;gap:12px;justify-content:center;align-items:center}
-    .flipCard{width:72px;height:92px;perspective:800px}
-    .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
-    .flipCard.flipped .flipInner{transform:rotateY(180deg)}
-    .flipFace{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);backface-visibility:hidden}
-    .flipBack{transform:rotateY(180deg)}
+.prevBox{display:flex;gap:6px;flex-wrap:wrap;padding:10px;border-radius:12px;background:rgba(0,0,0,.18)}
+.resChip{padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.35);font-weight:800}
 
-    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(0,0,0,.78);border:1px solid rgba(212,175,55,.35);color:#fff;padding:12px 14px;border-radius:14px;z-index:9999;display:none;max-width:92vw;box-shadow:0 16px 40px rgba(0,0,0,.45)}
-    .toast.show{display:block}
-    .toast .t{font-weight:900}
-    .toast.win{border-color:rgba(34,197,94,.55)}
-    .toast.loss{border-color:rgba(255,77,109,.55)}
-    .toast.tie{border-color:rgba(43,111,255,.55)}
+.flipFace{font-size:20px;overflow:hidden;white-space:nowrap}
+@media(max-width:600px){.flipFace{font-size:16px}}
 
-    /* ✅ Mobile responsive scrolling boxes */
-    .scrollBox{margin-top:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:auto;-webkit-overflow-scrolling:touch;max-height:260px}
-    .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
-    @media (max-width:700px){.scrollBox{max-height:220px}.scrollBox table{min-width:700px}}
-  </style>
+.scrollBox{overflow:auto;max-height:240px}
+.scrollBox table{min-width:600px}
+
+</style>
 </head>
 
 <body class="bg">
-  <header class="header">
-    <div class="head-inner">
-      <img class="logo" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
-    </div>
-  </header>
 
-  <main class="wrap">
-    <div class="row" style="justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
-      <div class="row" style="flex-wrap:wrap">
-        <span class="badge">Client: <span class="gold" id="cid">-</span></span>
-        <span class="badge">Points: <span class="gold" id="pts">0</span></span>
-        <span class="badge">Win: <span class="gold" id="w">0</span></span>
-        <span class="badge">Loss: <span class="gold" id="l">0</span></span>
-      </div>
-      <button class="btn" type="button" id="logoutBtn">Logout</button>
-    </div>
+<header class="header">
+<div class="head-inner">
+<img class="logo" src="../assets/image/jvbet-logo.png"/>
+</div>
+</header>
 
-    <div class="tabs">
-      <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
-      <button class="tabbtn" data-tab="tp" type="button">Teen Patti</button>
-      <button class="tabbtn" data-tab="rl" type="button">Roulette</button>
-      <button class="tabbtn" data-tab="hist" type="button">History</button>
-    </div>
+<main class="wrap">
 
-    <!-- ======================= DRAGON TIGER ======================= -->
-    <section class="panel active" id="dt">
-      <div class="grid">
-        <div class="card">
-          <h3>Dragon Tiger</h3>
-          <div class="aiLiveBox shake">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE</span>
-              <span class="liveView" id="dtView">👁 128</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
-            </video>
-          </div>
+<div class="row" style="justify-content:space-between;margin-bottom:12px">
+<div class="row">
+<span class="badge">Client: <span id="cid" class="gold">-</span></span>
+<span class="badge">Points: <span id="pts" class="gold">0</span></span>
+</div>
+<button class="btn" id="logoutBtn">Logout</button>
+</div>
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
-            <div class="timerPill">
-              <span>⏳</span>
-              <span>Round ends in:</span>
-              <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="dtFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
-            <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
-          </div>
+<div class="tabs">
+<button class="tabbtn active" data-tab="dt">Dragon Tiger</button>
+<button class="tabbtn" data-tab="tp">Teen Patti</button>
+<button class="tabbtn" data-tab="rl">Roulette</button>
+<button class="tabbtn" data-tab="hist">History</button>
+</div>
 
-          <div style="margin-top:10px">
-            <div class="muted">Last 5 Results (All Clients)</div>
-            <div class="prevBox" id="dtPrev"></div>
-          </div>
+<!-- DRAGON TIGER -->
+<section class="panel active" id="dt">
+<div class="card">
+<h3>Dragon Tiger</h3>
 
-          <p class="muted" style="margin-top:10px">
-            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
-          </p>
-        </div>
+<div class="timerWrap">
+<div class="timerPill">
+⏳ <span id="dtTimer">30</span>s
+<div class="timerBar"><div id="dtFill" class="timerFill"></div></div>
+</div>
+</div>
 
-        <div class="casinoBoard">
-          <div class="cTop">
-            <div class="topBox"><div class="topTitle">Last Result</div><div class="topValue" id="dtLast">-</div></div>
-            <div class="topBox">
-              <div class="topTitle" style="text-align:center">Cards</div>
-              <div class="card3">
-                <div class="flipCard" id="fcD"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtD">?</div></div></div>
-                <div class="flipCard" id="fcT"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtT">?</div></div></div>
-                <div class="flipCard" id="fcR"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtR">?</div></div></div>
-              </div>
-            </div>
-            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="dtPickShow">DRAGON</div></div>
-          </div>
+<div class="prevBox" id="dtPrev"></div>
 
-          <div class="cMid">
-            <div class="betRow" id="dtBets">
-              <div class="betBox active" data-pick="DRAGON"><div class="betName">DRAGON</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIGER"><div class="betName">TIGER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
-            </div>
-          </div>
+<input id="dtStake" type="number" placeholder="Enter Bet" class="stakeInput"/>
+<button id="dtPlay" class="btn">Place Bet</button>
+<div id="dtMsg"></div>
 
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
+<div class="scrollBox">
+<table class="table" id="dtPast">
+<thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
 
-            <div class="stakeBox">
-              <input class="stakeInput" id="dtStake" type="number" placeholder="Enter Bet">
-              <button class="btn" id="dtPlay" type="button">Place Bet</button>
-            </div>
-            <span class="badge" id="dtMsg">-</span>
-          </div>
-        </div>
-      </div>
+</div>
+</section>
 
-      <div class="card" style="margin-top:14px">
-        <h3>Last Plays (Dragon Tiger)</h3>
-        <div class="muted" id="dtWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="dtPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+<!-- HISTORY -->
+<section class="panel" id="hist">
+<div class="card">
+<h3>Full History</h3>
+<div class="scrollBox">
+<table class="table" id="bh">
+<thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</section>
 
-    <!-- ======================= TEEN PATTI ======================= -->
-    <section class="panel" id="tp">
-      <div class="grid">
-        <div class="card">
-          <h3>Teen Patti — Live Demo (Points)</h3>
-          <div class="aiLiveBox shake">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE DEMO DEALER</span>
-              <span class="liveView" id="tpView">👁 212</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
-            </video>
-          </div>
+</main>
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
-            <div class="timerPill">
-              <span>⏳</span><span>Round ends in:</span>
-              <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="tpFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
-            <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
-            <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
-          </div>
+<!-- Firebase -->
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-          <div style="margin-top:10px">
-            <div class="muted">Last 5 Results (All Clients)</div>
-            <div class="prevBox" id="tpPrev"></div>
-          </div>
-        </div>
+<script>
+/* ================= FIREBASE INIT ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+  authDomain: "jvbet-bbf90.firebaseapp.com",
+  projectId: "jvbet-bbf90",
+});
+const db = firebase.firestore();
 
-        <div class="casinoBoard">
-          <div class="cTop">
-            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="tpPickShow2">PLAYER</div></div>
-            <div class="topBox"><div class="topTitle">Round</div><div class="topValue" id="tpRound2">-</div></div>
-            <div class="topBox"><div class="topTitle">Status</div><div class="topValue" id="tpStatus">-</div></div>
-          </div>
+/* ================= SESSION ================= */
+const session = JSON.parse(localStorage.getItem("jvbet_session"));
+if(!session){ location.href="../index.html"; }
+const CLIENT_ID = session.id;
+document.getElementById("cid").textContent = CLIENT_ID;
 
-          <div class="cMid">
-            <div class="betRow" id="tpBets">
-              <div class="betBox active" data-pick="PLAYER"><div class="betName">PLAYER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BANKER"><div class="betName">BANKER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
-            </div>
-          </div>
+document.getElementById("logoutBtn").onclick = ()=>{
+  localStorage.removeItem("jvbet_session");
+  location.href="../index.html";
+};
 
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="10">10</div>
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-            </div>
+/* ================= GAME CONFIG ================= */
+const TOTAL_SEC = 30;
+const LOCK_TIME = 15;
+let roundStart = Date.now();
 
-            <div class="stakeBox">
-              <input class="stakeInput" id="tpStake" type="number" placeholder="Enter points">
-              <button class="btn" id="tpPlay" type="button">PLAY (POINTS)</button>
-            </div>
-            <span class="badge" id="tpMsg">-</span>
-          </div>
-        </div>
-      </div>
+/* ================= STORAGE KEYS ================= */
+const RESULT_KEY = "jvbet_dt_results";
+const BET_KEY = "jvbet_bets";
 
-      <div class="card" style="margin-top:14px">
-        <h3>Last Plays (Teen Patti)</h3>
-        <div class="muted" id="tpWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="tpPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+/* ================= LOAD ================= */
+function load(key, def){
+  try{ return JSON.parse(localStorage.getItem(key)) || def; }
+  catch(e){ return def; }
+}
+function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
 
-    <!-- ======================= ROULETTE ======================= -->
-    <section class="panel" id="rl">
-      <div class="grid">
-        <div class="card">
-          <h3>Roulette — Live Demo (Points)</h3>
-          <div class="aiLiveBox shake">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE DEMO DEALER</span>
-              <span class="liveView" id="rView">👁 156</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
-            </video>
-          </div>
+/* ================= RESULTS ================= */
+function addResult(res){
+  let arr = load(RESULT_KEY, []);
+  arr.unshift(res);
+  if(arr.length>5) arr = arr.slice(0,5);
+  save(RESULT_KEY, arr);
+  renderResults();
+}
+function renderResults(){
+  const box = document.getElementById("dtPrev");
+  const arr = load(RESULT_KEY, []);
+  box.innerHTML = arr.map(r=>`<span class="resChip">${r}</span>`).join("");
+}
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
-            <div class="timerPill">
-              <span>⏳</span><span>Round ends in:</span>
-              <span class="timerNum gold" id="rTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="rFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
-            <div class="pillSmall lockOpen" id="rLock">OPEN</div>
-            <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
-          </div>
+/* ================= BETS ================= */
+function addBet(bet){
+  let arr = load(BET_KEY, []);
+  arr.unshift(bet);
+  save(BET_KEY, arr);
+}
+function renderLast10(){
+  const arr = load(BET_KEY, [])
+    .filter(b=>b.clientId===CLIENT_ID)
+    .slice(0,10);
 
-          <div style="margin-top:10px">
-            <div class="muted">Last 5 Results (All Clients)</div>
-            <div class="prevBox" id="rPrev"></div>
-          </div>
-        </div>
+  const tb = document.querySelector("#dtPast tbody");
+  tb.innerHTML = arr.map(b=>
+    `<tr>
+      <td>${new Date(b.time).toLocaleTimeString()}</td>
+      <td>${b.pick}</td>
+      <td>${b.stake}</td>
+      <td>${b.result}</td>
+    </tr>`
+  ).join("") || `<tr><td colspan="4">No history</td></tr>`;
+}
 
-        <div class="casinoBoard">
-          <div class="cMid">
-            <div class="betRow" id="rBets">
-              <div class="betBox active" data-pick="RED"><div class="betName">RED</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BLACK"><div class="betName">BLACK</div><div class="betMul">2x</div></div>
-            </div>
-          </div>
+/* ================= TIMER ENGINE ================= */
+function secondsLeft(){
+  const diff = Math.floor((Date.now()-roundStart)/1000);
+  return TOTAL_SEC - diff;
+}
 
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="10">10</div>
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-            </div>
+function nextRound(){
+  roundStart = Date.now();
+}
 
-            <div class="stakeBox">
-              <input class="stakeInput" id="rStake" type="number" placeholder="Enter points">
-              <button class="btn" id="rPlay" type="button">PLAY (POINTS)</button>
-            </div>
-            <span class="badge" id="rMsg">-</span>
-          </div>
-        </div>
-      </div>
+function drawResult(){
+  const picks = ["DRAGON","TIGER","TIE"];
+  return picks[Math.floor(Math.random()*3)];
+}
 
-      <div class="card" style="margin-top:14px">
-        <h3>Last Plays (Roulette)</h3>
-        <div class="muted" id="rWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="rPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+/* ================= MAIN TICK ================= */
+setInterval(()=>{
+  let left = secondsLeft();
 
-    <!-- ======================= HISTORY ======================= -->
-    <section class="panel" id="hist">
-      <div class="card">
-        <h3>Full Play History</h3>
-        <div class="scrollBox" style="max-height:360px">
-          <table class="table" id="bh">
-            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Result</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+  if(left <= 0){
+    const result = drawResult();
+    addResult(result);
 
-  <div class="toast" id="toast">
-    <div class="t" id="toastTitle">-</div>
-    <div class="muted" id="toastBody">-</div>
-  </div>
-
-  <!-- ✅ Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-
-  <script>
-    /* ================= FIREBASE INIT ================= */
-    firebase.initializeApp({
-      apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-      authDomain: "jvbet-bbf90.firebaseapp.com",
-      projectId: "jvbet-bbf90",
-      storageBucket: "jvbet-bbf90.appspot.com",
-      messagingSenderId: "824871692224",
-      appId: "1:824871692224:web:f74baa642b1f43b78aca25"
-    });
-    var db = firebase.firestore();
-
-    /* ================= SESSION + STORAGE ================= */
-    var K_SESSION_A="jvbet_session";
-    var K_SESSION_B="jvbet_session_v1";
-    var K_BETS="jvbet_bets_v1";
-
-    function loadJSON(k,f){try{var r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
-    function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
-    function getSession(){return loadJSON(K_SESSION_A,null)||loadJSON(K_SESSION_B,null)}
-    function clearSession(){localStorage.removeItem(K_SESSION_A);localStorage.removeItem(K_SESSION_B)}
-    function logout(){clearSession();location.href="../index.html"}
-    document.getElementById("logoutBtn").addEventListener("click", logout);
-
-    function getBets(){return loadJSON(K_BETS,[])}
-    function setBets(b){saveJSON(K_BETS,b||[])}
-    function fmtDate(ts){try{return new Date(Number(ts||Date.now())).toLocaleString()}catch(e){return String(ts||"")}}
-    function getClientBets(cid){
-      var all=getBets(), out=[];
-      for(var i=0;i<all.length;i++){
-        if(all[i] && all[i].clientId===cid) out.push(all[i]);
-      }
-      out.sort(function(a,b){return (b.at||0)-(a.at||0)});
-      return out;
-    }
-    function statsWinLoss(cid){
-      var bets=getClientBets(cid), w=0,l=0;
-      for(var i=0;i<bets.length;i++){
-        var r=bets[i].result;
-        if(r==="WIN") w++;
-        else if(r==="LOSS") l++;
-      }
-      return {win:w,loss:l};
+    const pending = load("pending_bet", null);
+    if(pending && pending.round === pendingRound){
+      pending.result = (pending.pick === result) ? "WIN" :
+                       (result==="TIE") ? "TIE" : "LOSS";
+      addBet(pending);
+      localStorage.removeItem("pending_bet");
     }
 
-    /* ================= UI ================= */
-    function showToast(type,title,body){
-      var t=document.getElementById("toast");
-      t.className="toast show "+(type||"");
-      document.getElementById("toastTitle").textContent=title;
-      document.getElementById("toastBody").textContent=body||"";
-      setTimeout(function(){t.className="toast"},2200);
-    }
-    function vib(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+    nextRound();
+  }
 
-    /* ================= FIRESTORE PATHS ================= */
-    function userRef(uid){ return db.collection("users").doc(uid); }
-    function stateRef(game){ return db.collection("gameState").doc(game); }
-    function resultsRef(game){ return db.collection("gameResults").doc(game); }
+  if(left<0) left=0;
 
-    /* ================= LAST 5 RESULTS (FIRESTORE) ================= */
-    function renderLast5(game, elId){
-      return resultsRef(game).onSnapshot(function(snap){
-        var el=document.getElementById(elId);
-        if(!el) return;
-        var arr=[];
-        if(snap.exists){
-          var d=snap.data()||{};
-          if(d.last5 && d.last5.length) arr=d.last5.slice(0);
-        }
-        if(!arr.length){
-          el.innerHTML='<span class="muted">No result</span>';
-          return;
-        }
-        // show newest first
-        arr = arr.slice().reverse();
-        var html="";
-        for(var i=0;i<arr.length;i++){
-          html += '<span class="resChip">'+String(arr[i])+'</span>';
-        }
-        el.innerHTML=html;
-      });
-    }
+  document.getElementById("dtTimer").textContent = left;
+  document.getElementById("dtFill").style.width = (left/TOTAL_SEC*100)+"%";
 
-    function pushResultLast5(game, value){
-      return db.runTransaction(function(tx){
-        var ref = resultsRef(game);
-        return tx.get(ref).then(function(snap){
-          var data = snap.exists ? (snap.data()||{}) : {};
-          var arr = (data.last5 && data.last5.length) ? data.last5.slice(0) : [];
-          arr.push(String(value));
-          if(arr.length>5) arr = arr.slice(arr.length-5);
-          tx.set(ref, {
-            last5: arr,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, {merge:true});
-        });
-      });
-    }
+},500);
 
-    /* ================= GLOBAL ROUND (Shared for all clients) ================= */
-    var TOTAL_SEC=30, LOCK_REMAINING=15;
+/* ================= PLAY ================= */
+let pendingRound = 1;
 
-    function newRound(){
-      var nowMs = Date.now();
-      return {
-        roundId: "R-"+nowMs+"-"+Math.floor(Math.random()*999999),
-        startAtMs: nowMs,
-        endAtMs: nowMs + (TOTAL_SEC*1000),
-        publishedForRoundId: "",
-        lastResult: ""
-      };
-    }
+document.getElementById("dtPlay").onclick = ()=>{
+  const left = secondsLeft();
+  if(left<=LOCK_TIME){
+    document.getElementById("dtMsg").textContent="Bet Locked";
+    return;
+  }
 
-    function ensureGlobalRound(game){
-      var ref = stateRef(game);
-      return db.runTransaction(function(tx){
-        return tx.get(ref).then(function(snap){
-          if(!snap.exists){
-            tx.set(ref, newRound(), {merge:true});
-            return;
-          }
-          var st = snap.data() || {};
-          var endAt = Number(st.endAtMs || 0);
-          if(!endAt || Date.now() > endAt + 2000){
-            tx.set(ref, newRound(), {merge:true});
-          }
-        });
-      });
-    }
+  const stake = Number(document.getElementById("dtStake").value);
+  if(!stake || stake<=0){
+    document.getElementById("dtMsg").textContent="Enter Bet";
+    return;
+  }
 
-    function tryPublishResult(game){
-      var ref = stateRef(game);
-      return db.runTransaction(function(tx){
-        return tx.get(ref).then(function(snap){
-          if(!snap.exists) return;
-          var st = snap.data() || {};
-          var endAt = Number(st.endAtMs || 0);
-          if(!endAt) return;
-          if(Date.now() < endAt) return;
+  const bet = {
+    clientId: CLIENT_ID,
+    pick: "DRAGON",
+    stake: stake,
+    round: pendingRound,
+    result: "PENDING",
+    time: Date.now()
+  };
 
-          var rid = st.roundId || "";
-          if(st.publishedForRoundId === rid) return; // already published
+  localStorage.setItem("pending_bet", JSON.stringify(bet));
+  document.getElementById("dtMsg").textContent="Bet Placed";
+};
 
-          // draw result
-          var res="-";
-          if(game==="DragonTiger"){
-            var d = 1 + Math.floor(Math.random()*13);
-            var t = 1 + Math.floor(Math.random()*13);
-            res = (d===t) ? "TIE" : (d>t ? "DRAGON" : "TIGER");
-          } else if(game==="TeenPatti"){
-            var r = Math.random();
-            res = (r<0.45) ? "PLAYER" : (r<0.9 ? "BANKER" : "TIE");
-          } else if(game==="Roulette"){
-            var n = Math.floor(Math.random()*37);
-            var c = (n===0) ? "GREEN" : (n%2===0 ? "BLACK" : "RED");
-            res = c + " " + n;
-          }
+/* ================= INIT ================= */
+renderResults();
+renderLast10();
+setInterval(renderLast10,2000);
 
-          tx.set(ref, {
-            lastResult: res,
-            publishedForRoundId: rid,
-            publishedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, {merge:true});
-        });
-      });
-    }
+</script>
 
-    /* ================= BET ENGINE (LOCAL HISTORY + FIRESTORE POINTS) ================= */
-    var lastBeep={DT:-1,TP:-1,R:-1};
-    var ME_ID=null, ME_USER=null;
 
-    function placeBetLocal(obj){
-      var bets=getBets();
-      bets.unshift(obj);
-      setBets(bets);
-    }
-    function updateBet(betId,patch){
-      var bets=getBets();
-      for(var i=0;i<bets.length;i++){
-        if(bets[i] && bets[i].betId===betId){
-          for(var k in patch){ if(patch.hasOwnProperty(k)) bets[i][k]=patch[k]; }
-          setBets(bets);
-          return;
-        }
-      }
-    }
-    function getPending(game, roundId){
-      var bets = getClientBets(ME_ID);
-      for(var i=0;i<bets.length;i++){
-        var b = bets[i];
-        if(b.game===game && String(b.roundId)===String(roundId) && b.result==="PENDING") return b;
-      }
-      return null;
-    }
-
-    function refreshTop(){
-      return userRef(ME_ID).get().then(function(snap){
-        if(!snap.exists) return;
-        ME_USER = snap.data() || {};
-        document.getElementById("cid").textContent = ME_ID;
-        document.getElementById("pts").textContent = Number(ME_USER.points||0);
-        var st = statsWinLoss(ME_ID);
-        document.getElementById("w").textContent = st.win;
-        document.getElementById("l").textContent = st.loss;
-      });
-    }
-
-    function addPoints(delta){
-      return userRef(ME_ID).set({
-        points: firebase.firestore.FieldValue.increment(delta)
-      }, {merge:true});
-    }
-
-    function placePendingBet(game, pick, stake, roundId){
-      stake = Number(stake||0);
-      if(!stake || stake<=0) throw new Error("Enter valid points");
-      var curPts = Number(ME_USER && ME_USER.points ? ME_USER.points : 0);
-      if(curPts < stake) throw new Error("Not enough points");
-
-      var betId = "B"+Date.now()+"_"+Math.floor(Math.random()*9999);
-      return addPoints(-stake).then(function(){
-        placeBetLocal({
-          betId: betId,
-          clientId: ME_ID,
-          game: game,
-          pick: pick,
-          stake: stake,
-          roundId: roundId,
-          at: Date.now(),
-          result: "PENDING"
-        });
-        return refreshTop().then(function(){ return betId; });
-      });
-    }
-
-    function settleBet(betId, outcome, stake){
-      updateBet(betId, {result: outcome});
-      if(outcome==="WIN") return addPoints(stake*2).then(refreshTop);
-      if(outcome==="TIE") return addPoints(stake).then(refreshTop);
-      return refreshTop();
-    }
-
-    function setPastTable(game,tableId){
-      var bets=getClientBets(ME_ID);
-      var out=[];
-      for(var i=0;i<bets.length;i++){
-        if(bets[i].game===game && bets[i].result!=="PENDING") out.push(bets[i]);
-        if(out.length>=10) break;
-      }
-      var tb=document.querySelector("#"+tableId+" tbody");
-      if(!tb) return;
-      if(!out.length){
-        tb.innerHTML="<tr><td colspan='4' class='muted'>No history</td></tr>";
-        return;
-      }
-      var html="";
-      for(var j=0;j<out.length;j++){
-        var b=out[j];
-        html += "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.pick+"</td><td class='gold'>"+Number(b.stake||0)+"</td><td>"+b.result+"</td></tr>";
-      }
-      tb.innerHTML=html;
-    }
-
-    function renderHistory(){
-      var bets=getClientBets(ME_ID);
-      var out=[];
-      for(var i=0;i<bets.length;i++){
-        if(bets[i].result!=="PENDING") out.push(bets[i]);
-      }
-      var tb=document.querySelector("#bh tbody");
-      if(!tb) return;
-      if(!out.length){
-        tb.innerHTML="<tr><td colspan='5' class='muted'>No history</td></tr>";
-        return;
-      }
-      var html="";
-      for(var j=0;j<out.length;j++){
-        var b=out[j];
-        html += "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+Number(b.stake||0)+"</td><td>"+b.result+"</td></tr>";
-      }
-      tb.innerHTML=html;
-    }
-
-    /* ================= BET UI ================= */
-    document.querySelectorAll(".tabbtn").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        document.querySelectorAll(".tabbtn").forEach(function(x){x.classList.remove("active")});
-        document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active")});
-        btn.classList.add("active");
-        document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
-        if(btn.getAttribute("data-tab")==="hist") renderHistory();
-      });
-    });
-
-    function bindBetBoxes(containerId, showId, showId2){
-      var cont=document.getElementById(containerId);
-      var show=document.getElementById(showId);
-      var show2=showId2?document.getElementById(showId2):null;
-
-      var active = cont.querySelector(".betBox.active");
-      var pick = active ? (active.getAttribute("data-pick")||"") : "";
-      show.textContent=pick;
-      if(show2) show2.textContent=pick;
-
-      cont.querySelectorAll(".betBox").forEach(function(box){
-        box.addEventListener("click", function(){
-          cont.querySelectorAll(".betBox").forEach(function(b){b.classList.remove("active")});
-          box.classList.add("active");
-          pick = box.getAttribute("data-pick") || "";
-          show.textContent = pick;
-          if(show2) show2.textContent = pick;
-        });
-      });
-      return function(){ return pick; };
-    }
-
-    function bindChips(scopeEl, inputEl){
-      scopeEl.querySelectorAll(".chip").forEach(function(ch){
-        ch.addEventListener("click", function(){
-          var v=Number(ch.getAttribute("data-v")||0);
-          var cur=Number(inputEl.value||0);
-          inputEl.value = cur + v;
-        });
-      });
-    }
-
-    var getDTPick=bindBetBoxes("dtBets","dtPickShow");
-    var dtStake=document.getElementById("dtStake"); bindChips(document.getElementById("dt"),dtStake);
-
-    var getTPPick=bindBetBoxes("tpBets","tpPickShow","tpPickShow2");
-    var tpStake=document.getElementById("tpStake"); bindChips(document.getElementById("tp"),tpStake);
-
-    var getRPick=bindBetBoxes("rBets","rPickShow");
-    var rStake=document.getElementById("rStake"); bindChips(document.getElementById("rl"),rStake);
-
-    /* ================= DT FLIP ================= */
-    function flipReset(){
-      document.getElementById("fcD").classList.remove("flipped");
-      document.getElementById("fcT").classList.remove("flipped");
-      document.getElementById("fcR").classList.remove("flipped");
-      document.getElementById("dtD").textContent="?";
-      document.getElementById("dtT").textContent="?";
-      document.getElementById("dtR").textContent="?";
-    }
-    function flipShow(d,t,r){
-      document.getElementById("dtD").textContent=d;
-      document.getElementById("dtT").textContent=t;
-      document.getElementById("dtR").textContent=r;
-      setTimeout(function(){
-        document.getElementById("fcD").classList.add("flipped");
-        document.getElementById("fcT").classList.add("flipped");
-        document.getElementById("fcR").classList.add("flipped");
-      },50);
-    }
-
-    function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
-    function randCard(){return 1+Math.floor(Math.random()*13)}
-
-    function setLock(el,state){
-      el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
-      if(state==="OPEN"){el.classList.add("lockOpen");el.textContent="OPEN";}
-      if(state==="PLACED"){el.classList.add("lockPlaced");el.textContent="PLAYED";}
-      if(state==="LOCKED"){el.classList.add("lockLocked");el.textContent="LOCKED";}
-      if(state==="CLOSED"){el.classList.add("lockClosed");el.textContent="CLOSED";}
-    }
-
-    /* ================= WATCH GLOBAL STATE + SETTLE ================= */
-    function watchGame(game, timerId, fillId, roundIdEl, lockId, lastTextId, settleFn){
-      return stateRef(game).onSnapshot(function(snap){
-        if(!snap.exists) return;
-        var st = snap.data() || {};
-        var endAt = Number(st.endAtMs||0);
-        var rid = st.roundId || "-";
-        var left = Math.max(0, Math.ceil((endAt - Date.now())/1000));
-
-        document.getElementById(roundIdEl).textContent = rid;
-        document.getElementById(timerId).textContent = left;
-        document.getElementById(fillId).style.width = Math.max(0,Math.min(100,(left/TOTAL_SEC)*100)) + "%";
-
-        var lockEl = document.getElementById(lockId);
-        if(left > LOCK_REMAINING) setLock(lockEl,"OPEN");
-        else if(left > 0) setLock(lockEl,"LOCKED");
-        else setLock(lockEl,"CLOSED");
-
-        // show last result text
-        if(st.lastResult){
-          var tEl = document.getElementById(lastTextId);
-          if(tEl) tEl.textContent = st.lastResult;
-        }
-
-        // if round ended, any online client can publish (host)
-        if(left<=0){
-          tryPublishResult(game)["catch"](function(){});
-        }
-
-        // settle local pending bet when published
-        if(st.publishedForRoundId === rid && st.lastResult){
-          settleFn(rid, st.lastResult);
-        }
-      });
-    }
-
-    function settleDT(roundId, result){
-      var pb = getPending("DragonTiger", roundId);
-      if(!pb) return;
-
-      // Animate DT cards only when my pending exists
-      if(result==="DRAGON" || result==="TIGER" || result==="TIE"){
-        var d = randCard(), t = randCard();
-        // force visual to match result a little (optional)
-        if(result==="DRAGON" && d<=t) d = t+1;
-        if(result==="TIGER" && t<=d) t = d+1;
-        if(result==="TIE") t = d;
-
-        flipReset();
-        flipShow(cardStr(d), cardStr(t), result);
-      }
-
-      document.getElementById("dtLast").textContent = result;
-
-      var out = "LOSS";
-      if(result==="TIE") out="TIE";
-      else if(pb.pick===result) out="WIN";
-
-      settleBet(pb.betId, out, Number(pb.stake||0)).then(function(){
-        setPastTable("DragonTiger","dtPast");
-        document.getElementById("dtMsg").textContent="RESULT: "+out;
-        if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
-        else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
-        else {showToast("loss","❌ LOSS","Try next round");vib(120);}
-      });
-    }
-
-    function settleTP(roundId, result){
-      var pb = getPending("TeenPatti", roundId);
-      if(!pb) return;
-
-      var out="LOSS";
-      if(result==="TIE") out="TIE";
-      else if(pb.pick===result) out="WIN";
-
-      document.getElementById("tpStatus").textContent = out;
-
-      settleBet(pb.betId, out, Number(pb.stake||0)).then(function(){
-        setPastTable("TeenPatti","tpPast");
-        document.getElementById("tpMsg").textContent="RESULT: "+out;
-      });
-    }
-
-    function settleR(roundId, result){
-      var pb = getPending("Roulette", roundId);
-      if(!pb) return;
-
-      // result example: "RED 15"
-      var parts = String(result).split(" ");
-      var color = parts[0] || "";
-      var out = (pb.pick===color) ? "WIN" : "LOSS";
-
-      settleBet(pb.betId, out, Number(pb.stake||0)).then(function(){
-        setPastTable("Roulette","rPast");
-        document.getElementById("rMsg").textContent="RESULT: "+out;
-      });
-    }
-
-    /* ================= PLACE BET (uses GLOBAL roundId + lock time) ================= */
-    function canPlayByLeft(left){ return left > LOCK_REMAINING; }
-
-    function placeDT(){
-      stateRef("DragonTiger").get().then(function(snap){
-        var st=snap.exists?(snap.data()||{}):{};
-        var endAt=Number(st.endAtMs||0);
-        var left=Math.max(0, Math.ceil((endAt-Date.now())/1000));
-        if(!canPlayByLeft(left)){ document.getElementById("dtMsg").textContent="Locked (play only when timer > 15)"; return; }
-
-        placePendingBet("DragonTiger", getDTPick(), dtStake.value, st.roundId).then(function(){
-          document.getElementById("dtMsg").textContent="PLAY SUBMITTED";
-          showToast("tie","🕒 SUBMITTED","Result at 0 sec"); vib(40);
-        })["catch"](function(e){
-          document.getElementById("dtMsg").textContent = (e && e.message) ? e.message : String(e);
-        });
-      });
-    }
-
-    function placeTP(){
-      stateRef("TeenPatti").get().then(function(snap){
-        var st=snap.exists?(snap.data()||{}):{};
-        var endAt=Number(st.endAtMs||0);
-        var left=Math.max(0, Math.ceil((endAt-Date.now())/1000));
-        if(!canPlayByLeft(left)){ document.getElementById("tpMsg").textContent="Locked (play only when timer > 15)"; return; }
-
-        placePendingBet("TeenPatti", getTPPick(), tpStake.value, st.roundId).then(function(){
-          document.getElementById("tpMsg").textContent="PLAY SUBMITTED";
-        })["catch"](function(e){
-          document.getElementById("tpMsg").textContent = (e && e.message) ? e.message : String(e);
-        });
-      });
-    }
-
-    function placeR(){
-      stateRef("Roulette").get().then(function(snap){
-        var st=snap.exists?(snap.data()||{}):{};
-        var endAt=Number(st.endAtMs||0);
-        var left=Math.max(0, Math.ceil((endAt-Date.now())/1000));
-        if(!canPlayByLeft(left)){ document.getElementById("rMsg").textContent="Locked (play only when timer > 15)"; return; }
-
-        placePendingBet("Roulette", getRPick(), rStake.value, st.roundId).then(function(){
-          document.getElementById("rMsg").textContent="PLAY SUBMITTED";
-        })["catch"](function(e){
-          document.getElementById("rMsg").textContent = (e && e.message) ? e.message : String(e);
-        });
-      });
-    }
-
-    document.getElementById("dtPlay").addEventListener("click", placeDT);
-    document.getElementById("tpPlay").addEventListener("click", placeTP);
-    document.getElementById("rPlay").addEventListener("click", placeR);
-
-    /* ================= VIEWS ================= */
-    setInterval(function(){
-      document.getElementById("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
-      document.getElementById("tpView").textContent="👁 "+(200+Math.floor(Math.random()*25));
-      document.getElementById("rView").textContent="👁 "+(150+Math.floor(Math.random()*25));
-    },2500);
-
-    /* ================= INIT ================= */
-    (function init(){
-      var s=getSession();
-      if(!s || !s.id){ logout(); return; }
-      ME_ID = s.id;
-
-      userRef(ME_ID).get().then(function(snap){
-        if(!snap.exists){ logout(); return; }
-        var u = snap.data() || {};
-        if(u.isBlocked){ logout(); return; }
-
-        // live points update (optional)
-        userRef(ME_ID).onSnapshot(function(ss){
-          if(!ss.exists) return;
-          ME_USER = ss.data() || {};
-          document.getElementById("cid").textContent = ME_ID;
-          document.getElementById("pts").textContent = Number(ME_USER.points||0);
-          var st = statsWinLoss(ME_ID);
-          document.getElementById("w").textContent = st.win;
-          document.getElementById("l").textContent = st.loss;
-        });
-
-        // Ensure global rounds exist
-        ensureGlobalRound("DragonTiger");
-        ensureGlobalRound("TeenPatti");
-        ensureGlobalRound("Roulette");
-
-        // Listen last5 results
-        renderLast5("DragonTiger","dtPrev");
-        renderLast5("TeenPatti","tpPrev");
-        renderLast5("Roulette","rPrev");
-
-        // Watch global state (timers + publish + settle)
-        watchGame("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtLast", settleDT);
-        watchGame("TeenPatti","tpTimer","tpFill","tpRound","tpLock","tpStatus", settleTP);
-        watchGame("Roulette","rTimer","rFill","rRound","rLock","rMsg", settleR);
-
-        // Local tables init
-        setPastTable("DragonTiger","dtPast");
-        setPastTable("TeenPatti","tpPast");
-        setPastTable("Roulette","rPast");
-        renderHistory();
-
-        // When result published, also push to last5 once (host side)
-        stateRef("DragonTiger").onSnapshot(function(ss){
-          if(!ss.exists) return;
-          var st=ss.data()||{};
-          if(st.publishedForRoundId && st.lastResult){
-            pushResultLast5("DragonTiger", st.lastResult)["catch"](function(){});
-          }
-        });
-        stateRef("TeenPatti").onSnapshot(function(ss){
-          if(!ss.exists) return;
-          var st=ss.data()||{};
-          if(st.publishedForRoundId && st.lastResult){
-            pushResultLast5("TeenPatti", st.lastResult)["catch"](function(){});
-          }
-        });
-        stateRef("Roulette").onSnapshot(function(ss){
-          if(!ss.exists) return;
-          var st=ss.data()||{};
-          if(st.publishedForRoundId && st.lastResult){
-            pushResultLast5("Roulette", st.lastResult)["catch"](function(){});
-          }
-        });
-
-      })["catch"](function(){ logout(); });
-    })();
-  </script>
 </body>
 </html>
+
