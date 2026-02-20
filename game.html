@@ -342,25 +342,37 @@
     var remain = 60;
 
     // ✅ As you said: after 15 sec LIVE -> LOCKED
-    var BET_OPEN_SEC = 15; // for each 30-sec period
+    var BET_OPEN_SEC = 30; // for each 30-sec period
     var activeBet = null;
     var selectedBet = null;
 
     // used to fire round end exactly once per 30-sec period
     var lastSettledPeriod = null;
 
-    function bettingAllowed() {
-      // open only in first 15 sec of current 30-sec cycle
-      if (!window.GAME) return false;
-      var cycleRemain = GAME.remainingSecondsInCycle(); // 30..1
-      // first 15 sec means: remaining > 15
-      return cycleRemain > (GAME.cfg.cycleSec - BET_OPEN_SEC); // 30-15 => >15
-    }
+ function bettingAllowed() {
+  /*
+    RULE (as per your requirement):
+
+    1 Min game:
+    - 60 → 31  = OPEN
+    - 30 → 1   = LOCKED
+    - 0        = RESULT
+
+    3 Min game:
+    - 180 → 151 = OPEN
+    - 150 → 1   = LOCKED
+    - 0         = RESULT
+  */
+
+  var r = Number(remain || 0);
+  return r > (MODE_SEC - 30); // ✅ ONLY first 30 sec OPEN
+}
+
 
     function updateBetWindowUI() {
       var el = document.getElementById("betWindow");
       if (!el) return;
-      if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b> (first 15 sec)';
+      if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b>';
       else el.innerHTML = 'Betting: <b class="bet-closed">CLOSED</b> (wait next round)';
     }
 
@@ -800,3 +812,4 @@
 </body>
 
 </html>
+
