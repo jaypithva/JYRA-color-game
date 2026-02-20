@@ -896,23 +896,28 @@
       if(game==="TeenPatti") return "TeenPatti";
       return "Roulette";
     }
+function pushResult(cid, game, value, roundId){
+  const all = getResults();
+  if(!all[cid]) all[cid] = {};
+  const gk = gameKey(game);
+  if(!all[cid][gk]) all[cid][gk] = [];
 
-    function pushResult(cid, game, value, roundId){
-      const all = getResults();
-      if(!all[cid]) all[cid] = {};
-      const gk = gameKey(game);
-      if(!all[cid][gk]) all[cid][gk] = [];
+  roundId = Number(roundId || 0);
 
-      all[cid][gk].unshift({
-        v: String(value),
-        at: Date.now(),
-        roundId: Number(roundId||0)
-      });
+  // ✅ Remove old entry of same round (so it updates, not duplicates)
+  all[cid][gk] = all[cid][gk].filter(x => Number(x.roundId) !== roundId);
 
-      // keep only last 5
-      all[cid][gk] = all[cid][gk].slice(0,5);
-      setResults(all);
-    }
+  // ✅ Add latest on top
+  all[cid][gk].unshift({
+    v: String(value),
+    at: Date.now(),
+    roundId: roundId
+  });
+
+  // ✅ keep only last 5
+  all[cid][gk] = all[cid][gk].slice(0,5);
+  setResults(all);
+}
 
     function readLast5(cid, game){
       const all = getResults();
@@ -1024,12 +1029,12 @@
       let r=getRound(cid,game);
       const now=Date.now();
       if(!r||!r.startedAt){
-        r={roundId:1,startedAt:now,revealed:false,nextStarted:false};
+        r={roundId:1,startedAt:now,revealed:false,revealing:false,nextStarted:false};
         setRound(cid,game,r);
         return r;
       }
       if(secondsLeft(r)<=-3){
-        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,revealed:false,nextStarted:false};
+        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,revealed:false,revealing:false,nextStarted:false};
         setRound(cid,game,r);
       }
       return getRound(cid,game);
@@ -1324,18 +1329,25 @@
 
       renderMyBet(game, r.roundId);
 
-      if(left<=0){
-        btn.disabled=true; setLock(lock,"CLOSED");
-        if(!r.revealed) await revealFn(r);
-        if(r.revealed && !r.nextStarted){
-          r.nextStarted=true;setRound(ME_ID,game,r);
-          setTimeout(()=>{
-            startNext(ME_ID,game);
-            if(game==="DragonTiger"){flipReset();document.getElementById("dtMsg").textContent="-";}
-          },700);
-        }
-        return;
-      }
+    if(left<=0){
+  btn.disabled=true; setLock(lock,"CLOSED");
+
+  // ✅ prevent multiple reveal calls
+  if(!r.revealed && !r.revealing){
+    r.revealing = true;
+    setRound(ME_ID, game, r);
+    await revealFn(r);
+  }
+
+  if(r.revealed && !r.nextStarted){
+    r.nextStarted=true; setRound(ME_ID,game,r);
+    setTimeout(()=>{
+      startNext(ME_ID,game);
+      if(game==="DragonTiger"){flipReset();document.getElementById("dtMsg").textContent="-";}
+    },700);
+  }
+  return;
+}
 
       const myBetThisRound = findMyBetForRound(game, r.roundId);
       const hasPlaced = !!myBetThisRound;
@@ -1351,7 +1363,7 @@
     function startNext(cid,game){
       const current = getRound(cid,game);
       const nextId = (Number(current?.roundId)||0) + 1; // ✅ step by step
-      const r={roundId: nextId, startedAt: Date.now(), revealed:false, nextStarted:false};
+      const r={roundId: nextId, startedAt: Date.now(), revealed:false,revealing:false, nextStarted:false};
       setRound(cid,game,r);
 
       if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
@@ -1444,4 +1456,5 @@
   </script>
 </body>
 </html>
+
 
