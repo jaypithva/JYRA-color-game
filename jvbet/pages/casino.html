@@ -840,15 +840,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-  <script>
+<script>
 /* ======================================================
-   JVBET – COMPLETE LOGIC (No design break)
-   ✔ Tabs working
-   ✔ Timer + progress bar
-   ✔ Lock rule: bet allowed only when left > 15
-   ✔ Result reveal only once at 0
-   ✔ Per-user Last 5 results in Firestore
-   ✔ My Bet + Last 10 + Full History (local)
+   JVBET – STABLE ROUND ENGINE (NO RESET ON REFRESH)
+   ✔ Fixed global round system
+   ✔ Refresh-safe
+   ✔ No design change
 ====================================================== */
 
 /* ---------- FIREBASE ---------- */
@@ -863,115 +860,55 @@ const db = firebase.firestore();
 const TOTAL_SEC = 30;
 const LOCK_AT = 15;
 
+/* 🔒 FIXED GAME START TIME (NEVER CHANGE THIS) */
+const GAME_START_TIME = {
+  DragonTiger: 1700000000000,
+  TeenPatti:   1700000000000,
+  Roulette:    1700000000000
+};
+
 /* ---------- SESSION ---------- */
 const session = JSON.parse(localStorage.getItem("jvbet_session"));
 if (!session || !session.id) location.href="../index.html";
 const ME_ID = session.id;
 
-/* ---------- UI HELPERS ---------- */
-const $ = (id)=>document.getElementById(id);
+/* ---------- HELPERS ---------- */
+const $ = id => document.getElementById(id);
 
-function nowStr(){
-  return new Date().toLocaleString();
+/* ---------- ROUND CALCULATOR (REFRESH SAFE) ---------- */
+function getRoundInfo(game){
+  const now = Date.now();
+  const diff = now - GAME_START_TIME[game];
+
+  const round = Math.floor(diff / (TOTAL_SEC * 1000)) + 1;
+  const roundStart = GAME_START_TIME[game] + (round - 1) * TOTAL_SEC * 1000;
+  const left = Math.max(0, TOTAL_SEC - Math.floor((now - roundStart) / 1000));
+
+  return { round, left };
 }
 
-function toast(type,title,body){
-  const t = $("toast");
-  $("toastTitle").textContent = title || "-";
-  $("toastBody").textContent = body || "-";
-  t.className = "toast show " + (type||"");
-  clearTimeout(toast._tm);
-  toast._tm = setTimeout(()=>{ t.className="toast"; }, 2200);
-}
-
+/* ---------- LOCK UI ---------- */
 function setLock(el, state){
-  // state: OPEN / PLACED / LOCKED / CLOSED
   el.textContent = state;
-  el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
+  el.className = "pillSmall";
   if(state==="OPEN") el.classList.add("lockOpen");
-  if(state==="PLACED") el.classList.add("lockPlaced");
   if(state==="LOCKED") el.classList.add("lockLocked");
   if(state==="CLOSED") el.classList.add("lockClosed");
 }
 
-/* ---------- TABS ---------- */
-document.querySelectorAll(".tabbtn").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    const tab = btn.dataset.tab;
-    $(tab).classList.add("active");
-  });
-});
-
-/* ---------- USER HEADER ---------- */
-$("cid").textContent = ME_ID;
-function loadStats(){
-  const st = JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID) || "{}");
-  $("pts").textContent = st.points ?? 0;
-  $("w").textContent   = st.win ?? 0;
-  $("l").textContent   = st.loss ?? 0;
+/* ---------- RESULT GENERATORS ---------- */
+function drawDT(){
+  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
 }
-function saveStats(patch){
-  const key = "JVBET_STATS_"+ME_ID;
-  const st = JSON.parse(localStorage.getItem(key) || "{}");
-  const next = {
-    points: (st.points ?? 0),
-    win: (st.win ?? 0),
-    loss: (st.loss ?? 0),
-    ...patch
-  };
-  localStorage.setItem(key, JSON.stringify(next));
-  loadStats();
+function drawTP(){
+  return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
 }
-loadStats();
-
-/* ---------- LOGOUT ---------- */
-$("logoutBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("jvbet_session");
-  location.href="../index.html";
-});
-
-/* ---------- ROUND ENGINE (NO SKIP) ---------- */
-function roundKey(game){ return `ROUND_${ME_ID}_${game}`; }
-function getRound(game){ return JSON.parse(localStorage.getItem(roundKey(game))); }
-function setRound(game,data){ localStorage.setItem(roundKey(game), JSON.stringify(data)); }
-
-function ensureRound(game){
-  let r = getRound(game);
-  if(!r){
-    r = { round: 1, start: Date.now(), revealed:false };
-    setRound(game,r);
-  }
-  return r;
+function drawR(){
+  const n=Math.floor(Math.random()*37);
+  return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
 }
 
-function secondsLeft(r){
-  return Math.max(0, TOTAL_SEC - Math.floor((Date.now()-r.start)/1000));
-}
-function fillPct(r){
-  const elapsed = Math.min(TOTAL_SEC, (Date.now()-r.start)/1000);
-  return Math.max(0, Math.min(100, (elapsed / TOTAL_SEC) * 100));
-}
-
-/* ---------- BET STORAGE (local per user) ---------- */
-function betKey(game){ return `BET_${ME_ID}_${game}`; }
-function getBet(game){ return JSON.parse(localStorage.getItem(betKey(game)) || "null"); }
-function setBet(game, data){ localStorage.setItem(betKey(game), JSON.stringify(data)); }
-function clearBet(game){ localStorage.removeItem(betKey(game)); }
-
-/* ---------- HISTORY (local) ---------- */
-function histKey(){ return `JVBET_HISTORY_${ME_ID}`; }
-function getHist(){ return JSON.parse(localStorage.getItem(histKey()) || "[]"); }
-function pushHist(item){
-  const arr = getHist();
-  arr.unshift(item);
-  localStorage.setItem(histKey(), JSON.stringify(arr.slice(0,200))); // keep last 200
-  renderHistoryTables();
-}
-
-/* ---------- LAST 5 (PER USER) - FIRESTORE ---------- */
+/* ---------- FIRESTORE LAST 5 ---------- */
 async function pushLast5(game,result,round){
   const ref = db.collection("users").doc(ME_ID);
   await db.runTransaction(async tx=>{
@@ -989,471 +926,85 @@ async function pushLast5(game,result,round){
 }
 
 async function renderLast5(game){
-  const mapBody = {
+  const map = {
     DragonTiger:"dtLast5Body",
     TeenPatti:"tpLast5Body",
     Roulette:"rLast5Body"
   };
-  const mapSub = {
-    DragonTiger:"dtLast5Sub",
-    TeenPatti:"tpLast5Sub",
-    Roulette:"rLast5Sub"
-  };
-  const body = $(mapBody[game]);
-  const sub = $(mapSub[game]);
+  const body = $(map[game]);
   if(!body) return;
 
-  try{
-    const snap = await db.collection("users").doc(ME_ID).get();
-    const arr = snap.data()?.last5Results?.[game] || [];
-
-    if(!arr.length){
-      body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results</td></tr>";
-      if(sub) sub.textContent = "—";
-      return;
-    }
-
-    if(sub){
-      sub.textContent = arr.map(x=>x.result).join(" • ");
-    }
-
-    body.innerHTML = arr.map((x,i)=>`
-      <tr>
-        <td>${i+1}</td>
-        <td class="gold">${x.result}</td>
-        <td>${x.round}</td>
-        <td>${new Date(x.time).toLocaleString()}</td>
-      </tr>
-    `).join("");
-  }catch(e){
-    body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>Firestore error</td></tr>";
-  }
-}
-
-/* ---------- RESULT GENERATORS ---------- */
-function drawDT(){
-  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
-}
-function drawTP(){
-  return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
-}
-function drawR(){
-  const n=Math.floor(Math.random()*37);
-  return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
-}
-
-/* ---------- UI: SELECT PICK ---------- */
-function wireBetBoxes(containerId, outId1, outId2){
-  const box = $(containerId);
-  if(!box) return;
-  box.querySelectorAll(".betBox").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      box.querySelectorAll(".betBox").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-      const pick = b.dataset.pick;
-      if(outId1) $(outId1).textContent = pick;
-      if(outId2) $(outId2).textContent = pick;
-    });
-  });
-}
-
-wireBetBoxes("dtBets","dtPickShow",null);
-wireBetBoxes("tpBets","tpPickShow","tpPickShow2");
-wireBetBoxes("rBets","rPickShow",null);
-
-/* ---------- UI: CHIPS ---------- */
-function wireChips(scopeSelector, inputId){
-  document.querySelectorAll(scopeSelector+" .chip").forEach(ch=>{
-    ch.addEventListener("click", ()=>{
-      const v = Number(ch.dataset.v || 0);
-      const inp = $(inputId);
-      const cur = Number(inp.value || 0);
-      inp.value = String(cur + v);
-    });
-  });
-}
-
-wireChips("#dt .chips","dtStake");
-wireChips("#tp .chips","tpStake");
-wireChips("#rl .chips","rStake");
-
-/* ---------- MY BET RENDER ---------- */
-function renderMyBet(game){
-  const map = {
-    DragonTiger:{ sub:"dtMyBetSub", st:"dtMyBetStatus", body:"dtMyBetBody" },
-    TeenPatti:{   sub:"tpMyBetSub", st:"tpMyBetStatus", body:"tpMyBetBody" },
-    Roulette:{    sub:"rMyBetSub",  st:"rMyBetStatus",  body:"rMyBetBody" }
-  };
-  const m = map[game];
-  const bet = getBet(game);
-  if(!m) return;
-
-  if(!bet){
-    $(m.sub).textContent = "—";
-    $(m.st).textContent = "NO BET";
-    $(m.st).className = "miniPill";
-    $(m.body).innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed yet</td></tr>";
-    return;
-  }
-
-  $(m.sub).textContent = `${bet.pick} • ${bet.points} pts • Round ${bet.round}`;
-  $(m.st).textContent = bet.status || "PLACED";
-  $(m.st).className = "miniPill " + (
-    bet.status==="WIN" ? "stWin" :
-    bet.status==="LOSS" ? "stLoss" :
-    bet.status==="TIE" ? "stTie" :
-    "stPending"
-  );
-
-  $(m.body).innerHTML = `
-    <tr>
-      <td class="gold">${bet.pick}</td>
-      <td>${bet.points}</td>
-      <td>${bet.round}</td>
-      <td>${new Date(bet.time).toLocaleString()}</td>
-    </tr>
-  `;
-}
-
-/* ---------- PAST 10 TABLES ---------- */
-function renderPast10(game){
-  const map = {
-    DragonTiger:{ table:"dtPast", wait:"dtWait" },
-    TeenPatti:{   table:"tpPast", wait:"tpWait" },
-    Roulette:{    table:"rPast",  wait:"rWait" }
-  };
-  const m = map[game];
-  if(!m) return;
-
-  const tbody = $(m.table).querySelector("tbody");
-  const arr = getHist().filter(x=>x.game===game).slice(0,10);
+  const snap = await db.collection("users").doc(ME_ID).get();
+  const arr = snap.data()?.last5Results?.[game] || [];
 
   if(!arr.length){
-    $(m.wait).textContent = "No bets yet";
-    tbody.innerHTML = "";
+    body.innerHTML="<tr><td colspan='4'>No results</td></tr>";
     return;
   }
-  $(m.wait).textContent = "";
 
-  tbody.innerHTML = arr.map(x=>`
+  body.innerHTML = arr.map((x,i)=>`
     <tr>
-      <td>${x.timeStr}</td>
-      <td class="gold">${x.pick}</td>
-      <td>${x.points}</td>
-      <td>${x.status}</td>
+      <td>${i+1}</td>
+      <td class="gold">${x.result}</td>
+      <td>${x.round}</td>
+      <td>${new Date(x.time).toLocaleString()}</td>
     </tr>
   `).join("");
 }
 
-/* ---------- FULL HISTORY TABLE ---------- */
-function renderFullHistory(){
-  const tbody = $("bh").querySelector("tbody");
-  const arr = getHist().slice(0,100);
-  if(!arr.length){ tbody.innerHTML = ""; return; }
-
-  tbody.innerHTML = arr.map(x=>`
-    <tr>
-      <td>${x.timeStr}</td>
-      <td>${x.game}</td>
-      <td class="gold">${x.pick}</td>
-      <td>${x.points}</td>
-      <td>${x.status}</td>
-    </tr>
-  `).join("");
-}
-
-function renderHistoryTables(){
-  renderPast10("DragonTiger");
-  renderPast10("TeenPatti");
-  renderPast10("Roulette");
-  renderFullHistory();
-}
-
-/* ---------- PLACE BET ---------- */
-function canPlaceBet(game){
-  const r = ensureRound(game);
-  const left = secondsLeft(r);
-  // allowed only when left > 15 AND round not revealed AND no existing bet for same round
-  if(left <= LOCK_AT) return false;
-  if(r.revealed) return false;
-  const bet = getBet(game);
-  if(bet && bet.round === r.round) return false;
-  return true;
-}
-
-function placeBet(game, pick, points){
-  const r = ensureRound(game);
-  if(!canPlaceBet(game)){
-    toast("loss","Closed","Bet not allowed after 15s or already placed.");
-    return false;
-  }
-  if(!points || points <= 0){
-    toast("loss","Invalid","Enter points first.");
-    return false;
-  }
-
-  // deduct points locally (you can replace with Firestore wallet)
-  const st = JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID) || "{}");
-  const curPts = Number(st.points ?? 0);
-  if(curPts < points){
-    toast("loss","Low Points","Not enough points.");
-    return false;
-  }
-  saveStats({ points: curPts - points });
-
-  const bet = {
-    game,
-    pick,
-    points,
-    round: r.round,
-    time: Date.now(),
-    status: "PENDING"
-  };
-  setBet(game, bet);
-
-  // push to local history (pending)
-  pushHist({
-    time: bet.time,
-    timeStr: nowStr(),
-    game,
-    pick,
-    points,
-    status: "PENDING",
-    round: r.round
-  });
-
-  renderMyBet(game);
-  toast("", "Bet Placed", `${game}: ${pick} • ${points} pts`);
-  return true;
-}
-
-/* wire buttons */
-$("dtPlay").addEventListener("click", ()=>{
-  const pick = $("dtBets").querySelector(".betBox.active")?.dataset.pick || "DRAGON";
-  const pts = Number($("dtStake").value || 0);
-  if(placeBet("DragonTiger", pick, pts)) $("dtStake").value = "";
-});
-
-$("tpPlay").addEventListener("click", ()=>{
-  const pick = $("tpBets").querySelector(".betBox.active")?.dataset.pick || "PLAYER";
-  const pts = Number($("tpStake").value || 0);
-  if(placeBet("TeenPatti", pick, pts)) $("tpStake").value = "";
-});
-
-$("rPlay").addEventListener("click", ()=>{
-  const pick = $("rBets").querySelector(".betBox.active")?.dataset.pick || "RED";
-  const pts = Number($("rStake").value || 0);
-  if(placeBet("Roulette", pick, pts)) $("rStake").value = "";
-});
-
-/* ---------- RESOLVE BET AT REVEAL ---------- */
-function resolveBet(game, result, round){
-  const bet = getBet(game);
-  if(!bet || bet.round !== round) return;
-
-  let status = "LOSS";
-  if(game==="DragonTiger" || game==="TeenPatti"){
-    if(result === "TIE"){
-      // refund
-      status = "TIE";
-    } else if(bet.pick === result){
-      status = "WIN";
-    } else {
-      status = "LOSS";
-    }
-  }
-  if(game==="Roulette"){
-    // result format: "RED 7" / "BLACK 10" / "GREEN 0"
-    const color = String(result).split(" ")[0];
-    if(color === "GREEN"){
-      status = "LOSS";
-    }else{
-      status = (bet.pick === color) ? "WIN" : "LOSS";
-    }
-  }
-
-  // payout logic
-  if(status === "WIN"){
-    const st = JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID) || "{}");
-    const curPts = Number(st.points ?? 0);
-    const winPts = bet.points * 2;
-    saveStats({ points: curPts + winPts, win: Number(st.win ?? 0) + 1 });
-  }else if(status === "TIE"){
-    const st = JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID) || "{}");
-    const curPts = Number(st.points ?? 0);
-    saveStats({ points: curPts + bet.points });
-  }else{
-    const st = JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID) || "{}");
-    saveStats({ loss: Number(st.loss ?? 0) + 1 });
-  }
-
-  // update bet local
-  bet.status = status;
-  bet.result = result;
-  setBet(game, bet);
-
-  // update history last matching pending
-  const arr = getHist();
-  const idx = arr.findIndex(x=>x.game===game && x.round===round && x.status==="PENDING");
-  if(idx>=0){
-    arr[idx].status = status;
-    localStorage.setItem(histKey(), JSON.stringify(arr));
-  }
-
-  renderMyBet(game);
-  renderHistoryTables();
-
-  toast(
-    status==="WIN" ? "win" : (status==="TIE" ? "tie" : "loss"),
-    status,
-    `${game}: ${result}`
-  );
-
-  // clear bet so next round can bet again
-  clearBet(game);
-}
-
-/* ---------- SHOW RESULT IN UI ---------- */
-function renderLatestChip(prevId, text){
-  const box = $(prevId);
-  if(!box) return;
-  box.innerHTML = `<span class="resChip gold">${text}</span>`;
-}
-
-function flipCardsDT(result){
-  // simple visual: show winner in center cards
-  // (aap real cards use karna chaho to yaha set karna)
-  $("dtD").textContent = result==="DRAGON" ? "DRAGON" : "—";
-  $("dtT").textContent = result==="TIGER" ? "TIGER" : "—";
-  $("dtR").textContent = result==="TIE" ? "TIE" : "—";
-  $("fcD").classList.add("flipped");
-  $("fcT").classList.add("flipped");
-  $("fcR").classList.add("flipped");
-  setTimeout(()=>{
-    $("fcD").classList.remove("flipped");
-    $("fcT").classList.remove("flipped");
-    $("fcR").classList.remove("flipped");
-  }, 1200);
-}
-
-/* ---------- REVEAL (ONLY ONCE) ---------- */
-async function reveal(game){
-  const r = ensureRound(game);
-  if(r.revealed) return;
-
-  r.revealed = true;
-  setRound(game,r);
-
+/* ---------- REVEAL (ONLY ONCE PER ROUND) ---------- */
+async function reveal(game,round){
   let res="";
   if(game==="DragonTiger") res=drawDT();
   if(game==="TeenPatti") res=drawTP();
   if(game==="Roulette") res=drawR();
 
-  // save last 5 in Firestore
-  await pushLast5(game,res,r.round);
+  await pushLast5(game,res,round);
 
-  // UI outputs
   if(game==="DragonTiger"){
-    $("dtLast").textContent = res;
-    renderLatestChip("dtPrev", res);
-    flipCardsDT(res);
+    $("dtLast").textContent=res;
+    $("dtPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
   }
   if(game==="TeenPatti"){
-    $("tpStatus").textContent = "RESULT";
-    renderLatestChip("tpPrev", res);
+    $("tpPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
   }
   if(game==="Roulette"){
-    renderLatestChip("rPrev", res);
-  }
-
-  // resolve bet if any
-  resolveBet(game, res, r.round);
-
-  // move to next round after small delay (no skip)
-  setTimeout(()=>{
-    setRound(game,{
-      round: r.round + 1,
-      start: Date.now(),
-      revealed:false
-    });
-  }, 800);
-}
-
-/* ---------- LOCK STATUS + BUTTON ENABLE ---------- */
-function updateLockUI(game,left){
-  // if bet already placed in this round => PLACED
-  const bet = getBet(game);
-  const r = ensureRound(game);
-  const placed = bet && bet.round === r.round;
-
-  const lockEl = game==="DragonTiger" ? $("dtLock") : game==="TeenPatti" ? $("tpLock") : $("rLock");
-  if(!lockEl) return;
-
-  if(left===0){
-    setLock(lockEl, "CLOSED");
-    return;
-  }
-  if(placed){
-    setLock(lockEl, "PLACED");
-    return;
-  }
-  if(left > LOCK_AT){
-    setLock(lockEl, "OPEN");
-  }else{
-    setLock(lockEl, "LOCKED");
+    $("rPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
   }
 }
 
-function setPlayEnabled(game, enabled){
-  const id = game==="DragonTiger" ? "dtPlay" : game==="TeenPatti" ? "tpPlay" : "rPlay";
-  const btn = $(id);
-  if(btn) btn.disabled = !enabled;
-}
+/* ---------- MAIN TICK LOOP ---------- */
+async function tick(game,timerId,fillId,roundId,lockId){
+  const info = getRoundInfo(game);
 
-/* ---------- TICK ---------- */
-async function tick(game,timerId,fillId,roundId){
-  const r = ensureRound(game);
-  const left = secondsLeft(r);
-  const pct = fillPct(r);
+  $(timerId).textContent = info.left;
+  $(roundId).textContent = info.round;
+  $(fillId).style.width = ((TOTAL_SEC-info.left)/TOTAL_SEC*100)+"%";
 
-  $(timerId).textContent = left;
-  $(roundId).textContent = r.round;
-  $(fillId).style.width = pct + "%";
+  if(info.left>LOCK_AT) setLock($(lockId),"OPEN");
+  else if(info.left>0) setLock($(lockId),"LOCKED");
+  else setLock($(lockId),"CLOSED");
 
-  updateLockUI(game,left);
-  setPlayEnabled(game, canPlaceBet(game));
-
-  if(left===0){
-    await reveal(game);
+  const revealKey = `REVEALED_${game}_${info.round}`;
+  if(info.left===0 && !localStorage.getItem(revealKey)){
+    localStorage.setItem(revealKey,"1");
+    await reveal(game,info.round);
   }
 }
 
 /* ---------- INIT ---------- */
-(function init(){
-  // initial renders
+(function(){
   renderLast5("DragonTiger");
   renderLast5("TeenPatti");
   renderLast5("Roulette");
 
-  renderMyBet("DragonTiger");
-  renderMyBet("TeenPatti");
-  renderMyBet("Roulette");
-
-  renderHistoryTables();
-
-  // status defaults
-  $("tpStatus").textContent = "LIVE";
-
-  // loop
   setInterval(()=>{
-    tick("DragonTiger","dtTimer","dtFill","dtRound");
-    tick("TeenPatti","tpTimer","tpFill","tpRound");
-    tick("Roulette","rTimer","rFill","rRound");
-
-    // teen patti board round mirror
-    $("tpRound2").textContent = $("tpRound").textContent;
-  }, 250);
+    tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock");
+    tick("TeenPatti","tpTimer","tpFill","tpRound","tpLock");
+    tick("Roulette","rTimer","rFill","rRound","rLock");
+  },250);
 })();
 </script>
 </body>
 </html>
+
