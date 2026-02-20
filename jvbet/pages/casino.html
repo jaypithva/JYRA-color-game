@@ -8,7 +8,27 @@
 
   <!-- Optional (keep if you want) -->
   <link rel="stylesheet" href="../assets/css/style.css" />
+<script>
+/* ================= TAB SWITCH FIX ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = document.querySelectorAll(".tabbtn");
+  const panels = document.querySelectorAll(".panel");
 
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // remove active
+      tabs.forEach(b => b.classList.remove("active"));
+      panels.forEach(p => p.classList.remove("active"));
+
+      // add active
+      btn.classList.add("active");
+      const target = btn.dataset.tab;
+      const panel = document.getElementById(target);
+      if(panel) panel.classList.add("active");
+    });
+  });
+});
+</script>
   <style>
     :root{
       --gold: rgba(212,175,55,1);
@@ -1016,6 +1036,7 @@ async function tick(game,timerId,roundId){
 </script>
 </body>
 </html>
+
 
 
 
