@@ -849,612 +849,173 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
   <script>
-    /* ================= FIREBASE INIT ================= */
-    firebase.initializeApp({
-      apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-      authDomain: "jvbet-bbf90.firebaseapp.com",
-      projectId: "jvbet-bbf90",
-      storageBucket: "jvbet-bbf90.appspot.com",
-      messagingSenderId: "824871692224",
-      appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+/* ======================================================
+   JVBET – FINAL REMAKE LOGIC
+   ✔ Per-User Last 5 Results (Firestore)
+   ✔ No Round Skip / Jump
+   ✔ Design untouched
+====================================================== */
+
+/* ---------- FIREBASE ---------- */
+firebase.initializeApp({
+  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+  authDomain: "jvbet-bbf90.firebaseapp.com",
+  projectId: "jvbet-bbf90"
+});
+const db = firebase.firestore();
+
+/* ---------- GLOBALS ---------- */
+const TOTAL_SEC = 30;
+const LOCK_AT = 15;
+let ME_ID = null;
+
+/* ---------- SESSION ---------- */
+const session = JSON.parse(localStorage.getItem("jvbet_session"));
+if (!session || !session.id) location.href="../index.html";
+ME_ID = session.id;
+
+/* ---------- ROUND ENGINE (NO SKIP) ---------- */
+function roundKey(game){
+  return `ROUND_${ME_ID}_${game}`;
+}
+
+function getRound(game){
+  return JSON.parse(localStorage.getItem(roundKey(game)));
+}
+
+function setRound(game,data){
+  localStorage.setItem(roundKey(game), JSON.stringify(data));
+}
+
+function ensureRound(game){
+  let r = getRound(game);
+  if(!r){
+    r = { round: 1, start: Date.now(), revealed:false };
+    setRound(game,r);
+  }
+  return r;
+}
+
+function secondsLeft(r){
+  return Math.max(0, TOTAL_SEC - Math.floor((Date.now()-r.start)/1000));
+}
+
+/* ---------- LAST 5 (PER USER) ---------- */
+async function pushLast5(game,result,round){
+  const ref = db.collection("users").doc(ME_ID);
+
+  await db.runTransaction(async tx=>{
+    const snap = await tx.get(ref);
+    const data = snap.data() || {};
+    const last5 = data.last5Results || {};
+    const arr = (last5[game] || []).filter(x=>x.round!==round);
+
+    arr.unshift({
+      result,
+      round,
+      time: Date.now()
     });
-    const db = firebase.firestore();
 
-    /* ================= SESSION + STORAGE ================= */
-    const K_SESSION_A="jvbet_session";
-    const K_SESSION_B="jvbet_session_v1";
-    const K_BETS="jvbet_bets_v1";
-    const K_RESULTS="jvbet_results_v1"; // ✅ NEW: store last results history
+    last5[game] = arr.slice(0,5);
 
-    function loadJSON(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
-    function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
-    function getSession(){return loadJSON(K_SESSION_A,null)||loadJSON(K_SESSION_B,null)}
-    function clearSession(){localStorage.removeItem(K_SESSION_A);localStorage.removeItem(K_SESSION_B)}
-    function logout(){clearSession();location.href="../index.html"}
-    document.getElementById("logoutBtn").addEventListener("click", logout);
-
-    function getBets(){return loadJSON(K_BETS,[])}
-    function setBets(b){saveJSON(K_BETS,b||[])}
-    function fmtDate(ts){return new Date(ts||Date.now()).toLocaleString()}
-
-    function getClientBets(cid){
-      return getBets().filter(b=>b.clientId===cid).sort((a,b)=>(b.at||0)-(a.at||0))
-    }
-    function statsWinLoss(cid){
-      const bets=getClientBets(cid).filter(b=>b.result && b.result!=="PENDING");
-      let w=0,l=0; bets.forEach(b=>{if(b.result==="WIN")w++; else if(b.result==="LOSS")l++;});
-      return {win:w,loss:l};
-    }
-
-    /* ================= RESULTS HISTORY (LAST 5) ================= */
-    function getResults(){ return loadJSON(K_RESULTS, {}); }
-    function setResults(obj){ saveJSON(K_RESULTS, obj||{}); }
-
-    function gameKey(game){
-      // keep keys consistent
-      if(game==="DragonTiger") return "DragonTiger";
-      if(game==="TeenPatti") return "TeenPatti";
-      return "Roulette";
-    }
-function pushResult(cid, game, value, roundId){
-  const all = getResults();
-  if(!all[cid]) all[cid] = {};
-  const gk = gameKey(game);
-  if(!all[cid][gk]) all[cid][gk] = [];
-
-  roundId = Number(roundId || 0);
-
-  // ✅ Remove old entry of same round (so it updates, not duplicates)
-  all[cid][gk] = all[cid][gk].filter(x => Number(x.roundId) !== roundId);
-
-  // ✅ Add latest on top
-  all[cid][gk].unshift({
-    v: String(value),
-    at: Date.now(),
-    roundId: roundId
+    tx.set(ref,{ last5Results:last5 },{ merge:true });
   });
 
-  // ✅ keep only last 5
-  all[cid][gk] = all[cid][gk].slice(0,5);
-  setResults(all);
+  renderLast5(game);
 }
 
-    function readLast5(cid, game){
-      const all = getResults();
-      const gk = gameKey(game);
-      return (all[cid] && all[cid][gk]) ? all[cid][gk] : [];
-    }
-
-    function renderLast5(game){
-      const map = {
-        DragonTiger:{sub:"dtLast5Sub", body:"dtLast5Body"},
-        TeenPatti:{sub:"tpLast5Sub", body:"tpLast5Body"},
-        Roulette:{sub:"rLast5Sub", body:"rLast5Body"},
-      };
-      const ids = map[game];
-      if(!ids) return;
-
-      const subEl = document.getElementById(ids.sub);
-      const bodyEl = document.getElementById(ids.body);
-
-      subEl.textContent = "Client " + (ME_ID||"-");
-      const arr = readLast5(ME_ID, game);
-
-      if(!arr.length){
-        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
-        return;
-      }
-
-      bodyEl.innerHTML = arr.map((x,i)=>(
-        "<tr>"
-          +"<td>"+(i+1)+"</td>"
-          +"<td class='gold'>"+x.v+"</td>"
-          +"<td>"+(x.roundId||"-")+"</td>"
-          +"<td>"+fmtDate(x.at)+"</td>"
-        +"</tr>"
-      )).join("");
-    }
-
-    /* ================= UI HELPERS ================= */
-    function showToast(type,title,body){
-      const t=document.getElementById("toast");
-      t.className="toast show "+(type||"");
-      document.getElementById("toastTitle").textContent=title;
-      document.getElementById("toastBody").textContent=body||"";
-      setTimeout(()=>t.className="toast",2200);
-    }
-    function vib(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
-
-    /* ================= TABS ================= */
-    document.querySelectorAll(".tabbtn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active"));
-        document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.tab).classList.add("active");
-        if(btn.dataset.tab==="hist") renderHistory();
-      });
-    });
-
-    function bindBetBoxes(containerId, showId, showId2){
-      const cont=document.getElementById(containerId);
-      const show=document.getElementById(showId);
-      const show2=showId2?document.getElementById(showId2):null;
-
-      let pick=(cont.querySelector(".betBox.active")||{}).dataset?.pick || "";
-      show.textContent=pick; if(show2) show2.textContent=pick;
-
-      cont.querySelectorAll(".betBox").forEach(box=>{
-        box.addEventListener("click", ()=>{
-          cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
-          box.classList.add("active");
-          pick=box.dataset.pick||"";
-          show.textContent=pick; if(show2) show2.textContent=pick;
-        });
-      });
-      return ()=>pick;
-    }
-
-    function bindChips(scopeEl, inputEl){
-      scopeEl.querySelectorAll(".chip").forEach(ch=>{
-        ch.addEventListener("click", ()=>{
-          const v=Number(ch.dataset.v||0);
-          inputEl.value=Number(inputEl.value||0)+v;
-        });
-      });
-    }
-
-    const getDTPick=bindBetBoxes("dtBets","dtPickShow");
-    const dtStake=document.getElementById("dtStake"); bindChips(document.getElementById("dt"),dtStake);
-
-    const getTPPick=bindBetBoxes("tpBets","tpPickShow","tpPickShow2");
-    const tpStake=document.getElementById("tpStake"); bindChips(document.getElementById("tp"),tpStake);
-
-    const getRPick=bindBetBoxes("rBets","rPickShow");
-    const rStake=document.getElementById("rStake"); bindChips(document.getElementById("rl"),rStake);
-
-    /* ================= GAME ENGINE ================= */
-    const TOTAL_SEC=30, LOCK_REMAINING=15;
-    const lastBeep={DT:-1,TP:-1,R:-1};
-
-    let ME_ID=null, ME_USER=null;
-
-    function roundKey(cid,game){return "jvbet_round_"+cid+"_"+game}
-    function getRound(cid,game){return loadJSON(roundKey(cid,game),null)}
-    function setRound(cid,game,r){saveJSON(roundKey(cid,game),r)}
-    function secondsLeft(r){return Math.ceil(TOTAL_SEC - ((Date.now()-r.startedAt)/1000))}
-    function isOpen(r){return secondsLeft(r)>LOCK_REMAINING}
-
-    function ensureRound(cid,game){
-      let r=getRound(cid,game);
-      const now=Date.now();
-      if(!r||!r.startedAt){
-        r={roundId:1,startedAt:now,revealed:false,revealing:false,nextStarted:false};
-        setRound(cid,game,r);
-        return r;
-      }
-      if(secondsLeft(r)<=-3){
-        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,revealed:false,revealing:false,nextStarted:false};
-        setRound(cid,game,r);
-      }
-      return getRound(cid,game);
-    }
-
-    function setLock(el,state){
-      el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
-      if(state==="OPEN"){el.classList.add("lockOpen");el.textContent="OPEN";}
-      if(state==="PLACED"){el.classList.add("lockPlaced");el.textContent="PLAYED";}
-      if(state==="LOCKED"){el.classList.add("lockLocked");el.textContent="LOCKED";}
-      if(state==="CLOSED"){el.classList.add("lockClosed");el.textContent="CLOSED";}
-    }
-
-    function placeBetLocal(obj){
-      const bets=getBets(); bets.unshift(obj); setBets(bets);
-    }
-    function updateBet(betId,patch){
-      const bets=getBets(); const i=bets.findIndex(b=>b.betId===betId);
-      if(i>=0){bets[i]=Object.assign({},bets[i],patch); setBets(bets);}
-    }
-    function findMyBetForRound(game, roundId){
-      return getClientBets(ME_ID).find(b=>b.game===game && b.roundId===roundId) || null;
-    }
-
-    async function refreshTop(){
-      const snap=await db.collection("users").doc(ME_ID).get();
-      if(!snap.exists) return;
-      ME_USER=snap.data() || {};
-      document.getElementById("cid").textContent=ME_ID;
-      document.getElementById("pts").textContent=Number(ME_USER.points||0);
-      const st=statsWinLoss(ME_ID);
-      document.getElementById("w").textContent=st.win;
-      document.getElementById("l").textContent=st.loss;
-
-      renderAllLastResults();
-      renderLast5("DragonTiger");
-      renderLast5("TeenPatti");
-      renderLast5("Roulette");
-    }
-
-    async function addPoints(delta){
-      await db.collection("users").doc(ME_ID).set({
-        points: firebase.firestore.FieldValue.increment(delta)
-      }, {merge:true});
-    }
-
-    async function placePendingBet({game,pick,stake,roundId}){
-      stake=Number(stake||0);
-      if(!stake||stake<=0) throw new Error("Enter valid points");
-      if(Number(ME_USER?.points||0)<stake) throw new Error("Not enough points");
-      await addPoints(-stake);
-
-      const betId="B"+Date.now()+"_"+Math.floor(Math.random()*9999);
-      placeBetLocal({betId,clientId:ME_ID,game,pick,stake,roundId,at:Date.now(),result:"PENDING"});
-      await refreshTop();
-      return betId;
-    }
-
-    async function settleBet({betId,outcome}){
-      const bets=getBets(); const b=bets.find(x=>x.betId===betId);
-      if(!b) return;
-      updateBet(betId,{result:outcome});
-      if(outcome==="WIN") await addPoints(b.stake*2);
-      else if(outcome==="TIE") await addPoints(b.stake);
-      await refreshTop();
-    }
-
-    function setPastTable(game,tableId,waitId){
-      const bets=getClientBets(ME_ID).filter(b=>b.game===game).slice(0,10);
-      const tb=document.querySelector("#"+tableId+" tbody");
-      const w=document.getElementById(waitId);
-      const pending=bets.filter(b=>b.result==="PENDING").length;
-      w.textContent = pending ? ("Pending bets: "+pending) : "";
-
-      tb.innerHTML = bets.map(b=>(
-        "<tr>"
-          +"<td>"+fmtDate(b.at)+"</td>"
-          +"<td>"+(b.pick||"-")+"</td>"
-          +"<td class='gold'>"+Number(b.stake||0)+"</td>"
-          +"<td>"+(b.result||"-")+"</td>"
-        +"</tr>"
-      )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
-    }
-
-    function renderHistory(){
-      const bets=getClientBets(ME_ID).slice(0,200);
-      const tb=document.querySelector("#bh tbody");
-      tb.innerHTML=bets.map(b=>(
-        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
-      )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
-    }
-
-    /* ================= FIRESTORE LAST RESULT (PER CLIENT) ================= */
-    function gameToPrevEl(game){ return (game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev"; }
-    function renderLastResultFor(game){
-      const el=document.getElementById(gameToPrevEl(game));
-      const v=(ME_USER && ME_USER.lastResults && ME_USER.lastResults[game]) ? String(ME_USER.lastResults[game]) : "";
-      el.innerHTML = v ? ('<span class="resChip">'+v+'</span>') : '<span class="muted">No result</span>';
-    }
-    function renderAllLastResults(){
-      renderLastResultFor("DragonTiger");
-      renderLastResultFor("TeenPatti");
-      renderLastResultFor("Roulette");
-    }
-    async function setLastResultFS(game, value, roundId){
-      // instant UI
-      if(!ME_USER) ME_USER = {};
-      if(!ME_USER.lastResults) ME_USER.lastResults = {};
-      ME_USER.lastResults[game] = value;
-      renderLastResultFor(game);
-
-      // ✅ store last 5 (local) + render
-      pushResult(ME_ID, game, value, roundId);
-      renderLast5(game);
-
-      const patch = {};
-      patch["lastResults."+game] = value;
-      patch["lastResultsUpdatedAt."+game] = Date.now();
-      await db.collection("users").doc(ME_ID).set(patch, { merge:true });
-    }
-
-    let unsubUserLive=null;
-    function startUserLiveListener(){
-      try{
-        if(unsubUserLive) unsubUserLive();
-        unsubUserLive = db.collection("users").doc(ME_ID).onSnapshot((doc)=>{
-          if(!doc.exists) return;
-          ME_USER = Object.assign({}, ME_USER||{}, doc.data()||{});
-          document.getElementById("pts").textContent=Number(ME_USER.points||0);
-          renderAllLastResults();
-        });
-      }catch(e){}
-    }
-
-    /* ================= My Bet UI ================= */
-    function pillClassForStatus(st){
-      if(st==="PENDING") return "miniPill stPending";
-      if(st==="WIN") return "miniPill stWin";
-      if(st==="LOSS") return "miniPill stLoss";
-      if(st==="TIE") return "miniPill stTie";
-      return "miniPill";
-    }
-    function renderMyBet(game, roundId){
-      const map = {
-        DragonTiger:{sub:"dtMyBetSub", status:"dtMyBetStatus", body:"dtMyBetBody"},
-        TeenPatti:{sub:"tpMyBetSub", status:"tpMyBetStatus", body:"tpMyBetBody"},
-        Roulette:{sub:"rMyBetSub", status:"rMyBetStatus", body:"rMyBetBody"},
-      };
-      const ids = map[game];
-      if(!ids) return;
-
-      const subEl=document.getElementById(ids.sub);
-      const statusEl=document.getElementById(ids.status);
-      const bodyEl=document.getElementById(ids.body);
-
-      const b = findMyBetForRound(game, roundId);
-      subEl.textContent = "Round #"+roundId+" • Client "+ME_ID;
-
-      if(!b){
-        statusEl.className = "miniPill";
-        statusEl.textContent = "NO BET";
-        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
-        return;
-      }
-
-      statusEl.className = pillClassForStatus(b.result);
-      statusEl.textContent = b.result || "—";
-
-      bodyEl.innerHTML =
-        "<tr>"
-          +"<td class='gold'>"+(b.pick||"-")+"</td>"
-          +"<td class='gold'>"+Number(b.stake||0)+"</td>"
-          +"<td>"+Number(b.roundId||roundId)+"</td>"
-          +"<td>"+fmtDate(b.at)+"</td>"
-        +"</tr>";
-    }
-
-    /* ================= RNG / GAME LOGIC ================= */
-    function randCard(){return 1+Math.floor(Math.random()*13)}
-    function cardStr(v){return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v))}
-    function drawDT(){const d=randCard(),t=randCard();const res=(d===t)?"TIE":(d>t?"DRAGON":"TIGER");return {d,t,res}}
-    function drawTP(){return {res:["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]}}
-    function drawR(){const n=Math.floor(Math.random()*37);const c=(n===0)?"GREEN":(n%2===0?"BLACK":"RED");return {n,color:c}}
-
-    function flipReset(){
-      ["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.remove("flipped"));
-      ["dtD","dtT","dtR"].forEach(id=>document.getElementById(id).textContent="?");
-    }
-    function flipShow(d,t,r){
-      document.getElementById("dtD").textContent=d;
-      document.getElementById("dtT").textContent=t;
-      document.getElementById("dtR").textContent=r;
-      setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
-    }
-
-    async function revealDT(r){
-      setTimeout(async ()=>{
-        const d=drawDT();
-
-        flipReset();
-        flipShow(cardStr(d.d),cardStr(d.t),d.res);
-        document.getElementById("dtLast").textContent=d.res;
-
-        await setLastResultFS("DragonTiger", d.res, r.roundId);
-
-        const myBet = findMyBetForRound("DragonTiger", r.roundId);
-        if(myBet && myBet.result==="PENDING"){
-          let out="LOSS";
-          if(d.res==="TIE") out="TIE";
-          else if(myBet.pick===d.res) out="WIN";
-
-          await settleBet({betId:myBet.betId,outcome:out});
-          document.getElementById("dtMsg").textContent="RESULT: "+out;
-
-          if(out==="WIN"){showToast("win","✅ WIN","2x points credited");vib([60,40,60]);}
-          else if(out==="TIE"){showToast("tie","ℹ️ TIE","Points returned");vib(60);}
-          else {showToast("loss","❌ LOSS","Try next round");vib(120);}
-        }else{
-          document.getElementById("dtMsg").textContent="ROUND RESULT: "+d.res;
-        }
-
-        setPastTable("DragonTiger","dtPast","dtWait");
-        renderMyBet("DragonTiger", r.roundId);
-
-        r.revealed=true;setRound(ME_ID,"DragonTiger",r);
-      },900);
-    }
-
-    async function revealTP(r){
-      setTimeout(async ()=>{
-        const d=drawTP();
-        await setLastResultFS("TeenPatti", d.res, r.roundId);
-
-        const myBet = findMyBetForRound("TeenPatti", r.roundId);
-        if(myBet && myBet.result==="PENDING"){
-          let out="LOSS";
-          if(d.res==="TIE") out="TIE";
-          else if(myBet.pick===d.res) out="WIN";
-          await settleBet({betId:myBet.betId,outcome:out});
-          document.getElementById("tpStatus").textContent=out;
-          document.getElementById("tpMsg").textContent="RESULT: "+out;
-        }else{
-          document.getElementById("tpStatus").textContent="-";
-          document.getElementById("tpMsg").textContent="ROUND RESULT: "+d.res;
-        }
-
-        setPastTable("TeenPatti","tpPast","tpWait");
-        renderMyBet("TeenPatti", r.roundId);
-
-        r.revealed=true;setRound(ME_ID,"TeenPatti",r);
-      },900);
-    }
-
-    async function revealR(r){
-      setTimeout(async ()=>{
-        const d=drawR();
-        const val = d.color+" "+d.n;
-        await setLastResultFS("Roulette", val, r.roundId);
-
-        const myBet = findMyBetForRound("Roulette", r.roundId);
-        if(myBet && myBet.result==="PENDING"){
-          const out=(myBet.pick===d.color)?"WIN":"LOSS";
-          await settleBet({betId:myBet.betId,outcome:out});
-          document.getElementById("rMsg").textContent="RESULT: "+out;
-        }else{
-          document.getElementById("rMsg").textContent="ROUND RESULT: "+val;
-        }
-
-        setPastTable("Roulette","rPast","rWait");
-        renderMyBet("Roulette", r.roundId);
-
-        r.revealed=true;setRound(ME_ID,"Roulette",r);
-      },900);
-    }
-
-    async function tick(game,timerId,fillId,roundEl,lockEl,btnEl,revealFn,beepKey){
-      const r=ensureRound(ME_ID,game);
-
-      // ✅ Round number step-by-step already (stored + increments)
-      document.getElementById(roundEl).textContent=r.roundId;
-      if(game==="TeenPatti") document.getElementById("tpRound2").textContent=r.roundId;
-
-      const left=secondsLeft(r);
-      document.getElementById(timerId).textContent=Math.max(0,left);
-      document.getElementById(fillId).style.width=Math.max(0,Math.min(100,(left/TOTAL_SEC)*100))+"%";
-
-      if(left<=3 && left>0 && lastBeep[beepKey]!==left){lastBeep[beepKey]=left; vib(20);}
-      if(left>3) lastBeep[beepKey]=-1;
-
-      const lock=document.getElementById(lockEl);
-      const btn=document.getElementById(btnEl);
-
-      renderMyBet(game, r.roundId);
-
-    if(left<=0){
-  btn.disabled=true; setLock(lock,"CLOSED");
-
-  // ✅ prevent multiple reveal calls
-  if(!r.revealed && !r.revealing){
-    r.revealing = true;
-    setRound(ME_ID, game, r);
-    await revealFn(r);
+/* ---------- RENDER LAST 5 ---------- */
+async function renderLast5(game){
+  const map = {
+    DragonTiger:"dtLast5Body",
+    TeenPatti:"tpLast5Body",
+    Roulette:"rLast5Body"
+  };
+  const body = document.getElementById(map[game]);
+  if(!body) return;
+
+  const snap = await db.collection("users").doc(ME_ID).get();
+  const arr = snap.data()?.last5Results?.[game] || [];
+
+  if(!arr.length){
+    body.innerHTML = "<tr><td colspan='4'>No results</td></tr>";
+    return;
   }
 
-  if(r.revealed && !r.nextStarted){
-    r.nextStarted=true; setRound(ME_ID,game,r);
-    setTimeout(()=>{
-      startNext(ME_ID,game);
-      if(game==="DragonTiger"){flipReset();document.getElementById("dtMsg").textContent="-";}
-    },700);
-  }
-  return;
+  body.innerHTML = arr.map((x,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td class="gold">${x.result}</td>
+      <td>${x.round}</td>
+      <td>${new Date(x.time).toLocaleString()}</td>
+    </tr>
+  `).join("");
 }
 
-      const myBetThisRound = findMyBetForRound(game, r.roundId);
-      const hasPlaced = !!myBetThisRound;
+/* ---------- RESULT GENERATORS ---------- */
+function drawDT(){
+  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
+}
+function drawTP(){
+  return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
+}
+function drawR(){
+  const n=Math.floor(Math.random()*37);
+  return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
+}
 
-      if(isOpen(r)){
-        if(hasPlaced){btn.disabled=true; setLock(lock,"PLACED");}
-        else {btn.disabled=false; setLock(lock,"OPEN");}
-      }else{
-        btn.disabled=true; setLock(lock,hasPlaced?"PLACED":"LOCKED");
-      }
-    }
+/* ---------- REVEAL ---------- */
+async function reveal(game){
+  const r = ensureRound(game);
+  if(r.revealed) return;
 
-    function startNext(cid,game){
-      const current = getRound(cid,game);
-      const nextId = (Number(current?.roundId)||0) + 1; // ✅ step by step
-      const r={roundId: nextId, startedAt: Date.now(), revealed:false,revealing:false, nextStarted:false};
-      setRound(cid,game,r);
+  r.revealed = true;
+  setRound(game,r);
 
-      if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
-      if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
-    }
+  let res="";
+  if(game==="DragonTiger") res=drawDT();
+  if(game==="TeenPatti") res=drawTP();
+  if(game==="Roulette") res=drawR();
 
-    /* ================= PLAY BUTTONS ================= */
-    document.getElementById("dtPlay").addEventListener("click", async ()=>{
-      try{
-        const r=ensureRound(ME_ID,"DragonTiger");
-        if(!isOpen(r)) return document.getElementById("dtMsg").textContent="Locked (play only when timer > 15)";
-        if(findMyBetForRound("DragonTiger", r.roundId)) return document.getElementById("dtMsg").textContent="Already played";
+  await pushLast5(game,res,r.round);
 
-        await placePendingBet({game:"DragonTiger",pick:getDTPick(),stake:dtStake.value,roundId:r.roundId});
-        document.getElementById("dtMsg").textContent="PLAY SUBMITTED";
-        setPastTable("DragonTiger","dtPast","dtWait");
-        renderMyBet("DragonTiger", r.roundId);
-        showToast("tie","🕒 SUBMITTED","Result at 0 sec"); vib(40);
-      }catch(e){document.getElementById("dtMsg").textContent=e.message||String(e)}
+  setTimeout(()=>{
+    setRound(game,{
+      round: r.round + 1,
+      start: Date.now(),
+      revealed:false
     });
+  },800);
+}
 
-    document.getElementById("tpPlay").addEventListener("click", async ()=>{
-      try{
-        const r=ensureRound(ME_ID,"TeenPatti");
-        if(!isOpen(r)) return document.getElementById("tpMsg").textContent="Locked (play only when timer > 15)";
-        if(findMyBetForRound("TeenPatti", r.roundId)) return document.getElementById("tpMsg").textContent="Already played";
+/* ---------- TICK ---------- */
+async function tick(game,timerId,roundId){
+  const r = ensureRound(game);
+  const left = secondsLeft(r);
 
-        await placePendingBet({game:"TeenPatti",pick:getTPPick(),stake:tpStake.value,roundId:r.roundId});
-        document.getElementById("tpMsg").textContent="PLAY SUBMITTED";
-        setPastTable("TeenPatti","tpPast","tpWait");
-        renderMyBet("TeenPatti", r.roundId);
-      }catch(e){document.getElementById("tpMsg").textContent=e.message||String(e)}
-    });
+  document.getElementById(timerId).textContent = left;
+  document.getElementById(roundId).textContent = r.round;
 
-    document.getElementById("rPlay").addEventListener("click", async ()=>{
-      try{
-        const r=ensureRound(ME_ID,"Roulette");
-        if(!isOpen(r)) return document.getElementById("rMsg").textContent="Locked (play only when timer > 15)";
-        if(findMyBetForRound("Roulette", r.roundId)) return document.getElementById("rMsg").textContent="Already played";
+  if(left===0){
+    await reveal(game);
+  }
+}
 
-        await placePendingBet({game:"Roulette",pick:getRPick(),stake:rStake.value,roundId:r.roundId});
-        document.getElementById("rMsg").textContent="PLAY SUBMITTED";
-        setPastTable("Roulette","rPast","rWait");
-        renderMyBet("Roulette", r.roundId);
-      }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
-    });
+/* ---------- INIT ---------- */
+(async function(){
+  renderLast5("DragonTiger");
+  renderLast5("TeenPatti");
+  renderLast5("Roulette");
 
-    /* ================= VIEWERS (FAKE) ================= */
-    setInterval(()=>{
-      const el=id=>document.getElementById(id);
-      el("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
-      el("tpView").textContent="👁 "+(200+Math.floor(Math.random()*25));
-      el("rView").textContent="👁 "+(150+Math.floor(Math.random()*25));
-    },2500);
-
-    /* ================= INIT ================= */
-    (async function init(){
-      const s=getSession();
-      if(!s||!s.id) return logout();
-      ME_ID=s.id;
-
-      const snap=await db.collection("users").doc(ME_ID).get();
-      if(!snap.exists) return logout();
-      if(snap.data()?.isBlocked) return logout();
-
-      await refreshTop();
-      startUserLiveListener();
-
-      setPastTable("DragonTiger","dtPast","dtWait");
-      setPastTable("TeenPatti","tpPast","tpWait");
-      setPastTable("Roulette","rPast","rWait");
-
-      renderAllLastResults();
-
-      // ✅ init boxes
-      renderLast5("DragonTiger");
-      renderLast5("TeenPatti");
-      renderLast5("Roulette");
-
-      renderMyBet("DragonTiger", ensureRound(ME_ID,"DragonTiger").roundId);
-      renderMyBet("TeenPatti", ensureRound(ME_ID,"TeenPatti").roundId);
-      renderMyBet("Roulette", ensureRound(ME_ID,"Roulette").roundId);
-
-      setInterval(async ()=>{
-        await tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock","dtPlay",revealDT,"DT");
-        await tick("TeenPatti","tpTimer","tpFill","tpRound","tpLock","tpPlay",revealTP,"TP");
-        await tick("Roulette","rTimer","rFill","rRound","rLock","rPlay",revealR,"R");
-      },250);
-    })().catch(()=>{});
-  </script>
+  setInterval(()=>{
+    tick("DragonTiger","dtTimer","dtRound");
+    tick("TeenPatti","tpTimer","tpRound");
+    tick("Roulette","rTimer","rRound");
+  },250);
+})();
+</script>
 </body>
 </html>
+
 
 
