@@ -902,21 +902,29 @@
     const d = JSON.parse(localStorage.getItem(K.stats()) || "null");
     if (d && typeof d.points === "number") return d;
 
-    const init = {
-      points: typeof session.points === "number" ? session.points : 0,
-      win: 0,
-      loss: 0,
-    };
+   const init = {
+  points: Number(session.points ?? 0) || 0,
+  win: Number(session.win ?? 0) || 0,
+  loss: Number(session.loss ?? 0) || 0,
+};
     localStorage.setItem(K.stats(), JSON.stringify(init));
     return init;
   }
 
-  function setStats(s) {
-    localStorage.setItem(K.stats(), JSON.stringify(s));
-    if ($("pts")) $("pts").textContent = String(s.points ?? 0);
-    if ($("w")) $("w").textContent = String(s.win ?? 0);
-    if ($("l")) $("l").textContent = String(s.loss ?? 0);
-  }
+function setStats(s) {
+  localStorage.setItem(K.stats(), JSON.stringify(s));
+  if ($("pts")) $("pts").textContent = String(s.points ?? 0);
+  if ($("w")) $("w").textContent = String(s.win ?? 0);
+  if ($("l")) $("l").textContent = String(s.loss ?? 0);
+
+  // Firestore sync (optional)
+  try {
+    userRef.set(
+      { points: Number(s.points || 0), win: Number(s.win || 0), loss: Number(s.loss || 0) },
+      { merge: true }
+    );
+  } catch (e) {}
+}
 
   function refreshHeader() {
     if ($("cid")) $("cid").textContent = ME_ID;
@@ -939,7 +947,30 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
   }
+async function syncPointsFromFirestoreOnce() {
+  try {
+    const snap = await userRef.get();
+    const data = snap.data() || {};
 
+    // Firestore me points number OR string ho sakte hain
+    const fp = Number(data.points);
+
+    if (Number.isFinite(fp)) {
+      const s = getStats();
+
+      // Firestore ko authority rakhna hai => overwrite
+      s.points = fp;
+
+      // optional stats (agar doc me stored hain)
+      if (data.win != null) s.win = Number(data.win) || 0;
+      if (data.loss != null) s.loss = Number(data.loss) || 0;
+
+      setStats(s);
+    }
+  } catch (e) {
+    // ignore (local works)
+  }
+}
   /* ---------- HELPERS ---------- */
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const nowStr = (ms) => new Date(ms).toLocaleString();
@@ -1577,6 +1608,7 @@
 
     // Try sync from firestore (optional)
     await syncRSFromFirestoreOnce();
+    await syncPointsFromFirestoreOnce();
     await syncLast5FromFirestore("DragonTiger");
     await syncLast5FromFirestore("TeenPatti");
     await syncLast5FromFirestore("Roulette");
@@ -1604,5 +1636,6 @@
 
 </body>
 </html>
+
 
 
