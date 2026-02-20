@@ -1817,7 +1817,7 @@
     const pct = Math.max(0, Math.min(100, (showLeft / TOTAL_SEC) * 100)) + "%";
 
     if (game === "DragonTiger") {
-      document.getElementById("dtRound").textContent = gameDoc?.seq ?? "-";
+      document.getElementById("dtRound").textContent = gameDoc?.roundId ?? "-";
       document.getElementById("dtTimer").textContent = showLeft;
       document.getElementById("dtFill").style.width = pct;
 
@@ -1836,8 +1836,8 @@
       }
 
     } else if (game === "TeenPatti") {
-      document.getElementById("tpRound").textContent = gameDoc?.seq ?? "-";
-      document.getElementById("tpRound2").textContent = gameDoc?.seq ?? "-";
+      document.getElementById("tpRound").textContent = gameDoc?.roundId ?? "-";
+document.getElementById("tpRound2").textContent = gameDoc?.roundId ?? "-";
       document.getElementById("tpTimer").textContent = showLeft;
       document.getElementById("tpFill").style.width = pct;
 
@@ -1849,7 +1849,7 @@
       if (lockState === "CLOSED") { setLock(lockEl,"CLOSED"); btn.disabled = true; }
 
     } else {
-      document.getElementById("rRound").textContent = gameDoc?.seq ?? "-";
+   document.getElementById("rRound").textContent = gameDoc?.roundId ?? "-";
       document.getElementById("rTimer").textContent = showLeft;
       document.getElementById("rFill").style.width = pct;
 
@@ -2001,4 +2001,5 @@
 </body>
 
 </html>
+
 
