@@ -848,16 +848,17 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
-  <script>
+ <script>
 /* ======================================================
    JVBET – FINAL (NO DESIGN CHANGE)
    ✅ Tabs working
    ✅ Timer exact 0 sec reveal (one time)
    ✅ No round skip (sequential only)
    ✅ Last 5 results per-user (Firestore)
-   ✅ Round number always with result
-   ✅ Bets allowed only when timer > 15 sec
-   ✅ My Bet + Last 10 Bets + Full History
+   ✅ Round + start time persist in Firestore (no repeat after relogin)
+   ✅ LOSS: bet amount cut at placement
+   ✅ WIN: 2x payout (stake*2)
+   ✅ TIE: refund stake
 ====================================================== */
 
 (function(){
@@ -886,14 +887,16 @@
 
   /* ---------- KEYS ---------- */
   const K = {
-    round: (game) => `ROUND_${ME_ID}_${game}`,
     bet:   (game,round) => `BET_${ME_ID}_${game}_${round}`,
     stats: () => `STATS_${ME_ID}`,
     hist:  () => `HIST_${ME_ID}`,
     tab:   () => `TAB_${ME_ID}`,
   };
 
-  /* ---------- STATS ---------- */
+  /* ---------- FIRESTORE DOCS ---------- */
+  const userRef = db.collection("users").doc(ME_ID);
+
+  /* ---------- STATS (points/win/loss) ---------- */
   function getStats(){
     const d = JSON.parse(localStorage.getItem(K.stats()) || "null");
     if(d && typeof d.points==="number") return d;
@@ -933,39 +936,61 @@
   function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
 
   function normGame(game){
-    // Firestore keys match these names
     if(game==="dt") return "DragonTiger";
     if(game==="tp") return "TeenPatti";
     if(game==="rl") return "Roulette";
     return String(game);
   }
 
-  /* ---------- ROUND ENGINE (NO SKIP) ---------- */
-  function getRound(game){
-    return JSON.parse(localStorage.getItem(K.round(game)) || "null");
+  /* ======================================================
+     ROUND ENGINE (Firestore persistent)
+     -> Logout/Login par round repeat/reset nahi hoga
+  ======================================================= */
+  const roundState = {
+    dt: { round:1, start:Date.now(), revealed:false, lastResult:null },
+    tp: { round:1, start:Date.now(), revealed:false, lastResult:null },
+    rl: { round:1, start:Date.now(), revealed:false, lastResult:null }
+  };
+
+  async function loadRoundState(){
+    const snap = await userRef.get();
+    const data = snap.data() || {};
+    const rs = data.roundState || {};
+
+    ["dt","tp","rl"].forEach(g=>{
+      const saved = rs[g];
+      if(saved && typeof saved.round==="number" && typeof saved.start==="number"){
+        roundState[g] = {
+          round: saved.round,
+          start: saved.start,
+          revealed: !!saved.revealed,
+          lastResult: saved.lastResult || null
+        };
+      }
+    });
   }
-  function setRound(game,data){
-    localStorage.setItem(K.round(game), JSON.stringify(data));
+
+  async function saveRoundState(game){
+    const payload = {};
+    payload[`roundState.${game}`] = {
+      round: roundState[game].round,
+      start: roundState[game].start,
+      revealed: !!roundState[game].revealed,
+      lastResult: roundState[game].lastResult || null
+    };
+    await userRef.set(payload, { merge:true });
   }
-  function ensureRound(game){
-    let r = getRound(game);
-    if(!r || typeof r.round!=="number" || typeof r.start!=="number"){
-      r = { round: 1, start: Date.now(), revealed:false, lastResult:null };
-      setRound(game,r);
-    }
-    return r;
-  }
-  function secondsLeft(r){
+
+  function secondsLeft(game){
+    const r = roundState[game];
     const elapsed = Math.floor((Date.now() - r.start)/1000);
     return clamp(TOTAL_SEC - elapsed, 0, TOTAL_SEC);
   }
 
   /* ---------- LAST 5 (PER USER) ---------- */
   async function pushLast5(gameNorm, result, round){
-    const ref = db.collection("users").doc(ME_ID);
-
     await db.runTransaction(async (tx)=>{
-      const snap = await tx.get(ref);
+      const snap = await tx.get(userRef);
       const data = snap.data() || {};
       const last5 = data.last5Results || {};
       const arr = (last5[gameNorm] || []).filter(x => x && x.round !== round);
@@ -973,7 +998,7 @@
       arr.unshift({ result, round, time: Date.now() });
       last5[gameNorm] = arr.slice(0,5);
 
-      tx.set(ref, { last5Results: last5 }, { merge: true });
+      tx.set(userRef, { last5Results: last5 }, { merge: true });
     });
   }
 
@@ -991,7 +1016,7 @@
     if(!body) return;
 
     try{
-      const snap = await db.collection("users").doc(ME_ID).get();
+      const snap = await userRef.get();
       const arr = snap.data()?.last5Results?.[gameNorm] || [];
 
       if(!arr.length){
@@ -1013,7 +1038,6 @@
         </tr>
       `).join("");
     }catch(e){
-      // If Firestore blocked, still don't break UI
       body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>Unable to load</td></tr>";
     }
   }
@@ -1069,17 +1093,12 @@
   setupChips("rl","rStake");
 
   /* ---------- HISTORY STORAGE ---------- */
-  function getHist(){
-    return JSON.parse(localStorage.getItem(K.hist()) || "[]");
-  }
-  function setHist(arr){
-    localStorage.setItem(K.hist(), JSON.stringify(arr));
-  }
-
+  function getHist(){ return JSON.parse(localStorage.getItem(K.hist()) || "[]"); }
+  function setHist(arr){ localStorage.setItem(K.hist(), JSON.stringify(arr)); }
   function addHist(item){
     const arr = getHist();
     arr.unshift(item);
-    setHist(arr.slice(0,300)); // keep last 300
+    setHist(arr.slice(0,300));
   }
 
   /* ---------- RENDER TABLES ---------- */
@@ -1148,7 +1167,7 @@
 
     if(sub) sub.textContent = `${bet.pick} • ${bet.points} pts • Round ${bet.round}`;
     if(st){
-      st.textContent = bet.status || "PLACED";
+      st.textContent = bet.status || "PENDING";
       st.className = "miniPill " + (bet.status==="PENDING" ? "stPending" : bet.status==="WIN" ? "stWin" : bet.status==="LOSS" ? "stLoss" : "stTie");
     }
     if(body){
@@ -1197,7 +1216,6 @@
   }
 
   function flipDT(res){
-    // simple visual (no design change)
     const fcD = document.getElementById("fcD");
     const fcT = document.getElementById("fcT");
     const fcR = document.getElementById("fcR");
@@ -1206,7 +1224,6 @@
     const r = document.getElementById("dtR");
     if(!d||!t||!r||!fcD||!fcT||!fcR) return;
 
-    // random “card face” text
     const faces = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
     d.textContent = (res==="DRAGON" ? "WIN" : "—") + " " + faces[Math.floor(Math.random()*faces.length)];
     t.textContent = (res==="TIGER"  ? "WIN" : "—") + " " + faces[Math.floor(Math.random()*faces.length)];
@@ -1218,7 +1235,12 @@
     setTimeout(()=>{ fcD.classList.remove("flipped"); fcT.classList.remove("flipped"); fcR.classList.remove("flipped"); }, 1200);
   }
 
-  /* ---------- SETTLEMENT ---------- */
+  /* ======================================================
+     ✅ IMPORTANT FIX:
+     - LOSS: stake already cut at PLACE
+     - WIN: add stake*2
+     - TIE: refund stake (add stake)
+  ======================================================= */
   function settle(game, round, result){
     const bet = getBet(game, round);
     if(!bet || bet.settled) return null;
@@ -1226,33 +1248,30 @@
     bet.settled = true;
     bet.result = result;
 
-    // default
     let status = "LOSS";
-    let delta = -Number(bet.points || 0);
+    let payout = 0; // how much to ADD back now (since stake already removed)
 
     if(game==="dt" || game==="tp"){
       if(result==="TIE"){
         status = "TIE";
-        delta = 0; // refund
+        payout = Number(bet.points || 0); // refund
       } else if(bet.pick === result){
         status = "WIN";
-        delta = +Number(bet.points || 0);
+        payout = Number(bet.points || 0) * 2; // ✅ 2x payout
       } else {
         status = "LOSS";
-        delta = -Number(bet.points || 0);
+        payout = 0; // already lost stake
       }
     } else if(game==="rl"){
-      // result like "RED 23" / "BLACK 8" / "GREEN 0"
       if(String(result).startsWith("GREEN")){
-        // always loss for RED/BLACK picks (simple)
         status = "LOSS";
-        delta = -Number(bet.points || 0);
+        payout = 0;
       } else if(String(result).startsWith(bet.pick)){
         status = "WIN";
-        delta = +Number(bet.points || 0);
+        payout = Number(bet.points || 0) * 2; // ✅ 2x payout
       } else {
         status = "LOSS";
-        delta = -Number(bet.points || 0);
+        payout = 0;
       }
     }
 
@@ -1261,7 +1280,7 @@
 
     // stats update
     const s = getStats();
-    s.points = Number(s.points || 0) + delta;
+    s.points = Number(s.points || 0) + payout; // ✅ payout add (stake was cut earlier)
     if(status==="WIN") s.win = Number(s.win||0) + 1;
     if(status==="LOSS") s.loss = Number(s.loss||0) + 1;
     setStats(s);
@@ -1278,18 +1297,22 @@
     });
 
     refreshTables();
-    return { status, delta, bet };
+    return { status, payout, bet };
   }
 
   /* ---------- BETTING RULE ---------- */
   function bettingAllowed(game){
-    const r = ensureRound(game);
-    const left = secondsLeft(r);
-    return left > LOCK_AT; // ✅ only when timer > 15
+    const left = secondsLeft(game);
+    return left > LOCK_AT;
   }
 
+  /* ======================================================
+     ✅ PLACE BET FIX:
+     - stake CUT immediately from points
+     - if insufficient points => block
+  ======================================================= */
   function placeBet(game, stakeInputId, msgId){
-    const r = ensureRound(game);
+    const r = roundState[game];
     const round = r.round;
     const msg = document.getElementById(msgId);
 
@@ -1315,6 +1338,16 @@
       return;
     }
 
+    // ✅ balance check + cut now
+    const s = getStats();
+    if(Number(s.points || 0) < points){
+      if(msg) msg.textContent = "Not enough points";
+      showToast("LOW BALANCE", "Not enough points to place this bet", "loss");
+      return;
+    }
+    s.points = Number(s.points || 0) - points; // ✅ stake cut at place
+    setStats(s);
+
     const bet = {
       time: Date.now(),
       round,
@@ -1328,11 +1361,9 @@
     if(msg) msg.textContent = `Bet placed: ${bet.pick} • ${bet.points} pts • Round ${round}`;
     showToast("BET PLACED", `${bet.pick} • ${bet.points} pts (Round ${round})`, "win");
 
-    // lock pill show PLACED
     const lockEl = document.getElementById(game==="dt"?"dtLock":game==="tp"?"tpLock":"rLock");
     setLockPill(lockEl, "PLACED");
 
-    // MyBet box update
     setMyBetBox(game, bet);
   }
 
@@ -1342,25 +1373,21 @@
 
   /* ---------- REVEAL (ONE TIME AT 0 SEC) ---------- */
   async function reveal(game){
-    const r = ensureRound(game);
-
-    // ✅ one time only
-    if(r.revealed) return;
+    const r = roundState[game];
+    if(r.revealed) return; // one time only
 
     r.revealed = true;
-    setRound(game, r);
 
-    // generate result
     let result = "-";
     if(game==="dt") result = drawDT();
     if(game==="tp") result = drawTP();
     if(game==="rl") result = drawR();
 
-    // store last result on round object (for UI)
     r.lastResult = result;
-    setRound(game, r);
 
-    // UI (result with round)
+    // ✅ save reveal state too (so duplicate reveal na ho relogin par)
+    try{ await saveRoundState(game); }catch(e){}
+
     const roundText = `Round ${r.round}: ${result}`;
 
     if(game==="dt"){
@@ -1374,38 +1401,39 @@
       pushLatestChip("rPrev", roundText);
     }
 
-    // settle bet for this round (if any)
     const settled = settle(game, r.round, result);
     if(settled){
-      if(settled.status==="WIN") showToast("YOU WIN", `${result} • +${Math.abs(settled.delta)} pts`, "win");
-      else if(settled.status==="LOSS") showToast("YOU LOSS", `${result} • -${Math.abs(settled.delta)} pts`, "loss");
-      else showToast("TIE / REFUND", `${result} • 0 pts`, "tie");
+      if(settled.status==="WIN") showToast("YOU WIN", `${result} • +${settled.payout} pts (2x)`, "win");
+      else if(settled.status==="LOSS") showToast("YOU LOSS", `${result} • Lost ${settled.bet.points} pts`, "loss");
+      else showToast("TIE / REFUND", `${result} • Refund ${settled.bet.points} pts`, "tie");
     } else {
-      // no bet
       showToast("RESULT", `${roundText}`, "tie");
     }
 
-    // Firestore last5 (per user)
+    // last5 per user
     const gameNorm = normGame(game);
     try{
       await pushLast5(gameNorm, result, r.round);
       renderLast5(gameNorm);
-    }catch(e){
-      // ignore
-    }
+    }catch(e){}
 
-    // next round (NO SKIP: +1 only)
-    setTimeout(()=>{
-      setRound(game, { round: r.round + 1, start: Date.now(), revealed:false, lastResult:null });
-      // reset MyBet UI for next round
+    // next round (NO SKIP)
+    setTimeout(async ()=>{
+      r.round = r.round + 1;
+      r.start = Date.now();
+      r.revealed = false;
+      r.lastResult = null;
+
       setMyBetBox(game, null);
+
+      try{ await saveRoundState(game); }catch(e){}
     }, NEXT_DELAY);
   }
 
   /* ---------- TIMER TICK + UI ---------- */
   function tickOne(game, timerId, fillId, roundId, lockId){
-    const r = ensureRound(game);
-    const left = secondsLeft(r);
+    const r = roundState[game];
+    const left = secondsLeft(game);
 
     const timerEl = document.getElementById(timerId);
     const roundEl = document.getElementById(roundId);
@@ -1415,14 +1443,11 @@
     if(timerEl) timerEl.textContent = String(left);
     if(roundEl) roundEl.textContent = String(r.round);
 
-    // progress bar
     if(fillEl){
       const pct = clamp((left / TOTAL_SEC) * 100, 0, 100);
       fillEl.style.width = pct.toFixed(2) + "%";
     }
 
-    // lock pill state
-    // If user already placed bet this round: PLACED
     const bet = getBet(game, r.round);
     if(bet && !bet.settled){
       setLockPill(lockEl, "PLACED");
@@ -1433,26 +1458,17 @@
       else setLockPill(lockEl, "LOCKED");
     }
 
-    // disable play button when locked
     const playBtn = document.getElementById(game==="dt" ? "dtPlay" : game==="tp" ? "tpPlay" : "rPlay");
     if(playBtn){
-      playBtn.disabled = !(left > LOCK_AT) || (bet && !bet.settled); // locked OR already placed
+      playBtn.disabled = !(left > LOCK_AT) || (bet && !bet.settled);
     }
 
-    // at 0 => reveal ONE TIME
     if(left === 0){
-      // fire and forget
       reveal(game);
     }
   }
 
-  /* ---------- INIT RENDER ---------- */
-  refreshTables();
-  renderLast5("DragonTiger");
-  renderLast5("TeenPatti");
-  renderLast5("Roulette");
-
-  /* ---------- VIEWERS (just for UI) ---------- */
+  /* ---------- VIEWERS (UI only) ---------- */
   function bumpView(id, base){
     const el = document.getElementById(id);
     if(!el) return;
@@ -1461,25 +1477,57 @@
   }
   setInterval(()=>{ bumpView("dtView",120); bumpView("tpView",200); bumpView("rView",140); }, 1800);
 
-  /* ---------- MAIN LOOP ---------- */
-  setInterval(()=>{
-    tickOne("dt","dtTimer","dtFill","dtRound","dtLock");
-    tickOne("tp","tpTimer","tpFill","tpRound","tpLock");
-    tickOne("rl","rTimer","rFill","rRound","rLock");
-
-    // TP extra round mirror
-    const tpR = ensureRound("tp");
-    const tpRound2 = document.getElementById("tpRound2");
-    if(tpRound2) tpRound2.textContent = String(tpR.round);
-  }, 250);
-
   /* ---------- LOGOUT ---------- */
   document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
     localStorage.removeItem("jvbet_session");
     location.href = "../index.html";
   });
 
+  /* ---------- INIT ---------- */
+  (async function init(){
+    // 1) load round state from firestore so relogin par repeat na ho
+    try{
+      await loadRoundState();
+    }catch(e){
+      // if firestore fail, fallback: current memory defaults
+    }
+
+    // 2) initial render
+    refreshTables();
+    renderLast5("DragonTiger");
+    renderLast5("TeenPatti");
+    renderLast5("Roulette");
+
+    // 3) persist state once (in case new user doc)
+    try{
+      await saveRoundState("dt");
+      await saveRoundState("tp");
+      await saveRoundState("rl");
+    }catch(e){}
+
+    // 4) main loop
+    setInterval(()=>{
+      tickOne("dt","dtTimer","dtFill","dtRound","dtLock");
+      tickOne("tp","tpTimer","tpFill","tpRound","tpLock");
+      tickOne("rl","rTimer","rFill","rRound","rLock");
+
+      const tpRound2 = document.getElementById("tpRound2");
+      if(tpRound2) tpRound2.textContent = String(roundState.tp.round);
+    }, 250);
+
+    // 5) also save roundState every 3 sec (safety)
+    setInterval(async ()=>{
+      try{
+        await saveRoundState("dt");
+        await saveRoundState("tp");
+        await saveRoundState("rl");
+      }catch(e){}
+    }, 3000);
+
+  })();
+
 })();
-  </script>
+</script>
 </body>
 </html>
+
