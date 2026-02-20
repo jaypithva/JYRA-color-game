@@ -383,3 +383,145 @@
       if (idx >= 1) periods.push(makePeriodByIndex(dateYmd, idx));
     }
     for (const p of periods) await ensureResultExists(p);
+    return periods;
+  }
+
+  async function fetchLastNResults(n = 5) {
+    const q = await resultsColRef().orderBy("period", "desc").limit(Number(n || 5)).get();
+    return q.docs.map((d) => d.data());
+  }
+
+  function listenLastNResults(n = 6, onChange) {
+    return resultsColRef()
+      .orderBy("period", "desc")
+      .limit(Number(n || 6))
+      .onSnapshot((snap) => {
+        const rows = snap.docs.map((d) => d.data());
+        if (typeof onChange === "function") onChange(rows);
+      });
+  }
+
+  window.GAME = {
+    cfg: GAME_CFG,
+    currentPeriodIST,
+    periodByOffset,
+    nextPeriodsIST,
+    secondsSinceISTMidnight,
+    remainingSecondsInCycle,
+    ensureResultExists,
+    backfillLastNResults,
+    fetchLastNResults,
+    listenLastNResults,
+  };
+
+  // ====== ADMIN OPS ======
+  async function adminResetClientPassword(clientId, newPass, adminId) {
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+
+    newPass = String(newPass || "").trim();
+    if (newPass.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
+
+    const ref = userRef(clientId);
+    const snap = await ref.get();
+    if (!snap.exists) return { ok: false, msg: "Client not found" };
+
+    const passwordHash = await sha256(newPass);
+    await ref.update({ passwordHash, updatedAt: nowISO() });
+    return { ok: true };
+  }
+
+  async function updateAdminProfile(adminId, name, pass) {
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Admin not found" };
+
+    const patch = { updatedAt: nowISO() };
+    if (name && String(name).trim()) patch.name = String(name).trim();
+    if (pass && String(pass).trim().length >= 4) patch.passwordHash = await sha256(String(pass).trim());
+
+    await userRef(adminId).update(patch);
+    window.__ME = await getUserById(adminId);
+    return { ok: true };
+  }
+
+  async function deleteClient(clientId, adminId) {
+    const a = await getUserById(adminId);
+    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    if (clientId === DEFAULT_ADMIN.clientId) return { ok: false, msg: "Cannot delete admin" };
+
+    const txSnap = await txnsCol(clientId).get();
+    const plSnap = await playsCol(clientId).get();
+    const batch = db().batch();
+
+    txSnap.docs.forEach((d) => batch.delete(d.ref));
+    plSnap.docs.forEach((d) => batch.delete(d.ref));
+    batch.delete(userRef(clientId));
+    await batch.commit();
+
+    return { ok: true };
+  }
+
+  async function clearClientHistory(clientId, resetWallet = false, adminId = null) {
+    if (adminId) {
+      const a = await getUserById(adminId);
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    }
+
+    const txSnap = await txnsCol(clientId).get();
+    const plSnap = await playsCol(clientId).get();
+    const batch = db().batch();
+
+    txSnap.docs.forEach((d) => batch.delete(d.ref));
+    plSnap.docs.forEach((d) => batch.delete(d.ref));
+
+    if (resetWallet) batch.update(userRef(clientId), { points: 0, updatedAt: nowISO() });
+
+    await batch.commit();
+
+    if (window.__ME && window.__ME.clientId === clientId) {
+      window.__ME = await getUserById(clientId);
+    }
+
+    return { ok: true };
+  }
+
+  async function listAllUsers() {
+    const q = await db().collection("users").orderBy("createdAt", "desc").get();
+    return q.docs.map((d) => d.data());
+  }
+
+  async function listUsers() { return await listAllUsers(); }
+  async function getUserByIdFS(userId) { return await getUserById(userId); }
+
+  // ====== EXPOSE GLOBALS ======
+  window.fmtDate = fmtDate;
+  window.sha256 = sha256;
+
+  window.currentUser = currentUser;
+  window.currentUserAsync = currentUserAsync;
+
+  window.requireLoginAsync = requireLoginAsync;
+  window.requireAdminAsync = requireAdminAsync;
+
+  window.loginSecure = loginSecure;
+  window.registerUserSecure = registerUserSecure;
+  window.adminCreateClient = adminCreateClient;
+
+  window.adjustPoints = adjustPoints;
+  window.userTxns = userTxns;
+
+  window.addPlayRow = addPlayRow;
+  window.playsForUser = playsForUser;
+
+  window.adminResetClientPassword = adminResetClientPassword;
+  window.updateAdminProfile = updateAdminProfile;
+  window.deleteClient = deleteClient;
+  window.clearClientHistory = clearClientHistory;
+
+  window.logout = logout;
+
+  window.listAllUsers = listAllUsers;
+  window.listUsers = listUsers;
+  window.getUserByIdFS = getUserByIdFS;
+
+})();
