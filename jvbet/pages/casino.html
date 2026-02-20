@@ -847,35 +847,33 @@
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-
- <script>
+<script>
 /* ======================================================
-   JVBET – FINAL (NO DESIGN CHANGE)
-   ✅ Tabs working
-   ✅ Timer exact 0 sec reveal (one time)
-   ✅ No round skip (sequential only)
-   ✅ Last 5 results per-user (Firestore)
-   ✅ Round + start time persist in Firestore (no repeat after relogin)
-   ✅ LOSS: bet amount cut at placement
-   ✅ WIN: 2x payout (stake*2)
-   ✅ TIE: refund stake
+   JVBET – FINAL PATCH (NO DESIGN CHANGE)
+   ✅ Refresh/Reload par round reset nahi hoga (LocalStorage authority)
+   ✅ Last5 blank nahi hoga (Local cache + Firestore sync)
+   ✅ Points always show (Local stats + UI refresh)
+   ✅ LOSS: stake cut at place
+   ✅ WIN: 2x payout
+   ✅ TIE: refund
 ====================================================== */
 
-(function(){
+(function () {
   "use strict";
 
-  /* ---------- FIREBASE ---------- */
-  firebase.initializeApp({
+  /* ---------- FIREBASE (SAFE INIT) ---------- */
+  const firebaseConfig = {
     apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
     authDomain: "jvbet-bbf90.firebaseapp.com",
-    projectId: "jvbet-bbf90"
-  });
+    projectId: "jvbet-bbf90",
+  };
+  if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   /* ---------- CONFIG ---------- */
   const TOTAL_SEC = 30;
-  const LOCK_AT = 15;      // betting allowed only when left > 15
-  const NEXT_DELAY = 800;  // after result, next round starts after 0.8 sec
+  const LOCK_AT = 15;
+  const NEXT_DELAY = 800;
 
   /* ---------- SESSION ---------- */
   const session = JSON.parse(localStorage.getItem("jvbet_session") || "null");
@@ -884,261 +882,369 @@
     return;
   }
   const ME_ID = String(session.id);
+  const userRef = db.collection("users").doc(ME_ID);
 
   /* ---------- KEYS ---------- */
   const K = {
-    bet:   (game,round) => `BET_${ME_ID}_${game}_${round}`,
     stats: () => `STATS_${ME_ID}`,
-    hist:  () => `HIST_${ME_ID}`,
-    tab:   () => `TAB_${ME_ID}`,
+    hist: () => `HIST_${ME_ID}`,
+    tab: () => `TAB_${ME_ID}`,
+    bet: (game, round) => `BET_${ME_ID}_${game}_${round}`,
+    rs: () => `ROUNDSTATE_${ME_ID}`,
+    last5: () => `LAST5CACHE_${ME_ID}`,
   };
 
-  /* ---------- FIRESTORE DOCS ---------- */
-  const userRef = db.collection("users").doc(ME_ID);
+  /* ---------- UI SAFE GET ---------- */
+  const $ = (id) => document.getElementById(id);
 
-  /* ---------- STATS (points/win/loss) ---------- */
-  function getStats(){
+  /* ---------- HEADER / STATS (LOCAL AUTHORITY) ---------- */
+  function getStats() {
     const d = JSON.parse(localStorage.getItem(K.stats()) || "null");
-    if(d && typeof d.points==="number") return d;
-    const init = { points: (typeof session.points==="number"?session.points:0), win:0, loss:0 };
+    if (d && typeof d.points === "number") return d;
+
+    const init = {
+      points: typeof session.points === "number" ? session.points : 0,
+      win: 0,
+      loss: 0,
+    };
     localStorage.setItem(K.stats(), JSON.stringify(init));
     return init;
   }
-  function setStats(s){
+
+  function setStats(s) {
     localStorage.setItem(K.stats(), JSON.stringify(s));
-    document.getElementById("pts").textContent = String(s.points);
-    document.getElementById("w").textContent = String(s.win);
-    document.getElementById("l").textContent = String(s.loss);
+    if ($("pts")) $("pts").textContent = String(s.points ?? 0);
+    if ($("w")) $("w").textContent = String(s.win ?? 0);
+    if ($("l")) $("l").textContent = String(s.loss ?? 0);
   }
-  function syncHeader(){
-    document.getElementById("cid").textContent = ME_ID;
+
+  function refreshHeader() {
+    if ($("cid")) $("cid").textContent = ME_ID;
     setStats(getStats());
   }
-  syncHeader();
+  refreshHeader();
 
   /* ---------- TOAST ---------- */
   let toastTimer = null;
-  function showToast(title, body, type){
-    const t = document.getElementById("toast");
-    const tt = document.getElementById("toastTitle");
-    const tb = document.getElementById("toastBody");
-    tt.textContent = title || "-";
-    tb.textContent = body || "-";
-    t.classList.remove("win","loss","tie");
-    if(type) t.classList.add(type);
+  function showToast(title, body, type) {
+    const t = $("toast");
+    if (!t) return;
+    const tt = $("toastTitle");
+    const tb = $("toastBody");
+    if (tt) tt.textContent = title || "-";
+    if (tb) tb.textContent = body || "-";
+    t.classList.remove("win", "loss", "tie");
+    if (type) t.classList.add(type);
     t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>t.classList.remove("show"), 2500);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
   }
 
   /* ---------- HELPERS ---------- */
-  function nowStr(ms){ return new Date(ms).toLocaleString(); }
-  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const nowStr = (ms) => new Date(ms).toLocaleString();
 
-  function normGame(game){
-    if(game==="dt") return "DragonTiger";
-    if(game==="tp") return "TeenPatti";
-    if(game==="rl") return "Roulette";
+  function normGame(game) {
+    if (game === "dt") return "DragonTiger";
+    if (game === "tp") return "TeenPatti";
+    if (game === "rl") return "Roulette";
     return String(game);
   }
 
   /* ======================================================
-     ROUND ENGINE (Firestore persistent)
-     -> Logout/Login par round repeat/reset nahi hoga
+     ROUND STATE (LOCAL AUTHORITY + FIRESTORE SYNC)
+     ✅ Refresh par kabhi round 1 reset nahi hoga
   ======================================================= */
-  const roundState = {
-    dt: { round:1, start:Date.now(), revealed:false, lastResult:null },
-    tp: { round:1, start:Date.now(), revealed:false, lastResult:null },
-    rl: { round:1, start:Date.now(), revealed:false, lastResult:null }
+  const defaultRS = {
+    dt: { round: 1, start: Date.now(), revealed: false, lastResult: null },
+    tp: { round: 1, start: Date.now(), revealed: false, lastResult: null },
+    rl: { round: 1, start: Date.now(), revealed: false, lastResult: null },
   };
 
-  async function loadRoundState(){
-    const snap = await userRef.get();
-    const data = snap.data() || {};
-    const rs = data.roundState || {};
-
-    ["dt","tp","rl"].forEach(g=>{
-      const saved = rs[g];
-      if(saved && typeof saved.round==="number" && typeof saved.start==="number"){
-        roundState[g] = {
-          round: saved.round,
-          start: saved.start,
-          revealed: !!saved.revealed,
-          lastResult: saved.lastResult || null
-        };
-      }
+  function loadRSLocal() {
+    const d = JSON.parse(localStorage.getItem(K.rs()) || "null");
+    if (!d || !d.dt || !d.tp || !d.rl) {
+      localStorage.setItem(K.rs(), JSON.stringify(defaultRS));
+      return structuredClone(defaultRS);
+    }
+    // basic validation
+    ["dt", "tp", "rl"].forEach((g) => {
+      if (typeof d[g].round !== "number") d[g].round = 1;
+      if (typeof d[g].start !== "number") d[g].start = Date.now();
+      d[g].revealed = !!d[g].revealed;
+      if (!("lastResult" in d[g])) d[g].lastResult = null;
     });
+    return d;
   }
 
-  async function saveRoundState(game){
-    const payload = {};
-    payload[`roundState.${game}`] = {
-      round: roundState[game].round,
-      start: roundState[game].start,
-      revealed: !!roundState[game].revealed,
-      lastResult: roundState[game].lastResult || null
-    };
-    await userRef.set(payload, { merge:true });
+  function saveRSLocal(rs) {
+    localStorage.setItem(K.rs(), JSON.stringify(rs));
   }
 
-  function secondsLeft(game){
-    const r = roundState[game];
-    const elapsed = Math.floor((Date.now() - r.start)/1000);
-    return clamp(TOTAL_SEC - elapsed, 0, TOTAL_SEC);
-  }
+  const roundState = loadRSLocal();
 
-  /* ---------- LAST 5 (PER USER) ---------- */
-  async function pushLast5(gameNorm, result, round){
-    await db.runTransaction(async (tx)=>{
-      const snap = await tx.get(userRef);
-      const data = snap.data() || {};
-      const last5 = data.last5Results || {};
-      const arr = (last5[gameNorm] || []).filter(x => x && x.round !== round);
-
-      arr.unshift({ result, round, time: Date.now() });
-      last5[gameNorm] = arr.slice(0,5);
-
-      tx.set(userRef, { last5Results: last5 }, { merge: true });
-    });
-  }
-
-  async function renderLast5(gameNorm){
-    const map = {
-      DragonTiger: { body:"dtLast5Body", sub:"dtLast5Sub" },
-      TeenPatti:   { body:"tpLast5Body", sub:"tpLast5Sub" },
-      Roulette:    { body:"rLast5Body",  sub:"rLast5Sub"  }
-    };
-    const cfg = map[gameNorm];
-    if(!cfg) return;
-
-    const body = document.getElementById(cfg.body);
-    const sub  = document.getElementById(cfg.sub);
-    if(!body) return;
-
-    try{
+  async function syncRSFromFirestoreOnce() {
+    // Firestore is OPTIONAL (agar fail ho to bhi local continue)
+    try {
       const snap = await userRef.get();
-      const arr = snap.data()?.last5Results?.[gameNorm] || [];
+      const data = snap.data() || {};
+      const frs = data.roundState || {};
 
-      if(!arr.length){
-        if(sub) sub.textContent = "—";
-        body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
-        return;
-      }
+      // merge only if firestore has higher round (avoid going back)
+      ["dt", "tp", "rl"].forEach((g) => {
+        const s = frs[g];
+        if (s && typeof s.round === "number" && typeof s.start === "number") {
+          if (s.round > roundState[g].round) {
+            roundState[g] = {
+              round: s.round,
+              start: s.start,
+              revealed: !!s.revealed,
+              lastResult: s.lastResult || null,
+            };
+          }
+        }
+      });
 
-      if(sub){
-        sub.textContent = "Latest: " + arr[0].result + " (Round " + arr[0].round + ")";
-      }
-
-      body.innerHTML = arr.map((x,i)=>`
-        <tr>
-          <td>${i+1}</td>
-          <td class="gold">${String(x.result)}</td>
-          <td>${x.round}</td>
-          <td>${nowStr(x.time)}</td>
-        </tr>
-      `).join("");
-    }catch(e){
-      body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>Unable to load</td></tr>";
+      saveRSLocal(roundState);
+    } catch (e) {
+      // ignore - local is master
     }
   }
 
-  /* ---------- UI: TABS ---------- */
-  function activateTab(tabId){
-    document.querySelectorAll(".tabbtn").forEach(b=>{
-      b.classList.toggle("active", b.dataset.tab===tabId);
+  async function saveRSToFirestore(game) {
+    try {
+      const payload = {};
+      payload[`roundState.${game}`] = {
+        round: roundState[game].round,
+        start: roundState[game].start,
+        revealed: !!roundState[game].revealed,
+        lastResult: roundState[game].lastResult || null,
+      };
+      await userRef.set(payload, { merge: true });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function secondsLeft(game) {
+    const r = roundState[game];
+    const elapsed = Math.floor((Date.now() - r.start) / 1000);
+    return clamp(TOTAL_SEC - elapsed, 0, TOTAL_SEC);
+  }
+
+  /* ======================================================
+     LAST 5 (LOCAL CACHE FIRST + FIRESTORE SYNC)
+     ✅ Firestore fail ho to bhi blank nahi hoga
+  ======================================================= */
+  function loadLast5Cache() {
+    const d = JSON.parse(localStorage.getItem(K.last5()) || "null");
+    return d && typeof d === "object" ? d : {};
+  }
+  function saveLast5Cache(cache) {
+    localStorage.setItem(K.last5(), JSON.stringify(cache));
+  }
+  let last5Cache = loadLast5Cache();
+
+  function renderLast5FromCache(gameNorm) {
+    const map = {
+      DragonTiger: { body: "dtLast5Body", sub: "dtLast5Sub" },
+      TeenPatti: { body: "tpLast5Body", sub: "tpLast5Sub" },
+      Roulette: { body: "rLast5Body", sub: "rLast5Sub" },
+    };
+    const cfg = map[gameNorm];
+    if (!cfg) return;
+
+    const body = $(cfg.body);
+    const sub = $(cfg.sub);
+    if (!body) return;
+
+    const arr = last5Cache[gameNorm] || [];
+    if (!arr.length) {
+      if (sub) sub.textContent = "—";
+      body.innerHTML =
+        "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
+      return;
+    }
+
+    if (sub) sub.textContent = "Latest: " + arr[0].result + " (Round " + arr[0].round + ")";
+    body.innerHTML = arr
+      .map(
+        (x, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td class="gold">${String(x.result)}</td>
+          <td>${x.round}</td>
+          <td>${nowStr(x.time)}</td>
+        </tr>`
+      )
+      .join("");
+  }
+
+  async function syncLast5FromFirestore(gameNorm) {
+    try {
+      const snap = await userRef.get();
+      const arr = snap.data()?.last5Results?.[gameNorm] || [];
+      last5Cache[gameNorm] = Array.isArray(arr) ? arr.slice(0, 5) : [];
+      saveLast5Cache(last5Cache);
+      renderLast5FromCache(gameNorm);
+    } catch (e) {
+      // keep local cache
+      renderLast5FromCache(gameNorm);
+    }
+  }
+
+  async function pushLast5(gameNorm, result, round) {
+    // update local cache immediately
+    const arr = (last5Cache[gameNorm] || []).filter((x) => x && x.round !== round);
+    arr.unshift({ result, round, time: Date.now() });
+    last5Cache[gameNorm] = arr.slice(0, 5);
+    saveLast5Cache(last5Cache);
+    renderLast5FromCache(gameNorm);
+
+    // try firestore transaction (optional)
+    try {
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const data = snap.data() || {};
+        const last5 = data.last5Results || {};
+        const cur = (last5[gameNorm] || []).filter((x) => x && x.round !== round);
+        cur.unshift({ result, round, time: Date.now() });
+        last5[gameNorm] = cur.slice(0, 5);
+        tx.set(userRef, { last5Results: last5 }, { merge: true });
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  /* ---------- TABS ---------- */
+  function activateTab(tabId) {
+    document.querySelectorAll(".tabbtn").forEach((b) => {
+      b.classList.toggle("active", b.dataset.tab === tabId);
     });
-    document.querySelectorAll(".panel").forEach(p=>{
-      p.classList.toggle("active", p.id===tabId);
+    document.querySelectorAll(".panel").forEach((p) => {
+      p.classList.toggle("active", p.id === tabId);
     });
     localStorage.setItem(K.tab(), tabId);
   }
-  document.querySelectorAll(".tabbtn").forEach(btn=>{
-    btn.addEventListener("click", ()=>activateTab(btn.dataset.tab));
+  document.querySelectorAll(".tabbtn").forEach((btn) => {
+    btn.addEventListener("click", () => activateTab(btn.dataset.tab));
   });
   activateTab(localStorage.getItem(K.tab()) || "dt");
 
-  /* ---------- UI: BET PICKERS ---------- */
-  const pick = { dt:"DRAGON", tp:"PLAYER", rl:"RED" };
+  /* ---------- PICKS / CHIPS ---------- */
+  const pick = { dt: "DRAGON", tp: "PLAYER", rl: "RED" };
 
-  function setupBetBoxes(rowId, game, showIds){
-    const row = document.getElementById(rowId);
-    if(!row) return;
-    row.querySelectorAll(".betBox").forEach(box=>{
-      box.addEventListener("click", ()=>{
-        row.querySelectorAll(".betBox").forEach(x=>x.classList.remove("active"));
+  function setupBetBoxes(rowId, game, showIds) {
+    const row = $(rowId);
+    if (!row) return;
+    row.querySelectorAll(".betBox").forEach((box) => {
+      box.addEventListener("click", () => {
+        row.querySelectorAll(".betBox").forEach((x) => x.classList.remove("active"));
         box.classList.add("active");
         pick[game] = box.dataset.pick;
-        showIds.forEach(id=>{
-          const el = document.getElementById(id);
-          if(el) el.textContent = pick[game];
+        showIds.forEach((id) => {
+          const el = $(id);
+          if (el) el.textContent = pick[game];
         });
       });
     });
   }
-  setupBetBoxes("dtBets","dt",["dtPickShow"]);
-  setupBetBoxes("tpBets","tp",["tpPickShow","tpPickShow2"]);
-  setupBetBoxes("rBets","rl",["rPickShow"]);
+  setupBetBoxes("dtBets", "dt", ["dtPickShow"]);
+  setupBetBoxes("tpBets", "tp", ["tpPickShow", "tpPickShow2"]);
+  setupBetBoxes("rBets", "rl", ["rPickShow"]);
 
-  function setupChips(game, stakeId){
-    document.querySelectorAll(`#${game} .chip`).forEach(ch=>{
-      ch.addEventListener("click", ()=>{
+  function setupChips(panelId, stakeId) {
+    document.querySelectorAll(`#${panelId} .chip`).forEach((ch) => {
+      ch.addEventListener("click", () => {
         const v = Number(ch.dataset.v || 0);
-        const input = document.getElementById(stakeId);
-        if(input) input.value = String(v);
+        const input = $(stakeId);
+        if (input) input.value = String(v);
       });
     });
   }
-  setupChips("dt","dtStake");
-  setupChips("tp","tpStake");
-  setupChips("rl","rStake");
+  setupChips("dt", "dtStake");
+  setupChips("tp", "tpStake");
+  setupChips("rl", "rStake");
 
-  /* ---------- HISTORY STORAGE ---------- */
-  function getHist(){ return JSON.parse(localStorage.getItem(K.hist()) || "[]"); }
-  function setHist(arr){ localStorage.setItem(K.hist(), JSON.stringify(arr)); }
-  function addHist(item){
+  /* ---------- BET STORE (LOCAL) ---------- */
+  function getBet(game, round) {
+    return JSON.parse(localStorage.getItem(K.bet(game, round)) || "null");
+  }
+  function setBet(game, round, bet) {
+    localStorage.setItem(K.bet(game, round), JSON.stringify(bet));
+  }
+
+  /* ---------- LOCK UI ---------- */
+  function setLockPill(el, stateText) {
+    if (!el) return;
+    el.classList.remove("lockOpen", "lockPlaced", "lockLocked", "lockClosed");
+    if (stateText === "OPEN") el.classList.add("lockOpen");
+    else if (stateText === "PLACED") el.classList.add("lockPlaced");
+    else if (stateText === "LOCKED") el.classList.add("lockLocked");
+    else el.classList.add("lockClosed");
+    el.textContent = stateText;
+  }
+
+  /* ---------- HISTORY (LOCAL) ---------- */
+  function getHist() {
+    return JSON.parse(localStorage.getItem(K.hist()) || "[]");
+  }
+  function setHist(arr) {
+    localStorage.setItem(K.hist(), JSON.stringify(arr));
+  }
+  function addHist(item) {
     const arr = getHist();
     arr.unshift(item);
-    setHist(arr.slice(0,300));
+    setHist(arr.slice(0, 300));
   }
 
-  /* ---------- RENDER TABLES ---------- */
-  function renderLast10(game){
-    const tableId = game==="dt" ? "dtPast" : game==="tp" ? "tpPast" : "rPast";
-    const waitId  = game==="dt" ? "dtWait" : game==="tp" ? "tpWait" : "rWait";
+  function renderLast10(game) {
+    const tableId = game === "dt" ? "dtPast" : game === "tp" ? "tpPast" : "rPast";
+    const waitId = game === "dt" ? "dtWait" : game === "tp" ? "tpWait" : "rWait";
     const tbody = document.querySelector(`#${tableId} tbody`);
-    const wait  = document.getElementById(waitId);
-    if(!tbody) return;
+    const wait = $(waitId);
+    if (!tbody) return;
 
-    const arr = getHist().filter(x=>x.game===normGame(game)).slice(0,10);
-    if(wait) wait.textContent = arr.length ? "" : "No bets yet";
+    const arr = getHist().filter((x) => x.game === normGame(game)).slice(0, 10);
+    if (wait) wait.textContent = arr.length ? "" : "No bets yet";
 
-    tbody.innerHTML = arr.map(x=>`
-      <tr>
-        <td>${nowStr(x.time)}</td>
-        <td>${x.pick}</td>
-        <td>${x.points}</td>
-        <td class="${x.status==='WIN'?'gold':''}">${x.status}</td>
-      </tr>
-    `).join("") || "<tr><td colspan='4' class='muted' style='padding:12px'>No bets yet</td></tr>";
+    tbody.innerHTML =
+      arr
+        .map(
+          (x) => `
+        <tr>
+          <td>${nowStr(x.time)}</td>
+          <td>${x.pick}</td>
+          <td>${x.points}</td>
+          <td class="${x.status === "WIN" ? "gold" : ""}">${x.status}</td>
+        </tr>`
+        )
+        .join("") ||
+      "<tr><td colspan='4' class='muted' style='padding:12px'>No bets yet</td></tr>";
   }
 
-  function renderFullHistory(){
+  function renderFullHistory() {
     const tbody = document.querySelector("#bh tbody");
-    if(!tbody) return;
-    const arr = getHist().slice(0,200);
-
-    tbody.innerHTML = arr.map(x=>`
-      <tr>
-        <td>${nowStr(x.time)}</td>
-        <td>${x.game}</td>
-        <td>${x.pick}</td>
-        <td>${x.points}</td>
-        <td>${x.status}</td>
-      </tr>
-    `).join("") || "<tr><td colspan='5' class='muted' style='padding:12px'>No history</td></tr>";
+    if (!tbody) return;
+    const arr = getHist().slice(0, 200);
+    tbody.innerHTML =
+      arr
+        .map(
+          (x) => `
+        <tr>
+          <td>${nowStr(x.time)}</td>
+          <td>${x.game}</td>
+          <td>${x.pick}</td>
+          <td>${x.points}</td>
+          <td>${x.status}</td>
+        </tr>`
+        )
+        .join("") ||
+      "<tr><td colspan='5' class='muted' style='padding:12px'>No history</td></tr>";
   }
 
-  function refreshTables(){
+  function refreshTables() {
     renderLast10("dt");
     renderLast10("tp");
     renderLast10("rl");
@@ -1146,129 +1252,187 @@
   }
 
   /* ---------- MY BET UI ---------- */
-  function setMyBetBox(game, bet){
+  function setMyBetBox(game, bet) {
     const ids = {
-      dt:{sub:"dtMyBetSub", status:"dtMyBetStatus", body:"dtMyBetBody"},
-      tp:{sub:"tpMyBetSub", status:"tpMyBetStatus", body:"tpMyBetBody"},
-      rl:{sub:"rMyBetSub",  status:"rMyBetStatus",  body:"rMyBetBody"},
+      dt: { sub: "dtMyBetSub", status: "dtMyBetStatus", body: "dtMyBetBody" },
+      tp: { sub: "tpMyBetSub", status: "tpMyBetStatus", body: "tpMyBetBody" },
+      rl: { sub: "rMyBetSub", status: "rMyBetStatus", body: "rMyBetBody" },
     }[game];
-    if(!ids) return;
+    if (!ids) return;
 
-    const sub = document.getElementById(ids.sub);
-    const st  = document.getElementById(ids.status);
-    const body= document.getElementById(ids.body);
+    const sub = $(ids.sub);
+    const st = $(ids.status);
+    const body = $(ids.body);
 
-    if(!bet){
-      if(sub) sub.textContent = "—";
-      if(st){ st.textContent="NO BET"; st.className="miniPill"; }
-      if(body) body.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed yet</td></tr>";
+    if (!bet) {
+      if (sub) sub.textContent = "—";
+      if (st) {
+        st.textContent = "NO BET";
+        st.className = "miniPill";
+      }
+      if (body)
+        body.innerHTML =
+          "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed yet</td></tr>";
       return;
     }
 
-    if(sub) sub.textContent = `${bet.pick} • ${bet.points} pts • Round ${bet.round}`;
-    if(st){
+    if (sub) sub.textContent = `${bet.pick} • ${bet.points} pts • Round ${bet.round}`;
+    if (st) {
       st.textContent = bet.status || "PENDING";
-      st.className = "miniPill " + (bet.status==="PENDING" ? "stPending" : bet.status==="WIN" ? "stWin" : bet.status==="LOSS" ? "stLoss" : "stTie");
+      st.className =
+        "miniPill " +
+        (bet.status === "PENDING"
+          ? "stPending"
+          : bet.status === "WIN"
+          ? "stWin"
+          : bet.status === "LOSS"
+          ? "stLoss"
+          : "stTie");
     }
-    if(body){
+    if (body) {
       body.innerHTML = `
         <tr>
           <td>${bet.pick}</td>
           <td class="gold">${bet.points}</td>
           <td>${bet.round}</td>
           <td>${nowStr(bet.time)}</td>
-        </tr>
-      `;
+        </tr>`;
     }
   }
 
-  function getBet(game, round){
-    return JSON.parse(localStorage.getItem(K.bet(game, round)) || "null");
+  /* ---------- GENERATORS ---------- */
+  function drawDT() {
+    return ["DRAGON", "TIGER", "TIE"][Math.floor(Math.random() * 3)];
   }
-  function setBet(game, round, bet){
-    localStorage.setItem(K.bet(game, round), JSON.stringify(bet));
+  function drawTP() {
+    return ["PLAYER", "BANKER", "TIE"][Math.floor(Math.random() * 3)];
   }
-
-  /* ---------- LOCK UI ---------- */
-  function setLockPill(el, stateText){
-    if(!el) return;
-    el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
-    if(stateText==="OPEN") el.classList.add("lockOpen");
-    else if(stateText==="PLACED") el.classList.add("lockPlaced");
-    else if(stateText==="LOCKED") el.classList.add("lockLocked");
-    else el.classList.add("lockClosed");
-    el.textContent = stateText;
+  function drawR() {
+    const n = Math.floor(Math.random() * 37);
+    return (n === 0 ? "GREEN" : n % 2 ? "RED" : "BLACK") + " " + n;
   }
 
-  /* ---------- RESULT GENERATORS ---------- */
-  function drawDT(){ return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)]; }
-  function drawTP(){ return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]; }
-  function drawR(){
-    const n = Math.floor(Math.random()*37);
-    return (n===0 ? "GREEN" : (n%2 ? "RED" : "BLACK")) + " " + n;
-  }
-
-  /* ---------- RESULT UI ---------- */
-  function pushLatestChip(boxId, text){
-    const box = document.getElementById(boxId);
-    if(!box) return;
+  function pushLatestChip(boxId, text) {
+    const box = $(boxId);
+    if (!box) return;
     box.innerHTML = `<span class="resChip">${text}</span>`;
   }
 
-  function flipDT(res){
-    const fcD = document.getElementById("fcD");
-    const fcT = document.getElementById("fcT");
-    const fcR = document.getElementById("fcR");
-    const d = document.getElementById("dtD");
-    const t = document.getElementById("dtT");
-    const r = document.getElementById("dtR");
-    if(!d||!t||!r||!fcD||!fcT||!fcR) return;
+  function flipDT(res) {
+    const fcD = $("fcD"),
+      fcT = $("fcT"),
+      fcR = $("fcR");
+    const d = $("dtD"),
+      t = $("dtT"),
+      r = $("dtR");
+    if (!fcD || !fcT || !fcR || !d || !t || !r) return;
 
-    const faces = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
-    d.textContent = (res==="DRAGON" ? "WIN" : "—") + " " + faces[Math.floor(Math.random()*faces.length)];
-    t.textContent = (res==="TIGER"  ? "WIN" : "—") + " " + faces[Math.floor(Math.random()*faces.length)];
-    r.textContent = (res==="TIE"    ? "TIE" : "—");
+    const faces = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+    d.textContent = (res === "DRAGON" ? "WIN" : "—") + " " + faces[Math.floor(Math.random() * faces.length)];
+    t.textContent = (res === "TIGER" ? "WIN" : "—") + " " + faces[Math.floor(Math.random() * faces.length)];
+    r.textContent = res === "TIE" ? "TIE" : "—";
 
     fcD.classList.add("flipped");
     fcT.classList.add("flipped");
     fcR.classList.add("flipped");
-    setTimeout(()=>{ fcD.classList.remove("flipped"); fcT.classList.remove("flipped"); fcR.classList.remove("flipped"); }, 1200);
+    setTimeout(() => {
+      fcD.classList.remove("flipped");
+      fcT.classList.remove("flipped");
+      fcR.classList.remove("flipped");
+    }, 1200);
+  }
+
+  /* ---------- BET RULE ---------- */
+  function bettingAllowed(game) {
+    return secondsLeft(game) > LOCK_AT;
   }
 
   /* ======================================================
-     ✅ IMPORTANT FIX:
-     - LOSS: stake already cut at PLACE
-     - WIN: add stake*2
-     - TIE: refund stake (add stake)
+     ✅ PLACE: cut stake now
+     ✅ SETTLE: WIN add stake*2, TIE add stake, LOSS add 0
   ======================================================= */
-  function settle(game, round, result){
+  function placeBet(game, stakeInputId, msgId) {
+    const r = roundState[game];
+    const round = r.round;
+    const msg = $(msgId);
+
+    if (!bettingAllowed(game)) {
+      if (msg) msg.textContent = "Locked! Bet allowed only when timer > 15s";
+      showToast("BET LOCKED", "Bet allowed only when timer > 15 seconds", "tie");
+      return;
+    }
+
+    const existing = getBet(game, round);
+    if (existing && !existing.settled) {
+      if (msg) msg.textContent = "You already placed bet for this round";
+      showToast("ALREADY PLACED", "You already placed bet for this round", "tie");
+      return;
+    }
+
+    const input = $(stakeInputId);
+    const points = Number(input?.value || 0);
+    if (!points || points <= 0) {
+      if (msg) msg.textContent = "Enter valid points";
+      showToast("INVALID", "Enter valid points", "tie");
+      return;
+    }
+
+    const s = getStats();
+    if ((s.points || 0) < points) {
+      if (msg) msg.textContent = "Not enough points";
+      showToast("LOW BALANCE", "Not enough points to place this bet", "loss");
+      return;
+    }
+
+    // cut now
+    s.points = (s.points || 0) - points;
+    setStats(s);
+
+    const bet = { time: Date.now(), round, pick: pick[game], points, settled: false, status: "PENDING" };
+    setBet(game, round, bet);
+
+    if (msg) msg.textContent = `Bet placed: ${bet.pick} • ${bet.points} pts • Round ${round}`;
+    showToast("BET PLACED", `${bet.pick} • ${bet.points} pts (Round ${round})`, "win");
+
+    const lockEl = $(game === "dt" ? "dtLock" : game === "tp" ? "tpLock" : "rLock");
+    setLockPill(lockEl, "PLACED");
+    setMyBetBox(game, bet);
+    refreshTables();
+  }
+
+  $("dtPlay")?.addEventListener("click", () => placeBet("dt", "dtStake", "dtMsg"));
+  $("tpPlay")?.addEventListener("click", () => placeBet("tp", "tpStake", "tpMsg"));
+  $("rPlay")?.addEventListener("click", () => placeBet("rl", "rStake", "rMsg"));
+
+  function settle(game, round, result) {
     const bet = getBet(game, round);
-    if(!bet || bet.settled) return null;
+    if (!bet || bet.settled) return null;
 
     bet.settled = true;
     bet.result = result;
 
     let status = "LOSS";
-    let payout = 0; // how much to ADD back now (since stake already removed)
+    let payout = 0; // add-back now (stake already cut at place)
 
-    if(game==="dt" || game==="tp"){
-      if(result==="TIE"){
+    if (game === "dt" || game === "tp") {
+      if (result === "TIE") {
         status = "TIE";
-        payout = Number(bet.points || 0); // refund
-      } else if(bet.pick === result){
+        payout = Number(bet.points || 0);
+      } else if (bet.pick === result) {
         status = "WIN";
-        payout = Number(bet.points || 0) * 2; // ✅ 2x payout
+        payout = Number(bet.points || 0) * 2;
       } else {
         status = "LOSS";
-        payout = 0; // already lost stake
+        payout = 0;
       }
-    } else if(game==="rl"){
-      if(String(result).startsWith("GREEN")){
+    } else {
+      // roulette
+      if (String(result).startsWith("GREEN")) {
         status = "LOSS";
         payout = 0;
-      } else if(String(result).startsWith(bet.pick)){
+      } else if (String(result).startsWith(bet.pick)) {
         status = "WIN";
-        payout = Number(bet.points || 0) * 2; // ✅ 2x payout
+        payout = Number(bet.points || 0) * 2;
       } else {
         status = "LOSS";
         payout = 0;
@@ -1278,256 +1442,167 @@
     bet.status = status;
     setBet(game, round, bet);
 
-    // stats update
     const s = getStats();
-    s.points = Number(s.points || 0) + payout; // ✅ payout add (stake was cut earlier)
-    if(status==="WIN") s.win = Number(s.win||0) + 1;
-    if(status==="LOSS") s.loss = Number(s.loss||0) + 1;
+    s.points = (s.points || 0) + payout;
+    if (status === "WIN") s.win = (s.win || 0) + 1;
+    if (status === "LOSS") s.loss = (s.loss || 0) + 1;
     setStats(s);
 
-    // history push
     addHist({
       time: Date.now(),
       game: normGame(game),
       pick: bet.pick,
       points: bet.points,
-      status: status,
-      round: round,
-      result: result
+      status,
+      round,
+      result,
     });
 
     refreshTables();
     return { status, payout, bet };
   }
 
-  /* ---------- BETTING RULE ---------- */
-  function bettingAllowed(game){
-    const left = secondsLeft(game);
-    return left > LOCK_AT;
-  }
-
-  /* ======================================================
-     ✅ PLACE BET FIX:
-     - stake CUT immediately from points
-     - if insufficient points => block
-  ======================================================= */
-  function placeBet(game, stakeInputId, msgId){
+  /* ---------- REVEAL (ONE TIME AT 0) ---------- */
+  async function reveal(game) {
     const r = roundState[game];
-    const round = r.round;
-    const msg = document.getElementById(msgId);
-
-    if(!bettingAllowed(game)){
-      if(msg) msg.textContent = "Locked! Bet allowed only when timer > 15s";
-      showToast("BET LOCKED", "Bet allowed only when timer > 15 seconds", "tie");
-      return;
-    }
-
-    const existing = getBet(game, round);
-    if(existing && !existing.settled){
-      if(msg) msg.textContent = "You already placed bet for this round";
-      showToast("ALREADY PLACED", "You already placed bet for this round", "tie");
-      return;
-    }
-
-    const input = document.getElementById(stakeInputId);
-    const points = Number(input?.value || 0);
-
-    if(!points || points <= 0){
-      if(msg) msg.textContent = "Enter valid points";
-      showToast("INVALID", "Enter valid points", "tie");
-      return;
-    }
-
-    // ✅ balance check + cut now
-    const s = getStats();
-    if(Number(s.points || 0) < points){
-      if(msg) msg.textContent = "Not enough points";
-      showToast("LOW BALANCE", "Not enough points to place this bet", "loss");
-      return;
-    }
-    s.points = Number(s.points || 0) - points; // ✅ stake cut at place
-    setStats(s);
-
-    const bet = {
-      time: Date.now(),
-      round,
-      pick: pick[game],
-      points,
-      settled: false,
-      status: "PENDING"
-    };
-    setBet(game, round, bet);
-
-    if(msg) msg.textContent = `Bet placed: ${bet.pick} • ${bet.points} pts • Round ${round}`;
-    showToast("BET PLACED", `${bet.pick} • ${bet.points} pts (Round ${round})`, "win");
-
-    const lockEl = document.getElementById(game==="dt"?"dtLock":game==="tp"?"tpLock":"rLock");
-    setLockPill(lockEl, "PLACED");
-
-    setMyBetBox(game, bet);
-  }
-
-  document.getElementById("dtPlay")?.addEventListener("click", ()=>placeBet("dt","dtStake","dtMsg"));
-  document.getElementById("tpPlay")?.addEventListener("click", ()=>placeBet("tp","tpStake","tpMsg"));
-  document.getElementById("rPlay") ?.addEventListener("click", ()=>placeBet("rl","rStake","rMsg"));
-
-  /* ---------- REVEAL (ONE TIME AT 0 SEC) ---------- */
-  async function reveal(game){
-    const r = roundState[game];
-    if(r.revealed) return; // one time only
+    if (r.revealed) return;
 
     r.revealed = true;
+    saveRSLocal(roundState);
 
     let result = "-";
-    if(game==="dt") result = drawDT();
-    if(game==="tp") result = drawTP();
-    if(game==="rl") result = drawR();
+    if (game === "dt") result = drawDT();
+    if (game === "tp") result = drawTP();
+    if (game === "rl") result = drawR();
 
     r.lastResult = result;
+    saveRSLocal(roundState);
 
-    // ✅ save reveal state too (so duplicate reveal na ho relogin par)
-    try{ await saveRoundState(game); }catch(e){}
-
+    // UI
     const roundText = `Round ${r.round}: ${result}`;
-
-    if(game==="dt"){
-      document.getElementById("dtLast").textContent = result;
+    if (game === "dt") {
+      $("dtLast").textContent = result;
       pushLatestChip("dtPrev", roundText);
       flipDT(result);
-    }else if(game==="tp"){
-      document.getElementById("tpStatus").textContent = result;
+    } else if (game === "tp") {
+      $("tpStatus").textContent = result;
       pushLatestChip("tpPrev", roundText);
-    }else{
+    } else {
       pushLatestChip("rPrev", roundText);
     }
 
     const settled = settle(game, r.round, result);
-    if(settled){
-      if(settled.status==="WIN") showToast("YOU WIN", `${result} • +${settled.payout} pts (2x)`, "win");
-      else if(settled.status==="LOSS") showToast("YOU LOSS", `${result} • Lost ${settled.bet.points} pts`, "loss");
+    if (settled) {
+      if (settled.status === "WIN") showToast("YOU WIN", `${result} • +${settled.payout} pts (2x)`, "win");
+      else if (settled.status === "LOSS") showToast("YOU LOSS", `${result} • Lost ${settled.bet.points} pts`, "loss");
       else showToast("TIE / REFUND", `${result} • Refund ${settled.bet.points} pts`, "tie");
     } else {
-      showToast("RESULT", `${roundText}`, "tie");
+      showToast("RESULT", roundText, "tie");
     }
 
-    // last5 per user
-    const gameNorm = normGame(game);
-    try{
-      await pushLast5(gameNorm, result, r.round);
-      renderLast5(gameNorm);
-    }catch(e){}
+    // Last5: update local immediately + try firestore
+    await pushLast5(normGame(game), result, r.round);
 
-    // next round (NO SKIP)
-    setTimeout(async ()=>{
-      r.round = r.round + 1;
+    // Sync round state to firestore (optional)
+    saveRSToFirestore(game);
+
+    // Next round (no skip)
+    setTimeout(() => {
+      r.round += 1;
       r.start = Date.now();
       r.revealed = false;
       r.lastResult = null;
-
+      saveRSLocal(roundState);
+      saveRSToFirestore(game);
       setMyBetBox(game, null);
-
-      try{ await saveRoundState(game); }catch(e){}
     }, NEXT_DELAY);
   }
 
-  /* ---------- TIMER TICK + UI ---------- */
-  function tickOne(game, timerId, fillId, roundId, lockId){
+  /* ---------- TICK ---------- */
+  function tickOne(game, timerId, fillId, roundId, lockId) {
     const r = roundState[game];
     const left = secondsLeft(game);
 
-    const timerEl = document.getElementById(timerId);
-    const roundEl = document.getElementById(roundId);
-    const fillEl  = document.getElementById(fillId);
-    const lockEl  = document.getElementById(lockId);
+    if ($(timerId)) $(timerId).textContent = String(left);
+    if ($(roundId)) $(roundId).textContent = String(r.round);
 
-    if(timerEl) timerEl.textContent = String(left);
-    if(roundEl) roundEl.textContent = String(r.round);
-
-    if(fillEl){
-      const pct = clamp((left / TOTAL_SEC) * 100, 0, 100);
-      fillEl.style.width = pct.toFixed(2) + "%";
-    }
+    const fillEl = $(fillId);
+    if (fillEl) fillEl.style.width = ((left / TOTAL_SEC) * 100).toFixed(2) + "%";
 
     const bet = getBet(game, r.round);
-    if(bet && !bet.settled){
+    const lockEl = $(lockId);
+
+    if (bet && !bet.settled) {
       setLockPill(lockEl, "PLACED");
       setMyBetBox(game, bet);
     } else {
-      if(left === 0) setLockPill(lockEl, "CLOSED");
-      else if(left > LOCK_AT) setLockPill(lockEl, "OPEN");
+      if (left === 0) setLockPill(lockEl, "CLOSED");
+      else if (left > LOCK_AT) setLockPill(lockEl, "OPEN");
       else setLockPill(lockEl, "LOCKED");
     }
 
-    const playBtn = document.getElementById(game==="dt" ? "dtPlay" : game==="tp" ? "tpPlay" : "rPlay");
-    if(playBtn){
-      playBtn.disabled = !(left > LOCK_AT) || (bet && !bet.settled);
-    }
+    const playBtn = $(game === "dt" ? "dtPlay" : game === "tp" ? "tpPlay" : "rPlay");
+    if (playBtn) playBtn.disabled = !(left > LOCK_AT) || (bet && !bet.settled);
 
-    if(left === 0){
-      reveal(game);
-    }
+    if (left === 0) reveal(game);
   }
 
   /* ---------- VIEWERS (UI only) ---------- */
-  function bumpView(id, base){
-    const el = document.getElementById(id);
-    if(!el) return;
-    const v = base + Math.floor(Math.random()*30);
-    el.textContent = "👁 " + v;
+  function bumpView(id, base) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = "👁 " + (base + Math.floor(Math.random() * 30));
   }
-  setInterval(()=>{ bumpView("dtView",120); bumpView("tpView",200); bumpView("rView",140); }, 1800);
+  setInterval(() => {
+    bumpView("dtView", 120);
+    bumpView("tpView", 200);
+    bumpView("rView", 140);
+  }, 1800);
 
   /* ---------- LOGOUT ---------- */
-  document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
+  $("logoutBtn")?.addEventListener("click", () => {
     localStorage.removeItem("jvbet_session");
     location.href = "../index.html";
   });
 
   /* ---------- INIT ---------- */
-  (async function init(){
-    // 1) load round state from firestore so relogin par repeat na ho
-    try{
-      await loadRoundState();
-    }catch(e){
-      // if firestore fail, fallback: current memory defaults
-    }
-
-    // 2) initial render
+  (async function init() {
+    // Always render from local first (no blank)
+    refreshHeader();
     refreshTables();
-    renderLast5("DragonTiger");
-    renderLast5("TeenPatti");
-    renderLast5("Roulette");
 
-    // 3) persist state once (in case new user doc)
-    try{
-      await saveRoundState("dt");
-      await saveRoundState("tp");
-      await saveRoundState("rl");
-    }catch(e){}
+    renderLast5FromCache("DragonTiger");
+    renderLast5FromCache("TeenPatti");
+    renderLast5FromCache("Roulette");
 
-    // 4) main loop
-    setInterval(()=>{
-      tickOne("dt","dtTimer","dtFill","dtRound","dtLock");
-      tickOne("tp","tpTimer","tpFill","tpRound","tpLock");
-      tickOne("rl","rTimer","rFill","rRound","rLock");
+    // Try sync from firestore (optional)
+    await syncRSFromFirestoreOnce();
+    await syncLast5FromFirestore("DragonTiger");
+    await syncLast5FromFirestore("TeenPatti");
+    await syncLast5FromFirestore("Roulette");
 
-      const tpRound2 = document.getElementById("tpRound2");
-      if(tpRound2) tpRound2.textContent = String(roundState.tp.round);
+    // Persist rs periodically (optional)
+    setInterval(() => {
+      saveRSLocal(roundState);
+      saveRSToFirestore("dt");
+      saveRSToFirestore("tp");
+      saveRSToFirestore("rl");
+    }, 4000);
+
+    // Main tick
+    setInterval(() => {
+      tickOne("dt", "dtTimer", "dtFill", "dtRound", "dtLock");
+      tickOne("tp", "tpTimer", "tpFill", "tpRound", "tpLock");
+      tickOne("rl", "rTimer", "rFill", "rRound", "rLock");
+
+      // TP mirror round
+      if ($("tpRound2")) $("tpRound2").textContent = String(roundState.tp.round);
     }, 250);
-
-    // 5) also save roundState every 3 sec (safety)
-    setInterval(async ()=>{
-      try{
-        await saveRoundState("dt");
-        await saveRoundState("tp");
-        await saveRoundState("rl");
-      }catch(e){}
-    }, 3000);
-
   })();
-
 })();
 </script>
+
 </body>
 </html>
+
 
