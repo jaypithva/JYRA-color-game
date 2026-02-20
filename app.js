@@ -1,5 +1,5 @@
 /* =====================================================
-   Firebase + Firestore Cross-Device App (NO blank pages)
+   Firebase + Firestore Cross-Device App (CLEAN + SAFE)
    - Works with compat SDK
 ===================================================== */
 
@@ -275,12 +275,9 @@
   }
 
   // =====================================================
-  // GAME ENGINE (IST 30s Period + Results store)
+  // GAME RESULTS ENGINE (IST 30s Period Store)
   // =====================================================
-  const GAME_CFG = {
-    cycleSec: 30,
-    resultsCol: "game_results_v1"
-  };
+  const GAME_CFG = { cycleSec: 30, resultsCol: "game_results_v1" };
 
   function resultsRef(period) { return db().collection(GAME_CFG.resultsCol).doc(String(period)); }
   function resultsColRef() { return db().collection(GAME_CFG.resultsCol); }
@@ -296,34 +293,41 @@
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}${mm}${dd}`;
   }
+
   function startOfISTDayMoment(dIst) {
     const y = dIst.getFullYear(), m = dIst.getMonth(), day = dIst.getDate();
     const utcMidnight = new Date(Date.UTC(y, m, day, 0, 0, 0));
     return new Date(utcMidnight.getTime() - (5.5 * 3600000));
   }
+
   function secondsSinceISTMidnight() {
     const nowIst = istNow();
     const istMidnightMoment = startOfISTDayMoment(nowIst);
     const diffSec = Math.floor((Date.now() - istMidnightMoment.getTime()) / 1000);
     return Math.max(0, diffSec);
   }
+
   function cycleIndexNow() {
     const sec = secondsSinceISTMidnight();
     return Math.floor(sec / GAME_CFG.cycleSec) + 1; // 1..2880
   }
+
   function makePeriodByIndex(dateYmd, idx) {
     return `${dateYmd}-${String(idx).padStart(4, "0")}`;
   }
+
   function currentPeriodIST() {
     const d = istNow();
     return makePeriodByIndex(ymdIST(d), cycleIndexNow());
   }
+
   function periodByOffset(offset30Steps) {
     const d = istNow();
     const dateYmd = ymdIST(d);
     const idx = Math.max(1, cycleIndexNow() + Number(offset30Steps || 0));
     return makePeriodByIndex(dateYmd, idx);
   }
+
   function nextPeriodsIST(count) {
     const d = istNow();
     const dateYmd = ymdIST(d);
@@ -332,28 +336,13 @@
     for (let i = 0; i < count; i++) arr.push(makePeriodByIndex(dateYmd, base + i));
     return arr;
   }
-  function remainingSecondsInCycle() {
-    const sec = secondsSinceISTMidnight();
-    const into = sec % GAME_CFG.cycleSec;
-    const rem = GAME_CFG.cycleSec - into;
-    return rem === GAME_CFG.cycleSec ? GAME_CFG.cycleSec : rem; // 30..1
-  }
-
-  function numberToColor(n) {
-    if (n === 0 || n === 5) return "Violet";
-    if (n === 1 || n === 3 || n === 7 || n === 9) return "Green";
-    return "Red";
-  }
-  function numberToBigSmall(n) { return (n >= 5) ? "Big" : "Small"; }
 
   async function autoResultForPeriod(period) {
     const hex = await sha256(String(period));
     const n = parseInt(hex.slice(0, 8), 16) % 10;
-    return {
-      resultNumber: n,
-      resultColor: numberToColor(n),
-      resultBigSmall: numberToBigSmall(n),
-    };
+    const resultColor = (n === 0 || n === 5) ? "Violet" : (n === 1 || n === 3 || n === 7 || n === 9) ? "Green" : "Red";
+    const resultBigSmall = (n >= 5) ? "Big" : "Small";
+    return { resultNumber: n, resultColor, resultBigSmall };
   }
 
   async function ensureResultExists(period) {
@@ -362,136 +351,21 @@
       const snap = await tx.get(ref);
       if (snap.exists) return;
       const r = await autoResultForPeriod(period);
-      tx.set(ref, {
-        period,
-        ...r,
-        createdAt: nowISO(),
-        source: "auto_v1",
-      });
+      tx.set(ref, { period, ...r, createdAt: nowISO(), source: "auto_v1" });
     });
     const after = await ref.get();
     return after.exists ? after.data() : null;
   }
 
-  async function backfillLastNResults(n = 5) {
-    const d = istNow();
-    const dateYmd = ymdIST(d);
-    const curIdx = cycleIndexNow();
-    const periods = [];
-    for (let i = n - 1; i >= 0; i--) {
-      const idx = curIdx - i;
-      if (idx >= 1) periods.push(makePeriodByIndex(dateYmd, idx));
-    }
-    for (const p of periods) await ensureResultExists(p);
-    return periods;
-  }
-
-  async function fetchLastNResults(n = 5) {
-    const q = await resultsColRef().orderBy("period", "desc").limit(Number(n || 5)).get();
-    return q.docs.map((d) => d.data());
-  }
-
-  function listenLastNResults(n = 6, onChange) {
+  function listenLastNResults(n, onChange) {
     return resultsColRef()
       .orderBy("period", "desc")
-      .limit(Number(n || 6))
+      .limit(Number(n || 10))
       .onSnapshot((snap) => {
         const rows = snap.docs.map((d) => d.data());
         if (typeof onChange === "function") onChange(rows);
       });
   }
-
-  window.GAME = {
-    cfg: GAME_CFG,
-    currentPeriodIST,
-    periodByOffset,
-    nextPeriodsIST,
-    secondsSinceISTMidnight,
-    remainingSecondsInCycle,
-    ensureResultExists,
-    backfillLastNResults,
-    fetchLastNResults,
-    listenLastNResults,
-  };
-
-  // ====== ADMIN OPS ======
-  async function adminResetClientPassword(clientId, newPass, adminId) {
-    const a = await getUserById(adminId);
-    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
-
-    newPass = String(newPass || "").trim();
-    if (newPass.length < 4) return { ok: false, msg: "New password minimum 4 characters" };
-
-    const ref = userRef(clientId);
-    const snap = await ref.get();
-    if (!snap.exists) return { ok: false, msg: "Client not found" };
-
-    const passwordHash = await sha256(newPass);
-    await ref.update({ passwordHash, updatedAt: nowISO() });
-    return { ok: true };
-  }
-
-  async function updateAdminProfile(adminId, name, pass) {
-    const a = await getUserById(adminId);
-    if (!a || a.role !== "admin") return { ok: false, msg: "Admin not found" };
-
-    const patch = { updatedAt: nowISO() };
-    if (name && String(name).trim()) patch.name = String(name).trim();
-    if (pass && String(pass).trim().length >= 4) patch.passwordHash = await sha256(String(pass).trim());
-
-    await userRef(adminId).update(patch);
-    window.__ME = await getUserById(adminId);
-    return { ok: true };
-  }
-
-  async function deleteClient(clientId, adminId) {
-    const a = await getUserById(adminId);
-    if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
-    if (clientId === DEFAULT_ADMIN.clientId) return { ok: false, msg: "Cannot delete admin" };
-
-    const txSnap = await txnsCol(clientId).get();
-    const plSnap = await playsCol(clientId).get();
-    const batch = db().batch();
-
-    txSnap.docs.forEach((d) => batch.delete(d.ref));
-    plSnap.docs.forEach((d) => batch.delete(d.ref));
-    batch.delete(userRef(clientId));
-    await batch.commit();
-
-    return { ok: true };
-  }
-
-  async function clearClientHistory(clientId, resetWallet = false, adminId = null) {
-    if (adminId) {
-      const a = await getUserById(adminId);
-      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
-    }
-
-    const txSnap = await txnsCol(clientId).get();
-    const plSnap = await playsCol(clientId).get();
-    const batch = db().batch();
-
-    txSnap.docs.forEach((d) => batch.delete(d.ref));
-    plSnap.docs.forEach((d) => batch.delete(d.ref));
-
-    if (resetWallet) batch.update(userRef(clientId), { points: 0, updatedAt: nowISO() });
-
-    await batch.commit();
-
-    if (window.__ME && window.__ME.clientId === clientId) {
-      window.__ME = await getUserById(clientId);
-    }
-
-    return { ok: true };
-  }
-
-  async function listAllUsers() {
-    const q = await db().collection("users").orderBy("createdAt", "desc").get();
-    return q.docs.map((d) => d.data());
-  }
-
-  async function listUsers() { return await listAllUsers(); }
-  async function getUserByIdFS(userId) { return await getUserById(userId); }
 
   // ====== EXPOSE GLOBALS ======
   window.fmtDate = fmtDate;
@@ -513,15 +387,15 @@
   window.addPlayRow = addPlayRow;
   window.playsForUser = playsForUser;
 
-  window.adminResetClientPassword = adminResetClientPassword;
-  window.updateAdminProfile = updateAdminProfile;
-  window.deleteClient = deleteClient;
-  window.clearClientHistory = clearClientHistory;
-
   window.logout = logout;
 
-  window.listAllUsers = listAllUsers;
-  window.listUsers = listUsers;
-  window.getUserByIdFS = getUserByIdFS;
-
+  window.GAME = {
+    cfg: GAME_CFG,
+    currentPeriodIST,
+    periodByOffset,
+    nextPeriodsIST,
+    secondsSinceISTMidnight,
+    ensureResultExists,
+    listenLastNResults
+  };
 })();
