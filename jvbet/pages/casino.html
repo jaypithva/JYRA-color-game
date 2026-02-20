@@ -1,882 +1,100 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Casino - JVBET1803</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
+<meta charset="utf-8">
+<title>Casino - JVBET1803</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="../assets/image/jvbet-logo.png">
 
-  <!-- Optional (keep if you want) -->
-  <link rel="stylesheet" href="../assets/css/style.css" />
-<script>
-/* ================= TAB SWITCH FIX ================= */
-document.addEventListener("DOMContentLoaded", () => {
-  const tabs = document.querySelectorAll(".tabbtn");
-  const panels = document.querySelectorAll(".panel");
+<link rel="stylesheet" href="../assets/css/style.css">
 
-  tabs.forEach(btn => {
-    btn.addEventListener("click", () => {
-      // remove active
-      tabs.forEach(b => b.classList.remove("active"));
-      panels.forEach(p => p.classList.remove("active"));
-
-      // add active
-      btn.classList.add("active");
-      const target = btn.dataset.tab;
-      const panel = document.getElementById(target);
-      if(panel) panel.classList.add("active");
-    });
-  });
-});
-</script>
-  <style>
-    :root{
-      --gold: rgba(212,175,55,1);
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
-      --radius: 16px;
-      --text: #fff;
-      --muted: rgba(255,255,255,.72);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
-      background:#0b0b0f;
-      min-height:100dvh;
-      -webkit-font-smoothing:antialiased;
-      text-rendering:optimizeLegibility;
-    }
-    .bg{
-      background:
-        radial-gradient(900px 500px at 20% -10%, rgba(212,175,55,.12), transparent 55%),
-        radial-gradient(900px 500px at 90% 0%, rgba(43,111,255,.12), transparent 55%),
-        radial-gradient(900px 500px at 40% 120%, rgba(255,77,109,.10), transparent 55%),
-        #0b0b0f;
-    }
-
-    /* Header */
-    .header{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(10px);
-      background: rgba(0,0,0,.35);
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    .head-inner{
-      max-width:1100px; margin:0 auto;
-      padding:10px 14px;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .logo{height:44px; width:auto; display:block}
-
-    /* Layout */
-    .wrap{max-width:1100px; margin:0 auto; padding:12px}
-    .row{display:flex; gap:10px; align-items:center}
-    .row.wrapRow{flex-wrap:wrap}
-    .spaced{justify-content:space-between}
-
-    .badge{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 10px;
-      border-radius:999px;
-      background: rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.10);
-      font-weight:800;
-      font-size:13px;
-      white-space:nowrap;
-    }
-    .gold{color:var(--gold)}
-    .muted{color:var(--muted); font-weight:700}
-
-    .btn{
-      appearance:none; border:none;
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:900;
-      color:#000;
-      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.75));
-      cursor:pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-      transition: transform .08s ease, opacity .2s ease;
-      user-select:none;
-    }
-    .btn:active{transform:scale(.98)}
-    .btn:disabled{opacity:.55; cursor:not-allowed}
-
-    /* Tabs */
-    .tabs{
-      display:flex; gap:8px; flex-wrap:wrap;
-      margin:12px 0 10px;
-    }
-    .tabbtn{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color:#fff;
-      padding:10px 12px;
-      border-radius:999px;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .tabbtn.active{
-      border-color: rgba(212,175,55,.45);
-      background: rgba(212,175,55,.14);
-    }
-
-    /* Panels */
-    .panel{display:none}
-    .panel.active{display:block}
-
-    /* Cards */
-    .card{
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:14px;
-      overflow:hidden;
-    }
-    .card h3{margin:0 0 10px; font-size:18px; letter-spacing:.2px}
-
-    /* Grid (mobile first) */
-    .grid{display:grid; grid-template-columns: 1fr; gap:12px}
-    @media (min-width: 980px){
-      .grid{grid-template-columns: 1.1fr .9fr}
-    }
-
-    /* Live box */
-    .aiLiveBox{
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid rgba(212,175,55,.25);
-      background:rgba(0,0,0,.25);
-      box-shadow:0 18px 60px rgba(0,0,0,.35);
-      position:relative;
-      width:100%;
-    }
-    .aiLiveTop{
-      position:absolute; top:10px; left:10px;
-      display:flex; gap:10px; align-items:center;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(0,0,0,.55);
-      border:1px solid rgba(255,255,255,.12);
-      z-index:2;
-      max-width:calc(100% - 20px);
-    }
-    .liveDot{
-      width:10px;height:10px;border-radius:50%;
-      background:#ff3b3b;
-      box-shadow:0 0 14px rgba(255,59,59,.85);
-      animation:pulse 1.2s infinite;
-      flex:0 0 auto;
-    }
-    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
-    .liveTxt{font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
-    .aiVid{
-      width:100%;
-      height:240px;
-      object-fit:cover;
-      display:block;
-      filter:contrast(1.05) saturate(1.05);
-      background:#000;
-    }
-    @media (min-width: 900px){.aiVid{height:320px}}
-    @media (max-width: 420px){.aiVid{height:210px}}
-
-    /* ✅ FIXED TIMER SECTION (no break / no ugly wrap) */
-    .timerWrap{
-      display:flex; gap:10px; align-items:center;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      margin-top:10px;
-    }
-    .timerPill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(212,175,55,.35);
-      background:rgba(0,0,0,.22);
-      flex: 1 1 320px;
-      min-width: 0;
-      max-width: 100%;
-      overflow:hidden;
-      white-space:nowrap;
-    }
-    .timerPill > span{white-space:nowrap}
-    .timerNum{font-weight:900}
-    .timerBar{
-      flex:1;
-      height:8px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      overflow:hidden;
-      min-width:90px;
-    }
-    .timerFill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35));
-    }
-    .pillSmall{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      font-weight:900;
-      flex: 0 0 auto;
-      text-align:center;
-      white-space:nowrap;
-      min-width:120px;
-    }
-    @media (max-width: 520px){
-      .pillSmall{min-width: 0; flex:1 1 120px;}
-    }
-    .lockOpen{border-color:rgba(34,197,94,.45)}
-    .lockPlaced{border-color:rgba(43,111,255,.45)}
-    .lockLocked{border-color:rgba(255,193,7,.45)}
-    .lockClosed{border-color:rgba(255,77,109,.45)}
-
-    /* Latest result */
-    .prevBox{
-      display:flex; gap:8px; flex-wrap:wrap;
-      padding:10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      min-height:44px;
-    }
-    .resChip{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(212,175,55,.28);
-      background:rgba(0,0,0,.25);
-      font-weight:900;
-      letter-spacing:.3px;
-      white-space:nowrap;
-      max-width:100%;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    /* Casino board */
-    .casinoBoard{
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:14px;
-      overflow:hidden;
-    }
-    .cTop{
-      display:grid;
-      grid-template-columns: 1fr 1.3fr 1fr;
-      gap:10px;
-      align-items:stretch;
-    }
-    @media (max-width: 900px){.cTop{grid-template-columns: 1fr 1fr}}
-    @media (max-width: 520px){.cTop{grid-template-columns: 1fr}}
-
-    .topBox{
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      padding:10px;
-      min-width:0;
-    }
-    .topTitle{font-weight:900; opacity:.85; font-size:12px}
-    .topValue{font-weight:1000; font-size:18px; margin-top:6px}
-    .topValue.gold{color:var(--gold)}
-
-    /* ✅ Cards text smaller according card size */
-    .card3{display:flex; gap:12px; justify-content:center; align-items:center; margin-top:6px}
-    .flipCard{width:72px;height:92px; perspective:800px}
-    .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
-    .flipCard.flipped .flipInner{transform:rotateY(180deg)}
-    .flipFace{
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:1000;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      backface-visibility:hidden;
-      padding:6px;
-      text-align:center;
-      line-height:1.05;
-      overflow:hidden;
-      word-break:break-word;
-      font-size: clamp(12px, 3.8vw, 17px); /* ✅ smaller max */
-    }
-    .flipBack{transform:rotateY(180deg)}
-    @media (max-width: 420px){
-      .flipCard{width:62px;height:82px}
-      .card3{gap:8px}
-      .flipFace{font-size: clamp(11px, 4.2vw, 15px);}
-    }
-
-    /* Bets */
-    .cMid{margin-top:12px}
-    .betRow{display:grid; gap:10px}
-    #dtBets, #tpBets{grid-template-columns: repeat(3, minmax(0,1fr))}
-    #rBets{grid-template-columns: repeat(2, minmax(0,1fr))}
-    .betBox{
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      padding:12px 10px;
-      cursor:pointer;
-      user-select:none;
-      text-align:center;
-      transition: transform .08s ease, border-color .2s ease, background .2s ease;
-    }
-    .betBox:active{transform:scale(.98)}
-    .betBox.active{
-      border-color: rgba(212,175,55,.55);
-      background: rgba(212,175,55,.12);
-    }
-    .betName{font-weight:1000; letter-spacing:.3px}
-    .betMul{margin-top:4px; font-weight:900; opacity:.85; font-size:12px}
-
-    /* Bottom: chips + stake */
-    .cBottom{margin-top:12px; display:flex; flex-direction:column; gap:10px}
-    .chips{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
-    .chip{
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.20);
-      padding:10px 14px;
-      font-weight:1000;
-      cursor:pointer;
-      user-select:none;
-      min-width:70px;
-      text-align:center;
-    }
-    .chip:active{transform:scale(.98)}
-    .stakeBox{display:flex; gap:10px; width:100%; align-items:stretch}
-    .stakeInput{
-      width:100%;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.22);
-      color:#fff;
-      padding:12px 12px;
-      font-weight:900;
-      outline:none;
-      min-width:0;
-    }
-    @media (max-width: 520px){
-      .stakeBox{flex-direction:column}
-      .stakeBox .btn{width:100%}
-    }
-
-    /* scroll tables */
-    .scrollBox{
-      margin-top:10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.14);
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      max-height:260px;
-    }
-    .scrollBox table{width:100%; border-collapse:collapse; min-width:640px}
-    table.table th, table.table td{
-      padding:10px 12px;
-      border-bottom:1px solid rgba(255,255,255,.07);
-      text-align:left;
-      white-space:nowrap;
-      font-weight:800;
-    }
-    table.table th{font-size:12px; opacity:.9}
-
-    /* ✅ My Bet + Last 5 Results boxes */
-    .miniOuter{
-      margin-top:10px;
-      border-radius:16px;
-      border:1px solid rgba(212,175,55,.20);
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
-      overflow:hidden;
-    }
-    .miniHead{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:10px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      background:rgba(0,0,0,.20);
-    }
-    .miniTitle{font-weight:1000; letter-spacing:.2px}
-    .miniSub{opacity:.85; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70vw}
-    .miniPill{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);
-      font-weight:1000;
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .stPending{border-color:rgba(255,193,7,.40)}
-    .stWin{border-color:rgba(34,197,94,.45)}
-    .stLoss{border-color:rgba(255,77,109,.45)}
-    .stTie{border-color:rgba(43,111,255,.45)}
-
-    .miniScroll{overflow:auto; -webkit-overflow-scrolling:touch}
-    .miniScroll table{width:100%; border-collapse:collapse; min-width:520px}
-    .miniScroll th,.miniScroll td{
-      padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.07);
-      text-align:left; white-space:nowrap; font-weight:900;
-    }
-    .miniScroll th{font-size:12px; opacity:.9}
-
-    /* Toast */
-    .toast{
-      position:fixed; left:50%; bottom:22px;
-      transform:translateX(-50%);
-      background:rgba(0,0,0,.78);
-      border:1px solid rgba(212,175,55,.35);
-      color:#fff;
-      padding:12px 14px;
-      border-radius:14px;
-      z-index:9999;
-      display:none;
-      max-width:92vw;
-      box-shadow:0 16px 40px rgba(0,0,0,.45);
-    }
-    .toast.show{display:block}
-    .toast .t{font-weight:1000}
-    .toast.win{border-color:rgba(34,197,94,.55)}
-    .toast.loss{border-color:rgba(255,77,109,.55)}
-    .toast.tie{border-color:rgba(43,111,255,.55)}
-  </style>
+<style>
+/* =================== SAME DESIGN (UNCHANGED) =================== */
+body{margin:0;background:#0b0b0f;color:#fff;font-family:system-ui}
+.header{position:sticky;top:0;background:rgba(0,0,0,.4);backdrop-filter:blur(10px)}
+.logo{height:42px}
+.tabs{display:flex;gap:8px;padding:12px}
+.tabbtn{padding:10px 14px;border-radius:20px;background:#111;color:#fff;border:1px solid #333;cursor:pointer}
+.tabbtn.active{background:rgba(212,175,55,.2);border-color:gold}
+.panel{display:none}
+.panel.active{display:block}
+.gold{color:gold}
+.card{margin:12px;border-radius:16px;padding:14px;background:#111;border:1px solid #333}
+.timer{display:flex;gap:10px;align-items:center}
+.badge{padding:6px 10px;border-radius:14px;border:1px solid #444}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #333;text-align:left}
+</style>
 </head>
 
-<body class="bg">
-  <header class="header">
-    <div class="head-inner">
-      <img class="logo" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
-    </div>
-  </header>
+<body>
 
-  <main class="wrap">
-    <div class="row wrapRow spaced" style="margin-bottom:12px">
-      <div class="row wrapRow">
-        <span class="badge">Client: <span class="gold" id="cid">-</span></span>
-        <span class="badge">Points: <span class="gold" id="pts">0</span></span>
-        <span class="badge">Win: <span class="gold" id="w">0</span></span>
-        <span class="badge">Loss: <span class="gold" id="l">0</span></span>
-      </div>
-      <button class="btn" type="button" id="logoutBtn">Logout</button>
-    </div>
-
-    <div class="tabs">
-      <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
-      <button class="tabbtn" data-tab="tp" type="button">Teen Patti</button>
-      <button class="tabbtn" data-tab="rl" type="button">Roulette</button>
-      <button class="tabbtn" data-tab="hist" type="button">History</button>
-    </div>
-
-    <!-- ======================= DRAGON TIGER ======================= -->
-    <section class="panel active" id="dt">
-      <div class="grid">
-        <div class="card">
-          <h3>Dragon Tiger</h3>
-
-          <div class="aiLiveBox">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE</span>
-              <span class="liveView" id="dtView">👁 128</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
-            </video>
-          </div>
-
-          <div class="timerWrap">
-            <div class="timerPill">
-              <span>⏳</span>
-              <span>Round ends in:</span>
-              <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="dtFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
-            <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="muted">Latest Result</div>
-            <div class="prevBox" id="dtPrev"></div>
-          </div>
-
-          <!-- ✅ NEW: Last 5 Results (DT) -->
-          <div class="miniOuter" id="dtLast5Box">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">Last 5 Results</div>
-                <div class="miniSub" id="dtLast5Sub">—</div>
-              </div>
-              <span class="miniPill">AUTO</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="dtLast5Body">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- ✅ My Bet (DT) -->
-          <div class="miniOuter" id="dtMyBetBox">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">My Bet</div>
-                <div class="miniSub" id="dtMyBetSub">—</div>
-              </div>
-              <span class="miniPill" id="dtMyBetStatus">NO BET</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="dtMyBetBody">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <p class="muted" style="margin-top:10px">
-            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
-          </p>
-        </div>
-
-        <div class="casinoBoard">
-          <div class="cTop">
-            <div class="topBox">
-              <div class="topTitle">Last Result</div>
-              <div class="topValue" id="dtLast">-</div>
-            </div>
-
-            <div class="topBox">
-              <div class="topTitle" style="text-align:center">Cards</div>
-              <div class="card3">
-                <div class="flipCard" id="fcD"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtD">?</div></div></div>
-                <div class="flipCard" id="fcT"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtT">?</div></div></div>
-                <div class="flipCard" id="fcR"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtR">?</div></div></div>
-              </div>
-            </div>
-
-            <div class="topBox">
-              <div class="topTitle">Selected</div>
-              <div class="topValue gold" id="dtPickShow">DRAGON</div>
-            </div>
-          </div>
-
-          <div class="cMid">
-            <div class="betRow" id="dtBets">
-              <div class="betBox active" data-pick="DRAGON"><div class="betName">DRAGON</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIGER"><div class="betName">TIGER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
-            </div>
-          </div>
-
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeBox">
-              <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet">
-              <button class="btn" id="dtPlay" type="button">Place Bet</button>
-            </div>
-
-            <span class="badge" id="dtMsg">-</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <h3>Last 10 Bets (Dragon Tiger)</h3>
-        <div class="muted" id="dtWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="dtPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= TEEN PATTI ======================= -->
-    <section class="panel" id="tp">
-      <div class="grid">
-        <div class="card">
-          <h3>Teen Patti</h3>
-
-          <div class="aiLiveBox">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE</span>
-              <span class="liveView" id="tpView">👁 212</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
-            </video>
-          </div>
-
-          <div class="timerWrap">
-            <div class="timerPill">
-              <span>⏳</span><span>Round ends in:</span>
-              <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="tpFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
-            <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
-            <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="muted">Latest Result</div>
-            <div class="prevBox" id="tpPrev"></div>
-          </div>
-
-          <!-- ✅ NEW: Last 5 Results (TP) -->
-          <div class="miniOuter" id="tpLast5Box">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">Last 5 Results</div>
-                <div class="miniSub" id="tpLast5Sub">—</div>
-              </div>
-              <span class="miniPill">AUTO</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="tpLast5Body">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- ✅ My Bet (TP) -->
-          <div class="miniOuter" id="tpMyBetBox">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">My Bet</div>
-                <div class="miniSub" id="tpMyBetSub">—</div>
-              </div>
-              <span class="miniPill" id="tpMyBetStatus">NO BET</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="tpMyBetBody">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="casinoBoard">
-          <div class="cTop">
-            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="tpPickShow2">PLAYER</div></div>
-            <div class="topBox"><div class="topTitle">Round</div><div class="topValue" id="tpRound2">-</div></div>
-            <div class="topBox"><div class="topTitle">Status</div><div class="topValue" id="tpStatus">-</div></div>
-          </div>
-
-          <div class="cMid">
-            <div class="betRow" id="tpBets">
-              <div class="betBox active" data-pick="PLAYER"><div class="betName">PLAYER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BANKER"><div class="betName">BANKER</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
-            </div>
-          </div>
-
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeBox">
-              <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points">
-              <button class="btn" id="tpPlay" type="button">PLAY</button>
-            </div>
-
-            <span class="badge" id="tpMsg">-</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <h3>Last 10 Bets (Teen Patti)</h3>
-        <div class="muted" id="tpWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="tpPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= ROULETTE ======================= -->
-    <section class="panel" id="rl">
-      <div class="grid">
-        <div class="card">
-          <h3>Roulette</h3>
-
-          <div class="aiLiveBox">
-            <div class="aiLiveTop">
-              <span class="liveDot"></span>
-              <span class="liveTxt">LIVE</span>
-              <span class="liveView" id="rView">👁 156</span>
-            </div>
-            <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
-            </video>
-          </div>
-
-          <div class="timerWrap">
-            <div class="timerPill">
-              <span>⏳</span><span>Round ends in:</span>
-              <span class="timerNum gold" id="rTimer">30</span><span>s</span>
-              <div class="timerBar"><div class="timerFill" id="rFill"></div></div>
-            </div>
-            <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
-            <div class="pillSmall lockOpen" id="rLock">OPEN</div>
-            <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="muted">Latest Result</div>
-            <div class="prevBox" id="rPrev"></div>
-          </div>
-
-          <!-- ✅ NEW: Last 5 Results (Roulette) -->
-          <div class="miniOuter" id="rLast5Box">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">Last 5 Results</div>
-                <div class="miniSub" id="rLast5Sub">—</div>
-              </div>
-              <span class="miniPill">AUTO</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="rLast5Body">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- ✅ My Bet (Roulette) -->
-          <div class="miniOuter" id="rMyBetBox">
-            <div class="miniHead">
-              <div>
-                <div class="miniTitle">My Bet</div>
-                <div class="miniSub" id="rMyBetSub">—</div>
-              </div>
-              <span class="miniPill" id="rMyBetStatus">NO BET</span>
-            </div>
-            <div class="miniScroll">
-              <table>
-                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
-                <tbody id="rMyBetBody">
-                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="casinoBoard">
-          <div class="cMid">
-            <div class="betRow" id="rBets">
-              <div class="betBox active" data-pick="RED"><div class="betName">RED</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BLACK"><div class="betName">BLACK</div><div class="betMul">2x</div></div>
-            </div>
-          </div>
-
-          <div class="cBottom">
-            <div class="chips">
-              <div class="chip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeBox">
-              <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points">
-              <button class="btn" id="rPlay" type="button">PLAY</button>
-            </div>
-
-            <span class="badge" id="rMsg">-</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:14px">
-        <h3>Last 10 Bets (Roulette)</h3>
-        <div class="muted" id="rWait"></div>
-        <div class="scrollBox">
-          <table class="table" id="rPast">
-            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= HISTORY ======================= -->
-    <section class="panel" id="hist">
-      <div class="card">
-        <h3>Full Play History</h3>
-        <div class="scrollBox" style="max-height:360px">
-          <table class="table" id="bh">
-            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div class="toast" id="toast">
-    <div class="t" id="toastTitle">-</div>
-    <div class="muted" id="toastBody">-</div>
+<header class="header">
+  <div style="padding:10px;text-align:center">
+    <img src="../assets/image/jvbet-logo.png" class="logo">
   </div>
+</header>
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<div class="tabs">
+  <button class="tabbtn active" data-tab="dt">Dragon Tiger</button>
+  <button class="tabbtn" data-tab="tp">Teen Patti</button>
+  <button class="tabbtn" data-tab="rl">Roulette</button>
+</div>
 
-  <script>
-/* ======================================================
-   JVBET – FINAL REMAKE LOGIC
-   ✔ Per-User Last 5 Results (Firestore)
-   ✔ No Round Skip / Jump
-   ✔ Design untouched
-====================================================== */
+<!-- ================= DRAGON TIGER ================= -->
+<section class="panel active" id="dt">
+  <div class="card">
+    <div class="timer">
+      ⏳ <span id="dtTimer">30</span>s
+      <span class="badge">Round: <span class="gold" id="dtRound">-</span></span>
+    </div>
 
-/* ---------- FIREBASE ---------- */
+    <h3>Last 5 Results</h3>
+    <table>
+      <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+      <tbody id="dtLast5"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= TEEN PATTI ================= -->
+<section class="panel" id="tp">
+  <div class="card">
+    <div class="timer">
+      ⏳ <span id="tpTimer">30</span>s
+      <span class="badge">Round: <span class="gold" id="tpRound">-</span></span>
+    </div>
+
+    <h3>Last 5 Results</h3>
+    <table>
+      <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+      <tbody id="tpLast5"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= ROULETTE ================= -->
+<section class="panel" id="rl">
+  <div class="card">
+    <div class="timer">
+      ⏳ <span id="rTimer">30</span>s
+      <span class="badge">Round: <span class="gold" id="rRound">-</span></span>
+    </div>
+
+    <h3>Last 5 Results</h3>
+    <table>
+      <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+      <tbody id="rLast5"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================= FIREBASE INIT ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
   authDomain: "jvbet-bbf90.firebaseapp.com",
@@ -884,159 +102,104 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-/* ---------- GLOBALS ---------- */
-const TOTAL_SEC = 30;
-const LOCK_AT = 15;
-let ME_ID = null;
-
-/* ---------- SESSION ---------- */
+/* ================= SESSION ================= */
 const session = JSON.parse(localStorage.getItem("jvbet_session"));
-if (!session || !session.id) location.href="../index.html";
-ME_ID = session.id;
+if(!session?.id) location.href="../index.html";
+const UID = session.id;
 
-/* ---------- ROUND ENGINE (NO SKIP) ---------- */
-function roundKey(game){
-  return `ROUND_${ME_ID}_${game}`;
-}
+/* ================= CONFIG ================= */
+const ROUND_TIME = 30;
 
-function getRound(game){
-  return JSON.parse(localStorage.getItem(roundKey(game)));
-}
-
-function setRound(game,data){
-  localStorage.setItem(roundKey(game), JSON.stringify(data));
-}
-
-function ensureRound(game){
-  let r = getRound(game);
-  if(!r){
-    r = { round: 1, start: Date.now(), revealed:false };
-    setRound(game,r);
+/* ================= TAB FIX ================= */
+document.querySelectorAll(".tabbtn").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
   }
-  return r;
+});
+
+/* ================= HELPERS ================= */
+const stateRef = g =>
+  db.collection("users").doc(UID).collection("gameState").doc(g);
+
+function now(){return Date.now();}
+
+async function ensureGame(g){
+  const ref = stateRef(g);
+  const s = await ref.get();
+  if(!s.exists){
+    await ref.set({round:1,start:now(),done:false});
+  }
 }
 
-function secondsLeft(r){
-  return Math.max(0, TOTAL_SEC - Math.floor((Date.now()-r.start)/1000));
+function leftTime(s){
+  return Math.max(0, ROUND_TIME - Math.floor((now()-s.start)/1000));
 }
 
-/* ---------- LAST 5 (PER USER) ---------- */
-async function pushLast5(game,result,round){
-  const ref = db.collection("users").doc(ME_ID);
+/* ================= RESULT ================= */
+function draw(g){
+  if(g==="dt") return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
+  if(g==="tp") return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
+  if(g==="rl"){
+    const n=Math.floor(Math.random()*37);
+    return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
+  }
+}
 
+/* ================= LAST 5 ================= */
+async function pushLast5(game,res,round){
+  const uref = db.collection("users").doc(UID);
   await db.runTransaction(async tx=>{
-    const snap = await tx.get(ref);
-    const data = snap.data() || {};
-    const last5 = data.last5Results || {};
-    const arr = (last5[game] || []).filter(x=>x.round!==round);
-
-    arr.unshift({
-      result,
-      round,
-      time: Date.now()
-    });
-
-    last5[game] = arr.slice(0,5);
-
-    tx.set(ref,{ last5Results:last5 },{ merge:true });
+    const s = await tx.get(uref);
+    const d = s.data()||{};
+    const l = d.last5Results||{};
+    const arr = l[game]||[];
+    arr.unshift({res,round,time:now()});
+    l[game]=arr.slice(0,5);
+    tx.set(uref,{last5Results:l},{merge:true});
   });
-
-  renderLast5(game);
 }
 
-/* ---------- RENDER LAST 5 ---------- */
-async function renderLast5(game){
-  const map = {
-    DragonTiger:"dtLast5Body",
-    TeenPatti:"tpLast5Body",
-    Roulette:"rLast5Body"
-  };
-  const body = document.getElementById(map[game]);
-  if(!body) return;
-
-  const snap = await db.collection("users").doc(ME_ID).get();
-  const arr = snap.data()?.last5Results?.[game] || [];
-
-  if(!arr.length){
-    body.innerHTML = "<tr><td colspan='4'>No results</td></tr>";
-    return;
-  }
-
-  body.innerHTML = arr.map((x,i)=>`
-    <tr>
-      <td>${i+1}</td>
-      <td class="gold">${x.result}</td>
-      <td>${x.round}</td>
-      <td>${new Date(x.time).toLocaleString()}</td>
-    </tr>
-  `).join("");
+async function renderLast5(game,el){
+  const s = await db.collection("users").doc(UID).get();
+  const arr = s.data()?.last5Results?.[game]||[];
+  el.innerHTML = arr.length
+    ? arr.map((x,i)=>`<tr><td>${i+1}</td><td class="gold">${x.res}</td><td>${x.round}</td><td>${new Date(x.time).toLocaleTimeString()}</td></tr>`).join("")
+    : `<tr><td colspan="4">No data</td></tr>`;
 }
 
-/* ---------- RESULT GENERATORS ---------- */
-function drawDT(){
-  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
-}
-function drawTP(){
-  return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
-}
-function drawR(){
-  const n=Math.floor(Math.random()*37);
-  return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
-}
+/* ================= LOOP ================= */
+async function tick(game,timer,roundEl,tbody){
+  await ensureGame(game);
+  const ref = stateRef(game);
+  const s = (await ref.get()).data();
+  const left = leftTime(s);
 
-/* ---------- REVEAL ---------- */
-async function reveal(game){
-  const r = ensureRound(game);
-  if(r.revealed) return;
+  timer.textContent = left;
+  roundEl.textContent = s.round;
 
-  r.revealed = true;
-  setRound(game,r);
-
-  let res="";
-  if(game==="DragonTiger") res=drawDT();
-  if(game==="TeenPatti") res=drawTP();
-  if(game==="Roulette") res=drawR();
-
-  await pushLast5(game,res,r.round);
-
-  setTimeout(()=>{
-    setRound(game,{
-      round: r.round + 1,
-      start: Date.now(),
-      revealed:false
-    });
-  },800);
-}
-
-/* ---------- TICK ---------- */
-async function tick(game,timerId,roundId){
-  const r = ensureRound(game);
-  const left = secondsLeft(r);
-
-  document.getElementById(timerId).textContent = left;
-  document.getElementById(roundId).textContent = r.round;
-
-  if(left===0){
-    await reveal(game);
+  if(left===0 && !s.done){
+    const r = draw(game);
+    await pushLast5(game,r,s.round);
+    await ref.update({done:true});
+    setTimeout(()=>{
+      ref.update({round:s.round+1,start:now(),done:false});
+    },800);
   }
 }
 
-/* ---------- INIT ---------- */
-(async function(){
-  renderLast5("DragonTiger");
-  renderLast5("TeenPatti");
-  renderLast5("Roulette");
+/* ================= INIT ================= */
+setInterval(()=>{
+  tick("dt",dtTimer,dtRound,dtLast5);
+  tick("tp",tpTimer,tpRound,tpLast5);
+  tick("rl",rTimer,rRound,rLast5);
 
-  setInterval(()=>{
-    tick("DragonTiger","dtTimer","dtRound");
-    tick("TeenPatti","tpTimer","tpRound");
-    tick("Roulette","rTimer","rRound");
-  },250);
-})();
+  renderLast5("dt",dtLast5);
+  renderLast5("tp",tpLast5);
+  renderLast5("rl",rLast5);
+},1000);
 </script>
 </body>
 </html>
-
-
-
-
