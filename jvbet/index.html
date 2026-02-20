@@ -5,33 +5,440 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>JVBET1803 - Login</title>
 
-  <link rel="stylesheet" href="assets/css/style.css"/>
   <link rel="shortcut icon" href="assets/image/jvbet-logo.png" type="image/x-icon"/>
 
   <style>
-    .logoOnly{height:44px;width:auto;display:block;object-fit:contain;margin:0 auto 14px}
-    .card{max-width:520px;margin:22px auto;padding:18px;border-radius:18px}
-    .msg{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:42px}
-    .muted{opacity:.75}
+    :root{
+      --bg1:#07080c;
+      --bg2:#0b0e16;
+      --panel:#0b0d14cc;
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(212,175,55,.22);
+      --gold:#d4af37;
+      --gold2:#f3d27a;
+      --text:#e9e9ef;
+      --muted:rgba(233,233,239,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 18% 35%, rgba(212,175,55,.12), transparent 55%),
+        radial-gradient(900px 520px at 80% 70%, rgba(140,90,255,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg2), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    /* ====== Premium background layer (replace image path as you like) ====== */
+    .bgScene{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(800px 450px at 20% 45%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(800px 450px at 75% 55%, rgba(212,175,55,.08), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35));
+      pointer-events:none;
+      z-index:-2;
+    }
+    .bgPhoto{
+      position:fixed; inset:0;
+      /* ✅ Put your image here (app link / local image) */
+      background-image:url("assets/image/login-bg.jpg");
+      background-size:cover;
+      background-position:center;
+      filter:saturate(1.08) contrast(1.06);
+      opacity:.26;
+      z-index:-3;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+
+    .shell{
+      width:min(1120px, 100%);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    /* Left hero panel */
+    .hero{
+      position:relative;
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,.07);
+      background:
+        radial-gradient(1200px 700px at 20% 40%, rgba(212,175,55,.16), transparent 60%),
+        radial-gradient(900px 600px at 65% 60%, rgba(255,255,255,.06), transparent 65%),
+        linear-gradient(180deg, rgba(10,12,18,.72), rgba(6,7,10,.82));
+      min-height:520px;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 260px at 28% 40%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(560px 360px at 70% 55%, rgba(212,175,55,.12), transparent 62%),
+        radial-gradient(900px 540px at 40% 95%, rgba(0,0,0,.55), transparent 60%);
+      pointer-events:none;
+      opacity:.85;
+    }
+
+    .heroInner{
+      position:relative;
+      height:100%;
+      padding:26px 26px 18px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      z-index:1;
+    }
+
+    .brandRow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .logoOnly{
+      height:44px;width:auto;display:block;object-fit:contain;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.45));
+    }
+    .brandText{
+      line-height:1.1;
+    }
+    .brandText b{
+      font-size:18px;
+      letter-spacing:.4px;
+    }
+    .brandText small{
+      display:block;
+      color:var(--muted);
+      margin-top:3px;
+      font-size:12.5px;
+      letter-spacing:.2px;
+    }
+
+    .heroTitle{
+      margin-top:10px;
+      font-size:42px;
+      letter-spacing:.2px;
+      line-height:1.05;
+    }
+    .heroTitle span{
+      background: linear-gradient(90deg, var(--gold2), var(--gold));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow: 0 14px 28px rgba(0,0,0,.35);
+    }
+    .heroSub{
+      margin-top:10px;
+      color:rgba(233,233,239,.78);
+      max-width:520px;
+      font-size:14.5px;
+      line-height:1.5;
+    }
+
+    .chips{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background: rgba(0,0,0,.24);
+      border:1px solid rgba(255,255,255,.10);
+      color:rgba(233,233,239,.86);
+      font-size:12.5px;
+      backdrop-filter: blur(8px);
+    }
+    .chip i{
+      width:8px;height:8px;border-radius:99px;
+      background: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.18);
+    }
+
+    .heroFooter{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.08);
+      color:rgba(233,233,239,.68);
+      font-size:12.5px;
+    }
+
+    /* Right login panel */
+    .card{
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(12,14,20,.78), rgba(7,8,12,.72));
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(480px 260px at 40% 0%, rgba(212,175,55,.12), transparent 60%),
+        radial-gradient(600px 360px at 80% 120%, rgba(255,255,255,.06), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .cardInner{
+      position:relative;
+      padding:22px 22px 18px;
+      z-index:1;
+    }
+
+    .welcome{
+      text-align:center;
+      margin-top:8px;
+      margin-bottom:18px;
+    }
+    .welcome h2{
+      margin:0;
+      font-size:26px;
+      letter-spacing:.2px;
+    }
+    .welcome p{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .field{
+      position:relative;
+      margin-top:12px;
+    }
+
+    .input{
+      width:100%;
+      padding:14px 44px 14px 44px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-size:14.5px;
+      transition:.18s ease;
+      backdrop-filter: blur(10px);
+    }
+    .input::placeholder{ color: rgba(233,233,239,.55); }
+    .input:focus{
+      border-color: rgba(212,175,55,.45);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.12);
+    }
+
+    .iconLeft{
+      position:absolute;
+      left:14px; top:50%;
+      transform:translateY(-50%);
+      width:18px; height:18px;
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .iconBtn{
+      position:absolute;
+      right:10px; top:50%;
+      transform:translateY(-50%);
+      border:0;
+      background:transparent;
+      padding:8px;
+      border-radius:10px;
+      cursor:pointer;
+      color:rgba(233,233,239,.78);
+      transition:.15s ease;
+    }
+    .iconBtn:hover{
+      background:rgba(255,255,255,.06);
+      color:rgba(233,233,239,.92);
+    }
+
+    .btn{
+      width:100%;
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.42);
+      background: linear-gradient(180deg, rgba(212,175,55,.26), rgba(0,0,0,.18));
+      color:var(--text);
+      font-weight:700;
+      letter-spacing:.2px;
+      cursor:pointer;
+      transition:.18s ease;
+      box-shadow: 0 14px 28px rgba(0,0,0,.35);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,.62);
+      box-shadow: 0 18px 34px rgba(0,0,0,.42);
+    }
+    .btn:active{ transform: translateY(0px); }
+
+    .msg{
+      margin-top:12px;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      min-height:42px;
+      color:rgba(233,233,239,.86);
+      font-size:13.5px;
+      line-height:1.35;
+    }
+
+    .miniFooter{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      color:rgba(233,233,239,.62);
+      font-size:12.5px;
+      padding-top:14px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .dot{opacity:.55}
+
+    /* ====== Responsive ====== */
+    @media (max-width: 980px){
+      .shell{grid-template-columns:1fr; }
+      .hero{min-height:420px}
+      .heroTitle{font-size:36px}
+    }
+    @media (max-width: 520px){
+      .wrap{padding:14px}
+      .heroInner{padding:18px}
+      .cardInner{padding:18px}
+      .heroTitle{font-size:32px}
+      .input{padding:13px 42px 13px 42px}
+      .logoOnly{height:40px}
+    }
   </style>
 </head>
 
-<body class="bg">
+<body>
+  <div class="bgPhoto" aria-hidden="true"></div>
+  <div class="bgScene" aria-hidden="true"></div>
+
   <main class="wrap">
-    <section class="card">
-      <a href="index.html" style="text-decoration:none;color:inherit">
-        <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803"/>
-        <p class="muted" style="text-align:center;margin-top:-4px;">Welcome JVBet</p>
-      </a>
+    <section class="shell">
 
-      <div style="margin-top:14px;">
-        <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off"/>
-        <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off" style="margin-top:10px;"/>
+      <!-- LEFT HERO (premium look) -->
+      <div class="hero">
+        <div class="heroInner">
+          <div>
+            <a href="index.html" style="text-decoration:none;color:inherit">
+              <div class="brandRow">
+                <img class="logoOnly" src="assets/image/jvbet-logo.png" alt="JVBET1803"/>
+                <div class="brandText">
+                  <b>JVBET1803</b>
+                  <small>Premium Live Casino Experience</small>
+                </div>
+              </div>
+            </a>
 
-        <button class="btn" id="loginBtn" type="button" style="margin-top:12px;width:100%;">Login</button>
+            <div class="heroTitle" style="margin-top:18px;">
+              Welcome <span>Back!</span>
+            </div>
+            <div class="heroSub">
+              Secure login, fast results, and live dealers—designed for a smooth premium experience on every device.
+            </div>
 
-        <div class="msg" id="msg">Enter ID/Phone & Password.</div>
+            <div class="chips">
+              <span class="chip"><i></i>24×7 Live Dealers</span>
+              <span class="chip"><i></i>Instant Result</span>
+              <span class="chip"><i></i>Secure Login</span>
+            </div>
+          </div>
+
+          <div class="heroFooter">
+            <span>Trusted • Fast • Smooth UI</span>
+            <span style="color:rgba(212,175,55,.85);font-weight:700;">JV Premium</span>
+          </div>
+        </div>
       </div>
+
+      <!-- RIGHT LOGIN CARD -->
+      <div class="card">
+        <div class="cardInner">
+          <div class="welcome">
+            <h2>Login</h2>
+            <p>Enter ClientID/Phone & Password</p>
+          </div>
+
+          <div class="field">
+            <!-- User icon -->
+            <svg class="iconLeft" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Z" stroke="rgba(233,233,239,.75)" stroke-width="1.6"/>
+              <path d="M4.5 20.2c1.9-4 13.1-4 15 0" stroke="rgba(233,233,239,.75)" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+
+            <input class="input" id="id" placeholder="ClientID / Phone Number" autocomplete="off"/>
+          </div>
+
+          <div class="field">
+            <!-- Lock icon -->
+            <svg class="iconLeft" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 11V8.8A5 5 0 0 1 12 4a5 5 0 0 1 5 4.8V11" stroke="rgba(233,233,239,.75)" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M6.5 11h11a2 2 0 0 1 2 2v5.5a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V13a2 2 0 0 1 2-2Z" stroke="rgba(233,233,239,.75)" stroke-width="1.6"/>
+            </svg>
+
+            <input class="input" id="pass" placeholder="Password" type="password" autocomplete="off"/>
+
+            <!-- Show/Hide button -->
+            <button class="iconBtn" id="togglePass" type="button" aria-label="Show password">
+              <!-- eye icon (default: hidden state -> show icon) -->
+              <svg id="eyeOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.2 12s3.6-7 9.8-7 9.8 7 9.8 7-3.6 7-9.8 7-9.8-7-9.8-7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4Z" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+              <svg id="eyeOff" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none;">
+                <path d="M3 3l18 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M10.6 6.1A9.9 9.9 0 0 1 12 6c6.2 0 9.8 6 9.8 6a17.7 17.7 0 0 1-3.2 4.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M6.2 7.5C3.5 9.6 2.2 12 2.2 12s3.6 7 9.8 7c1.6 0 3-.3 4.2-.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M10.1 10.2A3.2 3.2 0 0 0 14 14.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <button class="btn" id="loginBtn" type="button">Login</button>
+
+          <div class="msg" id="msg">Enter ID/Phone & Password.</div>
+
+          <div class="miniFooter">
+            <span>24×7 Live</span><span class="dot">•</span>
+            <span>Fast Login</span><span class="dot">•</span>
+            <span>Secure</span>
+          </div>
+        </div>
+      </div>
+
     </section>
   </main>
 
@@ -144,6 +551,30 @@
   document.addEventListener("keydown", function(e){
     if(e.key === "Enter") doLogin();
   });
+
+  /* ================= PASSWORD SHOW/HIDE ================= */
+  (function(){
+    var btn = $("togglePass");
+    if(!btn) return;
+
+    btn.addEventListener("click", function(){
+      var p = $("pass");
+      var open = $("eyeOpen");
+      var off  = $("eyeOff");
+      var isHidden = (p.type === "password");
+
+      p.type = isHidden ? "text" : "password";
+
+      if(open && off){
+        open.style.display = isHidden ? "none" : "block";
+        off.style.display  = isHidden ? "block" : "none";
+      }
+
+      btn.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+      p.focus();
+      try{ p.setSelectionRange(p.value.length, p.value.length); }catch(e){}
+    });
+  })();
   </script>
 </body>
 </html>
