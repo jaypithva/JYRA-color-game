@@ -232,7 +232,8 @@
 
     .field{
       position:relative;
-      margin-top:12px;
+      /* margin-top:12px; */
+      overflow: visible;
     }
 
     .input{
@@ -252,16 +253,28 @@
       border-color: rgba(212,175,55,.45);
       box-shadow: 0 0 0 4px rgba(212,175,55,.12);
     }
+.input{
+  padding-left: 48px;  /* icon ke liye jagah */
+  position: relative;
+  z-index: 1;
 
-    .iconLeft{
+    /* .iconLeft{
       position:absolute;
       left:14px; top:50%;
       transform:translateY(-50%);
       width:18px; height:18px;
       opacity:.9;
       pointer-events:none;
-    }
-
+    } */
+.iconLeft{
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;          /* 🔥 input ke upar */
+  opacity: 1;
+  pointer-events: none;
+}
     .iconBtn{
       position:absolute;
       right:10px; top:50%;
