@@ -564,37 +564,100 @@
     }
 
     async function settleEndedCycleIfNeeded() {
-      // This fixes popup/history not showing (old issue)
-      // When a 30s cycle ends, we settle that ended period exactly once.
-      if (!window.GAME) return;
+  // ✅ RESULT ONLY AT 0 SECOND (ONE TIME ONLY)
+  if (!window.GAME) return;
 
-      var cycleRem = GAME.remainingSecondsInCycle(); // 30..1
-      if (cycleRem !== 30) return; // only at boundary moment
+  // 🔒 Only run when MODE round ends
+  if (Number(remain || 0) !== 0) return;
 
-      var endedPeriod = GAME.periodByOffset(-1);
-      if (lastSettledPeriod === endedPeriod) return;
+  // 🔒 Prevent double execution
+  var settleKey = GAME.currentPeriodIST() + "|MODE|" + MODE_SEC;
+  if (lastSettledPeriod === settleKey) return;
+  lastSettledPeriod = settleKey;
 
-      lastSettledPeriod = endedPeriod;
+  // ✅ Get the last COMPLETED 30-sec period
+  var endedPeriod = GAME.periodByOffset(-1);
 
-      // Ensure result exists
-      var resultDoc = await GAME.ensureResultExists(endedPeriod);
+  // ✅ Ensure result exists (Firestore)
+  var resultDoc = await GAME.ensureResultExists(endedPeriod);
 
-      // Update Latest Result boxes
-      setText("resNum", String(resultDoc.resultNumber));
-      setText("resColor", resultDoc.resultColor);
-      setText("resBS", resultDoc.resultBigSmall);
+  // Update latest result UI
+  setText("resNum", String(resultDoc.resultNumber));
+  setText("resColor", resultDoc.resultColor);
+  setText("resBS", resultDoc.resultBigSmall);
 
-      // Popup + bet settlement
-      var period = endedPeriod;
-      var n = resultDoc.resultNumber;
-      var col = resultDoc.resultColor;
-      var bs = resultDoc.resultBigSmall;
+  var n = resultDoc.resultNumber;
+  var col = resultDoc.resultColor;
+  var bs = resultDoc.resultBigSmall;
 
-      if (!activeBet) {
-        showMsg("roundMsg", "Round ended. No bet placed.");
-        showResultPopup({ win: false, period: period, num: n, color: col, bs: bs, bonusText: fmtINR(0) });
-        return;
-      }
+  // 🔔 No bet case → popup once
+  if (!activeBet) {
+    showMsg("roundMsg", "Round ended. No bet placed.");
+    showResultPopup({
+      win: false,
+      period: endedPeriod,
+      num: n,
+      color: col,
+      bs: bs,
+      bonusText: fmtINR(0)
+    });
+    return;
+  }
+
+  // 🔍 Check win
+  var isWin = false;
+  if (activeBet.type === "color")
+    isWin = String(activeBet.value).toLowerCase() === String(col).toLowerCase();
+  if (activeBet.type === "number")
+    isWin = Number(activeBet.value) === Number(n);
+  if (activeBet.type === "bs")
+    isWin = String(activeBet.value).toLowerCase() === String(bs).toLowerCase();
+
+  if (isWin) {
+    await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)", null);
+  }
+
+  const me = await currentUserAsync();
+  const after = me ? (me.points || 0) : 0;
+
+  await addPlayRow({
+    userId: USER.clientId,
+    createdAt: new Date().toISOString(),
+    period: activeBet.period,
+    periods: activeBet.periods || [activeBet.period],
+    modeSec: activeBet.modeSec,
+    modeLabel: (activeBet.modeSec === 60 ? "1 Min" : "3 Min"),
+    betType: activeBet.type,
+    betValue: activeBet.value,
+    betLabel: activeBet.label,
+    betAmount: activeBet.amount,
+    resultNumber: n,
+    resultColor: col,
+    resultBigSmall: bs,
+    result: isWin ? "WIN" : "LOSE",
+    before: activeBet.beforePoints,
+    after: after
+  });
+
+  showMsg("roundMsg", isWin ? "🎉 WIN! Reward added (2x)." : "❌ LOSE! Bet deducted.");
+
+  await renderWallet();
+  await renderHistory();
+
+  var bonusVal = isWin ? (activeBet.amount * 2) : (-activeBet.amount);
+  showResultPopup({
+    win: isWin,
+    period: endedPeriod,
+    num: n,
+    color: col,
+    bs: bs,
+    bonusText: bonusVal < 0
+      ? "-" + fmtINR(Math.abs(bonusVal))
+      : fmtINR(bonusVal)
+  });
+
+  activeBet = null;
+}
 
       var isWin = false;
       if (activeBet.type === "color") isWin = (String(activeBet.value).toLowerCase() === String(col).toLowerCase());
@@ -812,4 +875,5 @@
 </body>
 
 </html>
+
 
