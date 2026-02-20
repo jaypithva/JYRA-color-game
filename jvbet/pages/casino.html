@@ -754,6 +754,39 @@
     .toast.tie {
       border-color: rgba(43, 111, 255, .55)
     }
+
+    /* ===== Mobile fix: Timer row pills overlap/merge issue ===== */
+@media (max-width: 460px) {
+  .timerWrap{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    justify-content: initial;
+    align-items: stretch;
+  }
+
+  /* Timer pill full width */
+  .timerPill{
+    grid-column: 1 / -1;
+    flex: initial;
+    width: 100%;
+  }
+
+  /* All small pills fit nicely */
+  .pillSmall{
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  /* Long roundId ellipsis (cut nicely) */
+  .pillSmall .gold{
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+  }
+}
   </style>
 </head>
 
@@ -1986,3 +2019,4 @@
 </body>
 
 </html>
+
