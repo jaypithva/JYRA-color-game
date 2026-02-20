@@ -6,29 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
-  <!-- If you already have style.css and want to keep it, you can include it.
-       Otherwise, you can remove this line. -->
+  <!-- Optional (keep if you want) -->
   <link rel="stylesheet" href="../assets/css/style.css" />
 
   <style>
-    /* =============================
-       ✅ REMAKE: FULL RESPONSIVE UI
-       Single-file CSS (mobile-first)
-       ============================= */
-
     :root{
       --gold: rgba(212,175,55,1);
-      --bg1: rgba(0,0,0,.62);
-      --bg2: rgba(255,255,255,.06);
-      --border: rgba(255,255,255,.12);
-      --borderGold: rgba(212,175,55,.25);
       --shadow: 0 18px 60px rgba(0,0,0,.35);
       --radius: 16px;
-      --radius2: 14px;
       --text: #fff;
       --muted: rgba(255,255,255,.72);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -40,8 +28,6 @@
       -webkit-font-smoothing:antialiased;
       text-rendering:optimizeLegibility;
     }
-
-    /* background helper (matches your old "bg" class) */
     .bg{
       background:
         radial-gradient(900px 500px at 20% -10%, rgba(212,175,55,.12), transparent 55%),
@@ -82,6 +68,7 @@
     }
     .gold{color:var(--gold)}
     .muted{color:var(--muted); font-weight:700}
+
     .btn{
       appearance:none; border:none;
       padding:10px 14px;
@@ -131,12 +118,8 @@
     }
     .card h3{margin:0 0 10px; font-size:18px; letter-spacing:.2px}
 
-    /* Grid (mobile first 1 col) */
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
+    /* Grid (mobile first) */
+    .grid{display:grid; grid-template-columns: 1fr; gap:12px}
     @media (min-width: 980px){
       .grid{grid-template-columns: 1.1fr .9fr}
     }
@@ -152,10 +135,8 @@
       width:100%;
     }
     .aiLiveTop{
-      position:absolute;
-      top:10px; left:10px;
-      display:flex; gap:10px;
-      align-items:center;
+      position:absolute; top:10px; left:10px;
+      display:flex; gap:10px; align-items:center;
       padding:6px 10px;
       border-radius:999px;
       background:rgba(0,0,0,.55);
@@ -184,31 +165,40 @@
     @media (min-width: 900px){.aiVid{height:320px}}
     @media (max-width: 420px){.aiVid{height:210px}}
 
-    /* Timer row */
+    /* ✅ FIXED TIMER SECTION (no break / no ugly wrap) */
     .timerWrap{
-      display:flex; gap:10px;
-      align-items:center;
+      display:flex; gap:10px; align-items:center;
       flex-wrap:wrap;
       justify-content:space-between;
       margin-top:10px;
     }
     .timerPill{
-      display:inline-flex; align-items:center; gap:8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
       padding:8px 12px;
       border-radius:999px;
       border:1px solid rgba(212,175,55,.35);
       background:rgba(0,0,0,.22);
-      min-width: 240px;
-      flex: 1 1 240px;
+      flex: 1 1 320px;
+      min-width: 0;
+      max-width: 100%;
+      overflow:hidden;
+      white-space:nowrap;
     }
+    .timerPill > span{white-space:nowrap}
     .timerNum{font-weight:900}
     .timerBar{
-      flex:1; height:8px; border-radius:999px;
+      flex:1;
+      height:8px;
+      border-radius:999px;
       background:rgba(255,255,255,.08);
-      overflow:hidden; min-width:120px;
+      overflow:hidden;
+      min-width:90px;
     }
     .timerFill{
-      height:100%; width:0%;
+      height:100%;
+      width:0%;
       background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35));
     }
     .pillSmall{
@@ -217,8 +207,13 @@
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.18);
       font-weight:900;
-      flex: 1 1 140px;
+      flex: 0 0 auto;
       text-align:center;
+      white-space:nowrap;
+      min-width:120px;
+    }
+    @media (max-width: 520px){
+      .pillSmall{min-width: 0; flex:1 1 120px;}
     }
     .lockOpen{border-color:rgba(34,197,94,.45)}
     .lockPlaced{border-color:rgba(43,111,255,.45)}
@@ -262,12 +257,8 @@
       gap:10px;
       align-items:stretch;
     }
-    @media (max-width: 900px){
-      .cTop{grid-template-columns: 1fr 1fr}
-    }
-    @media (max-width: 520px){
-      .cTop{grid-template-columns: 1fr}
-    }
+    @media (max-width: 900px){.cTop{grid-template-columns: 1fr 1fr}}
+    @media (max-width: 520px){.cTop{grid-template-columns: 1fr}}
 
     .topBox{
       border-radius:14px;
@@ -280,7 +271,7 @@
     .topValue{font-weight:1000; font-size:18px; margin-top:6px}
     .topValue.gold{color:var(--gold)}
 
-    /* Flip cards */
+    /* ✅ Cards text smaller according card size */
     .card3{display:flex; gap:12px; justify-content:center; align-items:center; margin-top:6px}
     .flipCard{width:72px;height:92px; perspective:800px}
     .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
@@ -288,7 +279,7 @@
     .flipFace{
       position:absolute; inset:0;
       display:flex; align-items:center; justify-content:center;
-      font-weight:900;
+      font-weight:1000;
       border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.06);
@@ -298,21 +289,18 @@
       line-height:1.05;
       overflow:hidden;
       word-break:break-word;
-      font-size:clamp(14px, 5vw, 22px);
+      font-size: clamp(12px, 3.8vw, 17px); /* ✅ smaller max */
     }
     .flipBack{transform:rotateY(180deg)}
     @media (max-width: 420px){
       .flipCard{width:62px;height:82px}
       .card3{gap:8px}
+      .flipFace{font-size: clamp(11px, 4.2vw, 15px);}
     }
 
     /* Bets */
     .cMid{margin-top:12px}
-    .betRow{
-      display:grid;
-      gap:10px;
-    }
-    /* DT & TP -> 3 boxes, Roulette -> 2 boxes (we will set via IDs) */
+    .betRow{display:grid; gap:10px}
     #dtBets, #tpBets{grid-template-columns: repeat(3, minmax(0,1fr))}
     #rBets{grid-template-columns: repeat(2, minmax(0,1fr))}
     .betBox{
@@ -348,12 +336,7 @@
       text-align:center;
     }
     .chip:active{transform:scale(.98)}
-    .stakeBox{
-      display:flex;
-      gap:10px;
-      width:100%;
-      align-items:stretch;
-    }
+    .stakeBox{display:flex; gap:10px; width:100%; align-items:stretch}
     .stakeInput{
       width:100%;
       border-radius:14px;
@@ -390,15 +373,15 @@
     }
     table.table th{font-size:12px; opacity:.9}
 
-    /* ✅ My Bet mini table */
-    .miniTableOuter{
+    /* ✅ My Bet + Last 5 Results boxes */
+    .miniOuter{
       margin-top:10px;
       border-radius:16px;
       border:1px solid rgba(212,175,55,.20);
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
       overflow:hidden;
     }
-    .miniTableHead{
+    .miniHead{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:10px 12px;
       border-bottom:1px solid rgba(255,255,255,.08);
@@ -421,13 +404,13 @@
     .stLoss{border-color:rgba(255,77,109,.45)}
     .stTie{border-color:rgba(43,111,255,.45)}
 
-    .miniTableScroll{overflow:auto}
-    .miniTableScroll table{width:100%; border-collapse:collapse; min-width:520px}
-    .miniTableScroll th,.miniTableScroll td{
+    .miniScroll{overflow:auto; -webkit-overflow-scrolling:touch}
+    .miniScroll table{width:100%; border-collapse:collapse; min-width:520px}
+    .miniScroll th,.miniScroll td{
       padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.07);
       text-align:left; white-space:nowrap; font-weight:900;
     }
-    .miniTableScroll th{font-size:12px; opacity:.9}
+    .miniScroll th{font-size:12px; opacity:.9}
 
     /* Toast */
     .toast{
@@ -509,20 +492,37 @@
             <div class="prevBox" id="dtPrev"></div>
           </div>
 
-          <!-- My Bet -->
-          <div class="miniTableOuter" id="dtMyBetBox">
-            <div class="miniTableHead">
+          <!-- ✅ NEW: Last 5 Results (DT) -->
+          <div class="miniOuter" id="dtLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="dtLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="dtLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ✅ My Bet (DT) -->
+          <div class="miniOuter" id="dtMyBetBox">
+            <div class="miniHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
                 <div class="miniSub" id="dtMyBetSub">—</div>
               </div>
               <span class="miniPill" id="dtMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTableScroll">
+            <div class="miniScroll">
               <table>
-                <thead>
-                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
-                </thead>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
                 <tbody id="dtMyBetBody">
                   <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
                 </tbody>
@@ -629,19 +629,37 @@
             <div class="prevBox" id="tpPrev"></div>
           </div>
 
-          <div class="miniTableOuter" id="tpMyBetBox">
-            <div class="miniTableHead">
+          <!-- ✅ NEW: Last 5 Results (TP) -->
+          <div class="miniOuter" id="tpLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="tpLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="tpLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ✅ My Bet (TP) -->
+          <div class="miniOuter" id="tpMyBetBox">
+            <div class="miniHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
                 <div class="miniSub" id="tpMyBetSub">—</div>
               </div>
               <span class="miniPill" id="tpMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTableScroll">
+            <div class="miniScroll">
               <table>
-                <thead>
-                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
-                </thead>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
                 <tbody id="tpMyBetBody">
                   <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
                 </tbody>
@@ -729,19 +747,37 @@
             <div class="prevBox" id="rPrev"></div>
           </div>
 
-          <div class="miniTableOuter" id="rMyBetBox">
-            <div class="miniTableHead">
+          <!-- ✅ NEW: Last 5 Results (Roulette) -->
+          <div class="miniOuter" id="rLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="rLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="rLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ✅ My Bet (Roulette) -->
+          <div class="miniOuter" id="rMyBetBox">
+            <div class="miniHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
                 <div class="miniSub" id="rMyBetSub">—</div>
               </div>
               <span class="miniPill" id="rMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTableScroll">
+            <div class="miniScroll">
               <table>
-                <thead>
-                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
-                </thead>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
                 <tbody id="rMyBetBody">
                   <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
                 </tbody>
@@ -828,6 +864,7 @@
     const K_SESSION_A="jvbet_session";
     const K_SESSION_B="jvbet_session_v1";
     const K_BETS="jvbet_bets_v1";
+    const K_RESULTS="jvbet_results_v1"; // ✅ NEW: store last results history
 
     function loadJSON(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
     function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -847,6 +884,70 @@
       const bets=getClientBets(cid).filter(b=>b.result && b.result!=="PENDING");
       let w=0,l=0; bets.forEach(b=>{if(b.result==="WIN")w++; else if(b.result==="LOSS")l++;});
       return {win:w,loss:l};
+    }
+
+    /* ================= RESULTS HISTORY (LAST 5) ================= */
+    function getResults(){ return loadJSON(K_RESULTS, {}); }
+    function setResults(obj){ saveJSON(K_RESULTS, obj||{}); }
+
+    function gameKey(game){
+      // keep keys consistent
+      if(game==="DragonTiger") return "DragonTiger";
+      if(game==="TeenPatti") return "TeenPatti";
+      return "Roulette";
+    }
+
+    function pushResult(cid, game, value, roundId){
+      const all = getResults();
+      if(!all[cid]) all[cid] = {};
+      const gk = gameKey(game);
+      if(!all[cid][gk]) all[cid][gk] = [];
+
+      all[cid][gk].unshift({
+        v: String(value),
+        at: Date.now(),
+        roundId: Number(roundId||0)
+      });
+
+      // keep only last 5
+      all[cid][gk] = all[cid][gk].slice(0,5);
+      setResults(all);
+    }
+
+    function readLast5(cid, game){
+      const all = getResults();
+      const gk = gameKey(game);
+      return (all[cid] && all[cid][gk]) ? all[cid][gk] : [];
+    }
+
+    function renderLast5(game){
+      const map = {
+        DragonTiger:{sub:"dtLast5Sub", body:"dtLast5Body"},
+        TeenPatti:{sub:"tpLast5Sub", body:"tpLast5Body"},
+        Roulette:{sub:"rLast5Sub", body:"rLast5Body"},
+      };
+      const ids = map[game];
+      if(!ids) return;
+
+      const subEl = document.getElementById(ids.sub);
+      const bodyEl = document.getElementById(ids.body);
+
+      subEl.textContent = "Client " + (ME_ID||"-");
+      const arr = readLast5(ME_ID, game);
+
+      if(!arr.length){
+        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
+        return;
+      }
+
+      bodyEl.innerHTML = arr.map((x,i)=>(
+        "<tr>"
+          +"<td>"+(i+1)+"</td>"
+          +"<td class='gold'>"+x.v+"</td>"
+          +"<td>"+(x.roundId||"-")+"</td>"
+          +"<td>"+fmtDate(x.at)+"</td>"
+        +"</tr>"
+      )).join("");
     }
 
     /* ================= UI HELPERS ================= */
@@ -962,7 +1063,11 @@
       const st=statsWinLoss(ME_ID);
       document.getElementById("w").textContent=st.win;
       document.getElementById("l").textContent=st.loss;
+
       renderAllLastResults();
+      renderLast5("DragonTiger");
+      renderLast5("TeenPatti");
+      renderLast5("Roulette");
     }
 
     async function addPoints(delta){
@@ -1029,11 +1134,16 @@
       renderLastResultFor("TeenPatti");
       renderLastResultFor("Roulette");
     }
-    async function setLastResultFS(game, value){
+    async function setLastResultFS(game, value, roundId){
+      // instant UI
       if(!ME_USER) ME_USER = {};
       if(!ME_USER.lastResults) ME_USER.lastResults = {};
       ME_USER.lastResults[game] = value;
       renderLastResultFor(game);
+
+      // ✅ store last 5 (local) + render
+      pushResult(ME_ID, game, value, roundId);
+      renderLast5(game);
 
       const patch = {};
       patch["lastResults."+game] = value;
@@ -1123,7 +1233,7 @@
         flipShow(cardStr(d.d),cardStr(d.t),d.res);
         document.getElementById("dtLast").textContent=d.res;
 
-        await setLastResultFS("DragonTiger", d.res);
+        await setLastResultFS("DragonTiger", d.res, r.roundId);
 
         const myBet = findMyBetForRound("DragonTiger", r.roundId);
         if(myBet && myBet.result==="PENDING"){
@@ -1151,7 +1261,7 @@
     async function revealTP(r){
       setTimeout(async ()=>{
         const d=drawTP();
-        await setLastResultFS("TeenPatti", d.res);
+        await setLastResultFS("TeenPatti", d.res, r.roundId);
 
         const myBet = findMyBetForRound("TeenPatti", r.roundId);
         if(myBet && myBet.result==="PENDING"){
@@ -1177,7 +1287,7 @@
       setTimeout(async ()=>{
         const d=drawR();
         const val = d.color+" "+d.n;
-        await setLastResultFS("Roulette", val);
+        await setLastResultFS("Roulette", val, r.roundId);
 
         const myBet = findMyBetForRound("Roulette", r.roundId);
         if(myBet && myBet.result==="PENDING"){
@@ -1197,6 +1307,8 @@
 
     async function tick(game,timerId,fillId,roundEl,lockEl,btnEl,revealFn,beepKey){
       const r=ensureRound(ME_ID,game);
+
+      // ✅ Round number step-by-step already (stored + increments)
       document.getElementById(roundEl).textContent=r.roundId;
       if(game==="TeenPatti") document.getElementById("tpRound2").textContent=r.roundId;
 
@@ -1237,8 +1349,11 @@
     }
 
     function startNext(cid,game){
-      const r={roundId:(Number(getRound(cid,game)?.roundId)||0)+1,startedAt:Date.now(),revealed:false,nextStarted:false};
+      const current = getRound(cid,game);
+      const nextId = (Number(current?.roundId)||0) + 1; // ✅ step by step
+      const r={roundId: nextId, startedAt: Date.now(), revealed:false, nextStarted:false};
       setRound(cid,game,r);
+
       if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
       if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
     }
@@ -1310,6 +1425,11 @@
       setPastTable("Roulette","rPast","rWait");
 
       renderAllLastResults();
+
+      // ✅ init boxes
+      renderLast5("DragonTiger");
+      renderLast5("TeenPatti");
+      renderLast5("Roulette");
 
       renderMyBet("DragonTiger", ensureRound(ME_ID,"DragonTiger").roundId);
       renderMyBet("TeenPatti", ensureRound(ME_ID,"TeenPatti").roundId);
