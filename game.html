@@ -86,7 +86,6 @@
 </head>
 
 <body>
-  <!-- ===== Header ===== -->
   <div class="nav">
     <div class="container">
       <div class="row header-row">
@@ -102,7 +101,6 @@
 
   <div class="container">
 
-    <!-- ===== Wallet ===== -->
     <div class="card">
       <div class="h2">My Wallet</div>
       <div class="kpi">
@@ -123,11 +121,10 @@
 
       <div class="small" style="margin-top:10px;">
         Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
-        <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
+        <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 15 sec)</span>
       </div>
     </div>
 
-    <!-- ===== Game ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="wg-topbar">
         <div class="wg-top-left">
@@ -171,15 +168,11 @@
       <div class="hr"></div>
 
       <div class="wg-tabs">
-        <!-- UI label same, but internal:
-             1 Min => 30s (1 period)
-             3 Min => 90s (3 periods) -->
         <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
         <button class="wg-tab" id="tab3m" type="button">3 Min</button>
       </div>
 
       <div class="grid two" style="margin-top:12px;">
-        <!-- LEFT -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Select Bet</div>
 
@@ -204,7 +197,6 @@
           </div>
         </div>
 
-        <!-- RIGHT -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Place Bet</div>
 
@@ -256,9 +248,9 @@
 
           <div class="hr"></div>
           <div class="h2" style="margin-top:0;">Last 5 Results</div>
-          <div class="small" style="margin-bottom:8px;">Visible to all users (even without bet)</div>
-          <div id="last5Box" class="ticket" style="padding:12px;">
-            <div id="last5Body" class="small" style="line-height:1.6;">Loading…</div>
+          <div class="small" style="margin-bottom:8px;">Auto updates (no refresh needed)</div>
+          <div class="ticket" style="padding:12px;">
+            <div id="last5Body" class="small" style="line-height:1.7;">Loading…</div>
           </div>
 
           <div class="hr"></div>
@@ -267,7 +259,6 @@
       </div>
     </div>
 
-    <!-- ===== History ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
@@ -297,7 +288,6 @@
 
   </div>
 
-  <!-- ===== Result Popup ===== -->
   <div class="pop-backdrop" id="popBack">
     <div class="pop" role="dialog" aria-modal="true">
       <div class="pop-top">
@@ -317,7 +307,6 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase SDK FIRST -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
@@ -345,35 +334,33 @@
     function hideMsg(id) { var el = document.getElementById(id); if (el) { el.style.display = "none"; el.textContent = ""; } }
     function pad2(n) { return (n < 10 ? "0" : "") + n; }
 
-    // Local mapping (kept same as your previous logic)
-    function numberToColor(n) {
-      if (n === 0 || n === 5) return "Violet";
-      if (n === 1 || n === 3 || n === 7 || n === 9) return "Green";
-      return "Red";
-    }
-    function numberToBigSmall(n) { return (n >= 5) ? "Big" : "Small"; }
-
     var USER = null;
 
-    // ✅ internal modes:
-    // 1 Min tab => 30 seconds
-    // 3 Min tab => 90 seconds (3 periods line-by-line)
-    var MODE_SEC = 30;
+    // ✅ Restore old feel
+    var MODE_SEC = 60;     // 1 Min = 60 sec
     var timer = null;
-    var remain = 30;
-    var BET_OPEN_SEC = 30;
+    var remain = 60;
 
+    // ✅ As you said: after 15 sec LIVE -> LOCKED
+    var BET_OPEN_SEC = 15; // for each 30-sec period
     var activeBet = null;
     var selectedBet = null;
 
+    // used to fire round end exactly once per 30-sec period
+    var lastSettledPeriod = null;
+
     function bettingAllowed() {
-      return remain > (MODE_SEC - BET_OPEN_SEC);
+      // open only in first 15 sec of current 30-sec cycle
+      if (!window.GAME) return false;
+      var cycleRemain = GAME.remainingSecondsInCycle(); // 30..1
+      // first 15 sec means: remaining > 15
+      return cycleRemain > (GAME.cfg.cycleSec - BET_OPEN_SEC); // 30-15 => >15
     }
 
     function updateBetWindowUI() {
       var el = document.getElementById("betWindow");
       if (!el) return;
-      if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b> (first 30 sec)';
+      if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b> (first 15 sec)';
       else el.innerHTML = 'Betting: <b class="bet-closed">CLOSED</b> (wait next round)';
     }
 
@@ -430,6 +417,28 @@
       }
     }
 
+    function remainingInModeBlock() {
+      // Keep old countdown feel: 60/180 sec
+      var s = window.GAME ? window.GAME.secondsSinceISTMidnight() : 0;
+      var into = s % MODE_SEC;
+      return MODE_SEC - into;
+    }
+
+    function periodsForCurrentModeLine() {
+      // You wanted line-by-line periods. We'll show:
+      // 1 Min => 2 periods (60sec / 30sec = 2)
+      // 3 Min => 6 periods (180sec / 30sec = 6)
+      var count = Math.max(1, Math.round(MODE_SEC / 30));
+      return window.GAME ? window.GAME.nextPeriodsIST(count) : ["-"];
+    }
+
+    function renderPeriodUI() {
+      if (!window.GAME) return;
+      setText("periodId", GAME.currentPeriodIST());
+      var pl = document.getElementById("periodLine");
+      if (pl) pl.textContent = periodsForCurrentModeLine().join("\n");
+    }
+
     async function renderWallet() {
       const me = await currentUserAsync();
       if (!me) return;
@@ -438,23 +447,6 @@
       var pts = (typeof me.points === "number") ? me.points : 0;
       setText("pts", String(pts));
       setText("ptsInr", fmtINR(pts));
-    }
-
-    async function renderLatestResultFromHistory() {
-      // Keep your old behavior if user has history, but primary "Latest Result" now comes from results engine.
-      const me = await currentUserAsync();
-      if (!me) return;
-
-      const rows = await playsForUser(me.clientId, 1);
-      if (!rows.length) {
-        setText("resNum", "-"); setText("resColor", "-"); setText("resBS", "-");
-        return;
-      }
-      const r = rows[0];
-      const rn = (r.resultNumber === 0 || r.resultNumber) ? String(r.resultNumber) : "-";
-      setText("resNum", rn);
-      setText("resColor", r.resultColor || "-");
-      setText("resBS", r.resultBigSmall || "-");
     }
 
     async function renderHistory() {
@@ -474,7 +466,6 @@
         var resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
         var resCol = r.resultColor || "-";
         var resBS = r.resultBigSmall || "-";
-
         var perCell = (r.periods && r.periods.length) ? r.periods.join("<br>") : (r.period || "-");
 
         return "<tr>" +
@@ -487,40 +478,6 @@
           "<td>" + (r.after || 0) + "</td>" +
           "</tr>";
       }).join("");
-    }
-
-    function setMode(sec) {
-      MODE_SEC = sec;
-
-      var t1 = document.getElementById("tab1m");
-      var t3 = document.getElementById("tab3m");
-      if (t1 && t3) {
-        if (sec === 30) { t1.classList.add("active"); t3.classList.remove("active"); }
-        else { t3.classList.add("active"); t1.classList.remove("active"); }
-      }
-      startNewRound();
-    }
-
-    function remainingInModeBlock() {
-      // clock-based
-      var s = window.GAME ? window.GAME.secondsSinceISTMidnight() : 0;
-      var into = s % MODE_SEC;
-      return MODE_SEC - into;
-    }
-
-    function currentPeriodsForBet() {
-      var count = Math.max(1, Math.round(MODE_SEC / 30)); // 30 => 1, 90 => 3
-      return window.GAME ? window.GAME.nextPeriodsIST(count) : ["-"];
-    }
-
-    function renderPeriodUI() {
-      if (!window.GAME) return;
-      var per = window.GAME.currentPeriodIST();
-      setText("periodId", per);
-
-      var arr = currentPeriodsForBet();
-      var pl = document.getElementById("periodLine");
-      if (pl) pl.textContent = arr.join("\n");
     }
 
     function showResultPopup(o) {
@@ -551,22 +508,75 @@
       if (back) back.style.display = "none";
     }
 
-    async function finishRound() {
+    function setMode(sec) {
+      MODE_SEC = sec;
+
+      var t1 = document.getElementById("tab1m");
+      var t3 = document.getElementById("tab3m");
+      if (t1 && t3) {
+        if (sec === 60) { t1.classList.add("active"); t3.classList.remove("active"); }
+        else { t3.classList.add("active"); t1.classList.remove("active"); }
+      }
+
+      // reset bet for safety
+      activeBet = null;
+      selectedBet = null;
+      clearSelectionUI();
+      var selBet = document.getElementById("selBet");
+      var amt = document.getElementById("betAmt");
+      if (selBet) selBet.value = "";
+      if (amt) amt.value = "";
+      hideMsg("betMsg");
+
+      // keep running; timer loop will use new MODE_SEC automatically
+      renderPeriodUI();
+    }
+
+    function renderLast5(rows) {
+      var cur = window.GAME ? GAME.currentPeriodIST() : "";
+      var list = (rows || []).filter(function (r) { return r.period !== cur; }).slice(0, 5);
+
+      var box = document.getElementById("last5Body");
+      if (!box) return;
+
+      if (!list.length) { box.textContent = "No results yet."; return; }
+
+      box.innerHTML = list.map(function (r) {
+        return (
+          "<div style='display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)'>" +
+            "<div style='font-weight:900'>" + r.period + "</div>" +
+            "<div>" + r.resultNumber + " / " + r.resultColor + " / " + r.resultBigSmall + "</div>" +
+          "</div>"
+        );
+      }).join("");
+    }
+
+    async function settleEndedCycleIfNeeded() {
+      // This fixes popup/history not showing (old issue)
+      // When a 30s cycle ends, we settle that ended period exactly once.
       if (!window.GAME) return;
 
-      // ended period = previous 30s period
+      var cycleRem = GAME.remainingSecondsInCycle(); // 30..1
+      if (cycleRem !== 30) return; // only at boundary moment
+
       var endedPeriod = GAME.periodByOffset(-1);
+      if (lastSettledPeriod === endedPeriod) return;
+
+      lastSettledPeriod = endedPeriod;
+
+      // Ensure result exists
       var resultDoc = await GAME.ensureResultExists(endedPeriod);
 
+      // Update Latest Result boxes
+      setText("resNum", String(resultDoc.resultNumber));
+      setText("resColor", resultDoc.resultColor);
+      setText("resBS", resultDoc.resultBigSmall);
+
+      // Popup + bet settlement
+      var period = endedPeriod;
       var n = resultDoc.resultNumber;
       var col = resultDoc.resultColor;
       var bs = resultDoc.resultBigSmall;
-
-      setText("resNum", String(n));
-      setText("resColor", col);
-      setText("resBS", bs);
-
-      var period = endedPeriod;
 
       if (!activeBet) {
         showMsg("roundMsg", "Round ended. No bet placed.");
@@ -589,17 +599,14 @@
       await addPlayRow({
         userId: USER.clientId,
         createdAt: new Date().toISOString(),
-
         period: activeBet.period,
-        periods: activeBet.periods || [activeBet.period], // ✅ line-by-line
-
+        periods: activeBet.periods || [activeBet.period],
         modeSec: activeBet.modeSec,
-        modeLabel: (activeBet.modeSec === 30 ? "1 Min" : "3 Min"),
+        modeLabel: (activeBet.modeSec === 60 ? "1 Min" : "3 Min"),
         betType: activeBet.type,
         betValue: activeBet.value,
         betLabel: activeBet.label,
         betAmount: activeBet.amount,
-
         resultNumber: n,
         resultColor: col,
         resultBigSmall: bs,
@@ -609,6 +616,7 @@
       });
 
       showMsg("roundMsg", isWin ? "🎉 WIN! Reward added (2x)." : "❌ LOSE! Bet deducted.");
+
       await renderWallet();
       await renderHistory();
 
@@ -625,48 +633,6 @@
       activeBet = null;
     }
 
-    async function startNewRound() {
-      if (!window.GAME) {
-        showMsg("roundMsg", "GAME engine not loaded. Please ensure app.js updated.");
-        return;
-      }
-
-      if (timer) { clearInterval(timer); timer = null; }
-
-      activeBet = null;
-      selectedBet = null;
-      clearSelectionUI();
-
-      var selBet = document.getElementById("selBet");
-      var amt = document.getElementById("betAmt");
-      if (selBet) selBet.value = "";
-      if (amt) amt.value = "";
-      setText("betAmtInr", fmtINR(0));
-      hideMsg("betMsg");
-      hideMsg("roundMsg");
-
-      // ✅ backfill last 5 so downtime gaps are covered
-      await GAME.backfillLastNResults(5);
-
-      renderPeriodUI();
-
-      remain = remainingInModeBlock();
-      setTimerUI(remain, MODE_SEC);
-      updateBetWindowUI();
-
-      timer = setInterval(async function () {
-        remain = remainingInModeBlock();
-
-        setTimerUI(remain, MODE_SEC);
-        updateBetWindowUI();
-        renderPeriodUI();
-
-        if (remain === 0) {
-          await finishRound();
-        }
-      }, 250);
-    }
-
     async function confirmBet() {
       const me = await currentUserAsync();
       if (!me) return;
@@ -676,8 +642,8 @@
         return;
       }
 
-      var period = (window.GAME ? window.GAME.currentPeriodIST() : (document.getElementById("periodId") ? document.getElementById("periodId").textContent : "-"));
-      var periods = currentPeriodsForBet(); // ✅ line-by-line periods
+      var period = window.GAME ? GAME.currentPeriodIST() : "-";
+      var periods = periodsForCurrentModeLine();
 
       var amt = Number(document.getElementById("betAmt").value);
 
@@ -701,27 +667,8 @@
         beforePoints: before
       };
 
-      showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Periods: " + periods.join(" / "));
+      showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + ").");
       await renderWallet();
-    }
-
-    function renderLast5(rows) {
-      var cur = window.GAME ? window.GAME.currentPeriodIST() : "";
-      var list = (rows || []).filter(function (r) { return r.period !== cur; }).slice(0, 5);
-
-      var box = document.getElementById("last5Body");
-      if (!box) return;
-
-      if (!list.length) { box.textContent = "No results yet."; return; }
-
-      box.innerHTML = list.map(function (r) {
-        return (
-          "<div style='display:flex;justify-content:space-between;gap:10px;'>" +
-          "<div><b>" + r.period + "</b></div>" +
-          "<div>" + r.resultNumber + " / " + r.resultColor + " / " + r.resultBigSmall + "</div>" +
-          "</div>"
-        );
-      }).join("");
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
@@ -746,8 +693,8 @@
 
       var t1 = document.getElementById("tab1m");
       var t3 = document.getElementById("tab3m");
-      if (t1) t1.onclick = function () { setMode(30); };
-      if (t3) t3.onclick = function () { setMode(90); };
+      if (t1) t1.onclick = function () { setMode(60); };
+      if (t3) t3.onclick = function () { setMode(180); };
 
       var g = document.getElementById("btnGreen");
       var v = document.getElementById("btnViolet");
@@ -808,22 +755,19 @@
       if (btnRefresh) btnRefresh.onclick = async function () {
         await renderWallet();
         await renderHistory();
-        await renderLatestResultFromHistory();
       };
 
-      // Initial
+      // Init
       await renderWallet();
       await renderHistory();
-      await renderLatestResultFromHistory();
 
-      // ✅ realtime last 5 results for everyone
+      // Ensure last results exist + realtime
       if (window.GAME) {
-        await GAME.backfillLastNResults(5);
-
+        await GAME.backfillLastNResults(6);
         GAME.listenLastNResults(6, function (rows) {
           renderLast5(rows);
 
-          // Also update Latest Result from global results
+          // also set latest from results
           var cur = GAME.currentPeriodIST();
           var done = (rows || []).filter(function (r) { return r.period !== cur; })[0];
           if (done) {
@@ -834,8 +778,22 @@
         });
       }
 
-      setMode(30);
+      // main loop (smooth + accurate)
+      if (timer) { clearInterval(timer); timer = null; }
+      timer = setInterval(async function () {
+        remain = remainingInModeBlock();
+        renderPeriodUI();
+        setTimerUI(remain, MODE_SEC);
+        updateBetWindowUI();
 
+        // settle 30s results + popup + history update
+        await settleEndedCycleIfNeeded();
+      }, 250);
+
+      // default mode
+      setMode(60);
+
+      // wallet auto refresh
       setInterval(renderWallet, 1500);
     });
   </script>
