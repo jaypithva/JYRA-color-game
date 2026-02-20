@@ -842,10 +842,10 @@
 
 <script>
 /* ======================================================
-   JVBET – STABLE ROUND ENGINE (NO RESET ON REFRESH)
-   ✔ Fixed global round system
-   ✔ Refresh-safe
-   ✔ No design change
+   JVBET – STABLE DAILY ROUND ENGINE
+   ✔ Refresh safe
+   ✔ Round reset only once per day
+   ✔ No huge round numbers
 ====================================================== */
 
 /* ---------- FIREBASE ---------- */
@@ -860,13 +860,6 @@ const db = firebase.firestore();
 const TOTAL_SEC = 30;
 const LOCK_AT = 15;
 
-/* 🔒 FIXED GAME START TIME (NEVER CHANGE THIS) */
-const GAME_START_TIME = {
-  DragonTiger: 1700000000000,
-  TeenPatti:   1700000000000,
-  Roulette:    1700000000000
-};
-
 /* ---------- SESSION ---------- */
 const session = JSON.parse(localStorage.getItem("jvbet_session"));
 if (!session || !session.id) location.href="../index.html";
@@ -875,13 +868,22 @@ const ME_ID = session.id;
 /* ---------- HELPERS ---------- */
 const $ = id => document.getElementById(id);
 
-/* ---------- ROUND CALCULATOR (REFRESH SAFE) ---------- */
-function getRoundInfo(game){
-  const now = Date.now();
-  const diff = now - GAME_START_TIME[game];
+/* ---------- 🔑 DAILY BASE TIME (00:00 TODAY) ---------- */
+function getTodayBaseTime(){
+  const d = new Date();
+  d.setHours(0,0,0,0); // today 12:00 AM
+  return d.getTime();
+}
 
+/* ---------- ROUND CALCULATOR (SAFE) ---------- */
+function getRoundInfo(){
+  const base = getTodayBaseTime();
+  const now = Date.now();
+
+  const diff = now - base;
   const round = Math.floor(diff / (TOTAL_SEC * 1000)) + 1;
-  const roundStart = GAME_START_TIME[game] + (round - 1) * TOTAL_SEC * 1000;
+
+  const roundStart = base + (round - 1) * TOTAL_SEC * 1000;
   const left = Math.max(0, TOTAL_SEC - Math.floor((now - roundStart) / 1000));
 
   return { round, left };
@@ -897,18 +899,14 @@ function setLock(el, state){
 }
 
 /* ---------- RESULT GENERATORS ---------- */
-function drawDT(){
-  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
-}
-function drawTP(){
-  return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)];
-}
+function drawDT(){ return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)]; }
+function drawTP(){ return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]; }
 function drawR(){
   const n=Math.floor(Math.random()*37);
   return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
 }
 
-/* ---------- FIRESTORE LAST 5 ---------- */
+/* ---------- LAST 5 (FIRESTORE) ---------- */
 async function pushLast5(game,result,round){
   const ref = db.collection("users").doc(ME_ID);
   await db.runTransaction(async tx=>{
@@ -916,10 +914,8 @@ async function pushLast5(game,result,round){
     const data = snap.data() || {};
     const last5 = data.last5Results || {};
     const arr = (last5[game] || []).filter(x=>x.round!==round);
-
     arr.unshift({ result, round, time: Date.now() });
     last5[game] = arr.slice(0,5);
-
     tx.set(ref,{ last5Results:last5 },{ merge:true });
   });
   renderLast5(game);
@@ -952,7 +948,7 @@ async function renderLast5(game){
   `).join("");
 }
 
-/* ---------- REVEAL (ONLY ONCE PER ROUND) ---------- */
+/* ---------- REVEAL (ONCE PER ROUND) ---------- */
 async function reveal(game,round){
   let res="";
   if(game==="DragonTiger") res=drawDT();
@@ -973,9 +969,9 @@ async function reveal(game,round){
   }
 }
 
-/* ---------- MAIN TICK LOOP ---------- */
+/* ---------- MAIN LOOP ---------- */
 async function tick(game,timerId,fillId,roundId,lockId){
-  const info = getRoundInfo(game);
+  const info = getRoundInfo();
 
   $(timerId).textContent = info.left;
   $(roundId).textContent = info.round;
@@ -985,9 +981,9 @@ async function tick(game,timerId,fillId,roundId,lockId){
   else if(info.left>0) setLock($(lockId),"LOCKED");
   else setLock($(lockId),"CLOSED");
 
-  const revealKey = `REVEALED_${game}_${info.round}`;
-  if(info.left===0 && !localStorage.getItem(revealKey)){
-    localStorage.setItem(revealKey,"1");
+  const key = `REVEALED_${game}_${info.round}`;
+  if(info.left===0 && !localStorage.getItem(key)){
+    localStorage.setItem(key,"1");
     await reveal(game,info.round);
   }
 }
@@ -1007,4 +1003,5 @@ async function tick(game,timerId,fillId,roundId,lockId){
 </script>
 </body>
 </html>
+
 
