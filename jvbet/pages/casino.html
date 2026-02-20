@@ -3,88 +3,451 @@
 <head>
   <meta charset="utf-8" />
   <title>Casino - JVBET1803</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../assets/css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
+  <!-- If you already have style.css and want to keep it, you can include it.
+       Otherwise, you can remove this line. -->
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
   <style>
-    .aiLiveBox{border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.25);box-shadow:0 18px 60px rgba(0,0,0,.35);position:relative;width:100%}
-    .aiLiveTop{position:absolute;top:10px;left:10px;display:flex;gap:10px;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);z-index:2;max-width:calc(100% - 20px)}
-    .liveDot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 14px rgba(255,59,59,.85);animation:pulse 1.2s infinite;flex:0 0 auto}
+    /* =============================
+       ✅ REMAKE: FULL RESPONSIVE UI
+       Single-file CSS (mobile-first)
+       ============================= */
+
+    :root{
+      --gold: rgba(212,175,55,1);
+      --bg1: rgba(0,0,0,.62);
+      --bg2: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.12);
+      --borderGold: rgba(212,175,55,.25);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 14px;
+      --text: #fff;
+      --muted: rgba(255,255,255,.72);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
+      background:#0b0b0f;
+      min-height:100dvh;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+
+    /* background helper (matches your old "bg" class) */
+    .bg{
+      background:
+        radial-gradient(900px 500px at 20% -10%, rgba(212,175,55,.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(43,111,255,.12), transparent 55%),
+        radial-gradient(900px 500px at 40% 120%, rgba(255,77,109,.10), transparent 55%),
+        #0b0b0f;
+    }
+
+    /* Header */
+    .header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,.35);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .head-inner{
+      max-width:1100px; margin:0 auto;
+      padding:10px 14px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .logo{height:44px; width:auto; display:block}
+
+    /* Layout */
+    .wrap{max-width:1100px; margin:0 auto; padding:12px}
+    .row{display:flex; gap:10px; align-items:center}
+    .row.wrapRow{flex-wrap:wrap}
+    .spaced{justify-content:space-between}
+
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      font-weight:800;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .gold{color:var(--gold)}
+    .muted{color:var(--muted); font-weight:700}
+    .btn{
+      appearance:none; border:none;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:900;
+      color:#000;
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.75));
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      transition: transform .08s ease, opacity .2s ease;
+      user-select:none;
+    }
+    .btn:active{transform:scale(.98)}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+
+    /* Tabs */
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin:12px 0 10px;
+    }
+    .tabbtn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .tabbtn.active{
+      border-color: rgba(212,175,55,.45);
+      background: rgba(212,175,55,.14);
+    }
+
+    /* Panels */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    /* Cards */
+    .card{
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+    }
+    .card h3{margin:0 0 10px; font-size:18px; letter-spacing:.2px}
+
+    /* Grid (mobile first 1 col) */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    @media (min-width: 980px){
+      .grid{grid-template-columns: 1.1fr .9fr}
+    }
+
+    /* Live box */
+    .aiLiveBox{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.25);
+      box-shadow:0 18px 60px rgba(0,0,0,.35);
+      position:relative;
+      width:100%;
+    }
+    .aiLiveTop{
+      position:absolute;
+      top:10px; left:10px;
+      display:flex; gap:10px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.12);
+      z-index:2;
+      max-width:calc(100% - 20px);
+    }
+    .liveDot{
+      width:10px;height:10px;border-radius:50%;
+      background:#ff3b3b;
+      box-shadow:0 0 14px rgba(255,59,59,.85);
+      animation:pulse 1.2s infinite;
+      flex:0 0 auto;
+    }
     @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
     .liveTxt{font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
-    .aiVid{width:100%;height:320px;object-fit:cover;display:block;filter:contrast(1.05) saturate(1.05);background:#000}
-    @media (max-width:900px){.aiVid{height:220px}}
+    .aiVid{
+      width:100%;
+      height:240px;
+      object-fit:cover;
+      display:block;
+      filter:contrast(1.05) saturate(1.05);
+      background:#000;
+    }
+    @media (min-width: 900px){.aiVid{height:320px}}
+    @media (max-width: 420px){.aiVid{height:210px}}
 
-    .timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .timerPill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.35);background:rgba(0,0,0,.22);min-width:220px;max-width:100%}
+    /* Timer row */
+    .timerWrap{
+      display:flex; gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      margin-top:10px;
+    }
+    .timerPill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.35);
+      background:rgba(0,0,0,.22);
+      min-width: 240px;
+      flex: 1 1 240px;
+    }
     .timerNum{font-weight:900}
-    .timerBar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;min-width:120px}
-    .timerFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35))}
-    .pillSmall{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
+    .timerBar{
+      flex:1; height:8px; border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden; min-width:120px;
+    }
+    .timerFill{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35));
+    }
+    .pillSmall{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      font-weight:900;
+      flex: 1 1 140px;
+      text-align:center;
+    }
     .lockOpen{border-color:rgba(34,197,94,.45)}
     .lockPlaced{border-color:rgba(43,111,255,.45)}
     .lockLocked{border-color:rgba(255,193,7,.45)}
     .lockClosed{border-color:rgba(255,77,109,.45)}
 
-    .prevBox{display:flex;gap:8px;flex-wrap:wrap;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-height:44px}
-    .resChip{padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(0,0,0,.25);font-weight:900;letter-spacing:.3px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+    /* Latest result */
+    .prevBox{
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      min-height:44px;
+    }
+    .resChip{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.25);
+      font-weight:900;
+      letter-spacing:.3px;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-    .card3{display:flex;gap:12px;justify-content:center;align-items:center}
-    .flipCard{width:72px;height:92px;perspective:800px}
+    /* Casino board */
+    .casinoBoard{
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+    }
+    .cTop{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr 1fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    @media (max-width: 900px){
+      .cTop{grid-template-columns: 1fr 1fr}
+    }
+    @media (max-width: 520px){
+      .cTop{grid-template-columns: 1fr}
+    }
+
+    .topBox{
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding:10px;
+      min-width:0;
+    }
+    .topTitle{font-weight:900; opacity:.85; font-size:12px}
+    .topValue{font-weight:1000; font-size:18px; margin-top:6px}
+    .topValue.gold{color:var(--gold)}
+
+    /* Flip cards */
+    .card3{display:flex; gap:12px; justify-content:center; align-items:center; margin-top:6px}
+    .flipCard{width:72px;height:92px; perspective:800px}
     .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
     .flipCard.flipped .flipInner{transform:rotateY(180deg)}
     .flipFace{
-      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      font-weight:900;border-radius:14px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);backface-visibility:hidden;
-      padding:6px;text-align:center;line-height:1.05;
-      overflow:hidden;word-break:break-word;
-      font-size:clamp(14px, 3.2vw, 22px);
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      backface-visibility:hidden;
+      padding:6px;
+      text-align:center;
+      line-height:1.05;
+      overflow:hidden;
+      word-break:break-word;
+      font-size:clamp(14px, 5vw, 22px);
     }
     .flipBack{transform:rotateY(180deg)}
-    @media (max-width:420px){
-      .flipCard{width:64px;height:86px}
+    @media (max-width: 420px){
+      .flipCard{width:62px;height:82px}
       .card3{gap:8px}
     }
 
-    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(0,0,0,.78);border:1px solid rgba(212,175,55,.35);color:#fff;padding:12px 14px;border-radius:14px;z-index:9999;display:none;max-width:92vw;box-shadow:0 16px 40px rgba(0,0,0,.45)}
-    .toast.show{display:block}
-    .toast .t{font-weight:900}
-    .toast.win{border-color:rgba(34,197,94,.55)}
-    .toast.loss{border-color:rgba(255,77,109,.55)}
-    .toast.tie{border-color:rgba(43,111,255,.55)}
+    /* Bets */
+    .cMid{margin-top:12px}
+    .betRow{
+      display:grid;
+      gap:10px;
+    }
+    /* DT & TP -> 3 boxes, Roulette -> 2 boxes (we will set via IDs) */
+    #dtBets, #tpBets{grid-template-columns: repeat(3, minmax(0,1fr))}
+    #rBets{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .betBox{
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding:12px 10px;
+      cursor:pointer;
+      user-select:none;
+      text-align:center;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+    }
+    .betBox:active{transform:scale(.98)}
+    .betBox.active{
+      border-color: rgba(212,175,55,.55);
+      background: rgba(212,175,55,.12);
+    }
+    .betName{font-weight:1000; letter-spacing:.3px}
+    .betMul{margin-top:4px; font-weight:900; opacity:.85; font-size:12px}
 
-    .scrollBox{margin-top:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:auto;-webkit-overflow-scrolling:touch;max-height:260px}
-    .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
-    @media (max-width:700px){.scrollBox{max-height:220px}.scrollBox table{min-width:700px}}
+    /* Bottom: chips + stake */
+    .cBottom{margin-top:12px; display:flex; flex-direction:column; gap:10px}
+    .chips{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+    .chip{
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      padding:10px 14px;
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+      min-width:70px;
+      text-align:center;
+    }
+    .chip:active{transform:scale(.98)}
+    .stakeBox{
+      display:flex;
+      gap:10px;
+      width:100%;
+      align-items:stretch;
+    }
+    .stakeInput{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color:#fff;
+      padding:12px 12px;
+      font-weight:900;
+      outline:none;
+      min-width:0;
+    }
+    @media (max-width: 520px){
+      .stakeBox{flex-direction:column}
+      .stakeBox .btn{width:100%}
+    }
 
-    /* ✅ NEW: "My Bet" premium mini table */
-    .miniTable{
-      margin-top:10px;border-radius:16px;border:1px solid rgba(212,175,55,.20);
+    /* scroll tables */
+    .scrollBox{
+      margin-top:10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.14);
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      max-height:260px;
+    }
+    .scrollBox table{width:100%; border-collapse:collapse; min-width:640px}
+    table.table th, table.table td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      text-align:left;
+      white-space:nowrap;
+      font-weight:800;
+    }
+    table.table th{font-size:12px; opacity:.9}
+
+    /* ✅ My Bet mini table */
+    .miniTableOuter{
+      margin-top:10px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.20);
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
-      overflow:hidden
+      overflow:hidden;
     }
     .miniTableHead{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);
-      background:rgba(0,0,0,.20)
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.20);
     }
-    .miniTitle{font-weight:900;letter-spacing:.2px}
-    .miniSub{opacity:.85;font-size:12px;white-space:nowrap}
-    .miniTable table{width:100%;border-collapse:collapse}
-    .miniTable th,.miniTable td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;white-space:nowrap}
-    .miniTable th{font-weight:800;opacity:.9;font-size:12px}
-    .miniTable td{font-weight:800}
+    .miniTitle{font-weight:1000; letter-spacing:.2px}
+    .miniSub{opacity:.85; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70vw}
     .miniPill{
-      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);font-weight:900;font-size:12px
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
     }
     .stPending{border-color:rgba(255,193,7,.40)}
     .stWin{border-color:rgba(34,197,94,.45)}
     .stLoss{border-color:rgba(255,77,109,.45)}
     .stTie{border-color:rgba(43,111,255,.45)}
+
+    .miniTableScroll{overflow:auto}
+    .miniTableScroll table{width:100%; border-collapse:collapse; min-width:520px}
+    .miniTableScroll th,.miniTableScroll td{
+      padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.07);
+      text-align:left; white-space:nowrap; font-weight:900;
+    }
+    .miniTableScroll th{font-size:12px; opacity:.9}
+
+    /* Toast */
+    .toast{
+      position:fixed; left:50%; bottom:22px;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,.78);
+      border:1px solid rgba(212,175,55,.35);
+      color:#fff;
+      padding:12px 14px;
+      border-radius:14px;
+      z-index:9999;
+      display:none;
+      max-width:92vw;
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+    }
+    .toast.show{display:block}
+    .toast .t{font-weight:1000}
+    .toast.win{border-color:rgba(34,197,94,.55)}
+    .toast.loss{border-color:rgba(255,77,109,.55)}
+    .toast.tie{border-color:rgba(43,111,255,.55)}
   </style>
 </head>
 
@@ -96,8 +459,8 @@
   </header>
 
   <main class="wrap">
-    <div class="row" style="justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
-      <div class="row" style="flex-wrap:wrap">
+    <div class="row wrapRow spaced" style="margin-bottom:12px">
+      <div class="row wrapRow">
         <span class="badge">Client: <span class="gold" id="cid">-</span></span>
         <span class="badge">Points: <span class="gold" id="pts">0</span></span>
         <span class="badge">Win: <span class="gold" id="w">0</span></span>
@@ -119,7 +482,7 @@
         <div class="card">
           <h3>Dragon Tiger</h3>
 
-          <div class="aiLiveBox shake">
+          <div class="aiLiveBox">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
               <span class="liveTxt">LIVE</span>
@@ -130,7 +493,7 @@
             </video>
           </div>
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+          <div class="timerWrap">
             <div class="timerPill">
               <span>⏳</span>
               <span>Round ends in:</span>
@@ -146,8 +509,8 @@
             <div class="prevBox" id="dtPrev"></div>
           </div>
 
-          <!-- ✅ NEW: My Bet box (DT) -->
-          <div class="miniTable" id="dtMyBetBox">
+          <!-- My Bet -->
+          <div class="miniTableOuter" id="dtMyBetBox">
             <div class="miniTableHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
@@ -155,7 +518,7 @@
               </div>
               <span class="miniPill" id="dtMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTable">
+            <div class="miniTableScroll">
               <table>
                 <thead>
                   <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
@@ -174,7 +537,11 @@
 
         <div class="casinoBoard">
           <div class="cTop">
-            <div class="topBox"><div class="topTitle">Last Result</div><div class="topValue" id="dtLast">-</div></div>
+            <div class="topBox">
+              <div class="topTitle">Last Result</div>
+              <div class="topValue" id="dtLast">-</div>
+            </div>
+
             <div class="topBox">
               <div class="topTitle" style="text-align:center">Cards</div>
               <div class="card3">
@@ -183,7 +550,11 @@
                 <div class="flipCard" id="fcR"><div class="flipInner"><div class="flipFace">?</div><div class="flipFace flipBack" id="dtR">?</div></div></div>
               </div>
             </div>
-            <div class="topBox"><div class="topTitle">Selected</div><div class="topValue gold" id="dtPickShow">DRAGON</div></div>
+
+            <div class="topBox">
+              <div class="topTitle">Selected</div>
+              <div class="topValue gold" id="dtPickShow">DRAGON</div>
+            </div>
           </div>
 
           <div class="cMid">
@@ -204,9 +575,10 @@
             </div>
 
             <div class="stakeBox">
-              <input class="stakeInput" id="dtStake" type="number" placeholder="Enter Bet">
+              <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet">
               <button class="btn" id="dtPlay" type="button">Place Bet</button>
             </div>
+
             <span class="badge" id="dtMsg">-</span>
           </div>
         </div>
@@ -230,7 +602,7 @@
         <div class="card">
           <h3>Teen Patti — Live Demo (Points)</h3>
 
-          <div class="aiLiveBox shake">
+          <div class="aiLiveBox">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
               <span class="liveTxt">LIVE DEMO DEALER</span>
@@ -241,7 +613,7 @@
             </video>
           </div>
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+          <div class="timerWrap">
             <div class="timerPill">
               <span>⏳</span><span>Round ends in:</span>
               <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
@@ -257,8 +629,7 @@
             <div class="prevBox" id="tpPrev"></div>
           </div>
 
-          <!-- ✅ NEW: My Bet box (TP) -->
-          <div class="miniTable" id="tpMyBetBox">
+          <div class="miniTableOuter" id="tpMyBetBox">
             <div class="miniTableHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
@@ -266,7 +637,7 @@
               </div>
               <span class="miniPill" id="tpMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTable">
+            <div class="miniTableScroll">
               <table>
                 <thead>
                   <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
@@ -304,9 +675,10 @@
             </div>
 
             <div class="stakeBox">
-              <input class="stakeInput" id="tpStake" type="number" placeholder="Enter points">
+              <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points">
               <button class="btn" id="tpPlay" type="button">PLAY (POINTS)</button>
             </div>
+
             <span class="badge" id="tpMsg">-</span>
           </div>
         </div>
@@ -330,7 +702,7 @@
         <div class="card">
           <h3>Roulette — Live Demo (Points)</h3>
 
-          <div class="aiLiveBox shake">
+          <div class="aiLiveBox">
             <div class="aiLiveTop">
               <span class="liveDot"></span>
               <span class="liveTxt">LIVE DEMO DEALER</span>
@@ -341,7 +713,7 @@
             </video>
           </div>
 
-          <div class="timerWrap" style="margin-top:10px;justify-content:space-between">
+          <div class="timerWrap">
             <div class="timerPill">
               <span>⏳</span><span>Round ends in:</span>
               <span class="timerNum gold" id="rTimer">30</span><span>s</span>
@@ -357,8 +729,7 @@
             <div class="prevBox" id="rPrev"></div>
           </div>
 
-          <!-- ✅ NEW: My Bet box (Roulette) -->
-          <div class="miniTable" id="rMyBetBox">
+          <div class="miniTableOuter" id="rMyBetBox">
             <div class="miniTableHead">
               <div>
                 <div class="miniTitle">My Bet (This Round)</div>
@@ -366,7 +737,7 @@
               </div>
               <span class="miniPill" id="rMyBetStatus">NO BET</span>
             </div>
-            <div class="miniTable">
+            <div class="miniTableScroll">
               <table>
                 <thead>
                   <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
@@ -397,9 +768,10 @@
             </div>
 
             <div class="stakeBox">
-              <input class="stakeInput" id="rStake" type="number" placeholder="Enter points">
+              <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points">
               <button class="btn" id="rPlay" type="button">PLAY (POINTS)</button>
             </div>
+
             <span class="badge" id="rMsg">-</span>
           </div>
         </div>
@@ -436,7 +808,7 @@
     <div class="muted" id="toastBody">-</div>
   </div>
 
-  <!-- ✅ Firebase compat -->
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
@@ -477,7 +849,7 @@
       return {win:w,loss:l};
     }
 
-    /* ================= UI ================= */
+    /* ================= UI HELPERS ================= */
     function showToast(type,title,body){
       const t=document.getElementById("toast");
       t.className="toast show "+(type||"");
@@ -502,8 +874,10 @@
       const cont=document.getElementById(containerId);
       const show=document.getElementById(showId);
       const show2=showId2?document.getElementById(showId2):null;
+
       let pick=(cont.querySelector(".betBox.active")||{}).dataset?.pick || "";
       show.textContent=pick; if(show2) show2.textContent=pick;
+
       cont.querySelectorAll(".betBox").forEach(box=>{
         box.addEventListener("click", ()=>{
           cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
@@ -514,6 +888,7 @@
       });
       return ()=>pick;
     }
+
     function bindChips(scopeEl, inputEl){
       scopeEl.querySelectorAll(".chip").forEach(ch=>{
         ch.addEventListener("click", ()=>{
@@ -548,12 +923,12 @@
       let r=getRound(cid,game);
       const now=Date.now();
       if(!r||!r.startedAt){
-        r={roundId:1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};
+        r={roundId:1,startedAt:now,revealed:false,nextStarted:false};
         setRound(cid,game,r);
         return r;
       }
       if(secondsLeft(r)<=-3){
-        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,betPlaced:false,revealed:false,nextStarted:false};
+        r={roundId:(Number(r.roundId)||0)+1,startedAt:now,revealed:false,nextStarted:false};
         setRound(cid,game,r);
       }
       return getRound(cid,game);
@@ -587,7 +962,7 @@
       const st=statsWinLoss(ME_ID);
       document.getElementById("w").textContent=st.win;
       document.getElementById("l").textContent=st.loss;
-      renderAllLastResults(); // ✅ always
+      renderAllLastResults();
     }
 
     async function addPoints(delta){
@@ -617,7 +992,6 @@
       await refreshTop();
     }
 
-    /* ✅ Last 10 bets (THIS client) per game */
     function setPastTable(game,tableId,waitId){
       const bets=getClientBets(ME_ID).filter(b=>b.game===game).slice(0,10);
       const tb=document.querySelector("#"+tableId+" tbody");
@@ -643,11 +1017,7 @@
       )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
     }
 
-    /* ================= FIRESTORE LAST RESULT (PER CLIENT) =================
-      users/{ME_ID}:
-      lastResults: { DragonTiger: "...", TeenPatti: "...", Roulette: "..." }
-      lastResultsUpdatedAt: { DragonTiger: 123, ... }
-    ====================================================================== */
+    /* ================= FIRESTORE LAST RESULT (PER CLIENT) ================= */
     function gameToPrevEl(game){ return (game==="DragonTiger")?"dtPrev":(game==="TeenPatti")?"tpPrev":"rPrev"; }
     function renderLastResultFor(game){
       const el=document.getElementById(gameToPrevEl(game));
@@ -660,7 +1030,6 @@
       renderLastResultFor("Roulette");
     }
     async function setLastResultFS(game, value){
-      // instant UI (local cache)
       if(!ME_USER) ME_USER = {};
       if(!ME_USER.lastResults) ME_USER.lastResults = {};
       ME_USER.lastResults[game] = value;
@@ -680,12 +1049,12 @@
           if(!doc.exists) return;
           ME_USER = Object.assign({}, ME_USER||{}, doc.data()||{});
           document.getElementById("pts").textContent=Number(ME_USER.points||0);
-          renderAllLastResults(); // ✅ continuous
+          renderAllLastResults();
         });
       }catch(e){}
     }
 
-    /* ================= NEW: "My Bet" UI renderer ================= */
+    /* ================= My Bet UI ================= */
     function pillClassForStatus(st){
       if(st==="PENDING") return "miniPill stPending";
       if(st==="WIN") return "miniPill stWin";
@@ -746,10 +1115,6 @@
       setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
     }
 
-    /* ✅ IMPORTANT FIX:
-       Ab result HAR ROUND me generate hoga (bet ho ya na ho) aur Firestore me save hoga.
-       Isliye "No result" problem solve + result continuously show.
-    */
     async function revealDT(r){
       setTimeout(async ()=>{
         const d=drawDT();
@@ -845,11 +1210,10 @@
       const lock=document.getElementById(lockEl);
       const btn=document.getElementById(btnEl);
 
-      // ✅ keep "My Bet" panel always updated for current round
       renderMyBet(game, r.roundId);
 
       if(left<=0){
-        btn.disabled=true;btn.style.opacity=".6";setLock(lock,"CLOSED");
+        btn.disabled=true; setLock(lock,"CLOSED");
         if(!r.revealed) await revealFn(r);
         if(r.revealed && !r.nextStarted){
           r.nextStarted=true;setRound(ME_ID,game,r);
@@ -862,18 +1226,18 @@
       }
 
       const myBetThisRound = findMyBetForRound(game, r.roundId);
-      const hasPlaced = !!myBetThisRound; // even if status later changes
+      const hasPlaced = !!myBetThisRound;
 
       if(isOpen(r)){
-        if(hasPlaced){btn.disabled=true;btn.style.opacity=".6";setLock(lock,"PLACED");}
-        else {btn.disabled=false;btn.style.opacity="1";setLock(lock,"OPEN");}
+        if(hasPlaced){btn.disabled=true; setLock(lock,"PLACED");}
+        else {btn.disabled=false; setLock(lock,"OPEN");}
       }else{
-        btn.disabled=true;btn.style.opacity=".6";setLock(lock,hasPlaced?"PLACED":"LOCKED");
+        btn.disabled=true; setLock(lock,hasPlaced?"PLACED":"LOCKED");
       }
     }
 
     function startNext(cid,game){
-      const r={roundId:(Number(getRound(cid,game)?.roundId)||0)+1,startedAt:Date.now(),betPlaced:false,revealed:false,nextStarted:false};
+      const r={roundId:(Number(getRound(cid,game)?.roundId)||0)+1,startedAt:Date.now(),revealed:false,nextStarted:false};
       setRound(cid,game,r);
       if(game==="TeenPatti"){document.getElementById("tpMsg").textContent="-";document.getElementById("tpStatus").textContent="-";}
       if(game==="Roulette"){document.getElementById("rMsg").textContent="-";}
@@ -920,7 +1284,7 @@
       }catch(e){document.getElementById("rMsg").textContent=e.message||String(e)}
     });
 
-    /* ================= VIEWERS FAKE ================= */
+    /* ================= VIEWERS (FAKE) ================= */
     setInterval(()=>{
       const el=id=>document.getElementById(id);
       el("dtView").textContent="👁 "+(120+Math.floor(Math.random()*25));
@@ -947,7 +1311,6 @@
 
       renderAllLastResults();
 
-      // ✅ init MyBet boxes
       renderMyBet("DragonTiger", ensureRound(ME_ID,"DragonTiger").roundId);
       renderMyBet("TeenPatti", ensureRound(ME_ID,"TeenPatti").roundId);
       renderMyBet("Roulette", ensureRound(ME_ID,"Roulette").roundId);
