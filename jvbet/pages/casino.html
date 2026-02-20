@@ -842,166 +842,139 @@
 
 <script>
 /* ======================================================
-   JVBET – STABLE DAILY ROUND ENGINE
-   ✔ Refresh safe
-   ✔ Round reset only once per day
-   ✔ No huge round numbers
+   JVBET – SAFE LOGIC PATCH (NO DESIGN BREAK)
+   ✔ Client name show
+   ✔ Points show
+   ✔ Round refresh-safe
+   ✔ Last 5 update
 ====================================================== */
-
-/* ---------- FIREBASE ---------- */
-firebase.initializeApp({
-  apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-  authDomain: "jvbet-bbf90.firebaseapp.com",
-  projectId: "jvbet-bbf90"
-});
-const db = firebase.firestore();
-
-/* ---------- CONSTANTS ---------- */
-const TOTAL_SEC = 30;
-const LOCK_AT = 15;
 
 /* ---------- SESSION ---------- */
 const session = JSON.parse(localStorage.getItem("jvbet_session"));
-if (!session || !session.id) location.href="../index.html";
+if(!session || !session.id){
+  location.href="../index.html";
+}
 const ME_ID = session.id;
+const ME_NAME = session.name || session.username || ME_ID;
 
-/* ---------- HELPERS ---------- */
+/* ---------- DOM ---------- */
 const $ = id => document.getElementById(id);
 
-/* ---------- 🔑 DAILY BASE TIME (00:00 TODAY) ---------- */
-function getTodayBaseTime(){
+/* ---------- HEADER FIX ---------- */
+$("cid").textContent = ME_NAME;
+
+/* ---------- STATS ---------- */
+function getStats(){
+  return JSON.parse(localStorage.getItem("JVBET_STATS_"+ME_ID)) || {
+    points: 1000,
+    win: 0,
+    loss: 0
+  };
+}
+function renderStats(){
+  const s = getStats();
+  $("pts").textContent = s.points;
+  $("w").textContent   = s.win;
+  $("l").textContent   = s.loss;
+}
+renderStats();
+
+/* ---------- ROUND SYSTEM (DAILY, SAFE) ---------- */
+const TOTAL_SEC = 30;
+const LOCK_AT = 15;
+
+function getBaseTime(){
   const d = new Date();
-  d.setHours(0,0,0,0); // today 12:00 AM
+  d.setHours(0,0,0,0);
   return d.getTime();
 }
 
-/* ---------- ROUND CALCULATOR (SAFE) ---------- */
 function getRoundInfo(){
-  const base = getTodayBaseTime();
   const now = Date.now();
-
+  const base = getBaseTime();
   const diff = now - base;
-  const round = Math.floor(diff / (TOTAL_SEC * 1000)) + 1;
 
-  const roundStart = base + (round - 1) * TOTAL_SEC * 1000;
-  const left = Math.max(0, TOTAL_SEC - Math.floor((now - roundStart) / 1000));
+  const round = Math.floor(diff / (TOTAL_SEC*1000)) + 1;
+  const roundStart = base + (round-1)*TOTAL_SEC*1000;
+  const left = Math.max(0, TOTAL_SEC - Math.floor((now-roundStart)/1000));
 
   return { round, left };
 }
 
-/* ---------- LOCK UI ---------- */
-function setLock(el, state){
-  el.textContent = state;
-  el.className = "pillSmall";
-  if(state==="OPEN") el.classList.add("lockOpen");
-  if(state==="LOCKED") el.classList.add("lockLocked");
-  if(state==="CLOSED") el.classList.add("lockClosed");
+/* ---------- RESULT ---------- */
+function drawDT(){
+  return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)];
 }
 
-/* ---------- RESULT GENERATORS ---------- */
-function drawDT(){ return ["DRAGON","TIGER","TIE"][Math.floor(Math.random()*3)]; }
-function drawTP(){ return ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)]; }
-function drawR(){
-  const n=Math.floor(Math.random()*37);
-  return (n===0?"GREEN":(n%2?"RED":"BLACK"))+" "+n;
+/* ---------- LAST 5 (LOCAL, STABLE) ---------- */
+function getLast5(){
+  return JSON.parse(localStorage.getItem("DT_LAST5_"+ME_ID)) || [];
 }
-
-/* ---------- LAST 5 (FIRESTORE) ---------- */
-async function pushLast5(game,result,round){
-  const ref = db.collection("users").doc(ME_ID);
-  await db.runTransaction(async tx=>{
-    const snap = await tx.get(ref);
-    const data = snap.data() || {};
-    const last5 = data.last5Results || {};
-    const arr = (last5[game] || []).filter(x=>x.round!==round);
-    arr.unshift({ result, round, time: Date.now() });
-    last5[game] = arr.slice(0,5);
-    tx.set(ref,{ last5Results:last5 },{ merge:true });
-  });
-  renderLast5(game);
+function saveLast5(arr){
+  localStorage.setItem("DT_LAST5_"+ME_ID, JSON.stringify(arr));
 }
-
-async function renderLast5(game){
-  const map = {
-    DragonTiger:"dtLast5Body",
-    TeenPatti:"tpLast5Body",
-    Roulette:"rLast5Body"
-  };
-  const body = $(map[game]);
+function renderLast5(){
+  const arr = getLast5();
+  const body = $("dtLast5Body");
   if(!body) return;
 
-  const snap = await db.collection("users").doc(ME_ID).get();
-  const arr = snap.data()?.last5Results?.[game] || [];
-
-  if(!arr.length){
-    body.innerHTML="<tr><td colspan='4'>No results</td></tr>";
-    return;
-  }
-
-  body.innerHTML = arr.map((x,i)=>`
-    <tr>
-      <td>${i+1}</td>
-      <td class="gold">${x.result}</td>
-      <td>${x.round}</td>
-      <td>${new Date(x.time).toLocaleString()}</td>
-    </tr>
-  `).join("");
+  body.innerHTML = arr.length
+    ? arr.map((x,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td class="gold">${x.result}</td>
+        <td>${x.round}</td>
+        <td>${new Date(x.time).toLocaleString()}</td>
+      </tr>`).join("")
+    : "<tr><td colspan='4'>No results yet</td></tr>";
 }
+renderLast5();
 
-/* ---------- REVEAL (ONCE PER ROUND) ---------- */
-async function reveal(game,round){
-  let res="";
-  if(game==="DragonTiger") res=drawDT();
-  if(game==="TeenPatti") res=drawTP();
-  if(game==="Roulette") res=drawR();
-
-  await pushLast5(game,res,round);
-
-  if(game==="DragonTiger"){
-    $("dtLast").textContent=res;
-    $("dtPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
-  }
-  if(game==="TeenPatti"){
-    $("tpPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
-  }
-  if(game==="Roulette"){
-    $("rPrev").innerHTML=`<span class="resChip gold">${res}</span>`;
-  }
-}
-
-/* ---------- MAIN LOOP ---------- */
-async function tick(game,timerId,fillId,roundId,lockId){
+/* ---------- MAIN TIMER LOOP ---------- */
+setInterval(()=>{
   const info = getRoundInfo();
 
-  $(timerId).textContent = info.left;
-  $(roundId).textContent = info.round;
-  $(fillId).style.width = ((TOTAL_SEC-info.left)/TOTAL_SEC*100)+"%";
+  $("dtTimer").textContent = info.left;
+  $("dtRound").textContent = info.round;
+  $("dtFill").style.width =
+    ((TOTAL_SEC-info.left)/TOTAL_SEC*100) + "%";
 
-  if(info.left>LOCK_AT) setLock($(lockId),"OPEN");
-  else if(info.left>0) setLock($(lockId),"LOCKED");
-  else setLock($(lockId),"CLOSED");
-
-  const key = `REVEALED_${game}_${info.round}`;
-  if(info.left===0 && !localStorage.getItem(key)){
-    localStorage.setItem(key,"1");
-    await reveal(game,info.round);
+  if(info.left > LOCK_AT){
+    $("dtLock").textContent="OPEN";
+    $("dtLock").className="pillSmall lockOpen";
+  }else if(info.left > 0){
+    $("dtLock").textContent="LOCKED";
+    $("dtLock").className="pillSmall lockLocked";
+  }else{
+    $("dtLock").textContent="CLOSED";
+    $("dtLock").className="pillSmall lockClosed";
   }
-}
 
-/* ---------- INIT ---------- */
-(function(){
-  renderLast5("DragonTiger");
-  renderLast5("TeenPatti");
-  renderLast5("Roulette");
+  if(info.left === 0){
+    const key = "DT_DONE_"+info.round;
+    if(!localStorage.getItem(key)){
+      localStorage.setItem(key,"1");
 
-  setInterval(()=>{
-    tick("DragonTiger","dtTimer","dtFill","dtRound","dtLock");
-    tick("TeenPatti","tpTimer","tpFill","tpRound","tpLock");
-    tick("Roulette","rTimer","rFill","rRound","rLock");
-  },250);
-})();
+      const res = drawDT();
+      $("dtPrev").innerHTML =
+        `<span class="resChip gold">${res}</span>`;
+
+      const arr = getLast5();
+      arr.unshift({result:res, round:info.round, time:Date.now()});
+      saveLast5(arr.slice(0,5));
+      renderLast5();
+    }
+  }
+},250);
+
+/* ---------- LOGOUT ---------- */
+$("logoutBtn").onclick = ()=>{
+  localStorage.removeItem("jvbet_session");
+  location.href="../index.html";
+};
 </script>
 </body>
 </html>
+
 
 
