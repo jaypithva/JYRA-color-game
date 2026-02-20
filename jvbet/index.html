@@ -232,8 +232,7 @@
 
     .field{
       position:relative;
-      /* margin-top:12px; */
-      overflow: visible;
+      margin-top:12px; 
     }
 
     .input{
@@ -253,26 +252,15 @@
       border-color: rgba(212,175,55,.45);
       box-shadow: 0 0 0 4px rgba(212,175,55,.12);
     }
-.input{
-  padding-left: 48px;  /* icon ke liye jagah */
-  position: relative;
-  z-index: 1;
-
-    /* .iconLeft{
+    .iconLeft{
       position:absolute;
       left:14px; top:50%;
       transform:translateY(-50%);
       width:18px; height:18px;
       opacity:.9;
       pointer-events:none;
-    } */
-.iconLeft{
-  width: 22px;
-  height: 22px;
-  opacity: 1 !important;
-  z-index: 10;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,.65));
-}
+    } 
+
     .iconBtn{
       position:absolute;
       right:10px; top:50%;
@@ -335,14 +323,6 @@
       border-top:1px solid rgba(255,255,255,.08);
     }
     .dot{opacity:.55}
-.card svg, .field svg{
-  max-width: 100%;
-  height: auto;
-}
-.iconLeft{
-  height: 22px !important;
-  width: 22px !important;
-}
     /* ====== Responsive ====== */
     @media (max-width: 980px){
       .shell{grid-template-columns:1fr; }
