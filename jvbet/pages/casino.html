@@ -847,15 +847,14 @@
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
 <script>
 /* ======================================================
-   JVBET – FINAL PATCH (NO DESIGN CHANGE)
-   ✅ Refresh/Reload par round reset nahi hoga (LocalStorage authority)
-   ✅ Last5 blank nahi hoga (Local cache + Firestore sync)
-   ✅ Points always show (Local stats + UI refresh)
-   ✅ LOSS: stake cut at place
-   ✅ WIN: 2x payout
-   ✅ TIE: refund
+   JVBET – FULL COPY PASTE (ADMIN POINTS AUTHORITY)
+   ✅ Admin/Firestore points always show
+   ✅ Realtime sync (admin change => user page auto update)
+   ✅ Bet deduct + payout add => Firestore transaction (no overwrite bug)
+   ✅ Round + Last5 + UI same (design unchanged)
 ====================================================== */
 
 (function () {
@@ -869,6 +868,7 @@
   };
   if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  const INC = firebase.firestore.FieldValue.increment;
 
   /* ---------- CONFIG ---------- */
   const TOTAL_SEC = 30;
@@ -897,40 +897,27 @@
   /* ---------- UI SAFE GET ---------- */
   const $ = (id) => document.getElementById(id);
 
-  /* ---------- HEADER / STATS (LOCAL AUTHORITY) ---------- */
+  /* ---------- HEADER / STATS ---------- */
   function getStats() {
     const d = JSON.parse(localStorage.getItem(K.stats()) || "null");
     if (d && typeof d.points === "number") return d;
 
-   const init = {
-  points: Number(session.points ?? 0) || 0,
-  win: Number(session.win ?? 0) || 0,
-  loss: Number(session.loss ?? 0) || 0,
-};
+    const init = {
+      points: Number(session.points ?? 0) || 0,
+      win: Number(session.win ?? 0) || 0,
+      loss: Number(session.loss ?? 0) || 0,
+    };
     localStorage.setItem(K.stats(), JSON.stringify(init));
     return init;
   }
 
-function setStats(s) {
-  localStorage.setItem(K.stats(), JSON.stringify(s));
-
-  // ✅ UI update always
-  if ($("pts")) $("pts").textContent = String(s.points ?? 0);
-  if ($("w")) $("w").textContent = String(s.win ?? 0);
-  if ($("l")) $("l").textContent = String(s.loss ?? 0);
-
-  // ✅ Firestore sync (safe)
-  userRef
-    .set(
-      {
-        points: Number(s.points || 0),
-        win: Number(s.win || 0),
-        loss: Number(s.loss || 0),
-      },
-      { merge: true }
-    )
-    .catch(() => {});
-}
+  // ✅ IMPORTANT: setStats ONLY local+UI (NO firestore overwrite)
+  function setStats(s) {
+    localStorage.setItem(K.stats(), JSON.stringify(s));
+    if ($("pts")) $("pts").textContent = String(s.points ?? 0);
+    if ($("w")) $("w").textContent = String(s.win ?? 0);
+    if ($("l")) $("l").textContent = String(s.loss ?? 0);
+  }
 
   function refreshHeader() {
     if ($("cid")) $("cid").textContent = ME_ID;
@@ -953,14 +940,11 @@ function setStats(s) {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
   }
-async function syncPointsFromFirestoreOnce() {
-  try {
-    const snap = await userRef.get();
-    if (!snap.exists) return;
 
-    const data = snap.data() || {};
-
-    // ✅ try multiple field names (common cases)
+  /* ======================================================
+     ✅ ADMIN POINTS = FIRESTORE AUTHORITY (REALTIME)
+  ======================================================= */
+  function normalizePointsField(data) {
     const raw =
       data.points ??
       data.Points ??
@@ -973,24 +957,64 @@ async function syncPointsFromFirestoreOnce() {
       data.credit ??
       data.Credit ??
       0;
-
     const fp = Number(raw);
-
-    if (Number.isFinite(fp)) {
-      const s = getStats();
-      s.points = fp;
-
-      // optional
-      if (data.win != null) s.win = Number(data.win) || 0;
-      if (data.loss != null) s.loss = Number(data.loss) || 0;
-
-      // ✅ UI update first
-      setStats(s);
-    }
-  } catch (e) {
-    // ignore
+    return Number.isFinite(fp) ? fp : 0;
   }
-}
+
+  // realtime listener -> admin changes reflect instantly
+  function listenUserDocRealtime() {
+    userRef.onSnapshot(
+      (snap) => {
+        if (!snap.exists) return;
+        const data = snap.data() || {};
+        const s = getStats();
+
+        const fp = normalizePointsField(data);
+        s.points = fp;
+
+        // optional: if you store win/loss in doc
+        if (data.win != null) s.win = Number(data.win) || 0;
+        if (data.loss != null) s.loss = Number(data.loss) || 0;
+
+        setStats(s);
+      },
+      (err) => {
+        // if permission issue, you'll see in console
+        // console.log(err);
+      }
+    );
+  }
+
+  /* ======================================================
+     ✅ UPDATE FIRESTORE BY DELTA (NO OVERWRITE)
+     - Bet place: points -= stake
+     - Win payout: points += payout
+  ======================================================= */
+  async function firestoreDelta({ pointsDelta = 0, winDelta = 0, lossDelta = 0 }) {
+    try {
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const data = snap.exists ? (snap.data() || {}) : {};
+        const currentPoints = normalizePointsField(data);
+
+        const nextPoints = Math.max(0, currentPoints + Number(pointsDelta || 0));
+
+        // always write to "points" field (standard)
+        const payload = {
+          points: nextPoints,
+        };
+
+        // optional counters
+        if (winDelta) payload.win = (data.win || 0) + winDelta;
+        if (lossDelta) payload.loss = (data.loss || 0) + lossDelta;
+
+        tx.set(userRef, payload, { merge: true });
+      });
+    } catch (e) {
+      // ignore (local still works)
+    }
+  }
+
   /* ---------- HELPERS ---------- */
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const nowStr = (ms) => new Date(ms).toLocaleString();
@@ -1003,8 +1027,7 @@ async function syncPointsFromFirestoreOnce() {
   }
 
   /* ======================================================
-     ROUND STATE (LOCAL AUTHORITY + FIRESTORE SYNC)
-     ✅ Refresh par kabhi round 1 reset nahi hoga
+     ROUND STATE (LOCAL AUTHORITY + OPTIONAL FIRESTORE)
   ======================================================= */
   const defaultRS = {
     dt: { round: 1, start: Date.now(), revealed: false, lastResult: null },
@@ -1018,7 +1041,6 @@ async function syncPointsFromFirestoreOnce() {
       localStorage.setItem(K.rs(), JSON.stringify(defaultRS));
       return structuredClone(defaultRS);
     }
-    // basic validation
     ["dt", "tp", "rl"].forEach((g) => {
       if (typeof d[g].round !== "number") d[g].round = 1;
       if (typeof d[g].start !== "number") d[g].start = Date.now();
@@ -1035,13 +1057,10 @@ async function syncPointsFromFirestoreOnce() {
   const roundState = loadRSLocal();
 
   async function syncRSFromFirestoreOnce() {
-    // Firestore is OPTIONAL (agar fail ho to bhi local continue)
     try {
       const snap = await userRef.get();
       const data = snap.data() || {};
       const frs = data.roundState || {};
-
-      // merge only if firestore has higher round (avoid going back)
       ["dt", "tp", "rl"].forEach((g) => {
         const s = frs[g];
         if (s && typeof s.round === "number" && typeof s.start === "number") {
@@ -1055,11 +1074,8 @@ async function syncPointsFromFirestoreOnce() {
           }
         }
       });
-
       saveRSLocal(roundState);
-    } catch (e) {
-      // ignore - local is master
-    }
+    } catch (e) {}
   }
 
   async function saveRSToFirestore(game) {
@@ -1072,9 +1088,7 @@ async function syncPointsFromFirestoreOnce() {
         lastResult: roundState[game].lastResult || null,
       };
       await userRef.set(payload, { merge: true });
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   }
 
   function secondsLeft(game) {
@@ -1084,8 +1098,7 @@ async function syncPointsFromFirestoreOnce() {
   }
 
   /* ======================================================
-     LAST 5 (LOCAL CACHE FIRST + FIRESTORE SYNC)
-     ✅ Firestore fail ho to bhi blank nahi hoga
+     LAST 5 (LOCAL CACHE FIRST + OPTIONAL FIRESTORE)
   ======================================================= */
   function loadLast5Cache() {
     const d = JSON.parse(localStorage.getItem(K.last5()) || "null");
@@ -1139,20 +1152,17 @@ async function syncPointsFromFirestoreOnce() {
       saveLast5Cache(last5Cache);
       renderLast5FromCache(gameNorm);
     } catch (e) {
-      // keep local cache
       renderLast5FromCache(gameNorm);
     }
   }
 
   async function pushLast5(gameNorm, result, round) {
-    // update local cache immediately
     const arr = (last5Cache[gameNorm] || []).filter((x) => x && x.round !== round);
     arr.unshift({ result, round, time: Date.now() });
     last5Cache[gameNorm] = arr.slice(0, 5);
     saveLast5Cache(last5Cache);
     renderLast5FromCache(gameNorm);
 
-    // try firestore transaction (optional)
     try {
       await db.runTransaction(async (tx) => {
         const snap = await tx.get(userRef);
@@ -1163,9 +1173,7 @@ async function syncPointsFromFirestoreOnce() {
         last5[gameNorm] = cur.slice(0, 5);
         tx.set(userRef, { last5Results: last5 }, { merge: true });
       });
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   }
 
   /* ---------- TABS ---------- */
@@ -1370,15 +1378,11 @@ async function syncPointsFromFirestoreOnce() {
   }
 
   function flipDT(res) {
-    const fcD = $("fcD"),
-      fcT = $("fcT"),
-      fcR = $("fcR");
-    const d = $("dtD"),
-      t = $("dtT"),
-      r = $("dtR");
+    const fcD = $("fcD"), fcT = $("fcT"), fcR = $("fcR");
+    const d = $("dtD"), t = $("dtT"), r = $("dtR");
     if (!fcD || !fcT || !fcR || !d || !t || !r) return;
 
-    const faces = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+    const faces = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
     d.textContent = (res === "DRAGON" ? "WIN" : "—") + " " + faces[Math.floor(Math.random() * faces.length)];
     t.textContent = (res === "TIGER" ? "WIN" : "—") + " " + faces[Math.floor(Math.random() * faces.length)];
     r.textContent = res === "TIE" ? "TIE" : "—";
@@ -1401,8 +1405,9 @@ async function syncPointsFromFirestoreOnce() {
   /* ======================================================
      ✅ PLACE: cut stake now
      ✅ SETTLE: WIN add stake*2, TIE add stake, LOSS add 0
+     ✅ Firestore: use DELTA transaction
   ======================================================= */
-  function placeBet(game, stakeInputId, msgId) {
+  async function placeBet(game, stakeInputId, msgId) {
     const r = roundState[game];
     const round = r.round;
     const msg = $(msgId);
@@ -1428,6 +1433,7 @@ async function syncPointsFromFirestoreOnce() {
       return;
     }
 
+    // local check
     const s = getStats();
     if ((s.points || 0) < points) {
       if (msg) msg.textContent = "Not enough points";
@@ -1435,9 +1441,12 @@ async function syncPointsFromFirestoreOnce() {
       return;
     }
 
-    // cut now
+    // cut now (local)
     s.points = (s.points || 0) - points;
     setStats(s);
+
+    // ✅ firestore cut by delta
+    await firestoreDelta({ pointsDelta: -points });
 
     const bet = { time: Date.now(), round, pick: pick[game], points, settled: false, status: "PENDING" };
     setBet(game, round, bet);
@@ -1455,7 +1464,7 @@ async function syncPointsFromFirestoreOnce() {
   $("tpPlay")?.addEventListener("click", () => placeBet("tp", "tpStake", "tpMsg"));
   $("rPlay")?.addEventListener("click", () => placeBet("rl", "rStake", "rMsg"));
 
-  function settle(game, round, result) {
+  async function settle(game, round, result) {
     const bet = getBet(game, round);
     if (!bet || bet.settled) return null;
 
@@ -1493,11 +1502,19 @@ async function syncPointsFromFirestoreOnce() {
     bet.status = status;
     setBet(game, round, bet);
 
+    // local payout
     const s = getStats();
     s.points = (s.points || 0) + payout;
     if (status === "WIN") s.win = (s.win || 0) + 1;
     if (status === "LOSS") s.loss = (s.loss || 0) + 1;
     setStats(s);
+
+    // ✅ firestore payout + counters by delta
+    await firestoreDelta({
+      pointsDelta: payout,
+      winDelta: status === "WIN" ? 1 : 0,
+      lossDelta: status === "LOSS" ? 1 : 0,
+    });
 
     addHist({
       time: Date.now(),
@@ -1529,7 +1546,6 @@ async function syncPointsFromFirestoreOnce() {
     r.lastResult = result;
     saveRSLocal(roundState);
 
-    // UI
     const roundText = `Round ${r.round}: ${result}`;
     if (game === "dt") {
       $("dtLast").textContent = result;
@@ -1542,7 +1558,7 @@ async function syncPointsFromFirestoreOnce() {
       pushLatestChip("rPrev", roundText);
     }
 
-    const settled = settle(game, r.round, result);
+    const settled = await settle(game, r.round, result);
     if (settled) {
       if (settled.status === "WIN") showToast("YOU WIN", `${result} • +${settled.payout} pts (2x)`, "win");
       else if (settled.status === "LOSS") showToast("YOU LOSS", `${result} • Lost ${settled.bet.points} pts`, "loss");
@@ -1551,13 +1567,9 @@ async function syncPointsFromFirestoreOnce() {
       showToast("RESULT", roundText, "tie");
     }
 
-    // Last5: update local immediately + try firestore
     await pushLast5(normGame(game), result, r.round);
-
-    // Sync round state to firestore (optional)
     saveRSToFirestore(game);
 
-    // Next round (no skip)
     setTimeout(() => {
       r.round += 1;
       r.start = Date.now();
@@ -1618,7 +1630,6 @@ async function syncPointsFromFirestoreOnce() {
 
   /* ---------- INIT ---------- */
   (async function init() {
-    // Always render from local first (no blank)
     refreshHeader();
     refreshTables();
 
@@ -1626,14 +1637,17 @@ async function syncPointsFromFirestoreOnce() {
     renderLast5FromCache("TeenPatti");
     renderLast5FromCache("Roulette");
 
-    // Try sync from firestore (optional)
+    // optional rs sync
     await syncRSFromFirestoreOnce();
-    await syncPointsFromFirestoreOnce();
+
+    // ✅ IMPORTANT: realtime points from admin/firestore
+    listenUserDocRealtime();
+
+    // last5 sync
     await syncLast5FromFirestore("DragonTiger");
     await syncLast5FromFirestore("TeenPatti");
     await syncLast5FromFirestore("Roulette");
 
-    // Persist rs periodically (optional)
     setInterval(() => {
       saveRSLocal(roundState);
       saveRSToFirestore("dt");
@@ -1641,13 +1655,10 @@ async function syncPointsFromFirestoreOnce() {
       saveRSToFirestore("rl");
     }, 4000);
 
-    // Main tick
     setInterval(() => {
       tickOne("dt", "dtTimer", "dtFill", "dtRound", "dtLock");
       tickOne("tp", "tpTimer", "tpFill", "tpRound", "tpLock");
       tickOne("rl", "rTimer", "rFill", "rRound", "rLock");
-
-      // TP mirror round
       if ($("tpRound2")) $("tpRound2").textContent = String(roundState.tp.round);
     }, 250);
   })();
@@ -1656,7 +1667,3 @@ async function syncPointsFromFirestoreOnce() {
 
 </body>
 </html>
-
-
-
-
