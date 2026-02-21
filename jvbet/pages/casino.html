@@ -11,43 +11,66 @@
   <style>
     :root {
       --gold: rgba(212, 175, 55, 1);
-      --shadow: 0 18px 60px rgba(0, 0, 0, .35);
+      --gold2: rgba(255, 221, 136, 1);
+      --blue: rgba(43, 111, 255, 1);
+      --red: rgba(255, 77, 109, 1);
+      --shadow: 0 18px 60px rgba(0, 0, 0, .38);
       --radius: 16px;
       --text: #fff;
       --muted: rgba(255, 255, 255, .72);
+      --glass: rgba(0, 0, 0, .28);
+      --stroke: rgba(255, 255, 255, .10);
     }
 
-    * {
-      box-sizing: border-box
-    }
-
-    html,
-    body {
-      height: 100%
-    }
+    * { box-sizing: border-box }
+    html, body { height: 100% }
 
     body {
       margin: 0;
       color: var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
-      background: #0b0b0f;
+      background: #07070b;
       min-height: 100dvh;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      overflow-x: hidden;
     }
 
+    /* ===== Glam background (animated glow) ===== */
     .bg {
-      background: radial-gradient(900px 500px at 20% -10%, rgba(212, 175, 55, .12), transparent 55%),
-        radial-gradient(900px 500px at 90% 0%, rgba(43, 111, 255, .12), transparent 55%),
-        radial-gradient(900px 500px at 40% 120%, rgba(255, 77, 109, .10), transparent 55%), #0b0b0f;
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(212, 175, 55, .18), transparent 55%),
+        radial-gradient(1200px 700px at 90% 0%, rgba(43, 111, 255, .18), transparent 55%),
+        radial-gradient(900px 600px at 40% 120%, rgba(255, 77, 109, .12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%),
+        #07070b;
+      position: relative;
     }
 
+    .bg::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(600px 300px at 30% 20%, rgba(212,175,55,.10), transparent 60%),
+        radial-gradient(600px 300px at 70% 60%, rgba(43,111,255,.10), transparent 60%);
+      filter: blur(6px);
+      opacity: .9;
+      animation: bgFloat 6.5s ease-in-out infinite alternate;
+    }
+    @keyframes bgFloat {
+      from { transform: translateY(0px) }
+      to { transform: translateY(18px) }
+    }
+
+    /* ===== Header ===== */
     .header {
       position: sticky;
       top: 0;
       z-index: 50;
-      backdrop-filter: blur(10px);
-      background: rgba(0, 0, 0, .35);
+      backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, .40);
       border-bottom: 1px solid rgba(255, 255, 255, .08);
     }
 
@@ -60,77 +83,62 @@
       justify-content: center;
     }
 
-    .logo {
-      height: 44px;
-      width: auto;
-      display: block
-    }
+    .logo { height: 44px; width: auto; display: block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.55)); }
 
-    .wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px
-    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 12px }
 
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center
-    }
+    .row { display: flex; gap: 10px; align-items: center }
+    .row.wrapRow { flex-wrap: wrap }
+    .spaced { justify-content: space-between }
 
-    .row.wrapRow {
-      flex-wrap: wrap
-    }
-
-    .spaced {
-      justify-content: space-between
-    }
-
+    /* ===== Badges ===== */
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 8px 10px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, .25);
-      border: 1px solid rgba(255, 255, 255, .10);
-      font-weight: 800;
+      background: rgba(0,0,0,.26);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: 900;
       font-size: 13px;
       white-space: nowrap;
+      box-shadow: 0 10px 26px rgba(0,0,0,.25);
     }
 
-    .gold {
-      color: var(--gold)
-    }
+    .gold { color: var(--gold) }
+    .muted { color: var(--muted); font-weight: 700 }
 
-    .muted {
-      color: var(--muted);
-      font-weight: 700
-    }
-
+    /* ===== Buttons (glow) ===== */
     .btn {
       appearance: none;
-      border: none;
+      border: 1px solid rgba(255,255,255,.10);
       padding: 10px 14px;
       border-radius: 999px;
-      font-weight: 900;
-      color: #000;
-      background: linear-gradient(180deg, rgba(212, 175, 55, 1), rgba(255, 255, 255, .75));
+      font-weight: 1000;
+      color: #120f07;
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.80));
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
-      transition: transform .08s ease, opacity .2s ease;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .45);
+      transition: transform .08s ease, opacity .2s ease, box-shadow .2s ease, filter .2s ease;
       user-select: none;
+      position: relative;
+      overflow: hidden;
     }
-
-    .btn:active {
-      transform: scale(.98)
+    .btn::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), transparent 45%);
+      transform: translateX(-40%);
+      opacity:.35;
+      transition: transform .4s ease;
     }
+    .btn:hover::after{ transform: translateX(10%) }
+    .btn:hover { filter: brightness(1.03); box-shadow: 0 18px 46px rgba(212,175,55,.18), 0 18px 46px rgba(0,0,0,.55) }
+    .btn:active { transform: scale(.98) }
+    .btn:disabled { opacity: .55; cursor: not-allowed; filter: grayscale(.15) }
 
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed
-    }
-
+    /* ===== Tabs ===== */
     .tabs {
       display: flex;
       gap: 8px;
@@ -144,54 +152,55 @@
       color: #fff;
       padding: 10px 12px;
       border-radius: 999px;
-      font-weight: 900;
+      font-weight: 1000;
       cursor: pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
     }
-
+    .tabbtn:active { transform: scale(.98) }
     .tabbtn.active {
-      border-color: rgba(212, 175, 55, .45);
-      background: rgba(212, 175, 55, .14);
+      border-color: rgba(212, 175, 55, .55);
+      background: rgba(212, 175, 55, .16);
+      box-shadow: 0 10px 26px rgba(212,175,55,.10);
     }
 
-    .panel {
-      display: none
-    }
+    .panel { display: none }
+    .panel.active { display: block }
 
-    .panel.active {
-      display: block
-    }
-
+    /* ===== Cards (glam glass) ===== */
     .card {
-      border: 1px solid rgba(255, 255, 255, .10);
-      background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .22));
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(0, 0, 0, .22));
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 14px;
       overflow: hidden;
+      position: relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,.14), transparent);
+      transform: translateX(-35%);
+      animation: shimmer 5.2s linear infinite;
+      pointer-events:none;
+      opacity:.45;
+    }
+    @keyframes shimmer{
+      from { transform: translateX(-35%) }
+      to   { transform: translateX(35%) }
     }
 
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      letter-spacing: .2px
-    }
+    .card h3 { margin: 0 0 10px; font-size: 18px; letter-spacing: .2px }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px
-    }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px }
+    @media (min-width: 980px) { .grid { grid-template-columns: 1.1fr .9fr } }
 
-    @media (min-width: 980px) {
-      .grid {
-        grid-template-columns: 1.1fr .9fr
-      }
-    }
-
+    /* ===== Live box ===== */
     .aiLiveBox {
       border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(212, 175, 55, .25);
+      border: 1px solid rgba(212, 175, 55, .28);
       background: rgba(0, 0, 0, .25);
       box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
       position: relative;
@@ -207,16 +216,14 @@
       align-items: center;
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, .55);
+      background: rgba(0, 0, 0, .62);
       border: 1px solid rgba(255, 255, 255, .12);
       z-index: 2;
       max-width: calc(100% - 20px);
     }
 
     .liveDot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
+      width: 10px; height: 10px; border-radius: 50%;
       background: #ff3b3b;
       box-shadow: 0 0 14px rgba(255, 59, 59, .85);
       animation: pulse 1.2s infinite;
@@ -224,54 +231,25 @@
     }
 
     @keyframes pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 1
-      }
-
-      50% {
-        transform: scale(1.35);
-        opacity: .65
-      }
+      0%,100% { transform: scale(1); opacity: 1 }
+      50%     { transform: scale(1.35); opacity: .65 }
     }
 
-    .liveTxt {
-      font-weight: 900;
-      letter-spacing: .4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis
-    }
-
-    .liveView {
-      opacity: .9;
-      white-space: nowrap;
-      flex: 0 0 auto
-    }
+    .liveTxt { font-weight: 1000; letter-spacing: .4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+    .liveView { opacity: .9; white-space: nowrap; flex: 0 0 auto }
 
     .aiVid {
       width: 100%;
       height: 240px;
       object-fit: cover;
       display: block;
-      filter: contrast(1.05) saturate(1.05);
+      filter: contrast(1.08) saturate(1.10);
       background: #000;
     }
+    @media (min-width: 900px) { .aiVid { height: 320px } }
+    @media (max-width: 420px) { .aiVid { height: 210px } }
 
-    @media (min-width: 900px) {
-      .aiVid {
-        height: 320px
-      }
-    }
-
-    @media (max-width: 420px) {
-      .aiVid {
-        height: 210px
-      }
-    }
-
+    /* ===== Timer row ===== */
     .timerWrap {
       display: flex;
       gap: 10px;
@@ -295,14 +273,8 @@
       overflow: hidden;
       white-space: nowrap;
     }
-
-    .timerPill>span {
-      white-space: nowrap
-    }
-
-    .timerNum {
-      font-weight: 900
-    }
+    .timerPill>span { white-space: nowrap }
+    .timerNum { font-weight: 1000 }
 
     .timerBar {
       flex: 1;
@@ -312,11 +284,11 @@
       overflow: hidden;
       min-width: 90px;
     }
-
     .timerFill {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, rgba(212, 175, 55, .95), rgba(255, 255, 255, .35));
+      transition: width .15s linear;
     }
 
     .pillSmall {
@@ -324,35 +296,18 @@
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, .12);
       background: rgba(0, 0, 0, .18);
-      font-weight: 900;
+      font-weight: 1000;
       flex: 0 0 auto;
       text-align: center;
       white-space: nowrap;
       min-width: 120px;
     }
+    @media (max-width: 520px) { .pillSmall { min-width: 0; flex: 1 1 120px } }
 
-    @media (max-width: 520px) {
-      .pillSmall {
-        min-width: 0;
-        flex: 1 1 120px;
-      }
-    }
-
-    .lockOpen {
-      border-color: rgba(34, 197, 94, .45)
-    }
-
-    .lockPlaced {
-      border-color: rgba(43, 111, 255, .45)
-    }
-
-    .lockLocked {
-      border-color: rgba(255, 193, 7, .45)
-    }
-
-    .lockClosed {
-      border-color: rgba(255, 77, 109, .45)
-    }
+    .lockOpen { border-color: rgba(34, 197, 94, .45) }
+    .lockPlaced { border-color: rgba(43, 111, 255, .45) }
+    .lockLocked { border-color: rgba(255, 193, 7, .45) }
+    .lockClosed { border-color: rgba(255, 77, 109, .45) }
 
     .prevBox {
       display: flex;
@@ -370,14 +325,16 @@
       border-radius: 999px;
       border: 1px solid rgba(212, 175, 55, .28);
       background: rgba(0, 0, 0, .25);
-      font-weight: 900;
+      font-weight: 1000;
       letter-spacing: .3px;
       white-space: nowrap;
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
     }
 
+    /* ===== Right board ===== */
     .casinoBoard {
       border: 1px solid rgba(255, 255, 255, .10);
       background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(0, 0, 0, .18));
@@ -385,6 +342,7 @@
       box-shadow: var(--shadow);
       padding: 14px;
       overflow: hidden;
+      position: relative;
     }
 
     .cTop {
@@ -393,18 +351,8 @@
       gap: 10px;
       align-items: stretch;
     }
-
-    @media (max-width: 900px) {
-      .cTop {
-        grid-template-columns: 1fr 1fr
-      }
-    }
-
-    @media (max-width: 520px) {
-      .cTop {
-        grid-template-columns: 1fr
-      }
-    }
+    @media (max-width: 900px) { .cTop { grid-template-columns: 1fr 1fr } }
+    @media (max-width: 520px) { .cTop { grid-template-columns: 1fr } }
 
     .topBox {
       border-radius: 14px;
@@ -413,48 +361,15 @@
       padding: 10px;
       min-width: 0;
     }
+    .topTitle { font-weight: 1000; opacity: .85; font-size: 12px }
+    .topValue { font-weight: 1000; font-size: 18px; margin-top: 6px }
+    .topValue.gold { color: var(--gold) }
 
-    .topTitle {
-      font-weight: 900;
-      opacity: .85;
-      font-size: 12px
-    }
+    .card3 { display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: 6px }
 
-    .topValue {
-      font-weight: 1000;
-      font-size: 18px;
-      margin-top: 6px
-    }
-
-    .topValue.gold {
-      color: var(--gold)
-    }
-
-    .card3 {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      align-items: center;
-      margin-top: 6px
-    }
-
-    .flipCard {
-      width: 72px;
-      height: 92px;
-      perspective: 800px
-    }
-
-    .flipInner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform .6s ease
-    }
-
-    .flipCard.flipped .flipInner {
-      transform: rotateY(180deg)
-    }
+    .flipCard { width: 72px; height: 92px; perspective: 800px }
+    .flipInner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .6s ease }
+    .flipCard.flipped .flipInner { transform: rotateY(180deg) }
 
     .flipFace {
       position: absolute;
@@ -474,43 +389,19 @@
       word-break: break-word;
       font-size: clamp(12px, 3.8vw, 17px);
     }
-
-    .flipBack {
-      transform: rotateY(180deg)
-    }
+    .flipBack { transform: rotateY(180deg) }
 
     @media (max-width: 420px) {
-      .flipCard {
-        width: 62px;
-        height: 82px
-      }
-
-      .card3 {
-        gap: 8px
-      }
-
-      .flipFace {
-        font-size: clamp(11px, 4.2vw, 15px);
-      }
+      .flipCard { width: 62px; height: 82px }
+      .card3 { gap: 8px }
+      .flipFace { font-size: clamp(11px, 4.2vw, 15px) }
     }
 
-    .cMid {
-      margin-top: 12px
-    }
+    .cMid { margin-top: 12px }
 
-    .betRow {
-      display: grid;
-      gap: 10px
-    }
-
-    #dtBets,
-    #tpBets {
-      grid-template-columns: repeat(3, minmax(0, 1fr))
-    }
-
-    #rBets {
-      grid-template-columns: repeat(2, minmax(0, 1fr))
-    }
+    .betRow { display: grid; gap: 10px }
+    #dtBets, #tpBets { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+    #rBets { grid-template-columns: repeat(2, minmax(0, 1fr)) }
 
     .betBox {
       border-radius: 14px;
@@ -520,43 +411,23 @@
       cursor: pointer;
       user-select: none;
       text-align: center;
-      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      box-shadow: 0 10px 26px rgba(0,0,0,.18);
     }
-
-    .betBox:active {
-      transform: scale(.98)
-    }
-
+    .betBox:hover { border-color: rgba(212,175,55,.22) }
+    .betBox:active { transform: scale(.98) }
     .betBox.active {
-      border-color: rgba(212, 175, 55, .55);
-      background: rgba(212, 175, 55, .12);
+      border-color: rgba(212, 175, 55, .62);
+      background: rgba(212, 175, 55, .14);
+      box-shadow: 0 14px 34px rgba(212,175,55,.10), 0 14px 34px rgba(0,0,0,.30);
     }
 
-    .betName {
-      font-weight: 1000;
-      letter-spacing: .3px
-    }
+    .betName { font-weight: 1000; letter-spacing: .3px }
+    .betMul { margin-top: 4px; font-weight: 900; opacity: .85; font-size: 12px }
 
-    .betMul {
-      margin-top: 4px;
-      font-weight: 900;
-      opacity: .85;
-      font-size: 12px
-    }
+    .cBottom { margin-top: 12px; display: flex; flex-direction: column; gap: 10px }
 
-    .cBottom {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px
-    }
-
-    .chips {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center
-    }
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center }
 
     .chip {
       border-radius: 999px;
@@ -568,18 +439,12 @@
       user-select: none;
       min-width: 70px;
       text-align: center;
+      transition: transform .08s ease, border-color .2s ease;
     }
+    .chip:hover { border-color: rgba(212,175,55,.22) }
+    .chip:active { transform: scale(.98) }
 
-    .chip:active {
-      transform: scale(.98)
-    }
-
-    .stakeBox {
-      display: flex;
-      gap: 10px;
-      width: 100%;
-      align-items: stretch
-    }
+    .stakeBox { display: flex; gap: 10px; width: 100%; align-items: stretch }
 
     .stakeInput {
       width: 100%;
@@ -594,15 +459,11 @@
     }
 
     @media (max-width: 520px) {
-      .stakeBox {
-        flex-direction: column
-      }
-
-      .stakeBox .btn {
-        width: 100%
-      }
+      .stakeBox { flex-direction: column }
+      .stakeBox .btn { width: 100% }
     }
 
+    /* ===== Tables ===== */
     .scrollBox {
       margin-top: 10px;
       border-radius: 14px;
@@ -613,14 +474,9 @@
       max-height: 260px;
     }
 
-    .scrollBox table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 640px
-    }
+    .scrollBox table { width: 100%; border-collapse: collapse; min-width: 640px }
 
-    table.table th,
-    table.table td {
+    table.table th, table.table td {
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255, 255, 255, .07);
       text-align: left;
@@ -628,11 +484,9 @@
       font-weight: 800;
     }
 
-    table.table th {
-      font-size: 12px;
-      opacity: .9
-    }
+    table.table th { font-size: 12px; opacity: .9 }
 
+    /* ===== Mini boxes ===== */
     .miniOuter {
       margin-top: 10px;
       border-radius: 16px;
@@ -651,18 +505,14 @@
       background: rgba(0, 0, 0, .20);
     }
 
-    .miniTitle {
-      font-weight: 1000;
-      letter-spacing: .2px
-    }
-
+    .miniTitle { font-weight: 1000; letter-spacing: .2px }
     .miniSub {
       opacity: .85;
       font-size: 12px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 70vw
+      max-width: 70vw;
     }
 
     .miniPill {
@@ -678,53 +528,29 @@
       white-space: nowrap;
     }
 
-    .stPending {
-      border-color: rgba(255, 193, 7, .40)
-    }
+    .stPending { border-color: rgba(255, 193, 7, .40) }
+    .stWin { border-color: rgba(34, 197, 94, .45) }
+    .stLoss { border-color: rgba(255, 77, 109, .45) }
+    .stTie { border-color: rgba(43, 111, 255, .45) }
 
-    .stWin {
-      border-color: rgba(34, 197, 94, .45)
-    }
-
-    .stLoss {
-      border-color: rgba(255, 77, 109, .45)
-    }
-
-    .stTie {
-      border-color: rgba(43, 111, 255, .45)
-    }
-
-    .miniScroll {
-      overflow: auto;
-      -webkit-overflow-scrolling: touch
-    }
-
-    .miniScroll table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 520px
-    }
-
-    .miniScroll th,
-    .miniScroll td {
+    .miniScroll { overflow: auto; -webkit-overflow-scrolling: touch }
+    .miniScroll table { width: 100%; border-collapse: collapse; min-width: 520px }
+    .miniScroll th, .miniScroll td {
       padding: 10px 12px;
       border-bottom: 1px solid rgba(255, 255, 255, .07);
       text-align: left;
       white-space: nowrap;
       font-weight: 900;
     }
+    .miniScroll th { font-size: 12px; opacity: .9 }
 
-    .miniScroll th {
-      font-size: 12px;
-      opacity: .9
-    }
-
+    /* ===== Toast ===== */
     .toast {
       position: fixed;
       left: 50%;
       bottom: 22px;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, .78);
+      background: rgba(0, 0, 0, .82);
       border: 1px solid rgba(212, 175, 55, .35);
       color: #fff;
       padding: 12px 14px;
@@ -734,59 +560,40 @@
       max-width: 92vw;
       box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
     }
-
-    .toast.show {
-      display: block
-    }
-
-    .toast .t {
-      font-weight: 1000
-    }
-
-    .toast.win {
-      border-color: rgba(34, 197, 94, .55)
-    }
-
-    .toast.loss {
-      border-color: rgba(255, 77, 109, .55)
-    }
-
-    .toast.tie {
-      border-color: rgba(43, 111, 255, .55)
-    }
+    .toast.show { display: block }
+    .toast .t { font-weight: 1000 }
+    .toast.win { border-color: rgba(34, 197, 94, .55) }
+    .toast.loss { border-color: rgba(255, 77, 109, .55) }
+    .toast.tie { border-color: rgba(43, 111, 255, .55) }
 
     /* ===== Mobile fix: Timer row pills overlap/merge issue ===== */
-@media (max-width: 524px) {
-  .timerWrap{
-    display: grid;
-    /* grid-template-columns: 1fr 1fr; */
-    gap: 10px;
-    justify-content: initial;
-    align-items: stretch;
-  }
+    @media (max-width: 524px) {
+      .timerWrap {
+        display: grid;
+        gap: 10px;
+        justify-content: initial;
+        align-items: stretch;
+      }
 
-  /* Timer pill full width */
-  .timerPill{
-    grid-column: 1 / -1;
-    flex: initial;
-    width: 100%;
-  }
+      .timerPill {
+        grid-column: 1 / -1;
+        flex: initial;
+        width: 100%;
+      }
 
-  /* All small pills fit nicely */
-  .pillSmall{
-    min-width: 0 !important;
-    width: 100%;
-  }
+      .pillSmall {
+        min-width: 0 !important;
+        width: 100%;
+      }
 
-  /* Long roundId ellipsis (cut nicely) */
-  .pillSmall .gold{
-    display: inline-block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: bottom;
-  }
-}
+      .pillSmall .gold {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+      }
+    }
   </style>
 </head>
 
@@ -1447,7 +1254,7 @@
     }
     function rand3() { return String(Math.floor(Math.random() * 1000)).padStart(3, "0"); }
     function makeRoundId() {
-      return ymdhms(new Date()) + "_" + rand3(); // YYYYMMDDHHMMSS + random
+      return ymdhms(new Date()) + "_" + rand3();
     }
 
     /* ================= LOCK UI ================= */
@@ -1489,7 +1296,6 @@
       document.getElementById("cid").textContent = ME_ID;
       document.getElementById("pts").textContent = Number(ME_USER.points || 0);
 
-      // win/loss we can compute from bets collection (client-side last 200)
       const wl = await calcWinLoss();
       document.getElementById("w").textContent = wl.win;
       document.getElementById("l").textContent = wl.loss;
@@ -1713,17 +1519,11 @@
     }
 
     /* ================= TABLES / UI RENDER ================= */
-    async function setPastTable(game, tableId, waitId) {
+    function renderPastRows(tableId, waitId, arr) {
       const tb = document.querySelector("#" + tableId + " tbody");
       const w = document.getElementById(waitId);
 
-      const qs = await BETS.where("clientId", "==", ME_ID)
-        .where("game", "==", game)
-        .orderBy("at", "desc").limit(10).get();
-
-      const arr = [];
-      qs.forEach(d => arr.push(d.data() || {}));
-      const pending = arr.filter(b => b.result === "PENDING").length;
+      const pending = arr.filter(b => (b.result === "PENDING")).length;
       w.textContent = pending ? ("Pending bets: " + pending) : "";
 
       tb.innerHTML = arr.map(b => (
@@ -1763,7 +1563,6 @@
         return;
       }
 
-      // ✅ A) Round column now shows RoundId (not seq)
       bodyEl.innerHTML = arr.map((x, i) => (
         "<tr>" +
         "<td>" + (i + 1) + "</td>" +
@@ -1782,7 +1581,7 @@
       el.innerHTML = v ? ('<span class="resChip">' + v + '</span>') : '<span class="muted">No result</span>';
     }
 
-    function renderMyBetBox(game, gameDoc) {
+    function renderMyBetUI(game, gameDoc, snap) {
       const map = {
         DragonTiger: { sub: "dtMyBetSub", status: "dtMyBetStatus", body: "dtMyBetBody" },
         TeenPatti: { sub: "tpMyBetSub", status: "tpMyBetStatus", body: "tpMyBetBody" },
@@ -1796,36 +1595,33 @@
 
       subEl.textContent = "Round #" + (gameDoc?.seq ?? "-") + " • Client " + ME_ID;
 
-      const betKey = ME_ID + "_" + game + "_" + (gameDoc?.roundId || "");
-      BETS.doc(betKey).get().then(snap => {
-        if (!snap.exists) {
-          statusEl.className = "miniPill";
-          statusEl.textContent = "NO BET";
-          bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
-          return;
-        }
-        const b = snap.data() || {};
-        const st = b.result || "—";
+      function pillClassForStatus(x) {
+        if (x === "PENDING") return "miniPill stPending";
+        if (x === "WIN") return "miniPill stWin";
+        if (x === "LOSS") return "miniPill stLoss";
+        if (x === "TIE") return "miniPill stTie";
+        return "miniPill";
+      }
 
-        function pillClassForStatus(x) {
-          if (x === "PENDING") return "miniPill stPending";
-          if (x === "WIN") return "miniPill stWin";
-          if (x === "LOSS") return "miniPill stLoss";
-          if (x === "TIE") return "miniPill stTie";
-          return "miniPill";
-        }
+      if (!snap || !snap.exists) {
+        statusEl.className = "miniPill";
+        statusEl.textContent = "NO BET";
+        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
+        return;
+      }
 
-        statusEl.className = pillClassForStatus(st);
-        statusEl.textContent = st;
+      const b = snap.data() || {};
+      const st = b.result || "—";
+      statusEl.className = pillClassForStatus(st);
+      statusEl.textContent = st;
 
-        bodyEl.innerHTML =
-          "<tr>" +
-          "<td class='gold'>" + (b.pick || "-") + "</td>" +
-          "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-          "<td>" + (gameDoc?.seq ?? "-") + "</td>" +
-          "<td>" + fmtDate(b.at) + "</td>" +
-          "</tr>";
-      });
+      bodyEl.innerHTML =
+        "<tr>" +
+        "<td class='gold'>" + (b.pick || "-") + "</td>" +
+        "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+        "<td>" + (gameDoc?.seq ?? "-") + "</td>" +
+        "<td>" + fmtDate(b.at) + "</td>" +
+        "</tr>";
     }
 
     /* ================= LIVE RENDER PER GAME ================= */
@@ -1879,6 +1675,50 @@
       }
     }
 
+    /* ================= ✅ REALTIME FIXES ================= */
+    const unsubs = {
+      past: { DragonTiger: null, TeenPatti: null, Roulette: null },
+      myBet: { DragonTiger: null, TeenPatti: null, Roulette: null },
+    };
+
+    function safeUnsub(fn){ try{ if(typeof fn === "function") fn(); } catch(e){} }
+
+    function subscribePastBets(game, tableId, waitId) {
+      safeUnsub(unsubs.past[game]);
+
+      // realtime listener for last 10 bets
+      const q = BETS.where("clientId", "==", ME_ID)
+        .where("game", "==", game)
+        .orderBy("at", "desc")
+        .limit(10);
+
+      unsubs.past[game] = q.onSnapshot((qs) => {
+        const arr = [];
+        qs.forEach(d => arr.push(d.data() || {}));
+        renderPastRows(tableId, waitId, arr);
+      }, (err) => {
+        console.error("Past bets listener error:", err);
+        const w = document.getElementById(waitId);
+        if (w) w.textContent = (err?.message || "Error loading bets");
+      });
+    }
+
+    function attachMyBetListener(game, gameDoc) {
+      safeUnsub(unsubs.myBet[game]);
+
+      const roundId = gameDoc?.roundId || "";
+      if (!roundId) return;
+
+      const betKey = ME_ID + "_" + game + "_" + roundId;
+      const ref = BETS.doc(betKey);
+
+      unsubs.myBet[game] = ref.onSnapshot((snap) => {
+        renderMyBetUI(game, gameDoc, snap);
+      }, (err) => {
+        console.error("MyBet listener error:", err);
+      });
+    }
+
     function subscribeGame(game) {
       const ref = GAME_DOC(game);
       return ref.onSnapshot(async (snap) => {
@@ -1889,11 +1729,12 @@
         updateTimerUI(game, g);
         renderLatestResult(game, g);
         renderLast5(game, g);
-        renderMyBetBox(game, g);
+
+        // ✅ My Bet auto update without refresh
+        attachMyBetListener(game, g);
 
         if (g.result) {
           await settleMyBetIfNeeded(game, g);
-
           if (game === "DragonTiger") document.getElementById("dtMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "TeenPatti") document.getElementById("tpMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "Roulette") document.getElementById("rMsg").textContent = "ROUND RESULT: " + g.result;
@@ -1903,10 +1744,6 @@
         if (left <= 0) {
           await finalizeIfNeeded(game);
         }
-
-        if (game === "DragonTiger") await setPastTable("DragonTiger", "dtPast", "dtWait");
-        if (game === "TeenPatti") await setPastTable("TeenPatti", "tpPast", "tpWait");
-        if (game === "Roulette") await setPastTable("Roulette", "rPast", "rWait");
       });
     }
 
@@ -1922,9 +1759,9 @@
         document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
         showToast("tie", "🕒 SUBMITTED", "Result at 0 sec");
         vib(40);
+
         await refreshTop();
-        await setPastTable("DragonTiger", "dtPast", "dtWait");
-        renderMyBetBox("DragonTiger", g);
+        dtStake.value = ""; // small UX improvement
       } catch (e) {
         document.getElementById("dtMsg").textContent = e.message || String(e);
       }
@@ -1940,9 +1777,9 @@
         await placeBetFS({ game: "TeenPatti", pick: getTPPick(), stake: tpStake.value, roundId: g.roundId, seq: g.seq });
         document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
         vib(40);
+
         await refreshTop();
-        await setPastTable("TeenPatti", "tpPast", "tpWait");
-        renderMyBetBox("TeenPatti", g);
+        tpStake.value = "";
       } catch (e) {
         document.getElementById("tpMsg").textContent = e.message || String(e);
       }
@@ -1958,9 +1795,9 @@
         await placeBetFS({ game: "Roulette", pick: getRPick(), stake: rStake.value, roundId: g.roundId, seq: g.seq });
         document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
         vib(40);
+
         await refreshTop();
-        await setPastTable("Roulette", "rPast", "rWait");
-        renderMyBetBox("Roulette", g);
+        rStake.value = "";
       } catch (e) {
         document.getElementById("rMsg").textContent = e.message || String(e);
       }
@@ -1992,18 +1829,23 @@
       await ensureGameDocExists("TeenPatti");
       await ensureGameDocExists("Roulette");
 
+      // ✅ Realtime bet tables (Fix: no refresh needed)
+      subscribePastBets("DragonTiger", "dtPast", "dtWait");
+      subscribePastBets("TeenPatti", "tpPast", "tpWait");
+      subscribePastBets("Roulette", "rPast", "rWait");
+
       subscribeGame("DragonTiger");
       subscribeGame("TeenPatti");
       subscribeGame("Roulette");
 
-      // safety tick: if doc says time passed, finalize
+      // safety tick
       setInterval(async () => {
         await finalizeIfNeeded("DragonTiger");
         await finalizeIfNeeded("TeenPatti");
         await finalizeIfNeeded("Roulette");
       }, 1000);
 
-      // ✅ B) Smooth timer tick (UI updates even when Firestore doesn't push every second)
+      // smooth timer tick
       setInterval(() => {
         if (state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
         if (state.TeenPatti) updateTimerUI("TeenPatti", state.TeenPatti);
@@ -2014,11 +1856,6 @@
       console.error("INIT ERROR:", e);
       alert(e?.message || e);
     });
-
   </script>
 </body>
-
 </html>
-
-
-
