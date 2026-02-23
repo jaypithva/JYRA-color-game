@@ -1152,705 +1152,755 @@
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<script>
+  /* ========= TAB SYNC ========= */
+  const tabToGame = { dt: "DragonTiger", tp: "TeenPatti", rl: "Roulette" };
+  const gameToTab = { DragonTiger: "dt", TeenPatti: "tp", Roulette: "rl" };
+  let activeTab = "dt";
 
-  <script>
-    /* ========= TAB SYNC ========= */
-    function setTab(tabId){
-      document.querySelectorAll(".tabBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
-      document.querySelectorAll(".bBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
-      document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
-      if (tabId === "hist") renderHistoryLive();
-      try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){}
-    }
-    document.querySelectorAll(".tabBtn").forEach(b => b.addEventListener("click", ()=> setTab(b.dataset.tab)));
-    document.querySelectorAll(".bBtn").forEach(b => b.addEventListener("click", ()=> setTab(b.dataset.tab)));
+  function setTab(tabId) {
+    activeTab = tabId;
+    document.querySelectorAll(".tabBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+    document.querySelectorAll(".bBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+    document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
+    if (tabId === "hist") renderHistoryLive();
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { }
+    // tab change pe pending popup (sirf isi game ka) show karo
+    tryShowActivePopup();
+  }
+  document.querySelectorAll(".tabBtn").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+  document.querySelectorAll(".bBtn").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
 
-    function showToast(title, body) {
-      const t = document.getElementById("toast");
-      if (!t) return;
-      t.className = "toast show";
-      document.getElementById("toastTitle").textContent = title || "";
-      document.getElementById("toastBody").textContent = body || "";
-      setTimeout(() => t.className = "toast", 2200);
-    }
-    function vib(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
-    function qs(id){ return document.getElementById(id); }
+  function showToast(title, body) {
+    const t = document.getElementById("toast");
+    if (!t) return;
+    t.className = "toast show";
+    document.getElementById("toastTitle").textContent = title || "";
+    document.getElementById("toastBody").textContent = body || "";
+    setTimeout(() => t.className = "toast", 2200);
+  }
+  function vib(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
+  function qs(id) { return document.getElementById(id); }
 
-    /* ================= FIREBASE INIT ================= */
-    firebase.initializeApp({
-      apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-      authDomain: "jvbet-bbf90.firebaseapp.com",
-      projectId: "jvbet-bbf90",
-      storageBucket: "jvbet-bbf90.appspot.com",
-      messagingSenderId: "824871692224",
-      appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+  /* ================= FIREBASE INIT ================= */
+  firebase.initializeApp({
+    apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+    authDomain: "jvbet-bbf90.firebaseapp.com",
+    projectId: "jvbet-bbf90",
+    storageBucket: "jvbet-bbf90.appspot.com",
+    messagingSenderId: "824871692224",
+    appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+  });
+  const db = firebase.firestore();
+
+  /* ================= SESSION + STORAGE ================= */
+  const K_SESSION_A = "jvbet_session";
+  const K_SESSION_B = "jvbet_session_v1";
+  function loadJSON(k, f) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : f; } catch (e) { return f; } }
+  function getSession() { return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null); }
+  function clearSession() { localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B); }
+  function logout() { clearSession(); location.href = "../index.html"; }
+  qs("logoutBtn").addEventListener("click", logout);
+  function fmtDate(ts) { return new Date(ts || Date.now()).toLocaleString(); }
+
+  /* ================= BET BOXES + CHIPS ================= */
+  function bindBetBoxes(containerId, showId) {
+    const cont = qs(containerId);
+    const show = qs(showId);
+    if (!cont || !show) return () => "";
+    let active = cont.querySelector(".betBox.active");
+    let pick = (active && active.dataset && active.dataset.pick) ? active.dataset.pick : "";
+    show.textContent = pick;
+    cont.querySelectorAll(".betBox").forEach(box => {
+      box.addEventListener("click", () => {
+        cont.querySelectorAll(".betBox").forEach(b => b.classList.remove("active"));
+        box.classList.add("active");
+        pick = box.dataset.pick || "";
+        show.textContent = pick;
+      });
     });
-    const db = firebase.firestore();
-
-    /* ================= SESSION + STORAGE ================= */
-    const K_SESSION_A = "jvbet_session";
-    const K_SESSION_B = "jvbet_session_v1";
-    function loadJSON(k, f) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : f; } catch (e) { return f; } }
-    function getSession() { return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null); }
-    function clearSession() { localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B); }
-    function logout() { clearSession(); location.href = "../index.html"; }
-    qs("logoutBtn").addEventListener("click", logout);
-    function fmtDate(ts) { return new Date(ts || Date.now()).toLocaleString(); }
-
-    /* ================= BET BOXES + CHIPS ================= */
-    function bindBetBoxes(containerId, showId) {
-      const cont = qs(containerId);
-      const show = qs(showId);
-      if (!cont || !show) return () => "";
-      let active = cont.querySelector(".betBox.active");
-      let pick = (active && active.dataset && active.dataset.pick) ? active.dataset.pick : "";
-      show.textContent = pick;
-      cont.querySelectorAll(".betBox").forEach(box => {
-        box.addEventListener("click", () => {
-          cont.querySelectorAll(".betBox").forEach(b => b.classList.remove("active"));
-          box.classList.add("active");
-          pick = box.dataset.pick || "";
-          show.textContent = pick;
-        });
+    return () => pick;
+  }
+  function bindChips(scopeEl, inputEl) {
+    if (!scopeEl || !inputEl) return;
+    scopeEl.querySelectorAll(".chip").forEach(ch => {
+      if (ch.dataset.bound === "1") return;
+      ch.dataset.bound = "1";
+      ch.addEventListener("click", () => {
+        const v = Number(ch.dataset.v || 0);
+        inputEl.value = Number(inputEl.value || 0) + v;
       });
-      return () => pick;
-    }
-    function bindChips(scopeEl, inputEl) {
-      if (!scopeEl || !inputEl) return;
-      scopeEl.querySelectorAll(".chip").forEach(ch => {
-        if (ch.dataset.bound === "1") return;
-        ch.dataset.bound = "1";
-        ch.addEventListener("click", () => {
-          const v = Number(ch.dataset.v || 0);
-          inputEl.value = Number(inputEl.value || 0) + v;
-        });
-      });
-    }
+    });
+  }
 
-    const getDTPick = bindBetBoxes("dtBets", "dtPickShow");
-    const dtStake = qs("dtStake");
-    bindChips(qs("dtChips"), dtStake);
+  const getDTPick = bindBetBoxes("dtBets", "dtPickShow");
+  const dtStake = qs("dtStake");
+  bindChips(qs("dtChips"), dtStake);
 
-    const getTPPick = bindBetBoxes("tpBets", "tpPickShow");
-    const tpStake = qs("tpStake");
-    bindChips(qs("tpChips"), tpStake);
+  const getTPPick = bindBetBoxes("tpBets", "tpPickShow");
+  const tpStake = qs("tpStake");
+  bindChips(qs("tpChips"), tpStake);
 
-    const getRPick = bindBetBoxes("rBets", "rPickShow");
-    const rStake = qs("rStake");
-    bindChips(qs("rChips"), rStake);
+  const getRPick = bindBetBoxes("rBets", "rPickShow");
+  const rStake = qs("rStake");
+  bindChips(qs("rChips"), rStake);
 
-    /* ================= CONSTANTS ================= */
-    const TOTAL_SEC = 30;
-    const LOCK_REMAINING = 15;
-    const START_SEQ = { DragonTiger: 282, TeenPatti: 500, Roulette: 900 };
+  /* ================= CONSTANTS ================= */
+  const TOTAL_SEC = 30;
+  const LOCK_REMAINING = 15;
+  const START_SEQ = { DragonTiger: 282, TeenPatti: 500, Roulette: 900 };
 
-    const GAME_DOC = (g) => db.collection("gameState").doc(g);
-    const USERS = db.collection("users");
-    const BETS = db.collection("bets");
+  const GAME_DOC = (g) => db.collection("gameState").doc(g);
+  const USERS = db.collection("users");
+  const BETS = db.collection("bets");
 
-    /* ================= STATE ================= */
-    let ME_ID = null;
-    let ME_USER = null;
-    const state = { DragonTiger: null, TeenPatti: null, Roulette: null };
-    const lastShownResult = { DragonTiger: null, TeenPatti: null, Roulette: null }; // prevents popup repeat
+  /* ================= STATE ================= */
+  let ME_ID = null;
+  let ME_USER = null;
+  const state = { DragonTiger: null, TeenPatti: null, Roulette: null };
 
-    /* ================= ROUND ID (YYYYMMDDHHMMSS_###) ================= */
-    function pad2(n) { return String(n).padStart(2, "0"); }
-    function pad3(n) { return String(n).padStart(3, "0"); }
-    function ymdhms(d) {
-      return d.getFullYear()
-        + pad2(d.getMonth() + 1)
-        + pad2(d.getDate())
-        + pad2(d.getHours())
-        + pad2(d.getMinutes())
-        + pad2(d.getSeconds());
-    }
-    function makeRoundIdFromSeq(seq) {
-      return ymdhms(new Date()) + "_" + pad3(Number(seq || 0));
-    }
+  // popup control (DT/TP/R separate)
+  const lastShownResult = { DragonTiger: null, TeenPatti: null, Roulette: null };
+  const pendingPopup = { DragonTiger: null, TeenPatti: null, Roulette: null };
+  let modalOpen = false;
 
-    /* ================= UI HELPERS ================= */
-    function setLock(el, stateStr) {
-      if (!el) return;
-      el.classList.remove("lockOpen", "lockPlaced", "lockLocked", "lockClosed");
-      if (stateStr === "OPEN") { el.classList.add("lockOpen"); el.textContent = "OPEN"; }
-      else if (stateStr === "PLACED") { el.classList.add("lockPlaced"); el.textContent = "PLAYED"; }
-      else if (stateStr === "LOCKED") { el.classList.add("lockLocked"); el.textContent = "LOCKED"; }
-      else { el.classList.add("lockClosed"); el.textContent = "CLOSED"; }
-    }
+  /* ================= ROUND ID (YYYYMMDDHHMMSS_###) ================= */
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function pad3(n) { return String(n).padStart(3, "0"); }
+  function ymdhms(d) {
+    return d.getFullYear()
+      + pad2(d.getMonth() + 1)
+      + pad2(d.getDate())
+      + pad2(d.getHours())
+      + pad2(d.getMinutes())
+      + pad2(d.getSeconds());
+  }
+  function makeRoundIdFromSeq(seq) {
+    return ymdhms(new Date()) + "_" + pad3(Number(seq || 0));
+  }
+  function roundSeqText(gdoc) {
+    return (typeof gdoc?.seq === "number") ? String(gdoc.seq) : "-";
+  }
 
-    function setLockedOverlay(gameKey, show, roundId, left){
-      const map = {
-        DragonTiger: { box:"dtOverlay", rid:"dtOverlayRound", t:"dtOverlayTimer" },
-        TeenPatti:   { box:"tpOverlay", rid:"tpOverlayRound", t:"tpOverlayTimer" },
-        Roulette:    { box:"rOverlay",  rid:"rOverlayRound",  t:"rOverlayTimer"  }
-      };
-      const m = map[gameKey];
-      if(!m) return;
-      const box = qs(m.box);
-      const rid = qs(m.rid);
-      const tt  = qs(m.t);
-      if(rid) rid.textContent = roundId || "-";
-      if(tt) tt.textContent = String(Math.max(0, Number(left || 0)));
-      if(box) box.classList.toggle("show", !!show);
-    }
+  /* ================= UI HELPERS ================= */
+  function setLock(el, stateStr) {
+    if (!el) return;
+    el.classList.remove("lockOpen", "lockPlaced", "lockLocked", "lockClosed");
+    if (stateStr === "OPEN") { el.classList.add("lockOpen"); el.textContent = "OPEN"; }
+    else if (stateStr === "PLACED") { el.classList.add("lockPlaced"); el.textContent = "PLAYED"; }
+    else if (stateStr === "LOCKED") { el.classList.add("lockLocked"); el.textContent = "LOCKED"; }
+    else { el.classList.add("lockClosed"); el.textContent = "CLOSED"; }
+  }
 
-    function secondsLeftFromDoc(doc) {
-      const endsAt = Number(doc?.endsAt || 0);
-      return Math.ceil((endsAt - Date.now()) / 1000);
-    }
-    function statusFromDoc(doc) {
-      const left = secondsLeftFromDoc(doc);
-      if (left <= 0) return "CLOSED";
-      if (left <= LOCK_REMAINING) return "LOCKED";
-      return "OPEN";
-    }
+  // overlay me roundId nahi, SEQ show karna
+  function setLockedOverlay(gameKey, show, seq, left) {
+    const map = {
+      DragonTiger: { box: "dtOverlay", rid: "dtOverlayRound", t: "dtOverlayTimer" },
+      TeenPatti: { box: "tpOverlay", rid: "tpOverlayRound", t: "tpOverlayTimer" },
+      Roulette: { box: "rOverlay", rid: "rOverlayRound", t: "rOverlayTimer" }
+    };
+    const m = map[gameKey];
+    if (!m) return;
+    const box = qs(m.box);
+    const rid = qs(m.rid);
+    const tt = qs(m.t);
+    if (rid) rid.textContent = (seq != null ? String(seq) : "-");
+    if (tt) tt.textContent = String(Math.max(0, Number(left || 0)));
+    if (box) box.classList.toggle("show", !!show);
+  }
 
-    /* ================= RESULT POPUP ================= */
-    function openResultModal(){
-      qs("resultModal").classList.add("show");
-    }
-    function closeResultModal(){
-      qs("resultModal").classList.remove("show");
-    }
-    qs("resClose").addEventListener("click", closeResultModal);
-    qs("resOk").addEventListener("click", closeResultModal);
-    qs("resGoHistory").addEventListener("click", ()=>{ closeResultModal(); setTab("hist"); });
-    qs("resultModal").addEventListener("click", (e)=>{ if(e.target===qs("resultModal")) closeResultModal(); });
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeResultModal(); });
+  function secondsLeftFromDoc(doc) {
+    const endsAt = Number(doc?.endsAt || 0);
+    return Math.ceil((endsAt - Date.now()) / 1000);
+  }
+  function statusFromDoc(doc) {
+    const left = secondsLeftFromDoc(doc);
+    if (left <= 0) return "CLOSED";
+    if (left <= LOCK_REMAINING) return "LOCKED";
+    return "OPEN";
+  }
 
-    function gameLabel(game){
-      if(game==="DragonTiger") return "Dragon Tiger";
-      if(game==="TeenPatti") return "Teen Patti";
-      return "Roulette";
-    }
+  /* ================= RESULT POPUP ================= */
+  function openResultModal() {
+    modalOpen = true;
+    qs("resultModal").classList.add("show");
+  }
+  function closeResultModal() {
+    qs("resultModal").classList.remove("show");
+    modalOpen = false;
+    // close hote hi active game ka pending popup ho to show kar do
+    setTimeout(tryShowActivePopup, 50);
+  }
+  qs("resClose").addEventListener("click", closeResultModal);
+  qs("resOk").addEventListener("click", closeResultModal);
+  qs("resGoHistory").addEventListener("click", () => { closeResultModal(); setTab("hist"); });
+  qs("resultModal").addEventListener("click", (e) => { if (e.target === qs("resultModal")) closeResultModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeResultModal(); });
 
-    /* ================= USER DEFAULTS + TOP STATS ================= */
-    async function ensureUserDefaults() {
-      const ref = USERS.doc(ME_ID);
-      const doc = await ref.get();
-      if (!doc.exists) throw new Error("User not found");
-      const data = doc.data() || {};
-      const patch = {};
-      if (typeof data.points !== "number") patch.points = 0;
-      if (typeof data.isBlocked !== "boolean") patch.isBlocked = false;
-      if (!data.clientId) patch.clientId = ME_ID;
-      if (!data.role) patch.role = data.isAdmin ? "admin" : "user";
-      if (Object.keys(patch).length) await ref.set(patch, { merge: true });
-    }
+  function gameLabel(game) {
+    if (game === "DragonTiger") return "Dragon Tiger";
+    if (game === "TeenPatti") return "Teen Patti";
+    return "Roulette";
+  }
 
-    async function calcWinLoss() {
-      const qsnap = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
-      let w = 0, l = 0;
-      qsnap.forEach(doc => {
-        const b = doc.data() || {};
-        if (b.result === "WIN") w++;
-        else if (b.result === "LOSS") l++;
-      });
-      return { win: w, loss: l };
-    }
+  // IMPORTANT: popup ab sirf active tab ka show hoga (baaki pending me store)
+  async function showPopupForGame(game, g) {
+    if (!g || !g.result || !g.roundId) return;
 
-    async function refreshTop() {
-      const snap = await USERS.doc(ME_ID).get();
-      if (!snap.exists) return logout();
-      ME_USER = snap.data() || {};
-      qs("roleName").textContent = String(ME_USER.role || (ME_USER.isAdmin ? "admin" : "user"));
-      qs("pointsShow").textContent = String(Number(ME_USER.points || 0));
-      const wl = await calcWinLoss();
-      qs("winShow").textContent = String(wl.win);
-      qs("lossShow").textContent = String(wl.loss);
+    // read my bet once
+    const betKey = ME_ID + "_" + game + "_" + g.roundId;
+    let myBet = null;
+    try {
+      const bSnap = await BETS.doc(betKey).get();
+      if (bSnap.exists) myBet = bSnap.data() || null;
+    } catch (e) { }
+
+    // settle (if my bet exists)
+    try { await settleMyBetIfNeeded(game, g); } catch (e) { }
+
+    // fill modal
+    qs("resTitle").textContent = "🎯 " + gameLabel(game) + " Result";
+    qs("resBig").textContent = String(g.result || "-");
+    qs("resSub").textContent = "Round finished • New round will start automatically";
+    qs("resGame").textContent = gameLabel(game);
+    // SHOW SEQ, not roundId
+    qs("resRound").textContent = roundSeqText(g);
+
+    if (!myBet) {
+      qs("resMyBet").textContent = "No bet";
+      qs("resMyOutcome").textContent = "-";
+    } else {
+      qs("resMyBet").textContent = (myBet.pick || "-") + " • " + Number(myBet.stake || 0);
+      qs("resMyOutcome").textContent = String(myBet.result || "PENDING");
     }
 
-    /* ================= RNG ================= */
-    function randCard() { return 1 + Math.floor(Math.random() * 13); }
-    function cardStr(v) { return (v === 1 ? "A" : v === 11 ? "J" : v === 12 ? "Q" : v === 13 ? "K" : String(v)); }
-    function drawDT() {
-      const d = randCard(), t = randCard();
-      const res = (d === t) ? "TIE" : (d > t ? "DRAGON" : "TIGER");
-      return { d, t, res };
+    vib(60);
+    openResultModal();
+  }
+
+  function tryShowActivePopup() {
+    if (modalOpen) return;
+    const game = tabToGame[activeTab];
+    if (!game) return;
+    const g = pendingPopup[game];
+    if (!g) return;
+    pendingPopup[game] = null;
+    showPopupForGame(game, g);
+  }
+
+  function handleResultArrived(game, g) {
+    // per game per round result sirf 1 baar
+    if (lastShownResult[game] === g.roundId) return;
+    lastShownResult[game] = g.roundId;
+
+    // store pending
+    pendingPopup[game] = g;
+
+    // active tab same hai to turant show (agar modal open nahi)
+    if (gameToTab[game] === activeTab) {
+      tryShowActivePopup();
     }
-    function drawTP() { return { res: ["PLAYER", "BANKER", "TIE"][Math.floor(Math.random() * 3)] }; }
-    function drawR() {
-      const n = Math.floor(Math.random() * 37);
-      const c = (n === 0) ? "GREEN" : (n % 2 === 0 ? "BLACK" : "RED");
-      return { n, color: c, res: (c + " " + n) };
+  }
+
+  /* ================= USER DEFAULTS + TOP STATS ================= */
+  async function ensureUserDefaults() {
+    const ref = USERS.doc(ME_ID);
+    const doc = await ref.get();
+    if (!doc.exists) throw new Error("User not found");
+    const data = doc.data() || {};
+    const patch = {};
+    if (typeof data.points !== "number") patch.points = 0;
+    if (typeof data.isBlocked !== "boolean") patch.isBlocked = false;
+    if (!data.clientId) patch.clientId = ME_ID;
+    if (!data.role) patch.role = data.isAdmin ? "admin" : "user";
+    if (Object.keys(patch).length) await ref.set(patch, { merge: true });
+  }
+
+  async function calcWinLoss() {
+    const qsnap = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
+    let w = 0, l = 0;
+    qsnap.forEach(doc => {
+      const b = doc.data() || {};
+      if (b.result === "WIN") w++;
+      else if (b.result === "LOSS") l++;
+    });
+    return { win: w, loss: l };
+  }
+
+  async function refreshTop() {
+    const snap = await USERS.doc(ME_ID).get();
+    if (!snap.exists) return logout();
+    ME_USER = snap.data() || {};
+    qs("roleName").textContent = String(ME_USER.role || (ME_USER.isAdmin ? "admin" : "user"));
+    qs("pointsShow").textContent = String(Number(ME_USER.points || 0));
+    const wl = await calcWinLoss();
+    qs("winShow").textContent = String(wl.win);
+    qs("lossShow").textContent = String(wl.loss);
+  }
+
+  /* ================= RNG ================= */
+  function randCard() { return 1 + Math.floor(Math.random() * 13); }
+  function cardStr(v) { return (v === 1 ? "A" : v === 11 ? "J" : v === 12 ? "Q" : v === 13 ? "K" : String(v)); }
+  function drawDT() {
+    const d = randCard(), t = randCard();
+    const res = (d === t) ? "TIE" : (d > t ? "DRAGON" : "TIGER");
+    return { d, t, res };
+  }
+  function drawTP() { return { res: ["PLAYER", "BANKER", "TIE"][Math.floor(Math.random() * 3)] }; }
+  function drawR() {
+    const n = Math.floor(Math.random() * 37);
+    const c = (n === 0) ? "GREEN" : (n % 2 === 0 ? "BLACK" : "RED");
+    return { n, color: c, res: (c + " " + n) };
+  }
+
+  /* ================= gameState INIT / PATCH ================= */
+  async function ensureGameDocExists(game) {
+    const ref = GAME_DOC(game);
+    const snap = await ref.get();
+    const now = Date.now();
+
+    if (!snap.exists) {
+      const seq = START_SEQ[game];
+      const startedAt = now;
+      await ref.set({
+        seq,
+        roundId: makeRoundIdFromSeq(seq),
+        startedAt,
+        endsAt: startedAt + TOTAL_SEC * 1000,
+        lockAt: startedAt + LOCK_REMAINING * 1000,
+        status: "OPEN",
+        result: null,
+        payload: null,
+        last5: [],
+        nextStarted: false
+      }, { merge: true });
+      return;
     }
 
-    /* ================= gameState INIT / PATCH ================= */
-    async function ensureGameDocExists(game) {
-      const ref = GAME_DOC(game);
-      const snap = await ref.get();
-      const now = Date.now();
+    const g = snap.data() || {};
+    const patch = {};
+    if (typeof g.seq !== "number") patch.seq = START_SEQ[game];
+    if (!g.roundId) patch.roundId = makeRoundIdFromSeq((typeof g.seq === "number") ? g.seq : START_SEQ[game]);
+    if (typeof g.startedAt !== "number") patch.startedAt = now;
+    if (typeof g.endsAt !== "number") patch.endsAt = now + TOTAL_SEC * 1000;
+    if (typeof g.lockAt !== "number") patch.lockAt = now + LOCK_REMAINING * 1000;
+    if (typeof g.nextStarted !== "boolean") patch.nextStarted = false;
+    if (!Array.isArray(g.last5)) patch.last5 = [];
+    if (Object.keys(patch).length) await ref.set(patch, { merge: true });
+  }
 
-      if (!snap.exists) {
-        const seq = START_SEQ[game];
-        const startedAt = now;
-        await ref.set({
-          seq,
-          roundId: makeRoundIdFromSeq(seq),
-          startedAt,
-          endsAt: startedAt + TOTAL_SEC * 1000,
-          lockAt: startedAt + LOCK_REMAINING * 1000,
+  /* ================= FINALIZE + NEXT ROUND ================= */
+  async function finalizeIfNeeded(game) {
+    const ref = GAME_DOC(game);
+    return db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return;
+
+      const g = snap.data() || {};
+      const left = Math.ceil((Number(g.endsAt || 0) - Date.now()) / 1000);
+      if (left > 0) return;
+
+      const currentSeq = (typeof g.seq === "number") ? g.seq : START_SEQ[game];
+
+      if (!g.result) {
+        let result = null;
+        let payload = null;
+
+        if (game === "DragonTiger") {
+          const d = drawDT();
+          result = d.res;
+          payload = { d: cardStr(d.d), t: cardStr(d.t), res: d.res };
+        } else if (game === "TeenPatti") {
+          const d = drawTP();
+          result = d.res;
+          payload = { res: d.res };
+        } else {
+          const d = drawR();
+          result = d.res;
+          payload = { color: d.color, n: d.n, res: d.res };
+        }
+
+        const now = Date.now();
+        const entry = { roundId: g.roundId, seq: currentSeq, result, time: now };
+        const old = Array.isArray(g.last5) ? g.last5 : [];
+        const cleaned = old.filter(x => x && x.roundId !== g.roundId);
+        cleaned.unshift(entry);
+        const last5 = cleaned.slice(0, 5);
+
+        tx.set(ref, {
+          status: "CLOSED",
+          result,
+          payload,
+          last5,
+          resultAt: now,
+          nextStarted: false
+        }, { merge: true });
+
+        return;
+      }
+
+      if (g.result && !g.nextStarted) {
+        const now = Date.now();
+        const nextSeq = currentSeq + 1;
+
+        tx.set(ref, {
+          seq: nextSeq,
+          roundId: makeRoundIdFromSeq(nextSeq),
+          startedAt: now,
+          endsAt: now + TOTAL_SEC * 1000,
+          lockAt: now + LOCK_REMAINING * 1000,
           status: "OPEN",
           result: null,
           payload: null,
-          last5: [],
-          nextStarted: false
+          nextStarted: true
         }, { merge: true });
-        return;
+      }
+    });
+  }
+
+  /* ================= BETS ================= */
+  async function placeBetFS({ game, pick, stake, roundId, seq }) {
+    stake = Number(stake || 0);
+    if (!stake || stake <= 0) throw new Error("Enter valid points");
+    if (Number(ME_USER?.points || 0) < stake) throw new Error("Not enough points");
+
+    const betKey = ME_ID + "_" + game + "_" + roundId;
+    const ref = BETS.doc(betKey);
+
+    await db.runTransaction(async (tx) => {
+      const bSnap = await tx.get(ref);
+      if (bSnap.exists) throw new Error("Already played");
+
+      tx.set(USERS.doc(ME_ID), {
+        points: firebase.firestore.FieldValue.increment(-stake)
+      }, { merge: true });
+
+      tx.set(ref, {
+        betId: betKey,
+        clientId: ME_ID,
+        game,
+        pick,
+        stake,
+        roundId,
+        seq,
+        at: Date.now(),
+        result: "PENDING",
+        settled: false
+      }, { merge: true });
+    });
+  }
+
+  async function settleMyBetIfNeeded(game, gameDoc) {
+    if (!gameDoc?.result) return;
+
+    const betKey = ME_ID + "_" + game + "_" + gameDoc.roundId;
+    const ref = BETS.doc(betKey);
+
+    await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return;
+      const b = snap.data() || {};
+      if (b.settled) return;
+
+      let out = "LOSS";
+
+      if (game === "Roulette") {
+        const color = String(gameDoc.payload?.color || "").toUpperCase();
+        out = (String(b.pick).toUpperCase() === color) ? "WIN" : "LOSS";
+      } else {
+        if (String(gameDoc.result) === "TIE") out = "TIE";
+        else out = (String(b.pick) === String(gameDoc.result)) ? "WIN" : "LOSS";
       }
 
-      const g = snap.data() || {};
-      const patch = {};
-      if (typeof g.seq !== "number") patch.seq = START_SEQ[game];
-      if (!g.roundId) patch.roundId = makeRoundIdFromSeq((typeof g.seq === "number") ? g.seq : START_SEQ[game]);
-      if (typeof g.startedAt !== "number") patch.startedAt = now;
-      if (typeof g.endsAt !== "number") patch.endsAt = now + TOTAL_SEC * 1000;
-      if (typeof g.lockAt !== "number") patch.lockAt = now + LOCK_REMAINING * 1000;
-      if (typeof g.nextStarted !== "boolean") patch.nextStarted = false;
-      if (!Array.isArray(g.last5)) patch.last5 = [];
-      if (Object.keys(patch).length) await ref.set(patch, { merge: true });
-    }
-
-    /* ================= FINALIZE + NEXT ROUND ================= */
-    async function finalizeIfNeeded(game) {
-      const ref = GAME_DOC(game);
-      return db.runTransaction(async (tx) => {
-        const snap = await tx.get(ref);
-        if (!snap.exists) return;
-
-        const g = snap.data() || {};
-        const left = Math.ceil((Number(g.endsAt || 0) - Date.now()) / 1000);
-        if (left > 0) return;
-
-        const currentSeq = (typeof g.seq === "number") ? g.seq : START_SEQ[game];
-
-        if (!g.result) {
-          let result = null;
-          let payload = null;
-
-          if (game === "DragonTiger") {
-            const d = drawDT();
-            result = d.res;
-            payload = { d: cardStr(d.d), t: cardStr(d.t), res: d.res };
-          } else if (game === "TeenPatti") {
-            const d = drawTP();
-            result = d.res;
-            payload = { res: d.res };
-          } else {
-            const d = drawR();
-            result = d.res;
-            payload = { color: d.color, n: d.n, res: d.res };
-          }
-
-          const now = Date.now();
-          const entry = { roundId: g.roundId, seq: currentSeq, result, time: now };
-          const old = Array.isArray(g.last5) ? g.last5 : [];
-          const cleaned = old.filter(x => x && x.roundId !== g.roundId);
-          cleaned.unshift(entry);
-          const last5 = cleaned.slice(0, 5);
-
-          tx.set(ref, {
-            status: "CLOSED",
-            result,
-            payload,
-            last5,
-            resultAt: now,
-            nextStarted: false
-          }, { merge: true });
-
-          return;
-        }
-
-        if (g.result && !g.nextStarted) {
-          const now = Date.now();
-          const nextSeq = currentSeq + 1;
-
-          tx.set(ref, {
-            seq: nextSeq,
-            roundId: makeRoundIdFromSeq(nextSeq),
-            startedAt: now,
-            endsAt: now + TOTAL_SEC * 1000,
-            lockAt: now + LOCK_REMAINING * 1000,
-            status: "OPEN",
-            result: null,
-            payload: null,
-            nextStarted: true
-          }, { merge: true });
-        }
-      });
-    }
-
-    /* ================= BETS ================= */
-    async function placeBetFS({ game, pick, stake, roundId, seq }) {
-      stake = Number(stake || 0);
-      if (!stake || stake <= 0) throw new Error("Enter valid points");
-      if (Number(ME_USER?.points || 0) < stake) throw new Error("Not enough points");
-
-      const betKey = ME_ID + "_" + game + "_" + roundId;
-      const ref = BETS.doc(betKey);
-
-      await db.runTransaction(async (tx) => {
-        const bSnap = await tx.get(ref);
-        if (bSnap.exists) throw new Error("Already played");
-
+      if (out === "WIN") {
         tx.set(USERS.doc(ME_ID), {
-          points: firebase.firestore.FieldValue.increment(-stake)
+          points: firebase.firestore.FieldValue.increment(Number(b.stake || 0) * 2)
         }, { merge: true });
-
-        tx.set(ref, {
-          betId: betKey,
-          clientId: ME_ID,
-          game,
-          pick,
-          stake,
-          roundId,
-          seq,
-          at: Date.now(),
-          result: "PENDING",
-          settled: false
+      } else if (out === "TIE") {
+        tx.set(USERS.doc(ME_ID), {
+          points: firebase.firestore.FieldValue.increment(Number(b.stake || 0))
         }, { merge: true });
-      });
-    }
+      }
 
-    async function settleMyBetIfNeeded(game, gameDoc) {
-      if (!gameDoc?.result) return;
+      tx.set(ref, {
+        result: out,
+        settled: true,
+        settledAt: Date.now(),
+        roundResult: gameDoc.result
+      }, { merge: true });
+    });
 
-      const betKey = ME_ID + "_" + game + "_" + gameDoc.roundId;
-      const ref = BETS.doc(betKey);
+    await refreshTop();
+  }
 
-      await db.runTransaction(async (tx) => {
-        const snap = await tx.get(ref);
-        if (!snap.exists) return;
-        const b = snap.data() || {};
-        if (b.settled) return;
+  /* ================= TABLES ================= */
+  async function setPastTable(game, tableId, waitId) {
+    const tb = document.querySelector("#" + tableId + " tbody");
+    const w = qs(waitId);
 
-        let out = "LOSS";
+    const qsnap = await BETS.where("clientId", "==", ME_ID)
+      .where("game", "==", game)
+      .orderBy("at", "desc").limit(10).get();
 
-        if (game === "Roulette") {
-          const color = String(gameDoc.payload?.color || "").toUpperCase();
-          out = (String(b.pick).toUpperCase() === color) ? "WIN" : "LOSS";
-        } else {
-          if (String(gameDoc.result) === "TIE") out = "TIE";
-          else out = (String(b.pick) === String(gameDoc.result)) ? "WIN" : "LOSS";
-        }
+    const arr = [];
+    qsnap.forEach(d => arr.push(d.data() || {}));
+    const pending = arr.filter(b => b.result === "PENDING").length;
+    if (w) w.textContent = pending ? ("Pending bets: " + pending) : "";
 
-        if (out === "WIN") {
-          tx.set(USERS.doc(ME_ID), {
-            points: firebase.firestore.FieldValue.increment(Number(b.stake || 0) * 2)
-          }, { merge: true });
-        } else if (out === "TIE") {
-          tx.set(USERS.doc(ME_ID), {
-            points: firebase.firestore.FieldValue.increment(Number(b.stake || 0))
-          }, { merge: true });
-        }
+    if (!tb) return;
+    tb.innerHTML = arr.map(b => (
+      "<tr>" +
+      "<td>" + fmtDate(b.at) + "</td>" +
+      "<td>" + (b.pick || "-") + "</td>" +
+      "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+      "<td>" + (b.result || "-") + "</td>" +
+      "</tr>"
+    )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
+  }
 
-        tx.set(ref, {
-          result: out,
-          settled: true,
-          settledAt: Date.now(),
-          roundResult: gameDoc.result
-        }, { merge: true });
-      });
+  let histUnsub = null;
+  function renderHistoryLive() {
+    if (histUnsub) { try { histUnsub(); } catch (e) { } histUnsub = null; }
+    const tb = document.querySelector("#bh tbody");
+    const info = qs("histInfo");
+    if (!tb) return;
 
-      await refreshTop();
-    }
-
-    /* ================= TABLES ================= */
-    async function setPastTable(game, tableId, waitId) {
-      const tb = document.querySelector("#" + tableId + " tbody");
-      const w = qs(waitId);
-
-      const qsnap = await BETS.where("clientId", "==", ME_ID)
-        .where("game", "==", game)
-        .orderBy("at", "desc").limit(10).get();
-
-      const arr = [];
-      qsnap.forEach(d => arr.push(d.data() || {}));
-      const pending = arr.filter(b => b.result === "PENDING").length;
-      if (w) w.textContent = pending ? ("Pending bets: " + pending) : "";
-
-      if (!tb) return;
-      tb.innerHTML = arr.map(b => (
-        "<tr>" +
+    histUnsub = BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200)
+      .onSnapshot((snap) => {
+        const arr = [];
+        snap.forEach(d => arr.push(d.data() || {}));
+        if (info) info.textContent = arr.length ? ("Showing last " + arr.length) : "";
+        tb.innerHTML = arr.map(b => (
+          "<tr>" +
           "<td>" + fmtDate(b.at) + "</td>" +
+          "<td>" + (b.game || "-") + "</td>" +
           "<td>" + (b.pick || "-") + "</td>" +
           "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
           "<td>" + (b.result || "-") + "</td>" +
-        "</tr>"
-      )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
-    }
-
-    let histUnsub = null;
-    function renderHistoryLive(){
-      if (histUnsub) { try{histUnsub();}catch(e){} histUnsub=null; }
-      const tb = document.querySelector("#bh tbody");
-      const info = qs("histInfo");
-      if (!tb) return;
-
-      histUnsub = BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(200)
-        .onSnapshot((snap)=>{
-          const arr=[];
-          snap.forEach(d=>arr.push(d.data()||{}));
-          if(info) info.textContent = arr.length ? ("Showing last " + arr.length) : "";
-          tb.innerHTML = arr.map(b => (
-            "<tr>" +
-              "<td>" + fmtDate(b.at) + "</td>" +
-              "<td>" + (b.game || "-") + "</td>" +
-              "<td>" + (b.pick || "-") + "</td>" +
-              "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-              "<td>" + (b.result || "-") + "</td>" +
-            "</tr>"
-          )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
-        });
-    }
-
-    function renderLatestResult(game, gameDoc) {
-      const elId = (game === "DragonTiger") ? "dtPrev" : (game === "TeenPatti") ? "tpPrev" : "rPrev";
-      const el = qs(elId);
-      if (!el) return;
-      const v = String(gameDoc?.result || "");
-      el.innerHTML = v ? ('<span class="gold">' + v + '</span>') : '<span class="muted">No result</span>';
-    }
-
-    /* ================= LAST5 RENDER ================= */
-    function renderLast5(game, gdoc) {
-      const arr = Array.isArray(gdoc?.last5) ? gdoc.last5 : [];
-      const rows = arr.slice(0,5);
-
-      let subId = "dtLast5Sub", bodyId = "dtLast5Body";
-      if (game === "TeenPatti") { subId = "tpLast5Sub"; bodyId = "tpLast5Body"; }
-      if (game === "Roulette") { subId = "rLast5Sub";  bodyId = "rLast5Body"; }
-
-      const sub = qs(subId);
-      const body = qs(bodyId);
-      if (sub) sub.textContent = rows.length ? ("Rounds: " + rows.length) : "No data";
-      if (!body) return;
-
-      body.innerHTML = rows.map(x => (
-        "<tr>" +
-          "<td class='gold'>" + (typeof x.seq === "number" ? x.seq : "-") + "</td>" +
-          "<td>" + (x.result || "-") + "</td>" +
-        "</tr>"
-      )).join("") || "<tr><td colspan='2' class='muted'>No results yet</td></tr>";
-    }
-
-    /* ================= MY BET LIVE ================= */
-    const myBetUnsub = { DragonTiger:null, TeenPatti:null, Roulette:null };
-    function setMyBetUI(game, bet, roundId){
-      let subId="dtMyBetSub", stId="dtMyBetStatus", bodyId="dtMyBetBody";
-      if (game === "TeenPatti") { subId="tpMyBetSub"; stId="tpMyBetStatus"; bodyId="tpMyBetBody"; }
-      if (game === "Roulette")  { subId="rMyBetSub";  stId="rMyBetStatus";  bodyId="rMyBetBody";  }
-
-      const sub = qs(subId);
-      const st  = qs(stId);
-      const bd  = qs(bodyId);
-
-      if (!bet) {
-        if (sub) sub.textContent = "Round: " + (roundId || "-");
-        if (st) st.textContent = "NO BET";
-        if (bd) bd.innerHTML = "<tr><td colspan='2' class='muted'>Not played</td></tr>";
-        return;
-      }
-
-      if (sub) sub.textContent = "Round: " + (bet.roundId || roundId || "-");
-      if (st) st.textContent = (bet.result || "PENDING");
-      if (bd) bd.innerHTML =
-        "<tr><td>" + (bet.pick || "-") + "</td><td class='gold'>" + Number(bet.stake || 0) + "</td></tr>";
-    }
-
-    function watchMyBet(game, roundId){
-      if (myBetUnsub[game]) { try{ myBetUnsub[game](); }catch(e){} myBetUnsub[game]=null; }
-      const betKey = ME_ID + "_" + game + "_" + roundId;
-      myBetUnsub[game] = BETS.doc(betKey).onSnapshot((snap)=>{
-        if (!snap.exists) setMyBetUI(game, null, roundId);
-        else setMyBetUI(game, snap.data() || null, roundId);
+          "</tr>"
+        )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
       });
+  }
+
+  function renderLatestResult(game, gameDoc) {
+    const elId = (game === "DragonTiger") ? "dtPrev" : (game === "TeenPatti") ? "tpPrev" : "rPrev";
+    const el = qs(elId);
+    if (!el) return;
+    const v = String(gameDoc?.result || "");
+    el.innerHTML = v ? ('<span class="gold">' + v + '</span>') : '<span class="muted">No result</span>';
+  }
+
+  /* ================= LAST5 RENDER ================= */
+  function renderLast5(game, gdoc) {
+    const arr = Array.isArray(gdoc?.last5) ? gdoc.last5 : [];
+    const rows = arr.slice(0, 5);
+
+    let subId = "dtLast5Sub", bodyId = "dtLast5Body";
+    if (game === "TeenPatti") { subId = "tpLast5Sub"; bodyId = "tpLast5Body"; }
+    if (game === "Roulette") { subId = "rLast5Sub"; bodyId = "rLast5Body"; }
+
+    const sub = qs(subId);
+    const body = qs(bodyId);
+    if (sub) sub.textContent = rows.length ? ("Rounds: " + rows.length) : "No data";
+    if (!body) return;
+
+    body.innerHTML = rows.map(x => (
+      "<tr>" +
+      "<td class='gold'>" + (typeof x.seq === "number" ? x.seq : "-") + "</td>" +
+      "<td>" + (x.result || "-") + "</td>" +
+      "</tr>"
+    )).join("") || "<tr><td colspan='2' class='muted'>No results yet</td></tr>";
+  }
+
+  /* ================= MY BET LIVE ================= */
+  const myBetUnsub = { DragonTiger: null, TeenPatti: null, Roulette: null };
+  function setMyBetUI(game, bet, gdoc) {
+    let subId = "dtMyBetSub", stId = "dtMyBetStatus", bodyId = "dtMyBetBody";
+    if (game === "TeenPatti") { subId = "tpMyBetSub"; stId = "tpMyBetStatus"; bodyId = "tpMyBetBody"; }
+    if (game === "Roulette") { subId = "rMyBetSub"; stId = "rMyBetStatus"; bodyId = "rMyBetBody"; }
+
+    const sub = qs(subId);
+    const st = qs(stId);
+    const bd = qs(bodyId);
+
+    const seqText = roundSeqText(gdoc);
+
+    if (!bet) {
+      if (sub) sub.textContent = "Seq: " + seqText;
+      if (st) st.textContent = "NO BET";
+      if (bd) bd.innerHTML = "<tr><td colspan='2' class='muted'>Not played</td></tr>";
+      return;
     }
 
-    /* ================= TIMER UI UPDATE ================= */
-    function updateTimerUI(game, gameDoc) {
-      const left = secondsLeftFromDoc(gameDoc);
-      const showLeft = Math.max(0, left);
-      const pct = Math.max(0, Math.min(100, (showLeft / TOTAL_SEC) * 100)) + "%";
-      const lockState = statusFromDoc(gameDoc);
+    if (sub) sub.textContent = "Seq: " + (typeof bet.seq === "number" ? bet.seq : seqText);
+    if (st) st.textContent = (bet.result || "PENDING");
+    if (bd) bd.innerHTML =
+      "<tr><td>" + (bet.pick || "-") + "</td><td class='gold'>" + Number(bet.stake || 0) + "</td></tr>";
+  }
 
-      if (game === "DragonTiger") {
-        qs("dtRound").textContent = gameDoc?.roundId ?? "-";
-        qs("dtTimer").textContent = showLeft;
-        qs("dtFill").style.width = pct;
-        setLock(qs("dtLock"), lockState);
-        qs("dtPlay").disabled = (lockState !== "OPEN");
-        setLockedOverlay("DragonTiger", lockState === "LOCKED", gameDoc?.roundId, showLeft);
-      } else if (game === "TeenPatti") {
-        qs("tpRound").textContent = gameDoc?.roundId ?? "-";
-        qs("tpTimer").textContent = showLeft;
-        qs("tpFill").style.width = pct;
-        setLock(qs("tpLock"), lockState);
-        qs("tpPlay").disabled = (lockState !== "OPEN");
-        setLockedOverlay("TeenPatti", lockState === "LOCKED", gameDoc?.roundId, showLeft);
-      } else {
-        qs("rRound").textContent = gameDoc?.roundId ?? "-";
-        qs("rTimer").textContent = showLeft;
-        qs("rFill").style.width = pct;
-        setLock(qs("rLock"), lockState);
-        qs("rPlay").disabled = (lockState !== "OPEN");
-        setLockedOverlay("Roulette", lockState === "LOCKED", gameDoc?.roundId, showLeft);
+  function watchMyBet(game, roundId, gdoc) {
+    if (myBetUnsub[game]) { try { myBetUnsub[game](); } catch (e) { } myBetUnsub[game] = null; }
+    const betKey = ME_ID + "_" + game + "_" + roundId;
+    myBetUnsub[game] = BETS.doc(betKey).onSnapshot((snap) => {
+      if (!snap.exists) setMyBetUI(game, null, gdoc);
+      else setMyBetUI(game, snap.data() || null, gdoc);
+    });
+  }
+
+  /* ================= TIMER UI UPDATE ================= */
+  function updateTimerUI(game, gameDoc) {
+    const left = secondsLeftFromDoc(gameDoc);
+    const showLeft = Math.max(0, left);
+    const pct = Math.max(0, Math.min(100, (showLeft / TOTAL_SEC) * 100)) + "%";
+    const lockState = statusFromDoc(gameDoc);
+
+    // Round pill me ab roundId nahi, SEQ show karna
+    const seqText = roundSeqText(gameDoc);
+
+    if (game === "DragonTiger") {
+      qs("dtRound").textContent = seqText;
+      qs("dtTimer").textContent = showLeft;
+      qs("dtFill").style.width = pct;
+      setLock(qs("dtLock"), lockState);
+      qs("dtPlay").disabled = (lockState !== "OPEN");
+      setLockedOverlay("DragonTiger", lockState === "LOCKED", seqText, showLeft);
+    } else if (game === "TeenPatti") {
+      qs("tpRound").textContent = seqText;
+      qs("tpTimer").textContent = showLeft;
+      qs("tpFill").style.width = pct;
+      setLock(qs("tpLock"), lockState);
+      qs("tpPlay").disabled = (lockState !== "OPEN");
+      setLockedOverlay("TeenPatti", lockState === "LOCKED", seqText, showLeft);
+    } else {
+      qs("rRound").textContent = seqText;
+      qs("rTimer").textContent = showLeft;
+      qs("rFill").style.width = pct;
+      setLock(qs("rLock"), lockState);
+      qs("rPlay").disabled = (lockState !== "OPEN");
+      setLockedOverlay("Roulette", lockState === "LOCKED", seqText, showLeft);
+    }
+  }
+
+  /* ================= LIVE SUBSCRIBE ================= */
+  function subscribeGame(game) {
+    return GAME_DOC(game).onSnapshot(async (snap) => {
+      if (!snap.exists) return;
+      const g = snap.data() || {};
+      state[game] = g;
+
+      updateTimerUI(game, g);
+      renderLatestResult(game, g);
+      renderLast5(game, g);
+
+      // watch my bet for current roundId (internal), but UI shows SEQ
+      if (ME_ID && g.roundId) watchMyBet(game, g.roundId, g);
+
+      // result text
+      if (g.result) {
+        if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
+        if (game === "TeenPatti") qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
+        if (game === "Roulette") qs("rMsg").textContent = "ROUND RESULT: " + g.result;
+
+        // IMPORTANT: DT/TP/R separate popup handling
+        handleResultArrived(game, g);
       }
-    }
 
-    /* ===== SHOW RESULT POPUP (ALWAYS, BET HO YA NA HO) ===== */
-    async function maybeShowResultPopup(game, g){
-      if (!g || !g.result || !g.roundId) return;
+      if (secondsLeftFromDoc(g) <= 0) await finalizeIfNeeded(game);
 
-      // show only once per round result
-      if (lastShownResult[game] === g.roundId) return;
-      lastShownResult[game] = g.roundId;
-
-      // read my bet once (not required to exist)
-      const betKey = ME_ID + "_" + game + "_" + g.roundId;
-      let myBet = null;
-      try{
-        const bSnap = await BETS.doc(betKey).get();
-        if (bSnap.exists) myBet = bSnap.data() || null;
-      }catch(e){}
-
-      // settle (if my bet exists)
-      try{ await settleMyBetIfNeeded(game, g); }catch(e){}
-
-      // fill modal
-      qs("resTitle").textContent = "🎯 " + gameLabel(game) + " Result";
-      qs("resBig").textContent = String(g.result || "-");
-      qs("resSub").textContent = "Round finished • New round will start automatically";
-      qs("resGame").textContent = gameLabel(game);
-      qs("resRound").textContent = String(g.roundId);
-
-      if (!myBet) {
-        qs("resMyBet").textContent = "No bet";
-        qs("resMyOutcome").textContent = "-";
-      } else {
-        qs("resMyBet").textContent = (myBet.pick || "-") + " • " + Number(myBet.stake || 0);
-        qs("resMyOutcome").textContent = String(myBet.result || "PENDING");
-      }
-
-      vib(60);
-      openResultModal();
-    }
-
-    /* ================= LIVE SUBSCRIBE ================= */
-    function subscribeGame(game) {
-      return GAME_DOC(game).onSnapshot(async (snap) => {
-        if (!snap.exists) return;
-        const g = snap.data() || {};
-        state[game] = g;
-
-        updateTimerUI(game, g);
-        renderLatestResult(game, g);
-        renderLast5(game, g);
-
-        if (ME_ID && g.roundId) watchMyBet(game, g.roundId);
-
-        // show popup when result comes (even if no bet)
-        if (g.result) {
-          if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
-          if (game === "TeenPatti")  qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
-          if (game === "Roulette")   qs("rMsg").textContent = "ROUND RESULT: " + g.result;
-          await maybeShowResultPopup(game, g);
-        }
-
-        if (secondsLeftFromDoc(g) <= 0) await finalizeIfNeeded(game);
-
-        if (game === "DragonTiger") await setPastTable("DragonTiger", "dtPast", "dtWait");
-        if (game === "TeenPatti")  await setPastTable("TeenPatti",  "tpPast", "tpWait");
-        if (game === "Roulette")   await setPastTable("Roulette",   "rPast",  "rWait");
-      });
-    }
-
-    /* ================= PLAY BUTTONS ================= */
-    qs("dtPlay").addEventListener("click", async () => {
-      try {
-        const g = state.DragonTiger;
-        if (!g) return;
-        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("dtMsg").textContent = "Locked (play only when timer > 15)";
-        await placeBetFS({ game:"DragonTiger", pick:getDTPick(), stake:dtStake.value, roundId:g.roundId, seq:g.seq });
-        qs("dtMsg").textContent = "PLAY SUBMITTED";
-        showToast("🕒 SUBMITTED", "Result at 0 sec");
-        vib(40);
-        await refreshTop();
-      } catch (e) { qs("dtMsg").textContent = e.message || String(e); }
+      if (game === "DragonTiger") await setPastTable("DragonTiger", "dtPast", "dtWait");
+      if (game === "TeenPatti") await setPastTable("TeenPatti", "tpPast", "tpWait");
+      if (game === "Roulette") await setPastTable("Roulette", "rPast", "rWait");
     });
+  }
 
-    qs("tpPlay").addEventListener("click", async () => {
-      try {
-        const g = state.TeenPatti;
-        if (!g) return;
-        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("tpMsg").textContent = "Locked (play only when timer > 15)";
-        await placeBetFS({ game:"TeenPatti", pick:getTPPick(), stake:tpStake.value, roundId:g.roundId, seq:g.seq });
-        qs("tpMsg").textContent = "PLAY SUBMITTED";
-        vib(40);
-        await refreshTop();
-      } catch (e) { qs("tpMsg").textContent = e.message || String(e); }
-    });
-
-    qs("rPlay").addEventListener("click", async () => {
-      try {
-        const g = state.Roulette;
-        if (!g) return;
-        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("rMsg").textContent = "Locked (play only when timer > 15)";
-        await placeBetFS({ game:"Roulette", pick:getRPick(), stake:rStake.value, roundId:g.roundId, seq:g.seq });
-        qs("rMsg").textContent = "PLAY SUBMITTED";
-        vib(40);
-        await refreshTop();
-      } catch (e) { qs("rMsg").textContent = e.message || String(e); }
-    });
-
-    /* ================= VIEWERS (FAKE) ================= */
-    setInterval(() => {
-      if (qs("dtView")) qs("dtView").textContent = "👁 " + (120 + Math.floor(Math.random() * 25));
-      if (qs("tpView")) qs("tpView").textContent = "👁 " + (200 + Math.floor(Math.random() * 25));
-      if (qs("rView"))  qs("rView").textContent  = "👁 " + (150 + Math.floor(Math.random() * 25));
-    }, 2500);
-
-    /* ================= INIT ================= */
-    (async function init() {
-      const s = getSession();
-      if (!s || !s.id) return logout();
-      ME_ID = s.id;
-
-      await ensureUserDefaults();
-
-      const snap = await USERS.doc(ME_ID).get();
-      if (!snap.exists) return logout();
-      if (snap.data()?.isBlocked) return logout();
-
+  /* ================= PLAY BUTTONS ================= */
+  qs("dtPlay").addEventListener("click", async () => {
+    try {
+      const g = state.DragonTiger;
+      if (!g) return;
+      if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("dtMsg").textContent = "Locked (play only when timer > 15)";
+      await placeBetFS({ game: "DragonTiger", pick: getDTPick(), stake: dtStake.value, roundId: g.roundId, seq: g.seq });
+      qs("dtMsg").textContent = "PLAY SUBMITTED";
+      showToast("🕒 SUBMITTED", "Result at 0 sec");
+      vib(40);
       await refreshTop();
-      USERS.doc(ME_ID).onSnapshot(()=> refreshTop());
+    } catch (e) { qs("dtMsg").textContent = e.message || String(e); }
+  });
 
-      await ensureGameDocExists("DragonTiger");
-      await ensureGameDocExists("TeenPatti");
-      await ensureGameDocExists("Roulette");
+  qs("tpPlay").addEventListener("click", async () => {
+    try {
+      const g = state.TeenPatti;
+      if (!g) return;
+      if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("tpMsg").textContent = "Locked (play only when timer > 15)";
+      await placeBetFS({ game: "TeenPatti", pick: getTPPick(), stake: tpStake.value, roundId: g.roundId, seq: g.seq });
+      qs("tpMsg").textContent = "PLAY SUBMITTED";
+      vib(40);
+      await refreshTop();
+    } catch (e) { qs("tpMsg").textContent = e.message || String(e); }
+  });
 
-      subscribeGame("DragonTiger");
-      subscribeGame("TeenPatti");
-      subscribeGame("Roulette");
+  qs("rPlay").addEventListener("click", async () => {
+    try {
+      const g = state.Roulette;
+      if (!g) return;
+      if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("rMsg").textContent = "Locked (play only when timer > 15)";
+      await placeBetFS({ game: "Roulette", pick: getRPick(), stake: rStake.value, roundId: g.roundId, seq: g.seq });
+      qs("rMsg").textContent = "PLAY SUBMITTED";
+      vib(40);
+      await refreshTop();
+    } catch (e) { qs("rMsg").textContent = e.message || String(e); }
+  });
 
-      setInterval(async () => {
-        await finalizeIfNeeded("DragonTiger");
-        await finalizeIfNeeded("TeenPatti");
-        await finalizeIfNeeded("Roulette");
-      }, 1000);
+  /* ================= VIEWERS (FAKE) ================= */
+  setInterval(() => {
+    if (qs("dtView")) qs("dtView").textContent = "👁 " + (120 + Math.floor(Math.random() * 25));
+    if (qs("tpView")) qs("tpView").textContent = "👁 " + (200 + Math.floor(Math.random() * 25));
+    if (qs("rView")) qs("rView").textContent = "👁 " + (150 + Math.floor(Math.random() * 25));
+  }, 2500);
 
-      setInterval(() => {
-        if (state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
-        if (state.TeenPatti)  updateTimerUI("TeenPatti",  state.TeenPatti);
-        if (state.Roulette)   updateTimerUI("Roulette",   state.Roulette);
-      }, 200);
+  /* ================= INIT ================= */
+  (async function init() {
+    const s = getSession();
+    if (!s || !s.id) return logout();
+    ME_ID = s.id;
 
-      // logout click already bound
-    })().catch((e) => {
-      console.error("INIT ERROR:", e);
-      alert(e?.message || e);
-    });
-  </script>
+    await ensureUserDefaults();
+
+    const snap = await USERS.doc(ME_ID).get();
+    if (!snap.exists) return logout();
+    if (snap.data()?.isBlocked) return logout();
+
+    await refreshTop();
+    USERS.doc(ME_ID).onSnapshot(() => refreshTop());
+
+    await ensureGameDocExists("DragonTiger");
+    await ensureGameDocExists("TeenPatti");
+    await ensureGameDocExists("Roulette");
+
+    subscribeGame("DragonTiger");
+    subscribeGame("TeenPatti");
+    subscribeGame("Roulette");
+
+    setInterval(async () => {
+      await finalizeIfNeeded("DragonTiger");
+      await finalizeIfNeeded("TeenPatti");
+      await finalizeIfNeeded("Roulette");
+    }, 1000);
+
+    setInterval(() => {
+      if (state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
+      if (state.TeenPatti) updateTimerUI("TeenPatti", state.TeenPatti);
+      if (state.Roulette) updateTimerUI("Roulette", state.Roulette);
+    }, 200);
+
+    // default tab
+    setTab("dt");
+  })().catch((e) => {
+    console.error("INIT ERROR:", e);
+    alert(e?.message || e);
+  });
+</script>
+ 
 </body>
 </html>
+
