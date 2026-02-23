@@ -5,26 +5,21 @@
   <title>Casino - JVBET1803</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
-
-  <!-- Optional: if your old css conflicts, comment this line -->
+  <!-- If your old css clashes, comment next line -->
   <link rel="stylesheet" href="../assets/css/style.css" />
 
   <style>
     :root{
       --bg:#07080c;
       --panel: rgba(255,255,255,.05);
-      --panel2: rgba(0,0,0,.35);
       --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(212,175,55,.22);
       --gold: rgba(212,175,55,1);
-      --gold2: rgba(255,255,255,.75);
       --text: #fff;
       --muted: rgba(255,255,255,.72);
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius: 18px;
       --radius2: 14px;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -40,8 +35,10 @@
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
+    .gold{color:var(--gold)}
+    .muted{color:var(--muted);font-weight:800}
 
-    /* ====== Layout ====== */
+    /* ===== Layout ===== */
     .shell{max-width:1200px;margin:0 auto;padding:14px}
     .topbar{
       position:sticky;top:0;z-index:100;
@@ -63,7 +60,6 @@
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
       max-width:52vw;
     }
-
     .actions{display:flex;gap:10px;align-items:center;flex:0 0 auto;}
     .btn{
       appearance:none;border:none;
@@ -78,7 +74,7 @@
     .btn:active{transform:scale(.98)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
 
-    /* ====== Stats strip ====== */
+    /* ===== Stats ===== */
     .statsGrid{
       display:grid;
       grid-template-columns: 1.2fr 1fr 1fr 1fr;
@@ -87,7 +83,6 @@
     }
     @media (max-width: 860px){ .statsGrid{grid-template-columns:1fr 1fr} }
     @media (max-width: 420px){ .statsGrid{grid-template-columns:1fr} }
-
     .statCard{
       border:1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.24));
@@ -103,9 +98,6 @@
       margin-top:6px;font-weight:1100;font-size:18px;letter-spacing:.2px;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
-    .gold{color:var(--gold)}
-    .muted{color:var(--muted);font-weight:800}
-
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 12px;border-radius:999px;
@@ -117,7 +109,7 @@
       overflow:hidden;text-overflow:ellipsis;
     }
 
-    /* ====== Tabs (top) ====== */
+    /* ===== Tabs (top) ===== */
     .tabsWrap{
       position:sticky;top:62px;z-index:90;
       backdrop-filter: blur(12px);
@@ -147,16 +139,10 @@
       box-shadow: 0 12px 30px rgba(0,0,0,.35);
     }
 
-    /* ====== Panels / Cards ====== */
+    /* ===== Panels / cards ===== */
     .panel{display:none}
     .panel.active{display:block}
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-      margin-top:12px;
-    }
+    .grid{display:grid;grid-template-columns: 1fr;gap:12px;margin-top:12px}
     @media (min-width: 980px){ .grid{grid-template-columns: 1.15fr .85fr} }
 
     .card{
@@ -175,7 +161,7 @@
       display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
 
-    /* ====== Live Box ====== */
+    /* ===== Live box ===== */
     .aiLiveBox{
       border-radius: 18px;
       overflow:hidden;
@@ -202,13 +188,9 @@
       animation:pulse 1.2s infinite;
       flex:0 0 auto;
     }
-    @keyframes pulse{
-      0%,100%{transform:scale(1);opacity:1}
-      50%{transform:scale(1.35);opacity:.65}
-    }
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
     .liveTxt{font-weight:1000;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
-
     .aiVid{
       width:100%;
       height: 260px;
@@ -220,7 +202,7 @@
     @media (min-width: 900px){.aiVid{height: 340px}}
     @media (max-width: 420px){.aiVid{height: 220px}}
 
-    /* ====== Locked overlay (NEW) ====== */
+    /* ===== Locked overlay ===== */
     .lockOverlay{
       position:absolute; inset:0;
       display:none;
@@ -259,11 +241,8 @@
       white-space:nowrap;
     }
 
-    /* ====== Timer row ====== */
-    .timerWrap{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      justify-content:space-between;margin-top:12px;
-    }
+    /* ===== Timer row ===== */
+    .timerWrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-top:12px}
     .timerPill{
       display:flex;align-items:center;gap:8px;
       padding:10px 12px;border-radius:999px;
@@ -275,15 +254,8 @@
       white-space:nowrap;
     }
     .timerNum{font-weight:1100}
-    .timerBar{
-      flex:1;height:8px;border-radius:999px;
-      background: rgba(255,255,255,.08);
-      overflow:hidden;min-width:90px;
-    }
-    .timerFill{
-      height:100%;width:0%;
-      background: linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35));
-    }
+    .timerBar{flex:1;height:8px;border-radius:999px;background: rgba(255,255,255,.08);overflow:hidden;min-width:90px}
+    .timerFill{height:100%;width:0%;background: linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35))}
     .pillSmall{
       padding:10px 12px;border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
@@ -294,13 +266,12 @@
       text-align:center;
     }
     @media (max-width: 520px){ .pillSmall{min-width:0;flex:1 1 140px} }
-
     .lockOpen{border-color: rgba(34,197,94,.45)}
     .lockPlaced{border-color: rgba(43,111,255,.45)}
     .lockLocked{border-color: rgba(255,193,7,.45)}
     .lockClosed{border-color: rgba(255,77,109,.45)}
 
-    /* ====== Result chips ====== */
+    /* ===== Results ===== */
     .prevBox{
       display:flex;gap:8px;flex-wrap:wrap;
       padding:10px;border-radius: var(--radius2);
@@ -309,18 +280,16 @@
       min-height:44px;
     }
     .resChip{
-      padding:7px 11px;
-      border-radius:999px;
+      padding:7px 11px;border-radius:999px;
       border:1px solid rgba(212,175,55,.28);
       background: rgba(0,0,0,.25);
-      font-weight:1000;
-      letter-spacing:.3px;
+      font-weight:1000;letter-spacing:.3px;
       white-space:nowrap;
       max-width:100%;
       overflow:hidden;text-overflow:ellipsis;
     }
 
-    /* ====== Board ====== */
+    /* ===== Board ===== */
     .casinoBoard{
       border:1px solid rgba(255,255,255,.10);
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
@@ -348,7 +317,6 @@
     .topTitle{font-weight:900;opacity:.85;font-size:12px}
     .topValue{font-weight:1100;font-size:18px;margin-top:6px}
     .topValue.gold{color:var(--gold)}
-
     .card3{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:6px}
     .flipCard{width:72px;height:92px;perspective:800px}
     .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
@@ -371,7 +339,6 @@
       .card3{gap:8px}
       .flipFace{font-size: clamp(11px, 4.2vw, 15px)}
     }
-
     .cMid{margin-top:12px}
     .betRow{display:grid;gap:10px}
     #dtBets,#tpBets{grid-template-columns: repeat(3, minmax(0,1fr))}
@@ -385,13 +352,9 @@
       transition: transform .08s ease, border-color .2s ease, background .2s ease;
     }
     .betBox:active{transform:scale(.98)}
-    .betBox.active{
-      border-color: rgba(212,175,55,.55);
-      background: rgba(212,175,55,.12);
-    }
+    .betBox.active{border-color: rgba(212,175,55,.55);background: rgba(212,175,55,.12)}
     .betName{font-weight:1100;letter-spacing:.3px}
     .betMul{margin-top:4px;font-weight:900;opacity:.85;font-size:12px}
-
     .cBottom{margin-top:12px;display:flex;flex-direction:column;gap:10px}
     .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
     .chip{
@@ -421,7 +384,7 @@
       .stakeBox .btn{width:100%}
     }
 
-    /* ====== Tables ====== */
+    /* ===== Tables ===== */
     .scrollBox{
       margin-top:10px;
       border-radius: 14px;
@@ -441,7 +404,7 @@
     }
     table.table th{font-size:12px;opacity:.9}
 
-    /* ====== Mini Boxes ====== */
+    /* ===== Mini boxes ===== */
     .miniOuter{
       margin-top:10px;
       border-radius: 16px;
@@ -499,7 +462,7 @@
     .toast.loss{border-color: rgba(255,77,109,.55)}
     .toast.tie{border-color: rgba(43,111,255,.55)}
 
-    /* ===== Mobile safety for timer row overlap ===== */
+    /* ===== Mobile timer layout fix ===== */
     @media (max-width: 524px){
       .timerWrap{display:grid;gap:10px;justify-content:initial;align-items:stretch;}
       .timerPill{grid-column:1/-1;flex:initial;width:100%}
@@ -507,60 +470,42 @@
       .pillSmall .gold{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;}
     }
 
-    /* ===== Bottom Tabbar (NEW) ===== */
+    /* ===== Bottom Tabbar ===== */
     .bottomNav{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      z-index:120;
-      display:none;
+      position:fixed;left:0; right:0; bottom:0;
+      z-index:120;display:none;
       padding:10px 12px calc(10px + env(safe-area-inset-bottom));
       background: rgba(0,0,0,.55);
       backdrop-filter: blur(14px);
       border-top: 1px solid rgba(255,255,255,.10);
     }
     .bottomNav .navInner{
-      max-width: 680px;
-      margin: 0 auto;
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: 680px;margin:0 auto;
+      display:grid;grid-template-columns: repeat(4, minmax(0, 1fr));
       gap:10px;
     }
     .navBtn{
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.22);
-      color:#fff;
-      border-radius: 16px;
-      padding:10px 8px;
-      font-weight:1100;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      cursor:pointer;
-      user-select:none;
+      color:#fff;border-radius: 16px;
+      padding:10px 8px;font-weight:1100;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:6px;cursor:pointer;user-select:none;
       transition: transform .08s ease, border-color .2s ease, background .2s ease;
     }
     .navBtn:active{transform:scale(.98)}
-    .navBtn.active{
-      border-color: rgba(212,175,55,.55);
-      background: rgba(212,175,55,.14);
-    }
+    .navBtn.active{border-color: rgba(212,175,55,.55);background: rgba(212,175,55,.14)}
     .navIcon{font-size:18px;line-height:1}
     .navTxt{font-size:12px;letter-spacing:.2px;opacity:.95}
-
-    /* show bottom nav on mobile */
     @media (max-width: 720px){
       .bottomNav{display:block;}
-      /* Give space so content not hidden behind bottom nav */
       main.shell{padding-bottom: 92px;}
     }
-
   </style>
 </head>
 
 <body>
-  <!-- ===== Top Bar ===== -->
+  <!-- TOP BAR -->
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
@@ -570,13 +515,11 @@
           <div class="t2">Premium Live Casino</div>
         </div>
       </div>
-
       <div class="actions">
         <button class="btn" type="button" id="logoutBtn">Logout</button>
       </div>
     </div>
 
-    <!-- Stats strip (IDs SAME) -->
     <div class="shell" style="padding-top:0">
       <div class="statsGrid">
         <div class="statCard">
@@ -586,7 +529,6 @@
           </div>
           <div class="pill">👤 User</div>
         </div>
-
         <div class="statCard">
           <div class="statLeft">
             <div class="statK">Points</div>
@@ -594,7 +536,6 @@
           </div>
           <div class="pill">💰 Balance</div>
         </div>
-
         <div class="statCard">
           <div class="statLeft">
             <div class="statK">Win</div>
@@ -602,7 +543,6 @@
           </div>
           <div class="pill">✅ Wins</div>
         </div>
-
         <div class="statCard">
           <div class="statLeft">
             <div class="statK">Loss</div>
@@ -614,7 +554,7 @@
     </div>
   </header>
 
-  <!-- ===== Tabs (top) ===== -->
+  <!-- TOP TABS -->
   <div class="tabsWrap">
     <div class="tabs">
       <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
@@ -626,14 +566,11 @@
 
   <main class="shell">
 
-    <!-- ======================= DRAGON TIGER ======================= -->
+    <!-- DRAGON TIGER -->
     <section class="panel active" id="dt">
       <div class="grid">
         <div class="card">
-          <h3>
-            <span>Dragon Tiger</span>
-            <span class="pill">🎥 Live</span>
-          </h3>
+          <h3><span>Dragon Tiger</span><span class="pill">🎥 Live</span></h3>
 
           <div class="aiLiveBox">
             <div class="aiLiveTop">
@@ -642,7 +579,6 @@
               <span class="liveView" id="dtView">👁 128</span>
             </div>
 
-            <!-- Locked overlay target: DT -->
             <div class="lockOverlay" id="dtOverlay">
               <div class="lockOverlayCard">
                 <div class="lockOverlayTitle">🔒 Bets Locked</div>
@@ -685,9 +621,7 @@
             </div>
             <div class="miniScroll">
               <table>
-                <thead>
-                  <tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr>
-                </thead>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
                 <tbody id="dtLast5Body">
                   <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
                 </tbody>
@@ -705,9 +639,7 @@
             </div>
             <div class="miniScroll">
               <table>
-                <thead>
-                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
-                </thead>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
                 <tbody id="dtMyBetBody">
                   <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
                 </tbody>
@@ -759,18 +691,9 @@
 
           <div class="cMid">
             <div class="betRow" id="dtBets">
-              <div class="betBox active" data-pick="DRAGON">
-                <div class="betName">DRAGON</div>
-                <div class="betMul">2x</div>
-              </div>
-              <div class="betBox" data-pick="TIGER">
-                <div class="betName">TIGER</div>
-                <div class="betMul">2x</div>
-              </div>
-              <div class="betBox" data-pick="TIE">
-                <div class="betName">TIE</div>
-                <div class="betMul">Refund</div>
-              </div>
+              <div class="betBox active" data-pick="DRAGON"><div class="betName">DRAGON</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIGER"><div class="betName">TIGER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
             </div>
           </div>
 
@@ -798,16 +721,14 @@
         <div class="muted" id="dtWait"></div>
         <div class="scrollBox">
           <table class="table" id="dtPast">
-            <thead>
-              <tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- ======================= TEEN PATTI ======================= -->
+    <!-- TEEN PATTI -->
     <section class="panel" id="tp">
       <div class="grid">
         <div class="card">
@@ -820,7 +741,6 @@
               <span class="liveView" id="tpView">👁 212</span>
             </div>
 
-            <!-- Locked overlay target: TP -->
             <div class="lockOverlay" id="tpOverlay">
               <div class="lockOverlayCard">
                 <div class="lockOverlayTitle">🔒 Bets Locked</div>
@@ -908,15 +828,9 @@
 
           <div class="cMid">
             <div class="betRow" id="tpBets">
-              <div class="betBox active" data-pick="PLAYER">
-                <div class="betName">PLAYER</div><div class="betMul">2x</div>
-              </div>
-              <div class="betBox" data-pick="BANKER">
-                <div class="betName">BANKER</div><div class="betMul">2x</div>
-              </div>
-              <div class="betBox" data-pick="TIE">
-                <div class="betName">TIE</div><div class="betMul">Refund</div>
-              </div>
+              <div class="betBox active" data-pick="PLAYER"><div class="betName">PLAYER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BANKER"><div class="betName">BANKER</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">TIE</div><div class="betMul">Refund</div></div>
             </div>
           </div>
 
@@ -951,7 +865,7 @@
       </div>
     </section>
 
-    <!-- ======================= ROULETTE ======================= -->
+    <!-- ROULETTE -->
     <section class="panel" id="rl">
       <div class="grid">
         <div class="card">
@@ -964,7 +878,6 @@
               <span class="liveView" id="rView">👁 156</span>
             </div>
 
-            <!-- Locked overlay target: R -->
             <div class="lockOverlay" id="rOverlay">
               <div class="lockOverlayCard">
                 <div class="lockOverlayTitle">🔒 Bets Locked</div>
@@ -1037,12 +950,8 @@
         <div class="casinoBoard">
           <div class="cMid">
             <div class="betRow" id="rBets">
-              <div class="betBox active" data-pick="RED">
-                <div class="betName">RED</div><div class="betMul">2x</div>
-              </div>
-              <div class="betBox" data-pick="BLACK">
-                <div class="betName">BLACK</div><div class="betMul">2x</div>
-              </div>
+              <div class="betBox active" data-pick="RED"><div class="betName">RED</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BLACK"><div class="betName">BLACK</div><div class="betMul">2x</div></div>
             </div>
           </div>
 
@@ -1077,7 +986,7 @@
       </div>
     </section>
 
-    <!-- ======================= HISTORY ======================= -->
+    <!-- HISTORY -->
     <section class="panel" id="hist">
       <div class="card">
         <h3>Full Play History</h3>
@@ -1092,25 +1001,13 @@
 
   </main>
 
-  <!-- ===== Bottom Tabbar (Mobile) ===== -->
+  <!-- BOTTOM TABBAR -->
   <nav class="bottomNav" aria-label="Bottom navigation">
     <div class="navInner">
-      <button class="navBtn active" data-tab="dt" type="button">
-        <div class="navIcon">🐉</div>
-        <div class="navTxt">Dragon</div>
-      </button>
-      <button class="navBtn" data-tab="tp" type="button">
-        <div class="navIcon">🃏</div>
-        <div class="navTxt">Teen Patti</div>
-      </button>
-      <button class="navBtn" data-tab="rl" type="button">
-        <div class="navIcon">🎡</div>
-        <div class="navTxt">Roulette</div>
-      </button>
-      <button class="navBtn" data-tab="hist" type="button">
-        <div class="navIcon">📜</div>
-        <div class="navTxt">History</div>
-      </button>
+      <button class="navBtn active" data-tab="dt" type="button"><div class="navIcon">🐉</div><div class="navTxt">Dragon</div></button>
+      <button class="navBtn" data-tab="tp" type="button"><div class="navIcon">🃏</div><div class="navTxt">Teen Patti</div></button>
+      <button class="navBtn" data-tab="rl" type="button"><div class="navIcon">🎡</div><div class="navTxt">Roulette</div></button>
+      <button class="navBtn" data-tab="hist" type="button"><div class="navIcon">📜</div><div class="navTxt">History</div></button>
     </div>
   </nav>
 
@@ -1140,8 +1037,6 @@
     const K_SESSION_B = "jvbet_session_v1";
 
     function loadJSON(k, f){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : f }catch(e){ return f } }
-    function saveJSON(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
-
     function getSession(){ return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null) }
     function clearSession(){ localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B) }
 
@@ -1162,25 +1057,14 @@
 
     /* ================= TAB NAV (Top + Bottom synced) ================= */
     function setActiveTab(tabId){
-      // top tabs
       document.querySelectorAll(".tabbtn").forEach(x => x.classList.toggle("active", x.dataset.tab === tabId));
-      // panels
       document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
-      // bottom nav
       document.querySelectorAll(".navBtn").forEach(x => x.classList.toggle("active", x.dataset.tab === tabId));
       if(tabId === "hist") renderHistory();
       try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){}
     }
-
-    // Top tabs clicks
-    document.querySelectorAll(".tabbtn").forEach(btn=>{
-      btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab));
-    });
-
-    // Bottom nav clicks
-    document.querySelectorAll(".navBtn").forEach(btn=>{
-      btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab));
-    });
+    document.querySelectorAll(".tabbtn").forEach(btn => btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab)));
+    document.querySelectorAll(".navBtn").forEach(btn => btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab)));
 
     function bindBetBoxes(containerId, showId, showId2){
       const cont = document.getElementById(containerId);
@@ -1253,7 +1137,6 @@
       if(stateStr==="CLOSED"){ el.classList.add("lockClosed"); el.textContent="CLOSED"; }
     }
 
-    /* ===== Locked overlay helpers (NEW) ===== */
     function setOverlay(gameKey, show, roundId, timerLeft){
       const map = {
         DragonTiger: { box:"dtOverlay", rid:"dtOverlayRound", t:"dtOverlayTimer" },
@@ -1262,16 +1145,12 @@
       };
       const m = map[gameKey];
       if(!m) return;
-
       const box = document.getElementById(m.box);
       const rid = document.getElementById(m.rid);
       const tt = document.getElementById(m.t);
-
       if(rid) rid.textContent = roundId || "-";
       if(tt) tt.textContent = String(Math.max(0, Number(timerLeft || 0)));
-
-      if(!box) return;
-      box.classList.toggle("show", !!show);
+      if(box) box.classList.toggle("show", !!show);
     }
 
     /* ================= FIRESTORE QUEUE (SAFE) ================= */
@@ -1319,18 +1198,15 @@
       return {win:w, loss:l};
     }
 
-    /* ================= RNG (SERVER-SHARED RESULT) ================= */
+    /* ================= RNG ================= */
     function randCard(){ return 1 + Math.floor(Math.random()*13) }
     function cardStr(v){ return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v)) }
-
     function drawDT(){
       const d=randCard(), t=randCard();
       const res = (d===t) ? "TIE" : (d>t ? "DRAGON" : "TIGER");
       return {d,t,res};
     }
-    function drawTP(){
-      return { res: ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)] };
-    }
+    function drawTP(){ return { res: ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)] }; }
     function drawR(){
       const n = Math.floor(Math.random()*37);
       const c = (n===0) ? "GREEN" : (n%2===0 ? "BLACK" : "RED");
@@ -1349,24 +1225,25 @@
       setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
     }
 
-    /* ================= SHARED ROUND ENGINE ================= */
+    /* ================= GAME DOC INIT ================= */
     async function ensureGameDocExists(game){
       const ref = GAME_DOC(game);
       const snap = await ref.get();
       if(snap.exists) return;
 
       const now = Date.now();
-      const startedAt = now;
       await ref.set({
         seq: 1,
         roundId: makeRoundId(),
-        startedAt,
-        endsAt: startedAt + TOTAL_SEC*1000,
-        lockAt: startedAt + LOCK_REMAINING*1000,
+        startedAt: now,
+        endsAt: now + TOTAL_SEC*1000,
+        lockAt: now + LOCK_REMAINING*1000,
         status:"OPEN",
         result:null,
         payload:null,
-        last5:[]
+        last5:[],
+        resultAt: null,
+        nextStarted:false
       },{merge:true});
     }
 
@@ -1381,82 +1258,82 @@
       return "OPEN";
     }
 
+    /* ✅ FIXED: prevents PENDING by holding result 2.5s before next round */
     async function finalizeIfNeeded(game){
       const ref = GAME_DOC(game);
 
-      return db.runTransaction(async(tx)=>{
+      return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref);
-        if(!snap.exists) return;
+        if (!snap.exists) return;
 
         const g = snap.data() || {};
-        const left = Math.ceil((Number(g.endsAt || 0) - Date.now())/1000);
+        const now = Date.now();
+        const left = Math.ceil((Number(g.endsAt || 0) - now) / 1000);
 
-        if(left>0) return;
-        if(g.result && g.nextStarted) return;
+        if (left > 0) return;
 
-        if(!g.result){
-          let result=null, payload=null;
+        // 1) Create result if missing
+        if (!g.result) {
+          let result = null;
+          let payload = null;
 
-          if(game==="DragonTiger"){
+          if (game === "DragonTiger") {
             const d = drawDT();
             result = d.res;
             payload = { d: cardStr(d.d), t: cardStr(d.t), res: d.res };
-          } else if(game==="TeenPatti"){
+          } else if (game === "TeenPatti") {
             const d = drawTP();
             result = d.res;
             payload = { res: d.res };
           } else {
             const d = drawR();
             result = d.res;
-            payload = { color:d.color, n:d.n, res:d.res };
+            payload = { color: d.color, n: d.n, res: d.res };
           }
 
-          const now = Date.now();
-          const entry = { roundId:g.roundId, seq:g.seq, result, time: now };
+          const entry = { roundId: g.roundId, seq: g.seq, result, time: now };
           const old = Array.isArray(g.last5) ? g.last5 : [];
-          const cleaned = old.filter(x => x && x.roundId !== g.roundId);
+          const cleaned = old.filter((x) => x && x.roundId !== g.roundId);
           cleaned.unshift(entry);
-          const last5 = cleaned.slice(0,5);
+          const last5 = cleaned.slice(0, 5);
 
-          tx.set(ref,{
-            status:"CLOSED",
+          tx.set(ref, {
+            status: "CLOSED",
             result,
             payload,
             last5,
             resultAt: now,
-            nextStarted:false
-          },{merge:true});
+            nextStarted: false
+          }, { merge: true });
+
           return;
         }
 
-        if(g.result && !g.nextStarted){
-          const now = Date.now();
+        // 2) Wait a bit before starting next round (so clients settle bets)
+        const resultAt = Number(g.resultAt || 0);
+        const HOLD_MS = 2500;
+        if (!resultAt) return;
+        if (now - resultAt < HOLD_MS) return;
+
+        if (!g.nextStarted) {
           const nextSeq = Number(g.seq || 0) + 1;
 
-          tx.set(ref,{
+          tx.set(ref, {
             seq: nextSeq,
             roundId: makeRoundId(),
             startedAt: now,
-            endsAt: now + TOTAL_SEC*1000,
-            lockAt: now + LOCK_REMAINING*1000,
-            status:"OPEN",
-            result:null,
-            payload:null,
-            nextStarted:true
-          },{merge:true});
+            endsAt: now + TOTAL_SEC * 1000,
+            lockAt: now + LOCK_REMAINING * 1000,
+            status: "OPEN",
+            result: null,
+            payload: null,
+            nextStarted: true
+          }, { merge: true });
         }
       });
     }
 
-    /* ================= BETS (SERVER) ================= */
-    async function addPoints(delta){
-      delta = Number(delta || 0);
-      if(!delta) return;
-      return fsQueue(() =>
-        USERS.doc(ME_ID).set({ points: firebase.firestore.FieldValue.increment(delta) }, { merge:true })
-      );
-    }
-
+    /* ================= BETS ================= */
     async function placeBetFS({game,pick,stake,roundId,seq}){
       stake = Number(stake || 0);
       if(!stake || stake<=0) throw new Error("Enter valid points");
@@ -1554,7 +1431,7 @@
       const arr=[];
       qs.forEach(d => arr.push(d.data() || {}));
       tb.innerHTML = arr.map(b => (
-        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
+        "<tr><td>"+fmtDate(b.at)+"</td><td>"+(b.game||"-")+"</td><td>"+(b.pick||"-")+"</td><td class='gold'>"+Number(b.stake||0)+"</td><td>"+(b.result||"-")+"</td></tr>"
       )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
     }
 
@@ -1579,9 +1456,9 @@
       bodyEl.innerHTML = arr.map((x,i)=>(
         "<tr>"+
           "<td>"+(i+1)+"</td>"+
-          "<td class='gold'>"+String(x.result ?? "-")+"</td>"+
-          "<td>"+String(x.roundId ?? x.seq ?? "-")+"</td>"+
-          "<td>"+fmtDate(x.time ?? Date.now())+"</td>"+
+          "<td class='gold'>"+String(x?.result ?? "-")+"</td>"+
+          "<td>"+String(x?.roundId ?? x?.seq ?? "-")+"</td>"+
+          "<td>"+fmtDate(x?.time ?? Date.now())+"</td>"+
         "</tr>"
       )).join("");
     }
@@ -1589,7 +1466,6 @@
     function renderLatestResult(game, gameDoc){
       const elId = (game==="DragonTiger") ? "dtPrev" : (game==="TeenPatti") ? "tpPrev" : "rPrev";
       const el = document.getElementById(elId);
-
       const v = String(gameDoc?.result || "");
       el.innerHTML = v ? ('<span class="resChip">'+v+'</span>') : '<span class="muted">No result</span>';
     }
@@ -1641,7 +1517,7 @@
       });
     }
 
-    /* ================= LIVE RENDER PER GAME ================= */
+    /* ================= LIVE UI ================= */
     function updateTimerUI(game, gameDoc){
       const left = secondsLeftFromDoc(gameDoc);
       const showLeft = Math.max(0,left);
@@ -1662,7 +1538,6 @@
         if(lockState==="LOCKED"){ setLock(lockEl,"LOCKED"); btn.disabled=true; }
         if(lockState==="CLOSED"){ setLock(lockEl,"CLOSED"); btn.disabled=true; }
 
-        // overlay show/hide
         setOverlay("DragonTiger", isLocked, gameDoc?.roundId, showLeft);
 
         if(gameDoc?.payload?.d){
@@ -1716,15 +1591,9 @@
 
         if(g.result){
           await settleMyBetIfNeeded(game, g);
-
           if(game==="DragonTiger") document.getElementById("dtMsg").textContent = "ROUND RESULT: " + g.result;
           if(game==="TeenPatti") document.getElementById("tpMsg").textContent = "ROUND RESULT: " + g.result;
           if(game==="Roulette") document.getElementById("rMsg").textContent = "ROUND RESULT: " + g.result;
-        }
-
-        const left = secondsLeftFromDoc(g);
-        if(left <= 0){
-          await finalizeIfNeeded(game);
         }
 
         if(game==="DragonTiger") await setPastTable("DragonTiger","dtPast","dtWait");
@@ -1739,7 +1608,7 @@
         const g = state.DragonTiger;
         if(!g) return;
         const left = secondsLeftFromDoc(g);
-        if(left <= LOCK_REMAINING) return document.getElementById("dtMsg").textContent = "Locked (play only when timer > 15)";
+        if(left <= LOCK_REMAINING) return (document.getElementById("dtMsg").textContent = "Locked (play only when timer > 15)");
 
         await placeBetFS({ game:"DragonTiger", pick:getDTPick(), stake:dtStake.value, roundId:g.roundId, seq:g.seq });
         document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
@@ -1758,7 +1627,7 @@
         const g = state.TeenPatti;
         if(!g) return;
         const left = secondsLeftFromDoc(g);
-        if(left <= LOCK_REMAINING) return document.getElementById("tpMsg").textContent = "Locked (play only when timer > 15)";
+        if(left <= LOCK_REMAINING) return (document.getElementById("tpMsg").textContent = "Locked (play only when timer > 15)");
 
         await placeBetFS({ game:"TeenPatti", pick:getTPPick(), stake:tpStake.value, roundId:g.roundId, seq:g.seq });
         document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
@@ -1776,7 +1645,7 @@
         const g = state.Roulette;
         if(!g) return;
         const left = secondsLeftFromDoc(g);
-        if(left <= LOCK_REMAINING) return document.getElementById("rMsg").textContent = "Locked (play only when timer > 15)";
+        if(left <= LOCK_REMAINING) return (document.getElementById("rMsg").textContent = "Locked (play only when timer > 15)");
 
         await placeBetFS({ game:"Roulette", pick:getRPick(), stake:rStake.value, roundId:g.roundId, seq:g.seq });
         document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
@@ -1819,17 +1688,19 @@
       subscribeGame("TeenPatti");
       subscribeGame("Roulette");
 
+      // ✅ single engine tick (avoid double-finalize race)
       setInterval(async()=>{
         await finalizeIfNeeded("DragonTiger");
         await finalizeIfNeeded("TeenPatti");
         await finalizeIfNeeded("Roulette");
-      },1000);
+      }, 250);
 
+      // Smooth timer UI
       setInterval(()=>{
         if(state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
         if(state.TeenPatti) updateTimerUI("TeenPatti", state.TeenPatti);
         if(state.Roulette) updateTimerUI("Roulette", state.Roulette);
-      },200);
+      }, 200);
 
     })().catch((e)=>{
       console.error("INIT ERROR:", e);
