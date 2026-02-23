@@ -9,7 +9,9 @@
   <style>
     :root{
       --bg:#05060a;
+
       --gold:#d4af37;
+      --gold2:#f3df8a;
       --goldSoft: rgba(212,175,55,.22);
 
       --text:#fff;
@@ -21,6 +23,12 @@
       --warn: rgba(255,193,7,1);
       --bad: rgba(255,77,109,1);
       --blue: rgba(43,111,255,1);
+
+      --line: rgba(255,255,255,.10);
+      --line2: rgba(255,255,255,.08);
+
+      --radius: 18px;
+      --radius2: 16px;
     }
 
     *{box-sizing:border-box}
@@ -30,8 +38,8 @@
       color:var(--text);
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans",sans-serif;
       background:
-        radial-gradient(1200px 650px at 15% -10%, rgba(212,175,55,.16), transparent 55%),
-        radial-gradient(950px 550px at 90% 0%, rgba(212,175,55,.08), transparent 55%),
+        radial-gradient(1200px 650px at 15% -10%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(950px 550px at 90% 0%, rgba(212,175,55,.10), transparent 55%),
         radial-gradient(900px 550px at 40% 120%, rgba(255,255,255,.05), transparent 55%),
         linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.96)),
         var(--bg);
@@ -42,6 +50,7 @@
       overflow-x:hidden;
     }
 
+    /* subtle glitter */
     body::before{
       content:"";
       position:fixed;
@@ -55,11 +64,11 @@
           rgba(255,255,255,.06) 0 1px, transparent 1px 6px);
       opacity:.18;
       mix-blend-mode: overlay;
-      filter: blur(.2px);
+      filter: blur(.25px);
     }
 
     .wrap{
-      max-width: 980px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 12px;
       padding-bottom: 104px;
@@ -74,18 +83,19 @@
       top:0;
       z-index:100;
       padding: 12px;
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(14px);
+      background: rgba(0,0,0,.52);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
+
     .bannerInner{
-      max-width:980px;
+      max-width:1100px;
       margin:0 auto;
       border-radius: 18px;
-      border: 1px solid rgba(212,175,55,.18);
+      border: 1px solid rgba(212,175,55,.20);
       background:
-        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.22), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.55));
+        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.25), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.60));
       box-shadow: var(--shadow);
       padding: 14px 14px;
       display:flex;
@@ -95,14 +105,16 @@
       position:relative;
       overflow:hidden;
     }
+
     .bannerInner::after{
       content:"";
       position:absolute;
       inset:0;
       pointer-events:none;
-      background: linear-gradient(90deg, transparent, rgba(212,175,55,.10), transparent);
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,.12), transparent);
       opacity:.55;
     }
+
     .brand{display:flex;align-items:center;gap:12px;min-width:0}
     .logo{
       height:42px;width:auto;display:block;
@@ -112,6 +124,7 @@
       font-weight:1000;font-size:12px;color:var(--muted);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.35px;
     }
+
     .logoutBtn{
       display:inline-flex;align-items:center;gap:10px;
       padding: 10px 16px;border-radius: 12px;
@@ -125,7 +138,7 @@
 
     /* STATS BAR */
     .statsBar{
-      max-width:980px;
+      max-width:1100px;
       margin:10px auto 0;
       display:flex;
       gap:10px;
@@ -135,7 +148,7 @@
       padding:10px 12px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.28);
+      background: rgba(0,0,0,.30);
       font-weight:1000;
       white-space:nowrap;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
@@ -144,9 +157,9 @@
     .statClickable:active{transform:scale(.99)}
     .statPill b{font-weight:1300}
 
-    /* TABS: single row + scroll */
+    /* TABS */
     .tabsRow{
-      max-width:980px;
+      max-width:1100px;
       margin: 10px auto 0;
       display:flex;
       gap:10px;
@@ -168,13 +181,13 @@
       white-space:nowrap;
     }
     .tabBtn.active{
-      border-color: rgba(212,175,55,.38);
+      border-color: rgba(212,175,55,.40);
       background:
-        radial-gradient(220px 80px at 30% 0%, rgba(212,175,55,.24), transparent 60%),
-        rgba(0,0,0,.28);
+        radial-gradient(220px 80px at 30% 0%, rgba(212,175,55,.26), transparent 60%),
+        rgba(0,0,0,.30);
       box-shadow:
         0 16px 40px rgba(0,0,0,.55),
-        inset 0 0 0 1px rgba(212,175,55,.16);
+        inset 0 0 0 1px rgba(212,175,55,.18);
     }
 
     .panel{display:none}
@@ -201,29 +214,49 @@
       font-weight:1000;white-space:nowrap;
     }
 
-    /* CARDS */
-    .card{
-      margin-top: 12px;border-radius: 18px;
+    /* ====== NEW: DESKTOP 2-COLUMN GAME LAYOUT ====== */
+    .gameShell{
+      margin-top: 12px;
+      border-radius: var(--radius);
       border: 1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.08), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.52));
+        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.10), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.58));
       box-shadow: var(--shadow);
       overflow:hidden;
     }
+
+    .gameGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    @media (min-width: 980px){
+      .gameGrid{
+        grid-template-columns: 1.7fr 1fr;
+        min-height: 420px;
+      }
+    }
+
+    /* LEFT: video */
     .liveWrap{
       position:relative;
-      border-radius: 18px;
+      border-radius: 0;
       overflow:hidden;
-      border: 1px solid rgba(212,175,55,.18);
-      background: rgba(0,0,0,.35);
+      border-right: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.40);
+      min-height: 280px;
     }
+    @media (max-width: 979px){
+      .liveWrap{border-right:none;border-bottom: 1px solid rgba(255,255,255,.08);}
+    }
+
     .liveTopLeft{
       position:absolute;top:12px;left:12px;z-index:5;
       display:flex;align-items:center;gap:10px;
       padding: 8px 10px;border-radius: 999px;
       border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.45);
+      background: rgba(0,0,0,.55);
       font-weight:1100;white-space:nowrap;
     }
     .dot{
@@ -242,19 +275,20 @@
       filter: contrast(1.05) saturate(1.05);
     }
     @media (max-width: 560px){ .video{height: 250px} }
+    @media (min-width: 980px){ .video{height: 100%; min-height:420px} }
 
     .lockedOverlay{
       position:absolute;inset:0;z-index:6;
       display:none;align-items:center;justify-content:center;padding: 16px;
-      background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.72));
-      backdrop-filter: blur(1.5px);
+      background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.78));
+      backdrop-filter: blur(2px);
     }
     .lockedOverlay.show{display:flex}
     .lockedCard{
       width:min(520px, 92%);
       border-radius: 16px;
       border: 1px solid rgba(212,175,55,.22);
-      background: rgba(0,0,0,.58);
+      background: rgba(0,0,0,.62);
       box-shadow: 0 22px 70px rgba(0,0,0,.65);
       padding: 14px;text-align:center;
     }
@@ -268,21 +302,29 @@
       font-weight:1000;white-space:nowrap;
     }
 
+    /* RIGHT: controls */
+    .sideControls{
+      background: rgba(0,0,0,.28);
+      display:flex;
+      flex-direction:column;
+      min-width: 0;
+    }
+
     .timerLine{
       display:flex;align-items:center;gap:10px;
       padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.32);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.34);
       flex-wrap:wrap;
     }
     .progressOuter{
-      flex: 1 1 360px;
+      flex: 1 1 260px;
       display:flex;align-items:center;gap:10px;
       border-radius: 999px;
       border: 1px solid rgba(212,175,55,.22);
       background: rgba(0,0,0,.35);
       padding: 8px 10px;
-      min-width: 260px;
+      min-width: 240px;
     }
     .timerText{font-weight:1100;white-space:nowrap}
     .progressBar{
@@ -309,15 +351,25 @@
 
     .betRow{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
       gap:10px;
       padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.22);
     }
+
+    /* default 4 */
+    .betRow.cols4{grid-template-columns: repeat(4, minmax(0,1fr));}
+    /* 3 */
+    .betRow.cols3{grid-template-columns: repeat(3, minmax(0,1fr));}
+    /* 2 */
+    .betRow.cols2{grid-template-columns: repeat(2, minmax(0,1fr));}
+
     @media (max-width: 560px){
-      .betRow{grid-template-columns: repeat(2, minmax(0,1fr))}
+      .betRow.cols4{grid-template-columns: repeat(2, minmax(0,1fr))}
+      .betRow.cols3{grid-template-columns: repeat(3, minmax(0,1fr))}
+      .betRow.cols2{grid-template-columns: repeat(2, minmax(0,1fr))}
     }
+
     .betBox{
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
@@ -328,13 +380,14 @@
       user-select:none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
       transition: transform .08s ease, border-color .2s ease, background .2s ease;
+      min-width: 0;
     }
     .betBox:active{transform:scale(.99)}
     .betBox.active{
-      border-color: rgba(212,175,55,.40);
+      border-color: rgba(212,175,55,.45);
       background:
-        radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.22), transparent 60%),
-        rgba(0,0,0,.30);
+        radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.24), transparent 60%),
+        rgba(0,0,0,.32);
       box-shadow:
         0 16px 40px rgba(0,0,0,.55),
         inset 0 0 0 1px rgba(212,175,55,.14);
@@ -342,29 +395,10 @@
     .betName{font-weight:1100;letter-spacing:.2px}
     .betMul{margin-top:4px;font-weight:900;color:var(--muted);font-size:12px}
 
-    .tableCard{
-      margin-top: 12px;border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.08), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.52));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .tableHead{
-      padding: 12px 14px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.30);
-      flex-wrap:wrap;
-    }
-    .tableHead .h{font-weight:1100;display:flex;align-items:center;gap:10px;white-space:nowrap}
-    .tableActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-
     .stakeRow{
       display:flex;gap:10px;align-items:stretch;
       padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.22);
       flex-wrap:wrap;
     }
@@ -397,7 +431,7 @@
       flex-wrap:wrap;
       justify-content:center;
       padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.22);
     }
     .chip{
@@ -409,6 +443,31 @@
     }
     .chip:active{transform:scale(.99)}
     .chip.goldChip{border-color: rgba(212,175,55,.30); box-shadow: 0 0 18px rgba(212,175,55,.12);}
+
+    /* BELOW (tables area) */
+    .belowArea{
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+
+    .tableCard{
+      margin-top: 12px;border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.08), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.52));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .tableHead{
+      padding: 12px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.30);
+      flex-wrap:wrap;
+    }
+    .tableHead .h{font-weight:1100;display:flex;align-items:center;gap:10px;white-space:nowrap}
+    .tableActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
     .scroll{
       overflow:auto;
@@ -424,64 +483,11 @@
       font-weight:900;
     }
     th{font-size:12px;color:var(--muted);letter-spacing:.2px}
-
     @media (max-width: 560px){
       table{min-width: 520px}
       th,td{padding: 9px 10px}
     }
 
-    .bottomBar{
-      position:fixed;left:0;right:0;bottom:0;
-      z-index:200;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(0,0,0,.58);
-      backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(255,255,255,.10);
-      display:none;
-    }
-    .bottomInner{
-      max-width: 980px;margin:0 auto;
-      display:grid;grid-template-columns: repeat(4, minmax(0,1fr));
-      gap:10px;
-    }
-    .bBtn{
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.28);
-      padding: 10px 8px;
-      color:#fff;
-      cursor:pointer;
-      user-select:none;
-      display:flex;flex-direction:column;align-items:center;gap:6px;
-      font-weight:1100;
-    }
-    .bBtn.active{
-      border-color: rgba(212,175,55,.38);
-      background:
-        radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.22), transparent 60%),
-        rgba(0,0,0,.30);
-      box-shadow: inset 0 0 0 1px rgba(212,175,55,.14);
-    }
-    .bBtn .i{font-size:18px;opacity:.95}
-    .bBtn .t{font-size:12px;opacity:.95}
-    @media (max-width: 720px){ .bottomBar{display:block} }
-
-    .toast{
-      position:fixed;left:50%;bottom:92px;transform:translateX(-50%);
-      background: rgba(0,0,0,.80);
-      border:1px solid rgba(212,175,55,.30);
-      color:#fff;
-      padding: 12px 14px;
-      border-radius: 14px;
-      z-index:9999;
-      display:none;
-      max-width: 92vw;
-      box-shadow: 0 18px 60px rgba(0,0,0,.60);
-    }
-    .toast.show{display:block}
-    .toast .t{font-weight:1100}
-
-    /* Last5 + MyBet cards */
     .miniGrid{
       display:grid;
       grid-template-columns: 1.1fr .9fr;
@@ -492,7 +498,7 @@
       .miniGrid{grid-template-columns: 1fr}
     }
     .miniCard{
-      border-radius: 16px;
+      border-radius: var(--radius2);
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.22);
       overflow:hidden;
@@ -529,6 +535,59 @@
       font-weight:1100;
       white-space:nowrap;
     }
+
+    /* bottom nav */
+    .bottomBar{
+      position:fixed;left:0;right:0;bottom:0;
+      z-index:200;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(0,0,0,.58);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255,255,255,.10);
+      display:none;
+    }
+    .bottomInner{
+      max-width: 1100px;margin:0 auto;
+      display:grid;grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+    .bBtn{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.28);
+      padding: 10px 8px;
+      color:#fff;
+      cursor:pointer;
+      user-select:none;
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      font-weight:1100;
+    }
+    .bBtn.active{
+      border-color: rgba(212,175,55,.38);
+      background:
+        radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.22), transparent 60%),
+        rgba(0,0,0,.30);
+      box-shadow: inset 0 0 0 1px rgba(212,175,55,.14);
+    }
+    .bBtn .i{font-size:18px;opacity:.95}
+    .bBtn .t{font-size:12px;opacity:.95}
+    @media (max-width: 720px){ .bottomBar{display:block} }
+
+    /* toast */
+    .toast{
+      position:fixed;left:50%;bottom:92px;transform:translateX(-50%);
+      background: rgba(0,0,0,.80);
+      border:1px solid rgba(212,175,55,.30);
+      color:#fff;
+      padding: 12px 14px;
+      border-radius: 14px;
+      z-index:9999;
+      display:none;
+      max-width: 92vw;
+      box-shadow: 0 18px 60px rgba(0,0,0,.60);
+    }
+    .toast.show{display:block}
+    .toast .t{font-weight:1100}
 
     /* ===== WIN/LOSS POPUP ===== */
     .modalBack{
@@ -712,52 +771,86 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="dtView">👁 124</span></div>
       </div>
 
-      <div class="card" style="padding:12px;">
-        <div class="liveWrap">
-          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <!-- GAME SHELL (desktop split) -->
+      <div class="gameShell">
+        <div class="gameGrid">
 
-          <div class="lockedOverlay" id="dtOverlay">
-            <div class="lockedCard">
-              <div class="t">🔒 Bets Locked</div>
-              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-              <div class="lockedRow">
-                <div class="miniPill">Round: <span class="gold" id="dtOverlayRound">-</span></div>
-                <div class="miniPill">Time left: <span class="gold" id="dtOverlayTimer">0</span>s</div>
+          <!-- LEFT: VIDEO -->
+          <div class="liveWrap">
+            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+
+            <div class="lockedOverlay" id="dtOverlay">
+              <div class="lockedCard">
+                <div class="t">🔒 Bets Locked</div>
+                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockedRow">
+                  <div class="miniPill">Round: <span class="gold" id="dtOverlayRound">-</span></div>
+                  <div class="miniPill">Time left: <span class="gold" id="dtOverlayTimer">0</span>s</div>
+                </div>
               </div>
             </div>
+
+            <video class="video" autoplay loop muted playsinline>
+              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
+            </video>
           </div>
 
-          <video class="video" autoplay loop muted playsinline>
-            <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
-          </video>
-        </div>
+          <!-- RIGHT: CONTROLS -->
+          <aside class="sideControls">
 
-        <div class="timerLine">
-          <div class="progressOuter">
-            <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
-            <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
-          </div>
-          <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
-          <div class="statusPill lockOpen" id="dtLock">OPEN</div>
-        </div>
+            <div class="timerLine">
+              <div class="progressOuter">
+                <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
+                <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
+              </div>
+              <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
+              <div class="statusPill lockOpen" id="dtLock">OPEN</div>
+            </div>
 
-        <div class="betRow" id="dtBets">
-          <div class="betBox active" data-pick="DRAGON"><div class="betName">Dragon</div><div class="betMul">2x</div></div>
-          <div class="betBox" data-pick="TIGER"><div class="betName">Tiger</div><div class="betMul">2x</div></div>
-          <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
-          <div class="betBox" data-pick="REFUND"><div class="betName">Refund</div><div class="betMul">—</div></div>
+            <div class="betRow cols4" id="dtBets">
+              <div class="betBox active" data-pick="DRAGON"><div class="betName">Dragon</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIGER"><div class="betName">Tiger</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
+              <div class="betBox" data-pick="REFUND"><div class="betName">Refund</div><div class="betMul">—</div></div>
+            </div>
+
+            <div class="stakeRow">
+              <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet" />
+              <button class="placeBtn" id="dtPlay" type="button">Place Bet</button>
+            </div>
+
+            <div class="chipBar" id="dtChips">
+              <div class="chip goldChip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeRow" style="justify-content:space-between;">
+              <div class="muted">Latest Result:</div>
+              <div id="dtPrev" class="muted">No result</div>
+            </div>
+
+            <div class="stakeRow" style="padding-top:0;">
+              <div class="muted" style="flex:1">Selected:</div>
+              <div class="gold" id="dtPickShow">DRAGON</div>
+            </div>
+
+            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
+              <div class="muted" style="flex:1">Message:</div>
+              <div class="gold" id="dtMsg">-</div>
+            </div>
+
+          </aside>
         </div>
       </div>
 
+      <!-- BELOW AREA (tables + last5 + mybet) -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Dragon Tiger)</div>
           <div class="tableActions"><span class="muted" id="dtWait"></span></div>
-        </div>
-
-        <div class="stakeRow">
-          <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet" />
-          <button class="placeBtn" id="dtPlay" type="button">Place Bet</button>
         </div>
 
         <div class="scroll">
@@ -765,29 +858,6 @@
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
-        </div>
-
-        <div class="chipBar" id="dtChips">
-          <div class="chip goldChip" data-v="50">50</div>
-          <div class="chip" data-v="100">100</div>
-          <div class="chip" data-v="500">500</div>
-          <div class="chip" data-v="1000">1000</div>
-          <div class="chip" data-v="5000">5000</div>
-        </div>
-
-        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
-          <div class="muted">Latest Result:</div>
-          <div id="dtPrev" class="muted">No result</div>
-        </div>
-
-        <div class="stakeRow" style="padding-top:0;">
-          <div class="muted" style="flex:1">Selected:</div>
-          <div class="gold" id="dtPickShow">DRAGON</div>
-        </div>
-
-        <div class="stakeRow" style="padding-top:0;">
-          <div class="muted" style="flex:1">Message:</div>
-          <div class="gold" id="dtMsg">-</div>
         </div>
 
         <div class="miniGrid">
@@ -818,8 +888,8 @@
             </div>
           </div>
         </div>
-
       </div>
+
     </section>
 
     <!-- ================= TEEN PATTI ================= -->
@@ -829,40 +899,74 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="tpView">👁 212</span></div>
       </div>
 
-      <div class="card" style="padding:12px;">
-        <div class="liveWrap">
-          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <div class="gameShell">
+        <div class="gameGrid">
 
-          <div class="lockedOverlay" id="tpOverlay">
-            <div class="lockedCard">
-              <div class="t">🔒 Bets Locked</div>
-              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-              <div class="lockedRow">
-                <div class="miniPill">Round: <span class="gold" id="tpOverlayRound">-</span></div>
-                <div class="miniPill">Time left: <span class="gold" id="tpOverlayTimer">0</span>s</div>
+          <div class="liveWrap">
+            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+
+            <div class="lockedOverlay" id="tpOverlay">
+              <div class="lockedCard">
+                <div class="t">🔒 Bets Locked</div>
+                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockedRow">
+                  <div class="miniPill">Round: <span class="gold" id="tpOverlayRound">-</span></div>
+                  <div class="miniPill">Time left: <span class="gold" id="tpOverlayTimer">0</span>s</div>
+                </div>
               </div>
             </div>
+
+            <video class="video" autoplay loop muted playsinline>
+              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
+            </video>
           </div>
 
-          <video class="video" autoplay loop muted playsinline>
-            <source src="../assets/video/teen-patti.mp4" type="video/mp4">
-          </video>
-        </div>
+          <aside class="sideControls">
+            <div class="timerLine">
+              <div class="progressOuter">
+                <div class="timerText">⏳ Round ends in: <span class="gold" id="tpTimer">30</span>s</div>
+                <div class="progressBar"><div class="progressFill" id="tpFill"></div></div>
+              </div>
+              <div class="statusPill">Round: <span class="gold" id="tpRound">-</span></div>
+              <div class="statusPill lockOpen" id="tpLock">OPEN</div>
+              <div class="statusPill">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
+            </div>
 
-        <div class="timerLine">
-          <div class="progressOuter">
-            <div class="timerText">⏳ Round ends in: <span class="gold" id="tpTimer">30</span>s</div>
-            <div class="progressBar"><div class="progressFill" id="tpFill"></div></div>
-          </div>
-          <div class="statusPill">Round: <span class="gold" id="tpRound">-</span></div>
-          <div class="statusPill lockOpen" id="tpLock">OPEN</div>
-          <div class="statusPill">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
-        </div>
+            <div class="betRow cols3" id="tpBets">
+              <div class="betBox active" data-pick="PLAYER"><div class="betName">Player</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BANKER"><div class="betName">Banker</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
+            </div>
 
-        <div class="betRow" id="tpBets" style="grid-template-columns: repeat(3, minmax(0,1fr));">
-          <div class="betBox active" data-pick="PLAYER"><div class="betName">Player</div><div class="betMul">2x</div></div>
-          <div class="betBox" data-pick="BANKER"><div class="betName">Banker</div><div class="betMul">2x</div></div>
-          <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
+            <div class="stakeRow">
+              <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points" />
+              <button class="placeBtn" id="tpPlay" type="button">Place Bet</button>
+            </div>
+
+            <div class="chipBar" id="tpChips">
+              <div class="chip goldChip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeRow" style="justify-content:space-between;">
+              <div class="muted">Latest Result:</div>
+              <div id="tpPrev" class="muted">No result</div>
+            </div>
+
+            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
+              <div class="muted" style="flex:1">Message:</div>
+              <div class="gold" id="tpMsg">-</div>
+            </div>
+
+            <div style="display:none">
+              <span id="tpPickShow2">PLAYER</span>
+              <span id="tpRound2">-</span>
+            </div>
+          </aside>
+
         </div>
       </div>
 
@@ -872,39 +976,11 @@
           <div class="tableActions"><span class="muted" id="tpWait"></span></div>
         </div>
 
-        <div class="stakeRow">
-          <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points" />
-          <button class="placeBtn" id="tpPlay" type="button">Place Bet</button>
-        </div>
-
         <div class="scroll">
           <table class="table" id="tpPast">
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
-        </div>
-
-        <div class="chipBar" id="tpChips">
-          <div class="chip goldChip" data-v="50">50</div>
-          <div class="chip" data-v="100">100</div>
-          <div class="chip" data-v="500">500</div>
-          <div class="chip" data-v="1000">1000</div>
-          <div class="chip" data-v="5000">5000</div>
-        </div>
-
-        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
-          <div class="muted">Latest Result:</div>
-          <div id="tpPrev" class="muted">No result</div>
-        </div>
-
-        <div class="stakeRow" style="padding-top:0;">
-          <div class="muted" style="flex:1">Message:</div>
-          <div class="gold" id="tpMsg">-</div>
-        </div>
-
-        <div style="display:none">
-          <span id="tpPickShow2">PLAYER</span>
-          <span id="tpRound2">-</span>
         </div>
 
         <div class="miniGrid">
@@ -935,8 +1011,8 @@
             </div>
           </div>
         </div>
-
       </div>
+
     </section>
 
     <!-- ================= ROULETTE ================= -->
@@ -946,39 +1022,68 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="rView">👁 156</span></div>
       </div>
 
-      <div class="card" style="padding:12px;">
-        <div class="liveWrap">
-          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <div class="gameShell">
+        <div class="gameGrid">
 
-          <div class="lockedOverlay" id="rOverlay">
-            <div class="lockedCard">
-              <div class="t">🔒 Bets Locked</div>
-              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-              <div class="lockedRow">
-                <div class="miniPill">Round: <span class="gold" id="rOverlayRound">-</span></div>
-                <div class="miniPill">Time left: <span class="gold" id="rOverlayTimer">0</span>s</div>
+          <div class="liveWrap">
+            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+
+            <div class="lockedOverlay" id="rOverlay">
+              <div class="lockedCard">
+                <div class="t">🔒 Bets Locked</div>
+                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockedRow">
+                  <div class="miniPill">Round: <span class="gold" id="rOverlayRound">-</span></div>
+                  <div class="miniPill">Time left: <span class="gold" id="rOverlayTimer">0</span>s</div>
+                </div>
               </div>
             </div>
+
+            <video class="video" autoplay loop muted playsinline>
+              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
+            </video>
           </div>
 
-          <video class="video" autoplay loop muted playsinline>
-            <source src="../assets/video/Roulette_.mp4" type="video/mp4">
-          </video>
-        </div>
+          <aside class="sideControls">
+            <div class="timerLine">
+              <div class="progressOuter">
+                <div class="timerText">⏳ Round ends in: <span class="gold" id="rTimer">30</span>s</div>
+                <div class="progressBar"><div class="progressFill" id="rFill"></div></div>
+              </div>
+              <div class="statusPill">Round: <span class="gold" id="rRound">-</span></div>
+              <div class="statusPill lockOpen" id="rLock">OPEN</div>
+              <div class="statusPill">Selected: <span class="gold" id="rPickShow">RED</span></div>
+            </div>
 
-        <div class="timerLine">
-          <div class="progressOuter">
-            <div class="timerText">⏳ Round ends in: <span class="gold" id="rTimer">30</span>s</div>
-            <div class="progressBar"><div class="progressFill" id="rFill"></div></div>
-          </div>
-          <div class="statusPill">Round: <span class="gold" id="rRound">-</span></div>
-          <div class="statusPill lockOpen" id="rLock">OPEN</div>
-          <div class="statusPill">Selected: <span class="gold" id="rPickShow">RED</span></div>
-        </div>
+            <div class="betRow cols2" id="rBets">
+              <div class="betBox active" data-pick="RED"><div class="betName">Red</div><div class="betMul">2x</div></div>
+              <div class="betBox" data-pick="BLACK"><div class="betName">Black</div><div class="betMul">2x</div></div>
+            </div>
 
-        <div class="betRow" id="rBets" style="grid-template-columns: repeat(2, minmax(0,1fr));">
-          <div class="betBox active" data-pick="RED"><div class="betName">Red</div><div class="betMul">2x</div></div>
-          <div class="betBox" data-pick="BLACK"><div class="betName">Black</div><div class="betMul">2x</div></div>
+            <div class="stakeRow">
+              <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points" />
+              <button class="placeBtn" id="rPlay" type="button">Place Bet</button>
+            </div>
+
+            <div class="chipBar" id="rChips">
+              <div class="chip goldChip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeRow" style="justify-content:space-between;">
+              <div class="muted">Latest Result:</div>
+              <div id="rPrev" class="muted">No result</div>
+            </div>
+
+            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
+              <div class="muted" style="flex:1">Message:</div>
+              <div class="gold" id="rMsg">-</div>
+            </div>
+          </aside>
+
         </div>
       </div>
 
@@ -988,34 +1093,11 @@
           <div class="tableActions"><span class="muted" id="rWait"></span></div>
         </div>
 
-        <div class="stakeRow">
-          <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points" />
-          <button class="placeBtn" id="rPlay" type="button">Place Bet</button>
-        </div>
-
         <div class="scroll">
           <table class="table" id="rPast">
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
-        </div>
-
-        <div class="chipBar" id="rChips">
-          <div class="chip goldChip" data-v="50">50</div>
-          <div class="chip" data-v="100">100</div>
-          <div class="chip" data-v="500">500</div>
-          <div class="chip" data-v="1000">1000</div>
-          <div class="chip" data-v="5000">5000</div>
-        </div>
-
-        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
-          <div class="muted">Latest Result:</div>
-          <div id="rPrev" class="muted">No result</div>
-        </div>
-
-        <div class="stakeRow" style="padding-top:0;">
-          <div class="muted" style="flex:1">Message:</div>
-          <div class="gold" id="rMsg">-</div>
         </div>
 
         <div class="miniGrid">
@@ -1786,7 +1868,6 @@
       const info = qs("wlListInfo");
       const title = qs("wlListTitle");
 
-      // filter latest 50 (then show only matching in UI)
       const snap = await BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(50).get();
       const arr = [];
       snap.forEach(d=>arr.push(d.data()||{}));
