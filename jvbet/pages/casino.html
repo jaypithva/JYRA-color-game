@@ -16,7 +16,6 @@
       --muted: rgba(255,255,255,.72);
 
       --shadow: 0 18px 60px rgba(0,0,0,.65);
-      --r:18px;
 
       --good: rgba(34,197,94,1);
       --warn: rgba(255,193,7,1);
@@ -65,6 +64,7 @@
       padding: 12px;
       padding-bottom: 104px;
     }
+
     .gold{color:var(--gold)}
     .muted{color:var(--muted);font-weight:800}
 
@@ -122,6 +122,24 @@
     }
     .logoutBtn:active{transform:scale(.99)}
     .logoutBtn .ic{filter: drop-shadow(0 0 10px rgba(212,175,55,.30))}
+
+    /* STATS BAR */
+    .statsBar{
+      max-width:980px;
+      margin:10px auto 0;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .statPill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.28);
+      font-weight:1000;
+      white-space:nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
 
     /* TABS: single row + scroll */
     .tabsRow{
@@ -404,6 +422,12 @@
     }
     th{font-size:12px;color:var(--muted);letter-spacing:.2px}
 
+    /* compact tables on mobile */
+    @media (max-width: 560px){
+      table{min-width: 520px}
+      th,td{padding: 9px 10px}
+    }
+
     .bottomBar{
       position:fixed;left:0;right:0;bottom:0;
       z-index:200;
@@ -454,6 +478,55 @@
     }
     .toast.show{display:block}
     .toast .t{font-weight:1100}
+
+    /* Last5 + MyBet cards */
+    .miniGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:12px;
+      padding:12px;
+    }
+    @media (max-width: 720px){
+      .miniGrid{grid-template-columns: 1fr}
+    }
+    .miniCard{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .miniHead{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.30);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      font-weight:1100;
+    }
+    .miniBody{padding: 10px 12px}
+    .miniTable{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 0 !important;
+    }
+    .miniTable th, .miniTable td{
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .miniSub{font-weight:900;color:var(--muted);font-size:12px}
+    .statusTag{
+      padding: 7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      font-weight:1100;
+      white-space:nowrap;
+    }
   </style>
 </head>
 
@@ -473,6 +546,14 @@
       </button>
     </div>
 
+    <!-- ✅ Role/Points/W/L -->
+    <div class="statsBar">
+      <div class="statPill">Role: <span class="gold" id="roleName">-</span></div>
+      <div class="statPill">Points: <span class="gold" id="pointsShow">0</span></div>
+      <div class="statPill">Win: <span class="gold" id="winShow">0</span></div>
+      <div class="statPill">Loss: <span class="gold" id="lossShow">0</span></div>
+    </div>
+
     <div class="tabsRow">
       <button class="tabBtn active" data-tab="dt" type="button"><span class="ico">🐉</span> Dragon</button>
       <button class="tabBtn" data-tab="tp" type="button"><span class="ico">🃏</span> Teen Patti</button>
@@ -483,8 +564,9 @@
 
   <main class="wrap">
 
-    <!-- DRAGON TIGER -->
+    <!-- ================= DRAGON TIGER ================= -->
     <section class="panel active" id="dt">
+
       <div class="sectionBar">
         <div class="title">🐉 Dragon Tiger</div>
         <div class="badgeLive">🎥 Live <span class="gold" id="dtView">👁 124</span></div>
@@ -515,6 +597,7 @@
             <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
             <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
           </div>
+
           <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
           <div class="statusPill lockOpen" id="dtLock">OPEN</div>
         </div>
@@ -567,10 +650,41 @@
           <div class="muted" style="flex:1">Message:</div>
           <div class="gold" id="dtMsg">-</div>
         </div>
+
+        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
+        <div class="miniGrid">
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>📌 Last 5 Results</div>
+              <div class="miniSub" id="dtLast5Sub">-</div>
+            </div>
+            <div class="miniBody">
+              <table class="miniTable">
+                <thead><tr><th>Seq</th><th>Result</th></tr></thead>
+                <tbody id="dtLast5Body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>🙋 My Bet</div>
+              <div class="statusTag" id="dtMyBetStatus">-</div>
+            </div>
+            <div class="miniBody">
+              <div class="miniSub" id="dtMyBetSub">-</div>
+              <table class="miniTable" style="margin-top:8px">
+                <thead><tr><th>Pick</th><th>Points</th></tr></thead>
+                <tbody id="dtMyBetBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- TEEN PATTI -->
+    <!-- ================= TEEN PATTI ================= -->
     <section class="panel" id="tp">
       <div class="sectionBar">
         <div class="title">🃏 Teen Patti</div>
@@ -654,10 +768,41 @@
           <span id="tpPickShow2">PLAYER</span>
           <span id="tpRound2">-</span>
         </div>
+
+        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
+        <div class="miniGrid">
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>📌 Last 5 Results</div>
+              <div class="miniSub" id="tpLast5Sub">-</div>
+            </div>
+            <div class="miniBody">
+              <table class="miniTable">
+                <thead><tr><th>Seq</th><th>Result</th></tr></thead>
+                <tbody id="tpLast5Body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>🙋 My Bet</div>
+              <div class="statusTag" id="tpMyBetStatus">-</div>
+            </div>
+            <div class="miniBody">
+              <div class="miniSub" id="tpMyBetSub">-</div>
+              <table class="miniTable" style="margin-top:8px">
+                <thead><tr><th>Pick</th><th>Points</th></tr></thead>
+                <tbody id="tpMyBetBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- ROULETTE -->
+    <!-- ================= ROULETTE ================= -->
     <section class="panel" id="rl">
       <div class="sectionBar">
         <div class="title">🎡 Roulette</div>
@@ -735,10 +880,41 @@
           <div class="muted" style="flex:1">Message:</div>
           <div class="gold" id="rMsg">-</div>
         </div>
+
+        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
+        <div class="miniGrid">
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>📌 Last 5 Results</div>
+              <div class="miniSub" id="rLast5Sub">-</div>
+            </div>
+            <div class="miniBody">
+              <table class="miniTable">
+                <thead><tr><th>Seq</th><th>Result</th></tr></thead>
+                <tbody id="rLast5Body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniCard">
+            <div class="miniHead">
+              <div>🙋 My Bet</div>
+              <div class="statusTag" id="rMyBetStatus">-</div>
+            </div>
+            <div class="miniBody">
+              <div class="miniSub" id="rMyBetSub">-</div>
+              <table class="miniTable" style="margin-top:8px">
+                <thead><tr><th>Pick</th><th>Points</th></tr></thead>
+                <tbody id="rMyBetBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- HISTORY -->
+    <!-- ================= HISTORY ================= -->
     <section class="panel" id="hist">
       <div class="sectionBar">
         <div class="title">📜 History</div>
@@ -746,17 +922,21 @@
       </div>
 
       <div class="tableCard" style="margin-top:12px;">
-        <div class="tableHead"><div class="h">📜 Full Play History</div></div>
+        <div class="tableHead">
+          <div class="h">📜 Full Play History</div>
+        </div>
         <div class="scroll" style="max-height:420px">
           <table class="table" id="bh">
-            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <thead>
+              <tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- Hidden compatibility -->
+    <!-- ✅ OLD COMPAT IDs (keep for your older code compatibility too) -->
     <div style="display:none">
       <span id="cid">-</span>
       <span id="pts">0</span>
@@ -780,6 +960,7 @@
     <div class="muted" id="toastBody">-</div>
   </div>
 
+  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
@@ -824,7 +1005,6 @@
     function clearSession() { localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B); }
     function logout() { clearSession(); location.href = "../index.html"; }
     document.getElementById("logoutBtn").addEventListener("click", logout);
-
     function fmtDate(ts) { return new Date(ts || Date.now()).toLocaleString(); }
 
     /* ================= BET BOXES + CHIPS ================= */
@@ -880,11 +1060,7 @@
     const LOCK_REMAINING = 15;
 
     // ✅ separate seq for each game
-    const START_SEQ = {
-      DragonTiger: 282,
-      TeenPatti: 500,
-      Roulette: 900
-    };
+    const START_SEQ = { DragonTiger: 282, TeenPatti: 500, Roulette: 900 };
 
     const GAME_DOC = (g) => db.collection("gameState").doc(g);
     const USERS = db.collection("users");
@@ -910,7 +1086,7 @@
       return ymdhms(new Date()) + "_" + pad3(Number(seq || 0));
     }
 
-    /* ================= LOCK UI HELPERS ================= */
+    /* ================= UI HELPERS ================= */
     function setLock(el, stateStr) {
       if (!el) return;
       el.classList.remove("lockOpen", "lockPlaced", "lockLocked", "lockClosed");
@@ -936,7 +1112,7 @@
       if(box) box.classList.toggle("show", !!show);
     }
 
-    /* ================= USER DEFAULTS ================= */
+    /* ================= USER DEFAULTS + TOP STATS ================= */
     async function ensureUserDefaults() {
       const ref = USERS.doc(ME_ID);
       const doc = await ref.get();
@@ -946,15 +1122,40 @@
       if (typeof data.points !== "number") patch.points = 0;
       if (typeof data.isBlocked !== "boolean") patch.isBlocked = false;
       if (!data.clientId) patch.clientId = ME_ID;
+      if (!data.role) patch.role = data.isAdmin ? "admin" : "user";
       if (Object.keys(patch).length) await ref.set(patch, { merge: true });
+    }
+
+    async function calcWinLoss() {
+      const qs = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
+      let w = 0, l = 0;
+      qs.forEach(doc => {
+        const b = doc.data() || {};
+        if (b.result === "WIN") w++;
+        else if (b.result === "LOSS") l++;
+      });
+      return { win: w, loss: l };
     }
 
     async function refreshTop() {
       const snap = await USERS.doc(ME_ID).get();
       if (!snap.exists) return logout();
       ME_USER = snap.data() || {};
+
+      // old hidden compat
       document.getElementById("cid").textContent = ME_ID;
       document.getElementById("pts").textContent = Number(ME_USER.points || 0);
+
+      // visible
+      document.getElementById("roleName").textContent = String(ME_USER.role || ME_USER.isAdmin ? "admin" : "user");
+      document.getElementById("pointsShow").textContent = String(Number(ME_USER.points || 0));
+
+      const wl = await calcWinLoss();
+      document.getElementById("w").textContent = wl.win;
+      document.getElementById("l").textContent = wl.loss;
+
+      document.getElementById("winShow").textContent = String(wl.win);
+      document.getElementById("lossShow").textContent = String(wl.loss);
     }
 
     /* ================= RNG ================= */
@@ -973,13 +1174,12 @@
       return { n, color: c, res: (c + " " + n) };
     }
 
-    /* ================= gameState INIT / PATCH (works with old or fresh) ================= */
+    /* ================= gameState INIT / PATCH (old or fresh) ================= */
     async function ensureGameDocExists(game) {
       const ref = GAME_DOC(game);
       const snap = await ref.get();
       const now = Date.now();
 
-      // If doc doesn't exist -> create
       if (!snap.exists) {
         const seq = START_SEQ[game];
         const startedAt = now;
@@ -998,17 +1198,13 @@
         return;
       }
 
-      // If exists -> patch missing fields safely (old data handling)
       const g = snap.data() || {};
       const patch = {};
-
       if (typeof g.seq !== "number") patch.seq = START_SEQ[game];
       if (!g.roundId) patch.roundId = makeRoundIdFromSeq((typeof g.seq === "number") ? g.seq : START_SEQ[game]);
-
       if (typeof g.startedAt !== "number") patch.startedAt = now;
       if (typeof g.endsAt !== "number") patch.endsAt = now + TOTAL_SEC * 1000;
       if (typeof g.lockAt !== "number") patch.lockAt = now + LOCK_REMAINING * 1000;
-
       if (typeof g.nextStarted !== "boolean") patch.nextStarted = false;
       if (!Array.isArray(g.last5)) patch.last5 = [];
 
@@ -1026,7 +1222,7 @@
       return "OPEN";
     }
 
-    /* ================= FINALIZE + NEXT ROUND (separate seq per game) ================= */
+    /* ================= FINALIZE + NEXT ROUND ================= */
     async function finalizeIfNeeded(game) {
       const ref = GAME_DOC(game);
 
@@ -1038,10 +1234,8 @@
         const left = Math.ceil((Number(g.endsAt || 0) - Date.now()) / 1000);
         if (left > 0) return;
 
-        // ensure seq present
         const currentSeq = (typeof g.seq === "number") ? g.seq : START_SEQ[game];
 
-        // If no result -> generate result
         if (!g.result) {
           let result = null;
           let payload = null;
@@ -1079,7 +1273,6 @@
           return;
         }
 
-        // If result exists and next not started -> start next round
         if (g.result && !g.nextStarted) {
           const now = Date.now();
           const nextSeq = currentSeq + 1;
@@ -1224,6 +1417,69 @@
       el.innerHTML = v ? ('<span class="gold">' + v + '</span>') : '<span class="muted">No result</span>';
     }
 
+    /* ================= LAST5 RENDER (uses old IDs) ================= */
+    function renderLast5(game, gdoc) {
+      const arr = Array.isArray(gdoc?.last5) ? gdoc.last5 : [];
+      const rows = arr.slice(0,5);
+
+      let subId = "dtLast5Sub", bodyId = "dtLast5Body";
+      if (game === "TeenPatti") { subId = "tpLast5Sub"; bodyId = "tpLast5Body"; }
+      if (game === "Roulette") { subId = "rLast5Sub";  bodyId = "rLast5Body"; }
+
+      const sub = document.getElementById(subId);
+      const body = document.getElementById(bodyId);
+      if (sub) sub.textContent = rows.length ? ("Rounds: " + rows.length) : "No data";
+      if (!body) return;
+
+      body.innerHTML = rows.map(x => (
+        "<tr>" +
+          "<td class='gold'>" + (typeof x.seq === "number" ? x.seq : "-") + "</td>" +
+          "<td>" + (x.result || "-") + "</td>" +
+        "</tr>"
+      )).join("") || "<tr><td colspan='2' class='muted'>No results yet</td></tr>";
+    }
+
+    /* ================= MY BET LIVE (without refresh) ================= */
+    const myBetUnsub = { DragonTiger:null, TeenPatti:null, Roulette:null };
+
+    function setMyBetUI(game, bet, roundId){
+      let subId="dtMyBetSub", stId="dtMyBetStatus", bodyId="dtMyBetBody";
+      if (game === "TeenPatti") { subId="tpMyBetSub"; stId="tpMyBetStatus"; bodyId="tpMyBetBody"; }
+      if (game === "Roulette")  { subId="rMyBetSub";  stId="rMyBetStatus";  bodyId="rMyBetBody";  }
+
+      const sub = document.getElementById(subId);
+      const st  = document.getElementById(stId);
+      const bd  = document.getElementById(bodyId);
+
+      if (!bet) {
+        if (sub) sub.textContent = "Round: " + (roundId || "-");
+        if (st) st.textContent = "NO BET";
+        if (bd) bd.innerHTML = "<tr><td colspan='2' class='muted'>Not played</td></tr>";
+        return;
+      }
+
+      if (sub) sub.textContent = "Round: " + (bet.roundId || roundId || "-");
+      if (st) st.textContent = (bet.result || "PENDING");
+      if (bd) bd.innerHTML =
+        "<tr><td>" + (bet.pick || "-") + "</td><td class='gold'>" + Number(bet.stake || 0) + "</td></tr>";
+    }
+
+    function watchMyBet(game, roundId){
+      // clear old
+      if (myBetUnsub[game]) { try{ myBetUnsub[game](); }catch(e){} myBetUnsub[game]=null; }
+
+      const betKey = ME_ID + "_" + game + "_" + roundId;
+      const ref = BETS.doc(betKey);
+
+      myBetUnsub[game] = ref.onSnapshot((snap)=>{
+        if (!snap.exists) {
+          setMyBetUI(game, null, roundId);
+          return;
+        }
+        setMyBetUI(game, snap.data() || null, roundId);
+      });
+    }
+
     /* ================= UI TIMER UPDATE ================= */
     function updateTimerUI(game, gameDoc) {
       const left = secondsLeftFromDoc(gameDoc);
@@ -1271,6 +1527,10 @@
 
         updateTimerUI(game, g);
         renderLatestResult(game, g);
+        renderLast5(game, g);
+
+        // My bet live watch per-round (without refresh)
+        if (ME_ID && g.roundId) watchMyBet(game, g.roundId);
 
         if (g.result) {
           await settleMyBetIfNeeded(game, g);
@@ -1349,6 +1609,9 @@
       if (snap.data()?.isBlocked) return logout();
 
       await refreshTop();
+
+      // keep top live updates too
+      USERS.doc(ME_ID).onSnapshot(()=> refreshTop());
 
       await ensureGameDocExists("DragonTiger");
       await ensureGameDocExists("TeenPatti");
