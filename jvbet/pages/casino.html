@@ -2,16 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>dNEW UI TEST - JVBET1803</title>
+  <title>Casino - JVBET1803</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
   <style>
     :root{
       --bg:#05060a;
-
       --gold:#d4af37;
-      --gold2:#f3df8a;
       --goldSoft: rgba(212,175,55,.22);
 
       --text:#fff;
@@ -23,12 +21,6 @@
       --warn: rgba(255,193,7,1);
       --bad: rgba(255,77,109,1);
       --blue: rgba(43,111,255,1);
-
-      --line: rgba(255,255,255,.10);
-      --line2: rgba(255,255,255,.08);
-
-      --r1: 18px;
-      --r2: 16px;
     }
 
     *{box-sizing:border-box}
@@ -38,9 +30,9 @@
       color:var(--text);
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans",sans-serif;
       background:
-        radial-gradient(1200px 650px at 15% -10%, rgba(212,175,55,.20), transparent 55%),
-        radial-gradient(950px 550px at 90% 0%, rgba(212,175,55,.12), transparent 55%),
-        radial-gradient(900px 550px at 40% 120%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(1200px 650px at 15% -10%, rgba(212,175,55,.16), transparent 55%),
+        radial-gradient(950px 550px at 90% 0%, rgba(212,175,55,.08), transparent 55%),
+        radial-gradient(900px 550px at 40% 120%, rgba(255,255,255,.05), transparent 55%),
         linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.96)),
         var(--bg);
       background-blend-mode: screen, screen, screen, normal, normal;
@@ -53,29 +45,28 @@
     body::before{
       content:"";
       position:fixed;
-      inset:-120px;
+      inset:-80px;
       pointer-events:none;
       background:
-        radial-gradient(circle at 15% 10%, rgba(212,175,55,.12), transparent 36%),
-        radial-gradient(circle at 85% 22%, rgba(212,175,55,.08), transparent 42%),
-        radial-gradient(circle at 40% 90%, rgba(212,175,55,.10), transparent 48%),
+        radial-gradient(circle at 20% 10%, rgba(212,175,55,.10), transparent 35%),
+        radial-gradient(circle at 70% 35%, rgba(212,175,55,.06), transparent 45%),
+        radial-gradient(circle at 35% 80%, rgba(212,175,55,.08), transparent 50%),
         repeating-radial-gradient(circle at 50% 50%,
-          rgba(255,255,255,.07) 0 1px, transparent 1px 7px),
-        linear-gradient(120deg, rgba(255,255,255,.05), transparent 35%, rgba(255,255,255,.04));
+          rgba(255,255,255,.06) 0 1px, transparent 1px 6px);
       opacity:.18;
       mix-blend-mode: overlay;
-      filter: blur(.35px);
+      filter: blur(.2px);
     }
 
     .wrap{
-      max-width: 1100px;
+      max-width: 980px;
       margin: 0 auto;
       padding: 12px;
       padding-bottom: 104px;
     }
 
     .gold{color:var(--gold)}
-    .muted{color:var(--muted);font-weight:900}
+    .muted{color:var(--muted);font-weight:800}
 
     /* TOP HEADER */
     .topBanner{
@@ -83,22 +74,19 @@
       top:0;
       z-index:100;
       padding: 12px;
-      background: rgba(0,0,0,.58);
-      backdrop-filter: blur(16px);
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
-
     .bannerInner{
-      max-width:1100px;
+      max-width:980px;
       margin:0 auto;
       border-radius: 18px;
-      border: 1px solid rgba(212,175,55,.22);
+      border: 1px solid rgba(212,175,55,.18);
       background:
-        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.28), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.62));
-      box-shadow:
-        0 22px 80px rgba(0,0,0,.70),
-        inset 0 1px 0 rgba(255,255,255,.08);
+        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.22), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.55));
+      box-shadow: var(--shadow);
       padding: 14px 14px;
       display:flex;
       align-items:center;
@@ -107,44 +95,37 @@
       position:relative;
       overflow:hidden;
     }
-
     .bannerInner::after{
       content:"";
       position:absolute;
       inset:0;
       pointer-events:none;
-      background: linear-gradient(90deg, transparent, rgba(212,175,55,.14), transparent);
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,.10), transparent);
       opacity:.55;
     }
-
     .brand{display:flex;align-items:center;gap:12px;min-width:0}
     .logo{
       height:42px;width:auto;display:block;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(212,175,55,.30));
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(212,175,55,.28));
     }
     .brandTxt .t2{
-      font-weight:1100;font-size:12px;color:var(--muted);
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.45px;
+      font-weight:1000;font-size:12px;color:var(--muted);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.35px;
     }
-
     .logoutBtn{
       display:inline-flex;align-items:center;gap:10px;
       padding: 10px 16px;border-radius: 12px;
-      border: 1px solid rgba(212,175,55,.28);
-      background:
-        radial-gradient(180px 60px at 30% 10%, rgba(255,255,255,.12), transparent 55%),
-        rgba(0,0,0,.38);
-      color:#fff;font-weight:1200;cursor:pointer;user-select:none;
-      box-shadow:
-        0 16px 40px rgba(0,0,0,.55),
-        inset 0 1px 0 rgba(255,255,255,.08);
+      border: 1px solid rgba(212,175,55,.25);
+      background: rgba(0,0,0,.35);
+      color:#fff;font-weight:1100;cursor:pointer;user-select:none;
+      box-shadow: 0 10px 26px rgba(0,0,0,.45);
     }
     .logoutBtn:active{transform:scale(.99)}
     .logoutBtn .ic{filter: drop-shadow(0 0 10px rgba(212,175,55,.30))}
 
     /* STATS BAR */
     .statsBar{
-      max-width:1100px;
+      max-width:980px;
       margin:10px auto 0;
       display:flex;
       gap:10px;
@@ -154,10 +135,8 @@
       padding:10px 12px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(140px 50px at 30% 10%, rgba(255,255,255,.10), transparent 60%),
-        rgba(0,0,0,.30);
-      font-weight:1100;
+      background: rgba(0,0,0,.28);
+      font-weight:1000;
       white-space:nowrap;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
@@ -165,9 +144,9 @@
     .statClickable:active{transform:scale(.99)}
     .statPill b{font-weight:1300}
 
-    /* TABS */
+    /* TABS: single row + scroll */
     .tabsRow{
-      max-width:1100px;
+      max-width:980px;
       margin: 10px auto 0;
       display:flex;
       gap:10px;
@@ -183,24 +162,19 @@
       display:inline-flex;align-items:center;gap:10px;
       padding: 10px 14px;border-radius: 12px;
       border: 1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(220px 70px at 30% 10%, rgba(255,255,255,.09), transparent 60%),
-        rgba(0,0,0,.26);
-      color:#fff;font-weight:1200;cursor:pointer;user-select:none;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.06),
-        0 10px 24px rgba(0,0,0,.25);
+      background: rgba(0,0,0,.25);
+      color:#fff;font-weight:1100;cursor:pointer;user-select:none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
       white-space:nowrap;
     }
     .tabBtn.active{
-      border-color: rgba(212,175,55,.45);
+      border-color: rgba(212,175,55,.38);
       background:
-        radial-gradient(220px 80px at 30% 0%, rgba(212,175,55,.28), transparent 60%),
-        rgba(0,0,0,.32);
+        radial-gradient(220px 80px at 30% 0%, rgba(212,175,55,.24), transparent 60%),
+        rgba(0,0,0,.28);
       box-shadow:
-        0 18px 44px rgba(0,0,0,.58),
-        inset 0 0 0 1px rgba(212,175,55,.20),
-        inset 0 1px 0 rgba(255,255,255,.08);
+        0 16px 40px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(212,175,55,.16);
     }
 
     .panel{display:none}
@@ -209,74 +183,48 @@
     /* SECTION BAR */
     .sectionBar{
       margin-top: 14px;border-radius: 14px;
-      border: 1px solid rgba(212,175,55,.18);
+      border: 1px solid rgba(212,175,55,.16);
       background:
-        radial-gradient(900px 200px at 30% 0%, rgba(212,175,55,.18), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.52));
+        radial-gradient(900px 200px at 30% 0%, rgba(212,175,55,.14), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.45));
       padding: 12px 14px;
-      box-shadow:
-        0 22px 70px rgba(0,0,0,.62),
-        inset 0 1px 0 rgba(255,255,255,.07);
+      box-shadow: var(--shadow);
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       overflow:hidden;
     }
-    .sectionBar .title{display:flex;align-items:center;gap:10px;font-weight:1200;letter-spacing:.2px;font-size:18px}
+    .sectionBar .title{display:flex;align-items:center;gap:10px;font-weight:1100;letter-spacing:.2px;font-size:18px}
     .sectionBar .badgeLive{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.28);
-      font-weight:1100;white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      background: rgba(0,0,0,.25);
+      font-weight:1000;white-space:nowrap;
     }
 
-    /* ===== GAME SHELL ===== */
-    .gameShell{
-      margin-top: 12px;
-      border-radius: var(--r1);
+    /* CARDS */
+    .card{
+      margin-top: 12px;border-radius: 18px;
       border: 1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.12), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.62));
-      box-shadow:
-        0 26px 90px rgba(0,0,0,.75),
-        inset 0 1px 0 rgba(255,255,255,.08);
+        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.08), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.52));
+      box-shadow: var(--shadow);
       overflow:hidden;
-      position:relative;
     }
-    .gameShell::after{
-      content:"";
-      position:absolute; inset:0;
-      pointer-events:none;
-      background: linear-gradient(120deg, transparent 0 30%, rgba(212,175,55,.06) 45%, transparent 65%);
-      opacity:.65;
-      mix-blend-mode: screen;
-    }
-
-    .gameGrid{display:grid;grid-template-columns:1fr;}
-    @media (min-width: 980px){
-      .gameGrid{grid-template-columns: 1.75fr 1fr; min-height: 430px;}
-    }
-
-    /* LEFT: video */
     .liveWrap{
       position:relative;
+      border-radius: 18px;
       overflow:hidden;
-      background: rgba(0,0,0,.48);
-      border-right: 1px solid rgba(255,255,255,.08);
-      min-height: 280px;
-    }
-    @media (max-width: 979px){
-      .liveWrap{border-right:none;border-bottom: 1px solid rgba(255,255,255,.08);}
+      border: 1px solid rgba(212,175,55,.18);
+      background: rgba(0,0,0,.35);
     }
     .liveTopLeft{
       position:absolute;top:12px;left:12px;z-index:5;
       display:flex;align-items:center;gap:10px;
       padding: 8px 10px;border-radius: 999px;
       border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.62);
-      font-weight:1200;white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 26px rgba(0,0,0,.35);
+      background: rgba(0,0,0,.45);
+      font-weight:1100;white-space:nowrap;
     }
     .dot{
       width:10px;height:10px;border-radius:50%;
@@ -285,106 +233,74 @@
       animation:pulse 1.2s infinite;
     }
     @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
-
     .video{
       width:100%;
       height: 320px;
       object-fit:cover;
       display:block;
       background:#000;
-      filter: contrast(1.10) saturate(1.08) brightness(.96);
-      transform: scale(1.02);
+      filter: contrast(1.05) saturate(1.05);
     }
     @media (max-width: 560px){ .video{height: 250px} }
-    @media (min-width: 980px){ .video{height: 100%; min-height:430px} }
-
-    .liveWrap::after{
-      content:"";
-      position:absolute; inset:0;
-      pointer-events:none;
-      border: 1px solid rgba(212,175,55,.14);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-    }
 
     .lockedOverlay{
       position:absolute;inset:0;z-index:6;
       display:none;align-items:center;justify-content:center;padding: 16px;
-      background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.82));
-      backdrop-filter: blur(2px);
+      background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.72));
+      backdrop-filter: blur(1.5px);
     }
     .lockedOverlay.show{display:flex}
     .lockedCard{
       width:min(520px, 92%);
-      border-radius: var(--r2);
-      border: 1px solid rgba(212,175,55,.24);
-      background:
-        radial-gradient(260px 120px at 30% 10%, rgba(212,175,55,.14), transparent 60%),
-        rgba(0,0,0,.70);
-      box-shadow: 0 22px 70px rgba(0,0,0,.70);
+      border-radius: 16px;
+      border: 1px solid rgba(212,175,55,.22);
+      background: rgba(0,0,0,.58);
+      box-shadow: 0 22px 70px rgba(0,0,0,.65);
       padding: 14px;text-align:center;
     }
-    .lockedCard .t{font-weight:1200;font-size:16px;letter-spacing:.2px}
-    .lockedCard .s{margin-top:6px;color:var(--muted);font-weight:1000;font-size:13px}
+    .lockedCard .t{font-weight:1100;font-size:16px;letter-spacing:.2px}
+    .lockedCard .s{margin-top:6px;color:var(--muted);font-weight:900;font-size:13px}
     .lockedRow{margin-top:10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
     .miniPill{
       padding:8px 12px;border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.34);
-      font-weight:1100;white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-    }
-
-    /* RIGHT: controls */
-    .sideControls{
-      background:
-        radial-gradient(320px 140px at 30% 0%, rgba(255,255,255,.06), transparent 60%),
-        rgba(0,0,0,.30);
-      display:flex;
-      flex-direction:column;
-      min-width: 0;
-      position:relative;
+      background: rgba(0,0,0,.30);
+      font-weight:1000;white-space:nowrap;
     }
 
     .timerLine{
       display:flex;align-items:center;gap:10px;
       padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.36);
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.32);
       flex-wrap:wrap;
     }
     .progressOuter{
-      flex: 1 1 260px;
+      flex: 1 1 360px;
       display:flex;align-items:center;gap:10px;
       border-radius: 999px;
-      border: 1px solid rgba(212,175,55,.24);
-      background:
-        radial-gradient(220px 70px at 30% 20%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.40);
+      border: 1px solid rgba(212,175,55,.22);
+      background: rgba(0,0,0,.35);
       padding: 8px 10px;
-      min-width: 240px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      min-width: 260px;
     }
-    .timerText{font-weight:1200;white-space:nowrap}
+    .timerText{font-weight:1100;white-space:nowrap}
     .progressBar{
       flex:1;height: 10px;border-radius: 999px;
-      background: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.10);
       overflow:hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
     }
     .progressFill{
       height:100%;
       width:0%;
-      background: linear-gradient(90deg, rgba(212,175,55,.98), rgba(255,255,255,.22));
-      box-shadow: 0 0 18px rgba(212,175,55,.28);
+      background: linear-gradient(90deg, rgba(212,175,55,.92), rgba(255,255,255,.22));
+      box-shadow: 0 0 18px rgba(212,175,55,.25);
     }
     .statusPill{
       padding: 10px 14px;border-radius: 999px;
       border: 1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(140px 50px at 30% 10%, rgba(255,255,255,.08), transparent 60%),
-        rgba(0,0,0,.32);
-      font-weight:1200;white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      background: rgba(0,0,0,.30);
+      font-weight:1100;white-space:nowrap;
     }
     .lockOpen{ border-color: rgba(34,197,94,.40) }
     .lockLocked{ border-color: rgba(255,193,7,.40) }
@@ -393,136 +309,205 @@
 
     .betRow{
       display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
       gap:10px;
       padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      border-top: 1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.22);
     }
-    .betRow.cols4{grid-template-columns: repeat(4, minmax(0,1fr));}
-    .betRow.cols3{grid-template-columns: repeat(3, minmax(0,1fr));}
-    .betRow.cols2{grid-template-columns: repeat(2, minmax(0,1fr));}
     @media (max-width: 560px){
-      .betRow.cols4{grid-template-columns: repeat(2, minmax(0,1fr))}
-      .betRow.cols3{grid-template-columns: repeat(3, minmax(0,1fr))}
-      .betRow.cols2{grid-template-columns: repeat(2, minmax(0,1fr))}
+      .betRow{grid-template-columns: repeat(2, minmax(0,1fr))}
     }
-
     .betBox{
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(240px 90px at 30% 10%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.30);
+      background: rgba(0,0,0,.28);
       padding: 14px 10px;
       text-align:center;
       cursor:pointer;
       user-select:none;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.06),
-        0 14px 34px rgba(0,0,0,.30);
-      transition: transform .08s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
-      min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
     }
     .betBox:active{transform:scale(.99)}
     .betBox.active{
-      border-color: rgba(212,175,55,.55);
+      border-color: rgba(212,175,55,.40);
       background:
-        radial-gradient(240px 100px at 30% 0%, rgba(212,175,55,.26), transparent 64%),
-        rgba(0,0,0,.34);
+        radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.22), transparent 60%),
+        rgba(0,0,0,.30);
       box-shadow:
-        0 22px 56px rgba(0,0,0,.60),
-        inset 0 0 0 1px rgba(212,175,55,.18),
-        inset 0 1px 0 rgba(255,255,255,.07);
+        0 16px 40px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(212,175,55,.14);
     }
-    .betName{font-weight:1200;letter-spacing:.15px}
-    .betMul{margin-top:4px;font-weight:1000;color:var(--muted);font-size:12px}
+    .betName{font-weight:1100;letter-spacing:.2px}
+    .betMul{margin-top:4px;font-weight:900;color:var(--muted);font-size:12px}
 
-    .stakeRow{
-      display:flex;gap:10px;align-items:stretch;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.22);
-      flex-wrap:wrap;
-    }
-    .stakeInput{
-      flex: 1 1 260px;min-width: 180px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(220px 70px at 30% 10%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.34);
-      color:#fff;
-      padding: 12px 12px;
-      font-weight:1200;
-      outline:none;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-    }
-    .stakeInput::placeholder{color: rgba(255,255,255,.55); font-weight:900}
-    .placeBtn{
-      padding: 12px 18px;border-radius: 12px;
-      border: 1px solid rgba(212,175,55,.34);
-      background:
-        radial-gradient(240px 80px at 30% 10%, rgba(255,255,255,.40), transparent 62%),
-        linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.80));
-      color:#120c00;
-      font-weight:1300;
-      cursor:pointer;user-select:none;
-      white-space:nowrap;
-      box-shadow: 0 18px 54px rgba(0,0,0,.62);
-    }
-    .placeBtn:active{transform:scale(.99)}
-    .placeBtn:disabled{opacity:.55;cursor:not-allowed}
-
-    .chipBar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:center;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.22);
-    }
-    .chip{
-      min-width:72px;text-align:center;
-      padding: 10px 14px;border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(220px 70px at 30% 10%, rgba(255,255,255,.10), transparent 62%),
-        rgba(0,0,0,.32);
-      font-weight:1200;cursor:pointer;user-select:none;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 12px 26px rgba(0,0,0,.25);
-      transition: transform .08s ease, border-color .2s ease;
-    }
-    .chip:active{transform:scale(.99)}
-    .chip.goldChip{
-      border-color: rgba(212,175,55,.36);
-      box-shadow: 0 0 20px rgba(212,175,55,.14), inset 0 1px 0 rgba(255,255,255,.08);
-    }
-
-    /* BELOW TABLES */
     .tableCard{
-      margin-top: 12px;border-radius: var(--r1);
+      margin-top: 12px;border-radius: 18px;
       border: 1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.10), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.56));
-      box-shadow:
-        0 22px 80px rgba(0,0,0,.70),
-        inset 0 1px 0 rgba(255,255,255,.07);
+        radial-gradient(900px 300px at 20% 0%, rgba(212,175,55,.08), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.52));
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
     .tableHead{
       padding: 12px 14px;
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.34);
+      background: rgba(0,0,0,.30);
       flex-wrap:wrap;
     }
-    .tableHead .h{font-weight:1200;display:flex;align-items:center;gap:10px;white-space:nowrap}
+    .tableHead .h{font-weight:1100;display:flex;align-items:center;gap:10px;white-space:nowrap}
     .tableActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
+    /* ====== STAKE ROW (INPUT + BUTTON SAME LINE EVEN ON MOBILE) ====== */
+    .stakeRow{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.22);
+      flex-wrap:nowrap; /* IMPORTANT */
+    }
+    .stakeInput{
+      flex: 1 1 auto;
+      min-width: 0; /* IMPORTANT so it can shrink */
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.30);
+      color:#fff;
+      padding: 12px 12px;
+      font-weight:1000;
+      outline:none;
+    }
+    .placeBtn{
+      flex: 0 0 auto;
+      padding: 12px 18px;border-radius: 12px;
+      border: 1px solid rgba(212,175,55,.28);
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.78));
+      color:#120c00;
+      font-weight:1100;
+      cursor:pointer;user-select:none;
+      white-space:nowrap;
+      box-shadow: 0 14px 40px rgba(0,0,0,.55);
+    }
+    .placeBtn:active{transform:scale(.99)}
+    .placeBtn:disabled{opacity:.55;cursor:not-allowed}
+
+    @media (max-width: 560px){
+      .stakeRow{gap:8px}
+      .stakeInput{padding: 11px 10px; font-size:14px}
+      .placeBtn{padding: 11px 12px; font-size:13px; border-radius: 12px}
+    }
+
+    /* ====== CHIP BAR: 2 LINES ON MOBILE + SMALLER + REAL CHIP LOOK ====== */
+    .chipBar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;              /* wrap */
+      justify-content:center;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.22);
+    }
+
+    /* Real chip look (CSS only, no image needed) */
+    .chip{
+      position:relative;
+      width: 74px;
+      height: 44px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      cursor:pointer;
+      user-select:none;
+      font-weight:1200;
+      letter-spacing:.2px;
+
+      color:#fff;
+
+      /* chip body */
+      background:
+        radial-gradient(18px 12px at 50% 35%, rgba(255,255,255,.14), transparent 65%),
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,.10), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(0,0,0,.55), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.42));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 -10px 18px rgba(0,0,0,.35),
+        0 14px 26px rgba(0,0,0,.45);
+      transition: transform .08s ease, border-color .2s ease, filter .2s ease;
+    }
+    .chip::before{
+      /* outer ring + stripes */
+      content:"";
+      position:absolute;
+      inset: 4px;
+      border-radius: 999px;
+      background:
+        conic-gradient(
+          from 0deg,
+          rgba(212,175,55,.95) 0 18deg,
+          rgba(0,0,0,.0) 18deg 36deg,
+          rgba(212,175,55,.95) 36deg 54deg,
+          rgba(0,0,0,.0) 54deg 72deg,
+          rgba(212,175,55,.95) 72deg 90deg,
+          rgba(0,0,0,.0) 90deg 108deg,
+          rgba(212,175,55,.95) 108deg 126deg,
+          rgba(0,0,0,.0) 126deg 144deg,
+          rgba(212,175,55,.95) 144deg 162deg,
+          rgba(0,0,0,.0) 162deg 180deg,
+          rgba(212,175,55,.95) 180deg 198deg,
+          rgba(0,0,0,.0) 198deg 216deg,
+          rgba(212,175,55,.95) 216deg 234deg,
+          rgba(0,0,0,.0) 234deg 252deg,
+          rgba(212,175,55,.95) 252deg 270deg,
+          rgba(0,0,0,.0) 270deg 288deg,
+          rgba(212,175,55,.95) 288deg 306deg,
+          rgba(0,0,0,.0) 306deg 324deg,
+          rgba(212,175,55,.95) 324deg 342deg,
+          rgba(0,0,0,.0) 342deg 360deg
+        );
+      opacity:.42;
+      filter: blur(.15px);
+      pointer-events:none;
+    }
+    .chip::after{
+      /* center inlay */
+      content:"";
+      position:absolute;
+      inset: 12px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.55));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+      pointer-events:none;
+    }
+    .chip span{position:relative; z-index:1;}
+    .chip:active{transform:scale(.98)}
+
+    /* goldChip = highlighted chip */
+    .chip.goldChip{
+      border-color: rgba(212,175,55,.34);
+      filter: drop-shadow(0 0 14px rgba(212,175,55,.14));
+    }
+
+    @media (max-width: 560px){
+      /* 2 lines exact feel: 3 chips per row (approx) */
+      .chip{ width: 64px; height: 40px; font-size:12px; }
+      .chipBar{ gap:8px; }
+      /* keep it visually "2 lines" by restricting width */
+      .chipBar{ max-width: 320px; margin: 0 auto; }
+    }
+
+    /* TABLE */
     .scroll{
       overflow:auto;
       -webkit-overflow-scrolling:touch;
@@ -534,7 +519,7 @@
       border-bottom: 1px solid rgba(255,255,255,.07);
       text-align:left;
       white-space:nowrap;
-      font-weight:1000;
+      font-weight:900;
     }
     th{font-size:12px;color:var(--muted);letter-spacing:.2px}
     @media (max-width: 560px){
@@ -542,82 +527,72 @@
       th,td{padding: 9px 10px}
     }
 
-    /* toast */
-    .toast{
-      position:fixed;left:50%;bottom:92px;transform:translateX(-50%);
-      background: rgba(0,0,0,.84);
-      border:1px solid rgba(212,175,55,.32);
-      color:#fff;
-      padding: 12px 14px;
-      border-radius: 14px;
-      z-index:9999;
-      display:none;
-      max-width: 92vw;
-      box-shadow: 0 18px 60px rgba(0,0,0,.65);
-    }
-    .toast.show{display:block}
-    .toast .t{font-weight:1200}
-
-    /* bottom nav */
     .bottomBar{
       position:fixed;left:0;right:0;bottom:0;
       z-index:200;
       padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(0,0,0,.60);
+      background: rgba(0,0,0,.58);
       backdrop-filter: blur(16px);
       border-top: 1px solid rgba(255,255,255,.10);
       display:none;
     }
     .bottomInner{
-      max-width: 1100px;margin:0 auto;
+      max-width: 980px;margin:0 auto;
       display:grid;grid-template-columns: repeat(4, minmax(0,1fr));
       gap:10px;
     }
     .bBtn{
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(220px 70px at 30% 10%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.30);
+      background: rgba(0,0,0,.28);
       padding: 10px 8px;
       color:#fff;
       cursor:pointer;
       user-select:none;
       display:flex;flex-direction:column;align-items:center;gap:6px;
-      font-weight:1200;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      font-weight:1100;
     }
     .bBtn.active{
-      border-color: rgba(212,175,55,.40);
+      border-color: rgba(212,175,55,.38);
       background:
         radial-gradient(220px 90px at 30% 0%, rgba(212,175,55,.22), transparent 60%),
-        rgba(0,0,0,.34);
-      box-shadow: inset 0 0 0 1px rgba(212,175,55,.14), inset 0 1px 0 rgba(255,255,255,.07);
+        rgba(0,0,0,.30);
+      box-shadow: inset 0 0 0 1px rgba(212,175,55,.14);
     }
     .bBtn .i{font-size:18px;opacity:.95}
     .bBtn .t{font-size:12px;opacity:.95}
     @media (max-width: 720px){ .bottomBar{display:block} }
 
-    /* mini cards (Last5 / MyBet) */
+    .toast{
+      position:fixed;left:50%;bottom:92px;transform:translateX(-50%);
+      background: rgba(0,0,0,.80);
+      border:1px solid rgba(212,175,55,.30);
+      color:#fff;
+      padding: 12px 14px;
+      border-radius: 14px;
+      z-index:9999;
+      display:none;
+      max-width: 92vw;
+      box-shadow: 0 18px 60px rgba(0,0,0,.60);
+    }
+    .toast.show{display:block}
+    .toast .t{font-weight:1100}
+
+    /* Last5 + MyBet cards */
     .miniGrid{
       display:grid;
       grid-template-columns: 1.1fr .9fr;
       gap:12px;
       padding:12px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.18);
     }
     @media (max-width: 720px){
       .miniGrid{grid-template-columns: 1fr}
     }
     .miniCard{
-      border-radius: var(--r2);
+      border-radius: 16px;
       border: 1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(240px 90px at 30% 10%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.26);
+      background: rgba(0,0,0,.22);
       overflow:hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
     .miniHead{
       padding: 10px 12px;
@@ -628,7 +603,7 @@
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
-      font-weight:1200;
+      font-weight:1100;
     }
     .miniBody{padding: 10px 12px}
     .miniTable{
@@ -639,7 +614,7 @@
     .miniTable th, .miniTable td{
       padding: 8px 10px;
       border-bottom: 1px solid rgba(255,255,255,.07);
-      font-weight:1000;
+      font-weight:900;
       white-space:nowrap;
     }
     .miniSub{font-weight:900;color:var(--muted);font-size:12px}
@@ -647,10 +622,9 @@
       padding: 7px 10px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.28);
-      font-weight:1200;
+      background: rgba(0,0,0,.25);
+      font-weight:1100;
       white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
 
     /* ===== WIN/LOSS POPUP ===== */
@@ -662,19 +636,19 @@
       align-items:center;
       justify-content:center;
       padding:16px;
-      background: rgba(0,0,0,.70);
-      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
     }
     .modalBack.show{display:flex}
     .modalCard{
       width:min(720px, 94vw);
       max-height: 88vh;
       border-radius: 18px;
-      border:1px solid rgba(212,175,55,.28);
+      border:1px solid rgba(212,175,55,.25);
       background:
-        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.22), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.82));
-      box-shadow: 0 28px 90px rgba(0,0,0,.80);
+        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.18), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.78));
+      box-shadow: 0 28px 90px rgba(0,0,0,.75);
       overflow:hidden;
       transform: translateY(8px);
       animation: popIn .14s ease-out forwards;
@@ -687,10 +661,10 @@
       justify-content:space-between;
       gap:10px;
       border-bottom:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.38);
+      background: rgba(0,0,0,.35);
     }
     .modalTitle{
-      font-weight:1300;
+      font-weight:1200;
       letter-spacing:.2px;
       display:flex;
       align-items:center;
@@ -698,19 +672,18 @@
     }
     .modalClose{
       border:none;
-      background: rgba(0,0,0,.28);
+      background: rgba(0,0,0,.25);
       color:#fff;
-      font-weight:1300;
+      font-weight:1200;
       padding:10px 12px;
       border-radius:12px;
       cursor:pointer;
       border:1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
     .modalBody{padding: 14px 16px; overflow:auto; max-height: calc(88vh - 64px);}
     .bigCount{
       text-align:center;
-      font-weight:1400;
+      font-weight:1300;
       font-size:44px;
       letter-spacing:.6px;
       margin: 10px 0 6px;
@@ -718,7 +691,7 @@
     .bigSub{
       text-align:center;
       color: var(--muted);
-      font-weight:1100;
+      font-weight:1000;
       margin-bottom: 14px;
     }
     .modalGrid{
@@ -730,14 +703,11 @@
     .modalMini{
       border-radius: 16px;
       border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(240px 90px at 30% 10%, rgba(255,255,255,.08), transparent 62%),
-        rgba(0,0,0,.30);
+      background: rgba(0,0,0,.28);
       padding: 12px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
-    .modalMini .k{color:var(--muted);font-weight:1000;font-size:12px}
-    .modalMini .v{margin-top:6px;font-weight:1300;font-size:18px}
+    .modalMini .k{color:var(--muted);font-weight:900;font-size:12px}
+    .modalMini .v{margin-top:6px;font-weight:1200;font-size:18px}
     .modalBtnRow{
       margin-top: 14px;
       display:flex;
@@ -749,36 +719,32 @@
       padding: 12px 16px;
       border-radius: 12px;
       border:1px solid rgba(212,175,55,.28);
-      background: rgba(0,0,0,.30);
+      background: rgba(0,0,0,.28);
       color:#fff;
-      font-weight:1200;
+      font-weight:1100;
       cursor:pointer;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
     .modalBtn.primary{
-      background:
-        radial-gradient(240px 80px at 30% 10%, rgba(255,255,255,.40), transparent 62%),
-        linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.82));
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.78));
       color:#120c00;
-      font-weight:1300;
     }
     .modalListCard{
       margin-top:14px;
       border-radius: 16px;
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.24);
+      background: rgba(0,0,0,.22);
       overflow:hidden;
     }
     .modalListHead{
       padding:10px 12px;
-      background: rgba(0,0,0,.32);
+      background: rgba(0,0,0,.30);
       border-bottom:1px solid rgba(255,255,255,.08);
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:10px;
       flex-wrap:wrap;
-      font-weight:1200;
+      font-weight:1100;
     }
     .modalListScroll{
       max-height: 260px;
@@ -794,7 +760,7 @@
       padding: 9px 10px;
       border-bottom: 1px solid rgba(255,255,255,.07);
       white-space:nowrap;
-      font-weight:1000;
+      font-weight:900;
     }
     .modalTable th{font-size:12px;color:var(--muted)}
     @media (max-width:560px){
@@ -843,80 +809,53 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="dtView">👁 124</span></div>
       </div>
 
-      <div class="gameShell">
-        <div class="gameGrid">
-          <div class="liveWrap">
-            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <div class="card" style="padding:12px;">
+        <div class="liveWrap">
+          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
 
-            <div class="lockedOverlay" id="dtOverlay">
-              <div class="lockedCard">
-                <div class="t">🔒 Bets Locked</div>
-                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-                <div class="lockedRow">
-                  <div class="miniPill">Round: <span class="gold" id="dtOverlayRound">-</span></div>
-                  <div class="miniPill">Time left: <span class="gold" id="dtOverlayTimer">0</span>s</div>
-                </div>
+          <div class="lockedOverlay" id="dtOverlay">
+            <div class="lockedCard">
+              <div class="t">🔒 Bets Locked</div>
+              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+              <div class="lockedRow">
+                <div class="miniPill">Round: <span class="gold" id="dtOverlayRound">-</span></div>
+                <div class="miniPill">Time left: <span class="gold" id="dtOverlayTimer">0</span>s</div>
               </div>
             </div>
-
-            <video class="video" autoplay loop muted playsinline>
-              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
-            </video>
           </div>
 
-          <aside class="sideControls">
-            <div class="timerLine">
-              <div class="progressOuter">
-                <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
-                <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
-              </div>
-              <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
-              <div class="statusPill lockOpen" id="dtLock">OPEN</div>
-            </div>
+          <video class="video" autoplay loop muted playsinline>
+            <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
+          </video>
+        </div>
 
-            <div class="betRow cols4" id="dtBets">
-              <div class="betBox active" data-pick="DRAGON"><div class="betName">Dragon</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIGER"><div class="betName">Tiger</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
-              <div class="betBox" data-pick="REFUND"><div class="betName">Refund</div><div class="betMul">—</div></div>
-            </div>
+        <div class="timerLine">
+          <div class="progressOuter">
+            <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
+            <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
+          </div>
+          <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
+          <div class="statusPill lockOpen" id="dtLock">OPEN</div>
+        </div>
 
-            <div class="stakeRow">
-              <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet" />
-              <button class="placeBtn" id="dtPlay" type="button">Place Bet</button>
-            </div>
-
-            <div class="chipBar" id="dtChips">
-              <div class="chip goldChip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeRow" style="justify-content:space-between;">
-              <div class="muted">Latest Result:</div>
-              <div id="dtPrev" class="muted">No result</div>
-            </div>
-
-            <div class="stakeRow" style="padding-top:0;">
-              <div class="muted" style="flex:1">Selected:</div>
-              <div class="gold" id="dtPickShow">DRAGON</div>
-            </div>
-
-            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
-              <div class="muted" style="flex:1">Message:</div>
-              <div class="gold" id="dtMsg">-</div>
-            </div>
-          </aside>
+        <div class="betRow" id="dtBets">
+          <div class="betBox active" data-pick="DRAGON"><div class="betName">Dragon</div><div class="betMul">2x</div></div>
+          <div class="betBox" data-pick="TIGER"><div class="betName">Tiger</div><div class="betMul">2x</div></div>
+          <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
+          <div class="betBox" data-pick="REFUND"><div class="betName">Refund</div><div class="betMul">—</div></div>
         </div>
       </div>
 
-      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Dragon Tiger)</div>
           <div class="tableActions"><span class="muted" id="dtWait"></span></div>
+        </div>
+
+        <!-- INPUT + BUTTON SAME LINE -->
+        <div class="stakeRow">
+          <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet" />
+          <button class="placeBtn" id="dtPlay" type="button">Place Bet</button>
         </div>
 
         <div class="scroll">
@@ -924,6 +863,30 @@
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
+        </div>
+
+        <!-- CHIP LOOK UPDATED -->
+        <div class="chipBar" id="dtChips">
+          <div class="chip goldChip" data-v="50"><span>50</span></div>
+          <div class="chip" data-v="100"><span>100</span></div>
+          <div class="chip" data-v="500"><span>500</span></div>
+          <div class="chip" data-v="1000"><span>1000</span></div>
+          <div class="chip" data-v="5000"><span>5000</span></div>
+        </div>
+
+        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
+          <div class="muted">Latest Result:</div>
+          <div id="dtPrev" class="muted">No result</div>
+        </div>
+
+        <div class="stakeRow" style="padding-top:0;">
+          <div class="muted" style="flex:1">Selected:</div>
+          <div class="gold" id="dtPickShow">DRAGON</div>
+        </div>
+
+        <div class="stakeRow" style="padding-top:0;">
+          <div class="muted" style="flex:1">Message:</div>
+          <div class="gold" id="dtMsg">-</div>
         </div>
 
         <div class="miniGrid">
@@ -954,6 +917,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
@@ -964,80 +928,52 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="tpView">👁 212</span></div>
       </div>
 
-      <div class="gameShell">
-        <div class="gameGrid">
-          <div class="liveWrap">
-            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <div class="card" style="padding:12px;">
+        <div class="liveWrap">
+          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
 
-            <div class="lockedOverlay" id="tpOverlay">
-              <div class="lockedCard">
-                <div class="t">🔒 Bets Locked</div>
-                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-                <div class="lockedRow">
-                  <div class="miniPill">Round: <span class="gold" id="tpOverlayRound">-</span></div>
-                  <div class="miniPill">Time left: <span class="gold" id="tpOverlayTimer">0</span>s</div>
-                </div>
+          <div class="lockedOverlay" id="tpOverlay">
+            <div class="lockedCard">
+              <div class="t">🔒 Bets Locked</div>
+              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+              <div class="lockedRow">
+                <div class="miniPill">Round: <span class="gold" id="tpOverlayRound">-</span></div>
+                <div class="miniPill">Time left: <span class="gold" id="tpOverlayTimer">0</span>s</div>
               </div>
             </div>
-
-            <video class="video" autoplay loop muted playsinline>
-              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
-            </video>
           </div>
 
-          <aside class="sideControls">
-            <div class="timerLine">
-              <div class="progressOuter">
-                <div class="timerText">⏳ Round ends in: <span class="gold" id="tpTimer">30</span>s</div>
-                <div class="progressBar"><div class="progressFill" id="tpFill"></div></div>
-              </div>
-              <div class="statusPill">Round: <span class="gold" id="tpRound">-</span></div>
-              <div class="statusPill lockOpen" id="tpLock">OPEN</div>
-              <div class="statusPill">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
-            </div>
+          <video class="video" autoplay loop muted playsinline>
+            <source src="../assets/video/teen-patti.mp4" type="video/mp4">
+          </video>
+        </div>
 
-            <div class="betRow cols3" id="tpBets">
-              <div class="betBox active" data-pick="PLAYER"><div class="betName">Player</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BANKER"><div class="betName">Banker</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
-            </div>
+        <div class="timerLine">
+          <div class="progressOuter">
+            <div class="timerText">⏳ Round ends in: <span class="gold" id="tpTimer">30</span>s</div>
+            <div class="progressBar"><div class="progressFill" id="tpFill"></div></div>
+          </div>
+          <div class="statusPill">Round: <span class="gold" id="tpRound">-</span></div>
+          <div class="statusPill lockOpen" id="tpLock">OPEN</div>
+          <div class="statusPill">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
+        </div>
 
-            <div class="stakeRow">
-              <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points" />
-              <button class="placeBtn" id="tpPlay" type="button">Place Bet</button>
-            </div>
-
-            <div class="chipBar" id="tpChips">
-              <div class="chip goldChip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeRow" style="justify-content:space-between;">
-              <div class="muted">Latest Result:</div>
-              <div id="tpPrev" class="muted">No result</div>
-            </div>
-
-            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
-              <div class="muted" style="flex:1">Message:</div>
-              <div class="gold" id="tpMsg">-</div>
-            </div>
-
-            <div style="display:none">
-              <span id="tpPickShow2">PLAYER</span>
-              <span id="tpRound2">-</span>
-            </div>
-          </aside>
+        <div class="betRow" id="tpBets" style="grid-template-columns: repeat(3, minmax(0,1fr));">
+          <div class="betBox active" data-pick="PLAYER"><div class="betName">Player</div><div class="betMul">2x</div></div>
+          <div class="betBox" data-pick="BANKER"><div class="betName">Banker</div><div class="betMul">2x</div></div>
+          <div class="betBox" data-pick="TIE"><div class="betName">Tie</div><div class="betMul">Refund</div></div>
         </div>
       </div>
 
-      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Teen Patti)</div>
           <div class="tableActions"><span class="muted" id="tpWait"></span></div>
+        </div>
+
+        <div class="stakeRow">
+          <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points" />
+          <button class="placeBtn" id="tpPlay" type="button">Place Bet</button>
         </div>
 
         <div class="scroll">
@@ -1045,6 +981,29 @@
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
+        </div>
+
+        <div class="chipBar" id="tpChips">
+          <div class="chip goldChip" data-v="50"><span>50</span></div>
+          <div class="chip" data-v="100"><span>100</span></div>
+          <div class="chip" data-v="500"><span>500</span></div>
+          <div class="chip" data-v="1000"><span>1000</span></div>
+          <div class="chip" data-v="5000"><span>5000</span></div>
+        </div>
+
+        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
+          <div class="muted">Latest Result:</div>
+          <div id="tpPrev" class="muted">No result</div>
+        </div>
+
+        <div class="stakeRow" style="padding-top:0;">
+          <div class="muted" style="flex:1">Message:</div>
+          <div class="gold" id="tpMsg">-</div>
+        </div>
+
+        <div style="display:none">
+          <span id="tpPickShow2">PLAYER</span>
+          <span id="tpRound2">-</span>
         </div>
 
         <div class="miniGrid">
@@ -1075,6 +1034,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
@@ -1085,74 +1045,51 @@
         <div class="badgeLive">🎥 Live <span class="gold" id="rView">👁 156</span></div>
       </div>
 
-      <div class="gameShell">
-        <div class="gameGrid">
-          <div class="liveWrap">
-            <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
+      <div class="card" style="padding:12px;">
+        <div class="liveWrap">
+          <div class="liveTopLeft"><span class="dot"></span> LIVE</div>
 
-            <div class="lockedOverlay" id="rOverlay">
-              <div class="lockedCard">
-                <div class="t">🔒 Bets Locked</div>
-                <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
-                <div class="lockedRow">
-                  <div class="miniPill">Round: <span class="gold" id="rOverlayRound">-</span></div>
-                  <div class="miniPill">Time left: <span class="gold" id="rOverlayTimer">0</span>s</div>
-                </div>
+          <div class="lockedOverlay" id="rOverlay">
+            <div class="lockedCard">
+              <div class="t">🔒 Bets Locked</div>
+              <div class="s">Play only when timer &gt; <span class="gold">15</span> sec</div>
+              <div class="lockedRow">
+                <div class="miniPill">Round: <span class="gold" id="rOverlayRound">-</span></div>
+                <div class="miniPill">Time left: <span class="gold" id="rOverlayTimer">0</span>s</div>
               </div>
             </div>
-
-            <video class="video" autoplay loop muted playsinline>
-              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
-            </video>
           </div>
 
-          <aside class="sideControls">
-            <div class="timerLine">
-              <div class="progressOuter">
-                <div class="timerText">⏳ Round ends in: <span class="gold" id="rTimer">30</span>s</div>
-                <div class="progressBar"><div class="progressFill" id="rFill"></div></div>
-              </div>
-              <div class="statusPill">Round: <span class="gold" id="rRound">-</span></div>
-              <div class="statusPill lockOpen" id="rLock">OPEN</div>
-              <div class="statusPill">Selected: <span class="gold" id="rPickShow">RED</span></div>
-            </div>
+          <video class="video" autoplay loop muted playsinline>
+            <source src="../assets/video/Roulette_.mp4" type="video/mp4">
+          </video>
+        </div>
 
-            <div class="betRow cols2" id="rBets">
-              <div class="betBox active" data-pick="RED"><div class="betName">Red</div><div class="betMul">2x</div></div>
-              <div class="betBox" data-pick="BLACK"><div class="betName">Black</div><div class="betMul">2x</div></div>
-            </div>
+        <div class="timerLine">
+          <div class="progressOuter">
+            <div class="timerText">⏳ Round ends in: <span class="gold" id="rTimer">30</span>s</div>
+            <div class="progressBar"><div class="progressFill" id="rFill"></div></div>
+          </div>
+          <div class="statusPill">Round: <span class="gold" id="rRound">-</span></div>
+          <div class="statusPill lockOpen" id="rLock">OPEN</div>
+          <div class="statusPill">Selected: <span class="gold" id="rPickShow">RED</span></div>
+        </div>
 
-            <div class="stakeRow">
-              <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points" />
-              <button class="placeBtn" id="rPlay" type="button">Place Bet</button>
-            </div>
-
-            <div class="chipBar" id="rChips">
-              <div class="chip goldChip" data-v="50">50</div>
-              <div class="chip" data-v="100">100</div>
-              <div class="chip" data-v="500">500</div>
-              <div class="chip" data-v="1000">1000</div>
-              <div class="chip" data-v="5000">5000</div>
-            </div>
-
-            <div class="stakeRow" style="justify-content:space-between;">
-              <div class="muted">Latest Result:</div>
-              <div id="rPrev" class="muted">No result</div>
-            </div>
-
-            <div class="stakeRow" style="padding-top:0; border-bottom:none;">
-              <div class="muted" style="flex:1">Message:</div>
-              <div class="gold" id="rMsg">-</div>
-            </div>
-          </aside>
+        <div class="betRow" id="rBets" style="grid-template-columns: repeat(2, minmax(0,1fr));">
+          <div class="betBox active" data-pick="RED"><div class="betName">Red</div><div class="betMul">2x</div></div>
+          <div class="betBox" data-pick="BLACK"><div class="betName">Black</div><div class="betMul">2x</div></div>
         </div>
       </div>
 
-      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Roulette)</div>
           <div class="tableActions"><span class="muted" id="rWait"></span></div>
+        </div>
+
+        <div class="stakeRow">
+          <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points" />
+          <button class="placeBtn" id="rPlay" type="button">Place Bet</button>
         </div>
 
         <div class="scroll">
@@ -1160,6 +1097,24 @@
             <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
+        </div>
+
+        <div class="chipBar" id="rChips">
+          <div class="chip goldChip" data-v="50"><span>50</span></div>
+          <div class="chip" data-v="100"><span>100</span></div>
+          <div class="chip" data-v="500"><span>500</span></div>
+          <div class="chip" data-v="1000"><span>1000</span></div>
+          <div class="chip" data-v="5000"><span>5000</span></div>
+        </div>
+
+        <div class="stakeRow" style="justify-content:space-between; padding-top:0;">
+          <div class="muted">Latest Result:</div>
+          <div id="rPrev" class="muted">No result</div>
+        </div>
+
+        <div class="stakeRow" style="padding-top:0;">
+          <div class="muted" style="flex:1">Message:</div>
+          <div class="gold" id="rMsg">-</div>
         </div>
 
         <div class="miniGrid">
@@ -1190,6 +1145,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
@@ -1290,28 +1246,6 @@
           </div>
         </div>
 
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== RESULT POPUP (AUTO on round end) ===== -->
-  <div class="modalBack" id="resModal">
-    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="resTitle">
-      <div class="modalHead">
-        <div class="modalTitle" id="resTitle">🏁 Round Result</div>
-        <button class="modalClose" id="resClose" type="button">✕</button>
-      </div>
-
-      <div class="modalBody">
-        <div class="bigCount" id="resBig">-</div>
-        <div class="bigSub" id="resSub">-</div>
-
-        <div class="modalGrid" id="resGrid"></div>
-
-        <div class="modalBtnRow">
-          <button class="modalBtn primary" id="resOk" type="button">OK</button>
-          <button class="modalBtn" id="resGoHistory" type="button">Open History</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1496,11 +1430,9 @@
       if (!snap.exists) return logout();
       ME_USER = snap.data() || {};
 
-      // old hidden compat
       qs("cid").textContent = ME_ID;
       qs("pts").textContent = Number(ME_USER.points || 0);
 
-      // visible
       qs("roleName").textContent = String(ME_USER.role || (ME_USER.isAdmin ? "admin" : "user"));
       qs("pointsShow").textContent = String(Number(ME_USER.points || 0));
 
@@ -1864,99 +1796,6 @@
       }
     }
 
-    /* ================= RESULT POPUP (AUTO on round end) ================= */
-    const lastResultShown = { DragonTiger: null, TeenPatti: null, Roulette: null };
-
-    function openResModal(){ qs("resModal").classList.add("show"); }
-    function closeResModal(){ qs("resModal").classList.remove("show"); }
-
-    function outcomeForPopup(game, gameDoc, bet){
-      if (!bet) return "NO BET";
-      if (bet.result && bet.result !== "PENDING") return bet.result;
-
-      if (game === "Roulette") {
-        const color = String(gameDoc?.payload?.color || "").toUpperCase();
-        return (String(bet.pick).toUpperCase() === color) ? "WIN" : "LOSS";
-      } else {
-        if (String(gameDoc?.result) === "TIE") return "TIE";
-        return (String(bet.pick) === String(gameDoc?.result)) ? "WIN" : "LOSS";
-      }
-    }
-
-    function payloadLines(game, g){
-      if (game === "DragonTiger") {
-        const d = g?.payload?.d || "-";
-        const t = g?.payload?.t || "-";
-        return ["Dragon Card: " + d, "Tiger Card: " + t];
-      }
-      if (game === "TeenPatti") {
-        const r = g?.payload?.res || g?.result || "-";
-        return ["Result: " + r];
-      }
-      const c = g?.payload?.color || "-";
-      const n = (typeof g?.payload?.n === "number") ? g.payload.n : "-";
-      return ["Color: " + c, "Number: " + n];
-    }
-
-    async function showResultPopup(game, g){
-      if (!g?.roundId || !g?.result) return;
-
-      // prevent repeated popups for same round (every snapshot)
-      if (lastResultShown[game] === g.roundId) return;
-      lastResultShown[game] = g.roundId;
-
-      const niceGame = (game === "DragonTiger") ? "🐉 Dragon Tiger"
-                    : (game === "TeenPatti")   ? "🃏 Teen Patti"
-                    : "🎡 Roulette";
-
-      qs("resTitle").textContent = "🏁 " + niceGame + " • Result";
-      qs("resBig").textContent = String(g.result || "-");
-      qs("resSub").textContent = "Round: " + String(g.roundId || "-");
-
-      // Load my bet (if any) for this round
-      let bet = null;
-      try{
-        const betKey = ME_ID + "_" + game + "_" + g.roundId;
-        const bSnap = await BETS.doc(betKey).get();
-        if (bSnap.exists) bet = bSnap.data() || null;
-      } catch(e){}
-
-      const out = outcomeForPopup(game, g, bet);
-      const pl = payloadLines(game, g);
-
-      const grid = qs("resGrid");
-      const betPick = bet?.pick || "-";
-      const betStake = Number(bet?.stake || 0);
-      const hasBet = !!bet;
-
-      const card = (k,v,isGold) => (
-        "<div class='modalMini'>" +
-          "<div class='k'>" + k + "</div>" +
-          "<div class='v " + (isGold ? "gold" : "") + "'>" + v + "</div>" +
-        "</div>"
-      );
-
-      grid.innerHTML =
-        card("Round ID", String(g.roundId || "-"), false) +
-        card("Result", String(g.result || "-"), true) +
-        card("Your Bet", hasBet ? (String(betPick) + " (" + betStake + ")") : "No Bet Placed", false) +
-        card("Outcome", String(out), (String(out) === "WIN"));
-
-      if (pl && pl.length){
-        pl.slice(0,2).forEach((line, idx)=>{
-          grid.innerHTML += card("Details " + (idx+1), String(line), false);
-        });
-      }
-
-      openResModal();
-      vib(60);
-    }
-
-    qs("resClose").addEventListener("click", closeResModal);
-    qs("resOk").addEventListener("click", closeResModal);
-    qs("resModal").addEventListener("click", (e)=>{ if(e.target===qs("resModal")) closeResModal(); });
-    qs("resGoHistory").addEventListener("click", ()=>{ closeResModal(); setTab("hist"); });
-
     /* ================= LIVE SUBSCRIBE ================= */
     function subscribeGame(game) {
       return GAME_DOC(game).onSnapshot(async (snap) => {
@@ -1972,12 +1811,9 @@
 
         if (g.result) {
           await settleMyBetIfNeeded(game, g);
-
           if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "TeenPatti")  qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "Roulette")   qs("rMsg").textContent = "ROUND RESULT: " + g.result;
-
-          await showResultPopup(game, g); // ✅ auto big center popup
         }
 
         if (secondsLeftFromDoc(g) <= 0) await finalizeIfNeeded(game);
@@ -2009,7 +1845,6 @@
         if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("tpMsg").textContent = "Locked (play only when timer > 15)";
         await placeBetFS({ game:"TeenPatti", pick:getTPPick(), stake:tpStake.value, roundId:g.roundId, seq:g.seq });
         qs("tpMsg").textContent = "PLAY SUBMITTED";
-        showToast("🕒 SUBMITTED", "Result at 0 sec");
         vib(40);
         await refreshTop();
       } catch (e) { qs("tpMsg").textContent = e.message || String(e); }
@@ -2022,7 +1857,6 @@
         if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("rMsg").textContent = "Locked (play only when timer > 15)";
         await placeBetFS({ game:"Roulette", pick:getRPick(), stake:rStake.value, roundId:g.roundId, seq:g.seq });
         qs("rMsg").textContent = "PLAY SUBMITTED";
-        showToast("🕒 SUBMITTED", "Result at 0 sec");
         vib(40);
         await refreshTop();
       } catch (e) { qs("rMsg").textContent = e.message || String(e); }
@@ -2036,11 +1870,13 @@
     }, 2500);
 
     /* ================= WIN/LOSS MODAL (with bet list) ================= */
-    function closeWLModal(){ qs("wlModal").classList.remove("show"); }
+    let wlMode = "WIN";
     function openWLModal(mode){
+      wlMode = mode || "WIN";
       qs("wlModal").classList.add("show");
-      fillWLModal(mode || "ALL");
+      fillWLModal(wlMode);
     }
+    function closeWLModal(){ qs("wlModal").classList.remove("show"); }
 
     async function loadWLList(mode){
       const tbody = qs("wlTable").querySelector("tbody");
@@ -2110,12 +1946,7 @@
     qs("lossPill").addEventListener("click", ()=> openWLModal("LOSS"));
     qs("wlClose").addEventListener("click", closeWLModal);
     qs("wlModal").addEventListener("click", (e)=>{ if(e.target===qs("wlModal")) closeWLModal(); });
-    document.addEventListener("keydown", (e)=>{
-      if(e.key==="Escape"){
-        try{ closeWLModal(); }catch(_){}
-        try{ closeResModal(); }catch(_){}
-      }
-    });
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeWLModal(); });
     qs("wlShowWin").addEventListener("click", ()=> fillWLModal("WIN"));
     qs("wlShowLoss").addEventListener("click", ()=> fillWLModal("LOSS"));
     qs("wlGoHistory").addEventListener("click", ()=>{ closeWLModal(); setTab("hist"); });
@@ -2162,4 +1993,3 @@
   </script>
 </body>
 </html>
-
