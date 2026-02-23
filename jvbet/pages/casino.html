@@ -50,7 +50,6 @@
       overflow-x:hidden;
     }
 
-    /* premium noise + shine */
     body::before{
       content:"";
       position:fixed;
@@ -913,6 +912,7 @@
         </div>
       </div>
 
+      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Dragon Tiger)</div>
@@ -1033,6 +1033,7 @@
         </div>
       </div>
 
+      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Teen Patti)</div>
@@ -1147,6 +1148,7 @@
         </div>
       </div>
 
+      <!-- OPTION 1: Last 10 table BELOW -->
       <div class="tableCard">
         <div class="tableHead">
           <div class="h">🧾 Last 10 Bets (Roulette)</div>
@@ -1288,6 +1290,28 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESULT POPUP (AUTO on round end) ===== -->
+  <div class="modalBack" id="resModal">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="resTitle">
+      <div class="modalHead">
+        <div class="modalTitle" id="resTitle">🏁 Round Result</div>
+        <button class="modalClose" id="resClose" type="button">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="bigCount" id="resBig">-</div>
+        <div class="bigSub" id="resSub">-</div>
+
+        <div class="modalGrid" id="resGrid"></div>
+
+        <div class="modalBtnRow">
+          <button class="modalBtn primary" id="resOk" type="button">OK</button>
+          <button class="modalBtn" id="resGoHistory" type="button">Open History</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1840,6 +1864,99 @@
       }
     }
 
+    /* ================= RESULT POPUP (AUTO on round end) ================= */
+    const lastResultShown = { DragonTiger: null, TeenPatti: null, Roulette: null };
+
+    function openResModal(){ qs("resModal").classList.add("show"); }
+    function closeResModal(){ qs("resModal").classList.remove("show"); }
+
+    function outcomeForPopup(game, gameDoc, bet){
+      if (!bet) return "NO BET";
+      if (bet.result && bet.result !== "PENDING") return bet.result;
+
+      if (game === "Roulette") {
+        const color = String(gameDoc?.payload?.color || "").toUpperCase();
+        return (String(bet.pick).toUpperCase() === color) ? "WIN" : "LOSS";
+      } else {
+        if (String(gameDoc?.result) === "TIE") return "TIE";
+        return (String(bet.pick) === String(gameDoc?.result)) ? "WIN" : "LOSS";
+      }
+    }
+
+    function payloadLines(game, g){
+      if (game === "DragonTiger") {
+        const d = g?.payload?.d || "-";
+        const t = g?.payload?.t || "-";
+        return ["Dragon Card: " + d, "Tiger Card: " + t];
+      }
+      if (game === "TeenPatti") {
+        const r = g?.payload?.res || g?.result || "-";
+        return ["Result: " + r];
+      }
+      const c = g?.payload?.color || "-";
+      const n = (typeof g?.payload?.n === "number") ? g.payload.n : "-";
+      return ["Color: " + c, "Number: " + n];
+    }
+
+    async function showResultPopup(game, g){
+      if (!g?.roundId || !g?.result) return;
+
+      // prevent repeated popups for same round (every snapshot)
+      if (lastResultShown[game] === g.roundId) return;
+      lastResultShown[game] = g.roundId;
+
+      const niceGame = (game === "DragonTiger") ? "🐉 Dragon Tiger"
+                    : (game === "TeenPatti")   ? "🃏 Teen Patti"
+                    : "🎡 Roulette";
+
+      qs("resTitle").textContent = "🏁 " + niceGame + " • Result";
+      qs("resBig").textContent = String(g.result || "-");
+      qs("resSub").textContent = "Round: " + String(g.roundId || "-");
+
+      // Load my bet (if any) for this round
+      let bet = null;
+      try{
+        const betKey = ME_ID + "_" + game + "_" + g.roundId;
+        const bSnap = await BETS.doc(betKey).get();
+        if (bSnap.exists) bet = bSnap.data() || null;
+      } catch(e){}
+
+      const out = outcomeForPopup(game, g, bet);
+      const pl = payloadLines(game, g);
+
+      const grid = qs("resGrid");
+      const betPick = bet?.pick || "-";
+      const betStake = Number(bet?.stake || 0);
+      const hasBet = !!bet;
+
+      const card = (k,v,isGold) => (
+        "<div class='modalMini'>" +
+          "<div class='k'>" + k + "</div>" +
+          "<div class='v " + (isGold ? "gold" : "") + "'>" + v + "</div>" +
+        "</div>"
+      );
+
+      grid.innerHTML =
+        card("Round ID", String(g.roundId || "-"), false) +
+        card("Result", String(g.result || "-"), true) +
+        card("Your Bet", hasBet ? (String(betPick) + " (" + betStake + ")") : "No Bet Placed", false) +
+        card("Outcome", String(out), (String(out) === "WIN"));
+
+      if (pl && pl.length){
+        pl.slice(0,2).forEach((line, idx)=>{
+          grid.innerHTML += card("Details " + (idx+1), String(line), false);
+        });
+      }
+
+      openResModal();
+      vib(60);
+    }
+
+    qs("resClose").addEventListener("click", closeResModal);
+    qs("resOk").addEventListener("click", closeResModal);
+    qs("resModal").addEventListener("click", (e)=>{ if(e.target===qs("resModal")) closeResModal(); });
+    qs("resGoHistory").addEventListener("click", ()=>{ closeResModal(); setTab("hist"); });
+
     /* ================= LIVE SUBSCRIBE ================= */
     function subscribeGame(game) {
       return GAME_DOC(game).onSnapshot(async (snap) => {
@@ -1855,9 +1972,12 @@
 
         if (g.result) {
           await settleMyBetIfNeeded(game, g);
+
           if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "TeenPatti")  qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
           if (game === "Roulette")   qs("rMsg").textContent = "ROUND RESULT: " + g.result;
+
+          await showResultPopup(game, g); // ✅ auto big center popup
         }
 
         if (secondsLeftFromDoc(g) <= 0) await finalizeIfNeeded(game);
@@ -1916,13 +2036,11 @@
     }, 2500);
 
     /* ================= WIN/LOSS MODAL (with bet list) ================= */
-    let wlMode = "WIN";
-    function openWLModal(mode){
-      wlMode = mode || "WIN";
-      qs("wlModal").classList.add("show");
-      fillWLModal(wlMode);
-    }
     function closeWLModal(){ qs("wlModal").classList.remove("show"); }
+    function openWLModal(mode){
+      qs("wlModal").classList.add("show");
+      fillWLModal(mode || "ALL");
+    }
 
     async function loadWLList(mode){
       const tbody = qs("wlTable").querySelector("tbody");
@@ -1992,7 +2110,12 @@
     qs("lossPill").addEventListener("click", ()=> openWLModal("LOSS"));
     qs("wlClose").addEventListener("click", closeWLModal);
     qs("wlModal").addEventListener("click", (e)=>{ if(e.target===qs("wlModal")) closeWLModal(); });
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeWLModal(); });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key==="Escape"){
+        try{ closeWLModal(); }catch(_){}
+        try{ closeResModal(); }catch(_){}
+      }
+    });
     qs("wlShowWin").addEventListener("click", ()=> fillWLModal("WIN"));
     qs("wlShowLoss").addEventListener("click", ()=> fillWLModal("LOSS"));
     qs("wlGoHistory").addEventListener("click", ()=>{ closeWLModal(); setTab("hist"); });
