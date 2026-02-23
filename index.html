@@ -1,2199 +1,1840 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <title>Casino - JVBET1803</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
-    <link rel="stylesheet" href="../assets/css/style.css" />
+  <meta charset="utf-8" />
+  <title>Casino - JVBET1803</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="shortcut icon" href="../assets/image/jvbet-logo.png" type="image/x-icon" />
 
-    <style>
-         :root {
-            --gold: rgba(212, 175, 55, 1);
-            --shadow: 0 18px 60px rgba(0, 0, 0, .35);
-            --radius: 16px;
-            --text: #fff;
-            --muted: rgba(255, 255, 255, .72);
-        }
-        
-        * {
-            box-sizing: border-box
-        }
-        
-        html,
-        body {
-            height: 100%
-        }
-        
-        body {
-            margin: 0;
-            color: var(--text);
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
-            background: #0b0b0f;
-            min-height: 100dvh;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-        }
-        
-        .bg {
-            background: radial-gradient(900px 500px at 20% -10%, rgba(212, 175, 55, .12), transparent 55%), radial-gradient(900px 500px at 90% 0%, rgba(43, 111, 255, .12), transparent 55%), radial-gradient(900px 500px at 40% 120%, rgba(255, 77, 109, .10), transparent 55%), #0b0b0f;
-        }
-        
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, .35);
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-        }
-        
-        .head-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logo {
-            height: 44px;
-            width: auto;
-            display: block
-        }
-        
-        .wrap {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 12px
-        }
-        
-        .row {
-            display: flex;
-            gap: 10px;
-            align-items: center
-        }
-        
-        .row.wrapRow {
-            flex-wrap: wrap
-        }
-        
-        .spaced {
-            justify-content: space-between
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 10px;
-            border-radius: 999px;
-            background: rgba(0, 0, 0, .25);
-            border: 1px solid rgba(255, 255, 255, .10);
-            font-weight: 800;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-        
-        .gold {
-            color: var(--gold)
-        }
-        
-        .muted {
-            color: var(--muted);
-            font-weight: 700
-        }
-        
-        .btn {
-            appearance: none;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 999px;
-            font-weight: 900;
-            color: #000;
-            background: linear-gradient(180deg, rgba(212, 175, 55, 1), rgba(255, 255, 255, .75));
-            cursor: pointer;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
-            transition: transform .08s ease, opacity .2s ease;
-            user-select: none;
-        }
-        
-        .btn:active {
-            transform: scale(.98)
-        }
-        
-        .btn:disabled {
-            opacity: .55;
-            cursor: not-allowed
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 12px 0 10px;
-        }
-        
-        .tabbtn {
-            border: 1px solid rgba(255, 255, 255, .14);
-            background: rgba(0, 0, 0, .18);
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 999px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-        
-        .tabbtn.active {
-            border-color: rgba(212, 175, 55, .45);
-            background: rgba(212, 175, 55, .14);
-        }
-        
-        .panel {
-            display: none
-        }
-        
-        .panel.active {
-            display: block
-        }
-        
-        .card {
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .22));
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 14px;
-            overflow: hidden;
-        }
-        
-        .card h3 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            letter-spacing: .2px
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px
-        }
-        
-        @media (min-width: 980px) {
-            .grid {
-                grid-template-columns: 1.1fr .9fr
-            }
-        }
-        
-        .aiLiveBox {
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(212, 175, 55, .25);
-            background: rgba(0, 0, 0, .25);
-            box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
-            position: relative;
-            width: 100%;
-        }
-        
-        .aiLiveTop {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: rgba(0, 0, 0, .55);
-            border: 1px solid rgba(255, 255, 255, .12);
-            z-index: 2;
-            max-width: calc(100% - 20px);
-        }
-        
-        .liveDot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ff3b3b;
-            box-shadow: 0 0 14px rgba(255, 59, 59, .85);
-            animation: pulse 1.2s infinite;
-            flex: 0 0 auto;
-        }
-        
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 1
-            }
-            50% {
-                transform: scale(1.35);
-                opacity: .65
-            }
-        }
-        
-        .liveTxt {
-            font-weight: 900;
-            letter-spacing: .4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis
-        }
-        
-        .liveView {
-            opacity: .9;
-            white-space: nowrap;
-            flex: 0 0 auto
-        }
-        
-        .aiVid {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            display: block;
-            filter: contrast(1.05) saturate(1.05);
-            background: #000;
-        }
-        
-        @media (min-width: 900px) {
-            .aiVid {
-                height: 320px
-            }
-        }
-        
-        @media (max-width: 420px) {
-            .aiVid {
-                height: 210px
-            }
-        }
-        
-        .timerWrap {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        
-        .timerPill {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(212, 175, 55, .35);
-            background: rgba(0, 0, 0, .22);
-            flex: 1 1 320px;
-            min-width: 0;
-            max-width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        
-        .timerPill>span {
-            white-space: nowrap
-        }
-        
-        .timerNum {
-            font-weight: 900
-        }
-        
-        .timerBar {
-            flex: 1;
-            height: 8px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .08);
-            overflow: hidden;
-            min-width: 90px;
-        }
-        
-        .timerFill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, rgba(212, 175, 55, .95), rgba(255, 255, 255, .35));
-        }
-        
-        .pillSmall {
-            padding: 8px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            font-weight: 900;
-            flex: 0 0 auto;
-            text-align: center;
-            white-space: nowrap;
-            min-width: 120px;
-        }
-        
-        @media (max-width: 520px) {
-            .pillSmall {
-                min-width: 0;
-                flex: 1 1 120px;
-            }
-        }
-        
-        .lockOpen {
-            border-color: rgba(34, 197, 94, .45)
-        }
-        
-        .lockPlaced {
-            border-color: rgba(43, 111, 255, .45)
-        }
-        
-        .lockLocked {
-            border-color: rgba(255, 193, 7, .45)
-        }
-        
-        .lockClosed {
-            border-color: rgba(255, 77, 109, .45)
-        }
-        
-        .prevBox {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 10px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            min-height: 44px;
-        }
-        
-        .resChip {
-            padding: 6px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(212, 175, 55, .28);
-            background: rgba(0, 0, 0, .25);
-            font-weight: 900;
-            letter-spacing: .3px;
-            white-space: nowrap;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .casinoBoard {
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(0, 0, 0, .18));
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 14px;
-            overflow: hidden;
-        }
-        
-        .cTop {
-            display: grid;
-            grid-template-columns: 1fr 1.3fr 1fr;
-            gap: 10px;
-            align-items: stretch;
-        }
-        
-        @media (max-width: 900px) {
-            .cTop {
-                grid-template-columns: 1fr 1fr
-            }
-        }
-        
-        @media (max-width: 520px) {
-            .cTop {
-                grid-template-columns: 1fr
-            }
-        }
-        
-        .topBox {
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .18);
-            padding: 10px;
-            min-width: 0;
-        }
-        
-        .topTitle {
-            font-weight: 900;
-            opacity: .85;
-            font-size: 12px
-        }
-        
-        .topValue {
-            font-weight: 1000;
-            font-size: 18px;
-            margin-top: 6px
-        }
-        
-        .topValue.gold {
-            color: var(--gold)
-        }
-        
-        .card3 {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
-            margin-top: 6px
-        }
-        
-        .flipCard {
-            width: 72px;
-            height: 92px;
-            perspective: 800px
-        }
-        
-        .flipInner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform .6s ease
-        }
-        
-        .flipCard.flipped .flipInner {
-            transform: rotateY(180deg)
-        }
-        
-        .flipFace {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 1000;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(255, 255, 255, .06);
-            backface-visibility: hidden;
-            padding: 6px;
-            text-align: center;
-            line-height: 1.05;
-            overflow: hidden;
-            word-break: break-word;
-            font-size: clamp(12px, 3.8vw, 17px);
-        }
-        
-        .flipBack {
-            transform: rotateY(180deg)
-        }
-        
-        @media (max-width: 420px) {
-            .flipCard {
-                width: 62px;
-                height: 82px
-            }
-            .card3 {
-                gap: 8px
-            }
-            .flipFace {
-                font-size: clamp(11px, 4.2vw, 15px);
-            }
-        }
-        
-        .cMid {
-            margin-top: 12px
-        }
-        
-        .betRow {
-            display: grid;
-            gap: 10px
-        }
-        
-        #dtBets,
-        #tpBets {
-            grid-template-columns: repeat(3, minmax(0, 1fr))
-        }
-        
-        #rBets {
-            grid-template-columns: repeat(2, minmax(0, 1fr))
-        }
-        
-        .betBox {
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            padding: 12px 10px;
-            cursor: pointer;
-            user-select: none;
-            text-align: center;
-            transition: transform .08s ease, border-color .2s ease, background .2s ease;
-        }
-        
-        .betBox:active {
-            transform: scale(.98)
-        }
-        
-        .betBox.active {
-            border-color: rgba(212, 175, 55, .55);
-            background: rgba(212, 175, 55, .12);
-        }
-        
-        .betName {
-            font-weight: 1000;
-            letter-spacing: .3px
-        }
-        
-        .betMul {
-            margin-top: 4px;
-            font-weight: 900;
-            opacity: .85;
-            font-size: 12px
-        }
-        
-        .cBottom {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px
-        }
-        
-        .chips {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center
-        }
-        
-        .chip {
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .20);
-            padding: 10px 14px;
-            font-weight: 1000;
-            cursor: pointer;
-            user-select: none;
-            min-width: 70px;
-            text-align: center;
-        }
-        
-        .chip:active {
-            transform: scale(.98)
-        }
-        
-        .stakeBox {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            align-items: stretch
-        }
-        
-        .stakeInput {
-            width: 100%;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .14);
-            background: rgba(0, 0, 0, .22);
-            color: #fff;
-            padding: 12px 12px;
-            font-weight: 900;
-            outline: none;
-            min-width: 0;
-        }
-        
-        @media (max-width: 520px) {
-            .stakeBox {
-                flex-direction: column
-            }
-            .stakeBox .btn {
-                width: 100%
-            }
-        }
-        
-        .scrollBox {
-            margin-top: 10px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .14);
-            overflow: auto;
-            -webkit-overflow-scrolling: touch;
-            max-height: 260px;
-        }
-        
-        .scrollBox table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 640px
-        }
-        
-        table.table th,
-        table.table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, .07);
-            text-align: left;
-            white-space: nowrap;
-            font-weight: 800;
-        }
-        
-        table.table th {
-            font-size: 12px;
-            opacity: .9
-        }
-        
-        .miniOuter {
-            margin-top: 10px;
-            border-radius: 16px;
-            border: 1px solid rgba(212, 175, 55, .20);
-            background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(0, 0, 0, .12));
-            overflow: hidden;
-        }
-        
-        .miniHead {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-            background: rgba(0, 0, 0, .20);
-        }
-        
-        .miniTitle {
-            font-weight: 1000;
-            letter-spacing: .2px
-        }
-        
-        .miniSub {
-            opacity: .85;
-            font-size: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 70vw
-        }
-        
-        .miniPill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(0, 0, 0, .18);
-            font-weight: 1000;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        
-        .stPending {
-            border-color: rgba(255, 193, 7, .40)
-        }
-        
-        .stWin {
-            border-color: rgba(34, 197, 94, .45)
-        }
-        
-        .stLoss {
-            border-color: rgba(255, 77, 109, .45)
-        }
-        
-        .stTie {
-            border-color: rgba(43, 111, 255, .45)
-        }
-        
-        .miniScroll {
-            overflow: auto;
-            -webkit-overflow-scrolling: touch
-        }
-        
-        .miniScroll table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 520px
-        }
-        
-        .miniScroll th,
-        .miniScroll td {
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, .07);
-            text-align: left;
-            white-space: nowrap;
-            font-weight: 900;
-        }
-        
-        .miniScroll th {
-            font-size: 12px;
-            opacity: .9
-        }
-        
-        .toast {
-            position: fixed;
-            left: 50%;
-            bottom: 22px;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, .78);
-            border: 1px solid rgba(212, 175, 55, .35);
-            color: #fff;
-            padding: 12px 14px;
-            border-radius: 14px;
-            z-index: 9999;
-            display: none;
-            max-width: 92vw;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
-        }
-        
-        .toast.show {
-            display: block
-        }
-        
-        .toast .t {
-            font-weight: 1000
-        }
-        
-        .toast.win {
-            border-color: rgba(34, 197, 94, .55)
-        }
-        
-        .toast.loss {
-            border-color: rgba(255, 77, 109, .55)
-        }
-        
-        .toast.tie {
-            border-color: rgba(43, 111, 255, .55)
-        }
-        /* ===== Mobile fix: Timer row pills overlap/merge issue ===== */
-        
-        @media (max-width: 524px) {
-            .timerWrap {
-                display: grid;
-                /* grid-template-columns: 1fr 1fr; */
-                gap: 10px;
-                justify-content: initial;
-                align-items: stretch;
-            }
-            /* Timer pill full width */
-            .timerPill {
-                grid-column: 1 / -1;
-                flex: initial;
-                width: 100%;
-            }
-            /* All small pills fit nicely */
-            .pillSmall {
-                min-width: 0 !important;
-                width: 100%;
-            }
-            /* Long roundId ellipsis (cut nicely) */
-            .pillSmall .gold {
-                display: inline-block;
-                max-width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                vertical-align: bottom;
-            }
-        }
-    </style>
+  <!-- Optional: if your old css conflicts, comment this line -->
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <style>
+    :root{
+      --bg:#07080c;
+      --panel: rgba(255,255,255,.05);
+      --panel2: rgba(0,0,0,.35);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(212,175,55,.22);
+      --gold: rgba(212,175,55,1);
+      --gold2: rgba(255,255,255,.75);
+      --text: #fff;
+      --muted: rgba(255,255,255,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 14px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(212,175,55,.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(43,111,255,.10), transparent 55%),
+        radial-gradient(900px 500px at 40% 120%, rgba(255,77,109,.10), transparent 55%),
+        var(--bg);
+      min-height:100dvh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ====== Layout ====== */
+    .shell{max-width:1200px;margin:0 auto;padding:14px}
+    .topbar{
+      position:sticky;top:0;z-index:100;
+      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,.45);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .topbar-inner{
+      max-width:1200px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:12px;padding:10px 14px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .logo{height:40px;width:auto;display:block;filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));}
+    .brandTitle{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    .brandTitle .t1{font-weight:1000;letter-spacing:.6px;line-height:1;font-size:14px;opacity:.95;}
+    .brandTitle .t2{
+      font-weight:800;font-size:12px;color:var(--muted);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:52vw;
+    }
+
+    .actions{display:flex;gap:10px;align-items:center;flex:0 0 auto;}
+    .btn{
+      appearance:none;border:none;
+      padding:10px 14px;border-radius:999px;
+      font-weight:1000;color:#120c00;
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.80));
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      transition: transform .08s ease, opacity .2s ease;
+      user-select:none;
+    }
+    .btn:active{transform:scale(.98)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    /* ====== Stats strip ====== */
+    .statsGrid{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    @media (max-width: 860px){ .statsGrid{grid-template-columns:1fr 1fr} }
+    @media (max-width: 420px){ .statsGrid{grid-template-columns:1fr} }
+
+    .statCard{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.24));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:12px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      overflow:hidden;
+    }
+    .statLeft{min-width:0}
+    .statK{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.3px;}
+    .statV{
+      margin-top:6px;font-weight:1100;font-size:18px;letter-spacing:.2px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .gold{color:var(--gold)}
+    .muted{color:var(--muted);font-weight:800}
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:900;font-size:13px;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;text-overflow:ellipsis;
+    }
+
+    /* ====== Tabs (top) ====== */
+    .tabsWrap{
+      position:sticky;top:62px;z-index:90;
+      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,.35);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    @media (max-width:520px){ .tabsWrap{top:58px} }
+    .tabs{
+      max-width:1200px;margin:0 auto;
+      padding:10px 14px;
+      display:flex;gap:10px;flex-wrap:wrap;
+    }
+    .tabbtn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:1000;
+      cursor:pointer;
+      transition: background .2s ease, border-color .2s ease, transform .08s ease;
+    }
+    .tabbtn:active{transform:scale(.98)}
+    .tabbtn.active{
+      border-color: rgba(212,175,55,.50);
+      background: rgba(212,175,55,.14);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    /* ====== Panels / Cards ====== */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (min-width: 980px){ .grid{grid-template-columns: 1.15fr .85fr} }
+
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:.2px;
+      font-weight:1100;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+
+    /* ====== Live Box ====== */
+    .aiLiveBox{
+      border-radius: 18px;
+      overflow:hidden;
+      border:1px solid rgba(212,175,55,.24);
+      background: rgba(0,0,0,.25);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      position:relative;width:100%;
+      transform: translateZ(0);
+    }
+    .aiLiveTop{
+      position:absolute;top:10px;left:10px;
+      display:flex;gap:10px;align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.58);
+      border:1px solid rgba(255,255,255,.12);
+      z-index:4;
+      max-width: calc(100% - 20px);
+    }
+    .liveDot{
+      width:10px;height:10px;border-radius:50%;
+      background:#ff3b3b;
+      box-shadow: 0 0 14px rgba(255,59,59,.85);
+      animation:pulse 1.2s infinite;
+      flex:0 0 auto;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.35);opacity:.65}
+    }
+    .liveTxt{font-weight:1000;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .liveView{opacity:.9;white-space:nowrap;flex:0 0 auto}
+
+    .aiVid{
+      width:100%;
+      height: 260px;
+      object-fit:cover;
+      display:block;
+      filter: contrast(1.05) saturate(1.05);
+      background:#000;
+    }
+    @media (min-width: 900px){.aiVid{height: 340px}}
+    @media (max-width: 420px){.aiVid{height: 220px}}
+
+    /* ====== Locked overlay (NEW) ====== */
+    .lockOverlay{
+      position:absolute; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.72));
+      backdrop-filter: blur(2px);
+      z-index:3;
+      padding:14px;
+    }
+    .lockOverlay.show{display:flex}
+    .lockOverlayCard{
+      width:min(520px, 92%);
+      border-radius: 18px;
+      border: 1px solid rgba(212,175,55,.28);
+      background: rgba(0,0,0,.60);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      padding:14px;
+      text-align:center;
+    }
+    .lockOverlayTitle{
+      font-weight:1100; letter-spacing:.3px;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      font-size:16px;
+    }
+    .lockOverlaySub{margin-top:6px;color:var(--muted);font-weight:800;font-size:13px}
+    .lockOverlayRow{
+      margin-top:10px;
+      display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+    }
+    .smallBadge{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    /* ====== Timer row ====== */
+    .timerWrap{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      justify-content:space-between;margin-top:12px;
+    }
+    .timerPill{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.35);
+      background: rgba(0,0,0,.22);
+      flex: 1 1 320px;
+      min-width:0;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+    .timerNum{font-weight:1100}
+    .timerBar{
+      flex:1;height:8px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      overflow:hidden;min-width:90px;
+    }
+    .timerFill{
+      height:100%;width:0%;
+      background: linear-gradient(90deg, rgba(212,175,55,.95), rgba(255,255,255,.35));
+    }
+    .pillSmall{
+      padding:10px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      font-weight:1000;
+      white-space:nowrap;
+      min-width: 140px;
+      text-align:center;
+    }
+    @media (max-width: 520px){ .pillSmall{min-width:0;flex:1 1 140px} }
+
+    .lockOpen{border-color: rgba(34,197,94,.45)}
+    .lockPlaced{border-color: rgba(43,111,255,.45)}
+    .lockLocked{border-color: rgba(255,193,7,.45)}
+    .lockClosed{border-color: rgba(255,77,109,.45)}
+
+    /* ====== Result chips ====== */
+    .prevBox{
+      display:flex;gap:8px;flex-wrap:wrap;
+      padding:10px;border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      min-height:44px;
+    }
+    .resChip{
+      padding:7px 11px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.28);
+      background: rgba(0,0,0,.25);
+      font-weight:1000;
+      letter-spacing:.3px;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;text-overflow:ellipsis;
+    }
+
+    /* ====== Board ====== */
+    .casinoBoard{
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+      position:relative;
+    }
+    .cTop{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr 1fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    @media (max-width: 900px){.cTop{grid-template-columns:1fr 1fr}}
+    @media (max-width: 520px){.cTop{grid-template-columns:1fr}}
+    .topBox{
+      border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding:12px;
+      min-width:0;
+    }
+    .topTitle{font-weight:900;opacity:.85;font-size:12px}
+    .topValue{font-weight:1100;font-size:18px;margin-top:6px}
+    .topValue.gold{color:var(--gold)}
+
+    .card3{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:6px}
+    .flipCard{width:72px;height:92px;perspective:800px}
+    .flipInner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s ease}
+    .flipCard.flipped .flipInner{transform: rotateY(180deg)}
+    .flipFace{
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:1100;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      backface-visibility:hidden;
+      padding:6px;text-align:center;line-height:1.05;
+      overflow:hidden;word-break:break-word;
+      font-size: clamp(12px, 3.8vw, 17px);
+    }
+    .flipBack{transform: rotateY(180deg)}
+    @media (max-width: 420px){
+      .flipCard{width:62px;height:82px}
+      .card3{gap:8px}
+      .flipFace{font-size: clamp(11px, 4.2vw, 15px)}
+    }
+
+    .cMid{margin-top:12px}
+    .betRow{display:grid;gap:10px}
+    #dtBets,#tpBets{grid-template-columns: repeat(3, minmax(0,1fr))}
+    #rBets{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .betBox{
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding:14px 10px;
+      cursor:pointer;user-select:none;text-align:center;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+    }
+    .betBox:active{transform:scale(.98)}
+    .betBox.active{
+      border-color: rgba(212,175,55,.55);
+      background: rgba(212,175,55,.12);
+    }
+    .betName{font-weight:1100;letter-spacing:.3px}
+    .betMul{margin-top:4px;font-weight:900;opacity:.85;font-size:12px}
+
+    .cBottom{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    .chip{
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      padding:10px 14px;
+      font-weight:1100;
+      cursor:pointer;user-select:none;
+      min-width:70px;text-align:center;
+    }
+    .chip:active{transform:scale(.98)}
+    .stakeBox{display:flex;gap:10px;width:100%;align-items:stretch}
+    .stakeInput{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color:#fff;
+      padding:12px 12px;
+      font-weight:900;
+      outline:none;
+      min-width:0;
+    }
+    @media (max-width: 520px){
+      .stakeBox{flex-direction:column}
+      .stakeBox .btn{width:100%}
+    }
+
+    /* ====== Tables ====== */
+    .scrollBox{
+      margin-top:10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 280px;
+    }
+    .scrollBox table{width:100%;border-collapse:collapse;min-width:640px}
+    table.table th, table.table td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      text-align:left;
+      white-space:nowrap;
+      font-weight:900;
+    }
+    table.table th{font-size:12px;opacity:.9}
+
+    /* ====== Mini Boxes ====== */
+    .miniOuter{
+      margin-top:10px;
+      border-radius: 16px;
+      border:1px solid rgba(212,175,55,.20);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.12));
+      overflow:hidden;
+    }
+    .miniHead{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.20);
+    }
+    .miniTitle{font-weight:1100;letter-spacing:.2px}
+    .miniSub{
+      opacity:.85;font-size:12px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:70vw;
+    }
+    .miniPill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      font-weight:1100;font-size:12px;
+      white-space:nowrap;
+    }
+    .stPending{border-color: rgba(255,193,7,.40)}
+    .stWin{border-color: rgba(34,197,94,.45)}
+    .stLoss{border-color: rgba(255,77,109,.45)}
+    .stTie{border-color: rgba(43,111,255,.45)}
+    .miniScroll{overflow:auto;-webkit-overflow-scrolling:touch}
+    .miniScroll table{width:100%;border-collapse:collapse;min-width:520px}
+    .miniScroll th,.miniScroll td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      text-align:left;
+      white-space:nowrap;
+      font-weight:900;
+    }
+    .miniScroll th{font-size:12px;opacity:.9}
+
+    /* ===== Toast ===== */
+    .toast{
+      position:fixed;left:50%;bottom:22px;transform: translateX(-50%);
+      background: rgba(0,0,0,.80);
+      border:1px solid rgba(212,175,55,.35);
+      color:#fff;padding:12px 14px;border-radius: 14px;
+      z-index:9999;display:none;max-width: 92vw;
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+    .toast.show{display:block}
+    .toast .t{font-weight:1100}
+    .toast.win{border-color: rgba(34,197,94,.55)}
+    .toast.loss{border-color: rgba(255,77,109,.55)}
+    .toast.tie{border-color: rgba(43,111,255,.55)}
+
+    /* ===== Mobile safety for timer row overlap ===== */
+    @media (max-width: 524px){
+      .timerWrap{display:grid;gap:10px;justify-content:initial;align-items:stretch;}
+      .timerPill{grid-column:1/-1;flex:initial;width:100%}
+      .pillSmall{min-width:0 !important;width:100%}
+      .pillSmall .gold{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;}
+    }
+
+    /* ===== Bottom Tabbar (NEW) ===== */
+    .bottomNav{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      z-index:120;
+      display:none;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .bottomNav .navInner{
+      max-width: 680px;
+      margin: 0 auto;
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap:10px;
+    }
+    .navBtn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color:#fff;
+      border-radius: 16px;
+      padding:10px 8px;
+      font-weight:1100;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
+    }
+    .navBtn:active{transform:scale(.98)}
+    .navBtn.active{
+      border-color: rgba(212,175,55,.55);
+      background: rgba(212,175,55,.14);
+    }
+    .navIcon{font-size:18px;line-height:1}
+    .navTxt{font-size:12px;letter-spacing:.2px;opacity:.95}
+
+    /* show bottom nav on mobile */
+    @media (max-width: 720px){
+      .bottomNav{display:block;}
+      /* Give space so content not hidden behind bottom nav */
+      main.shell{padding-bottom: 92px;}
+    }
+
+  </style>
 </head>
 
-<body class="bg">
-    <header class="header">
-        <div class="head-inner">
-            <img class="logo" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
+<body>
+  <!-- ===== Top Bar ===== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img class="logo" src="../assets/image/jvbet-logo.png" alt="JVBET1803">
+        <div class="brandTitle">
+          <div class="t1">JVBET 1803</div>
+          <div class="t2">Premium Live Casino</div>
         </div>
-    </header>
+      </div>
 
-    <main class="wrap">
-        <div class="row wrapRow spaced" style="margin-bottom:12px">
-            <div class="row wrapRow">
-                <span class="badge">Client: <span class="gold" id="cid">-</span></span>
-                <span class="badge">Points: <span class="gold" id="pts">0</span></span>
-                <span class="badge">Win: <span class="gold" id="w">0</span></span>
-                <span class="badge">Loss: <span class="gold" id="l">0</span></span>
-            </div>
-            <button class="btn" type="button" id="logoutBtn">Logout</button>
-        </div>
-
-        <div class="tabs">
-            <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
-            <button class="tabbtn" data-tab="tp" type="button">Teen Patti</button>
-            <button class="tabbtn" data-tab="rl" type="button">Roulette</button>
-            <button class="tabbtn" data-tab="hist" type="button">History</button>
-        </div>
-
-        <!-- ======================= DRAGON TIGER ======================= -->
-        <section class="panel active" id="dt">
-            <div class="grid">
-                <div class="card">
-                    <h3>Dragon Tiger</h3>
-
-                    <div class="aiLiveBox">
-                        <div class="aiLiveTop">
-                            <span class="liveDot"></span>
-                            <span class="liveTxt">LIVE</span>
-                            <span class="liveView" id="dtView">👁 128</span>
-                        </div>
-                        <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
-            </video>
-                    </div>
-
-                    <div class="timerWrap">
-                        <div class="timerPill">
-                            <span>⏳</span>
-                            <span>Round ends in:</span>
-                            <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
-                            <div class="timerBar">
-                                <div class="timerFill" id="dtFill"></div>
-                            </div>
-                        </div>
-                        <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
-                        <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
-                    </div>
-
-                    <div style="margin-top:10px">
-                        <div class="muted">Latest Result</div>
-                        <div class="prevBox" id="dtPrev"></div>
-                    </div>
-
-                    <div class="miniOuter" id="dtLast5Box">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">Last 5 Results</div>
-                                <div class="miniSub" id="dtLast5Sub">—</div>
-                            </div>
-                            <span class="miniPill">AUTO</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Result</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dtLast5Body">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No results yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="miniOuter" id="dtMyBetBox">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">My Bet</div>
-                                <div class="miniSub" id="dtMyBetSub">—</div>
-                            </div>
-                            <span class="miniPill" id="dtMyBetStatus">NO BET</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Pick</th>
-                                        <th>Points</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dtMyBetBody">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No bet placed yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <p class="muted" style="margin-top:10px">
-                        ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
-                    </p>
-                </div>
-
-                <div class="casinoBoard">
-                    <div class="cTop">
-                        <div class="topBox">
-                            <div class="topTitle">Last Result</div>
-                            <div class="topValue" id="dtLast">-</div>
-                        </div>
-
-                        <div class="topBox">
-                            <div class="topTitle" style="text-align:center">Cards</div>
-                            <div class="card3">
-                                <div class="flipCard" id="fcD">
-                                    <div class="flipInner">
-                                        <div class="flipFace">?</div>
-                                        <div class="flipFace flipBack" id="dtD">?</div>
-                                    </div>
-                                </div>
-                                <div class="flipCard" id="fcT">
-                                    <div class="flipInner">
-                                        <div class="flipFace">?</div>
-                                        <div class="flipFace flipBack" id="dtT">?</div>
-                                    </div>
-                                </div>
-                                <div class="flipCard" id="fcR">
-                                    <div class="flipInner">
-                                        <div class="flipFace">?</div>
-                                        <div class="flipFace flipBack" id="dtR">?</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="topBox">
-                            <div class="topTitle">Selected</div>
-                            <div class="topValue gold" id="dtPickShow">DRAGON</div>
-                        </div>
-                    </div>
-
-                    <div class="cMid">
-                        <div class="betRow" id="dtBets">
-                            <div class="betBox active" data-pick="DRAGON">
-                                <div class="betName">DRAGON</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                            <div class="betBox" data-pick="TIGER">
-                                <div class="betName">TIGER</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                            <div class="betBox" data-pick="TIE">
-                                <div class="betName">TIE</div>
-                                <div class="betMul">Refund</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cBottom">
-                        <div class="chips">
-                            <div class="chip" data-v="50">50</div>
-                            <div class="chip" data-v="100">100</div>
-                            <div class="chip" data-v="500">500</div>
-                            <div class="chip" data-v="1000">1000</div>
-                            <div class="chip" data-v="5000">5000</div>
-                        </div>
-
-                        <div class="stakeBox">
-                            <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet">
-                            <button class="btn" id="dtPlay" type="button">Place Bet</button>
-                        </div>
-
-                        <span class="badge" id="dtMsg">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top:14px">
-                <h3>Last 10 Bets (Dragon Tiger)</h3>
-                <div class="muted" id="dtWait"></div>
-                <div class="scrollBox">
-                    <table class="table" id="dtPast">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Pick</th>
-                                <th>Points</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================= TEEN PATTI ======================= -->
-        <section class="panel" id="tp">
-            <div class="grid">
-                <div class="card">
-                    <h3>Teen Patti</h3>
-
-                    <div class="aiLiveBox">
-                        <div class="aiLiveTop">
-                            <span class="liveDot"></span>
-                            <span class="liveTxt">LIVE</span>
-                            <span class="liveView" id="tpView">👁 212</span>
-                        </div>
-                        <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
-            </video>
-                    </div>
-
-                    <div class="timerWrap">
-                        <div class="timerPill">
-                            <span>⏳</span><span>Round ends in:</span>
-                            <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
-                            <div class="timerBar">
-                                <div class="timerFill" id="tpFill"></div>
-                            </div>
-                        </div>
-                        <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
-                        <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
-                        <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
-                    </div>
-
-                    <div style="margin-top:10px">
-                        <div class="muted">Latest Result</div>
-                        <div class="prevBox" id="tpPrev"></div>
-                    </div>
-
-                    <div class="miniOuter" id="tpLast5Box">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">Last 5 Results</div>
-                                <div class="miniSub" id="tpLast5Sub">—</div>
-                            </div>
-                            <span class="miniPill">AUTO</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Result</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tpLast5Body">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No results yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="miniOuter" id="tpMyBetBox">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">My Bet</div>
-                                <div class="miniSub" id="tpMyBetSub">—</div>
-                            </div>
-                            <span class="miniPill" id="tpMyBetStatus">NO BET</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Pick</th>
-                                        <th>Points</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tpMyBetBody">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No bet placed yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="casinoBoard">
-                    <div class="cTop">
-                        <div class="topBox">
-                            <div class="topTitle">Selected</div>
-                            <div class="topValue gold" id="tpPickShow2">PLAYER</div>
-                        </div>
-                        <div class="topBox">
-                            <div class="topTitle">Round</div>
-                            <div class="topValue" id="tpRound2">-</div>
-                        </div>
-                        <div class="topBox">
-                            <div class="topTitle">Status</div>
-                            <div class="topValue" id="tpStatus">-</div>
-                        </div>
-                    </div>
-
-                    <div class="cMid">
-                        <div class="betRow" id="tpBets">
-                            <div class="betBox active" data-pick="PLAYER">
-                                <div class="betName">PLAYER</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                            <div class="betBox" data-pick="BANKER">
-                                <div class="betName">BANKER</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                            <div class="betBox" data-pick="TIE">
-                                <div class="betName">TIE</div>
-                                <div class="betMul">Refund</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cBottom">
-                        <div class="chips">
-                            <div class="chip" data-v="50">50</div>
-                            <div class="chip" data-v="100">100</div>
-                            <div class="chip" data-v="500">500</div>
-                            <div class="chip" data-v="1000">1000</div>
-                            <div class="chip" data-v="5000">5000</div>
-                        </div>
-
-                        <div class="stakeBox">
-                            <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points">
-                            <button class="btn" id="tpPlay" type="button">PLAY</button>
-                        </div>
-
-                        <span class="badge" id="tpMsg">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top:14px">
-                <h3>Last 10 Bets (Teen Patti)</h3>
-                <div class="muted" id="tpWait"></div>
-                <div class="scrollBox">
-                    <table class="table" id="tpPast">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Pick</th>
-                                <th>Points</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================= ROULETTE ======================= -->
-        <section class="panel" id="rl">
-            <div class="grid">
-                <div class="card">
-                    <h3>Roulette</h3>
-
-                    <div class="aiLiveBox">
-                        <div class="aiLiveTop">
-                            <span class="liveDot"></span>
-                            <span class="liveTxt">LIVE</span>
-                            <span class="liveView" id="rView">👁 156</span>
-                        </div>
-                        <video class="aiVid" autoplay loop muted playsinline>
-              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
-            </video>
-                    </div>
-
-                    <div class="timerWrap">
-                        <div class="timerPill">
-                            <span>⏳</span><span>Round ends in:</span>
-                            <span class="timerNum gold" id="rTimer">30</span><span>s</span>
-                            <div class="timerBar">
-                                <div class="timerFill" id="rFill"></div>
-                            </div>
-                        </div>
-                        <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
-                        <div class="pillSmall lockOpen" id="rLock">OPEN</div>
-                        <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
-                    </div>
-
-                    <div style="margin-top:10px">
-                        <div class="muted">Latest Result</div>
-                        <div class="prevBox" id="rPrev"></div>
-                    </div>
-
-                    <div class="miniOuter" id="rLast5Box">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">Last 5 Results</div>
-                                <div class="miniSub" id="rLast5Sub">—</div>
-                            </div>
-                            <span class="miniPill">AUTO</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Result</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rLast5Body">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No results yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="miniOuter" id="rMyBetBox">
-                        <div class="miniHead">
-                            <div>
-                                <div class="miniTitle">My Bet</div>
-                                <div class="miniSub" id="rMyBetSub">—</div>
-                            </div>
-                            <span class="miniPill" id="rMyBetStatus">NO BET</span>
-                        </div>
-                        <div class="miniScroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Pick</th>
-                                        <th>Points</th>
-                                        <th>Round</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rMyBetBody">
-                                    <tr>
-                                        <td colspan="4" class="muted" style="padding:12px">No bet placed yet</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="casinoBoard">
-                    <div class="cMid">
-                        <div class="betRow" id="rBets">
-                            <div class="betBox active" data-pick="RED">
-                                <div class="betName">RED</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                            <div class="betBox" data-pick="BLACK">
-                                <div class="betName">BLACK</div>
-                                <div class="betMul">2x</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cBottom">
-                        <div class="chips">
-                            <div class="chip" data-v="50">50</div>
-                            <div class="chip" data-v="100">100</div>
-                            <div class="chip" data-v="500">500</div>
-                            <div class="chip" data-v="1000">1000</div>
-                            <div class="chip" data-v="5000">5000</div>
-                        </div>
-
-                        <div class="stakeBox">
-                            <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points">
-                            <button class="btn" id="rPlay" type="button">PLAY</button>
-                        </div>
-
-                        <span class="badge" id="rMsg">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top:14px">
-                <h3>Last 10 Bets (Roulette)</h3>
-                <div class="muted" id="rWait"></div>
-                <div class="scrollBox">
-                    <table class="table" id="rPast">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Pick</th>
-                                <th>Points</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================= HISTORY ======================= -->
-        <section class="panel" id="hist">
-            <div class="card">
-                <h3>Full Play History</h3>
-                <div class="scrollBox" style="max-height:360px">
-                    <table class="table" id="bh">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Game</th>
-                                <th>Pick</th>
-                                <th>Points</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <div class="toast" id="toast">
-        <div class="t" id="toastTitle">-</div>
-        <div class="muted" id="toastBody">-</div>
+      <div class="actions">
+        <button class="btn" type="button" id="logoutBtn">Logout</button>
+      </div>
     </div>
 
-    <!-- Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <!-- Stats strip (IDs SAME) -->
+    <div class="shell" style="padding-top:0">
+      <div class="statsGrid">
+        <div class="statCard">
+          <div class="statLeft">
+            <div class="statK">Client ID</div>
+            <div class="statV gold" id="cid">-</div>
+          </div>
+          <div class="pill">👤 User</div>
+        </div>
 
-    <script>
-        /* ================= FIREBASE INIT ================= */
-        firebase.initializeApp({
-            apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
-            authDomain: "jvbet-bbf90.firebaseapp.com",
-            projectId: "jvbet-bbf90",
-            storageBucket: "jvbet-bbf90.appspot.com",
-            messagingSenderId: "824871692224",
-            appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+        <div class="statCard">
+          <div class="statLeft">
+            <div class="statK">Points</div>
+            <div class="statV gold" id="pts">0</div>
+          </div>
+          <div class="pill">💰 Balance</div>
+        </div>
+
+        <div class="statCard">
+          <div class="statLeft">
+            <div class="statK">Win</div>
+            <div class="statV gold" id="w">0</div>
+          </div>
+          <div class="pill">✅ Wins</div>
+        </div>
+
+        <div class="statCard">
+          <div class="statLeft">
+            <div class="statK">Loss</div>
+            <div class="statV gold" id="l">0</div>
+          </div>
+          <div class="pill">❌ Loss</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Tabs (top) ===== -->
+  <div class="tabsWrap">
+    <div class="tabs">
+      <button class="tabbtn active" data-tab="dt" type="button">Dragon Tiger</button>
+      <button class="tabbtn" data-tab="tp" type="button">Teen Patti</button>
+      <button class="tabbtn" data-tab="rl" type="button">Roulette</button>
+      <button class="tabbtn" data-tab="hist" type="button">History</button>
+    </div>
+  </div>
+
+  <main class="shell">
+
+    <!-- ======================= DRAGON TIGER ======================= -->
+    <section class="panel active" id="dt">
+      <div class="grid">
+        <div class="card">
+          <h3>
+            <span>Dragon Tiger</span>
+            <span class="pill">🎥 Live</span>
+          </h3>
+
+          <div class="aiLiveBox">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE</span>
+              <span class="liveView" id="dtView">👁 128</span>
+            </div>
+
+            <!-- Locked overlay target: DT -->
+            <div class="lockOverlay" id="dtOverlay">
+              <div class="lockOverlayCard">
+                <div class="lockOverlayTitle">🔒 Bets Locked</div>
+                <div class="lockOverlaySub">Play allowed only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockOverlayRow">
+                  <div class="smallBadge">Round: <span class="gold" id="dtOverlayRound">-</span></div>
+                  <div class="smallBadge">Time left: <span class="gold" id="dtOverlayTimer">0</span>s</div>
+                </div>
+              </div>
+            </div>
+
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/dealer_loop.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <div class="timerWrap">
+            <div class="timerPill">
+              <span>⏳</span>
+              <span>Round ends in:</span>
+              <span class="timerNum gold" id="dtTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="dtFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="dtRound">-</span></div>
+            <div class="pillSmall lockOpen" id="dtLock">OPEN</div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result</div>
+            <div class="prevBox" id="dtPrev"></div>
+          </div>
+
+          <div class="miniOuter" id="dtLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="dtLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr>
+                </thead>
+                <tbody id="dtLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniOuter" id="dtMyBetBox">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">My Bet</div>
+                <div class="miniSub" id="dtMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="dtMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead>
+                  <tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr>
+                </thead>
+                <tbody id="dtMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="muted" style="margin-top:10px">
+            ✅ Play allowed only when timer &gt; 15 sec. ✅ Result shows exactly at 0 sec.
+          </p>
+        </div>
+
+        <div class="casinoBoard">
+          <div class="cTop">
+            <div class="topBox">
+              <div class="topTitle">Last Result</div>
+              <div class="topValue" id="dtLast">-</div>
+            </div>
+
+            <div class="topBox">
+              <div class="topTitle" style="text-align:center">Cards</div>
+              <div class="card3">
+                <div class="flipCard" id="fcD">
+                  <div class="flipInner">
+                    <div class="flipFace">?</div>
+                    <div class="flipFace flipBack" id="dtD">?</div>
+                  </div>
+                </div>
+                <div class="flipCard" id="fcT">
+                  <div class="flipInner">
+                    <div class="flipFace">?</div>
+                    <div class="flipFace flipBack" id="dtT">?</div>
+                  </div>
+                </div>
+                <div class="flipCard" id="fcR">
+                  <div class="flipInner">
+                    <div class="flipFace">?</div>
+                    <div class="flipFace flipBack" id="dtR">?</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="topBox">
+              <div class="topTitle">Selected</div>
+              <div class="topValue gold" id="dtPickShow">DRAGON</div>
+            </div>
+          </div>
+
+          <div class="cMid">
+            <div class="betRow" id="dtBets">
+              <div class="betBox active" data-pick="DRAGON">
+                <div class="betName">DRAGON</div>
+                <div class="betMul">2x</div>
+              </div>
+              <div class="betBox" data-pick="TIGER">
+                <div class="betName">TIGER</div>
+                <div class="betMul">2x</div>
+              </div>
+              <div class="betBox" data-pick="TIE">
+                <div class="betName">TIE</div>
+                <div class="betMul">Refund</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeBox">
+              <input class="stakeInput" id="dtStake" type="number" inputmode="numeric" placeholder="Enter Bet">
+              <button class="btn" id="dtPlay" type="button">Place Bet</button>
+            </div>
+
+            <span class="pill" id="dtMsg">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Dragon Tiger)</h3>
+        <div class="muted" id="dtWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="dtPast">
+            <thead>
+              <tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= TEEN PATTI ======================= -->
+    <section class="panel" id="tp">
+      <div class="grid">
+        <div class="card">
+          <h3><span>Teen Patti</span><span class="pill">🎥 Live</span></h3>
+
+          <div class="aiLiveBox">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE</span>
+              <span class="liveView" id="tpView">👁 212</span>
+            </div>
+
+            <!-- Locked overlay target: TP -->
+            <div class="lockOverlay" id="tpOverlay">
+              <div class="lockOverlayCard">
+                <div class="lockOverlayTitle">🔒 Bets Locked</div>
+                <div class="lockOverlaySub">Play allowed only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockOverlayRow">
+                  <div class="smallBadge">Round: <span class="gold" id="tpOverlayRound">-</span></div>
+                  <div class="smallBadge">Time left: <span class="gold" id="tpOverlayTimer">0</span>s</div>
+                </div>
+              </div>
+            </div>
+
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/teen-patti.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <div class="timerWrap">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="tpTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="tpFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="tpRound">-</span></div>
+            <div class="pillSmall lockOpen" id="tpLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="tpPickShow">PLAYER</span></div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result</div>
+            <div class="prevBox" id="tpPrev"></div>
+          </div>
+
+          <div class="miniOuter" id="tpLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="tpLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="tpLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniOuter" id="tpMyBetBox">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">My Bet</div>
+                <div class="miniSub" id="tpMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="tpMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="tpMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="casinoBoard">
+          <div class="cTop">
+            <div class="topBox">
+              <div class="topTitle">Selected</div>
+              <div class="topValue gold" id="tpPickShow2">PLAYER</div>
+            </div>
+            <div class="topBox">
+              <div class="topTitle">Round</div>
+              <div class="topValue" id="tpRound2">-</div>
+            </div>
+            <div class="topBox">
+              <div class="topTitle">Status</div>
+              <div class="topValue" id="tpStatus">-</div>
+            </div>
+          </div>
+
+          <div class="cMid">
+            <div class="betRow" id="tpBets">
+              <div class="betBox active" data-pick="PLAYER">
+                <div class="betName">PLAYER</div><div class="betMul">2x</div>
+              </div>
+              <div class="betBox" data-pick="BANKER">
+                <div class="betName">BANKER</div><div class="betMul">2x</div>
+              </div>
+              <div class="betBox" data-pick="TIE">
+                <div class="betName">TIE</div><div class="betMul">Refund</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeBox">
+              <input class="stakeInput" id="tpStake" type="number" inputmode="numeric" placeholder="Enter points">
+              <button class="btn" id="tpPlay" type="button">PLAY</button>
+            </div>
+
+            <span class="pill" id="tpMsg">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Teen Patti)</h3>
+        <div class="muted" id="tpWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="tpPast">
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= ROULETTE ======================= -->
+    <section class="panel" id="rl">
+      <div class="grid">
+        <div class="card">
+          <h3><span>Roulette</span><span class="pill">🎥 Live</span></h3>
+
+          <div class="aiLiveBox">
+            <div class="aiLiveTop">
+              <span class="liveDot"></span>
+              <span class="liveTxt">LIVE</span>
+              <span class="liveView" id="rView">👁 156</span>
+            </div>
+
+            <!-- Locked overlay target: R -->
+            <div class="lockOverlay" id="rOverlay">
+              <div class="lockOverlayCard">
+                <div class="lockOverlayTitle">🔒 Bets Locked</div>
+                <div class="lockOverlaySub">Play allowed only when timer &gt; <span class="gold">15</span> sec</div>
+                <div class="lockOverlayRow">
+                  <div class="smallBadge">Round: <span class="gold" id="rOverlayRound">-</span></div>
+                  <div class="smallBadge">Time left: <span class="gold" id="rOverlayTimer">0</span>s</div>
+                </div>
+              </div>
+            </div>
+
+            <video class="aiVid" autoplay loop muted playsinline>
+              <source src="../assets/video/Roulette_.mp4" type="video/mp4">
+            </video>
+          </div>
+
+          <div class="timerWrap">
+            <div class="timerPill">
+              <span>⏳</span><span>Round ends in:</span>
+              <span class="timerNum gold" id="rTimer">30</span><span>s</span>
+              <div class="timerBar"><div class="timerFill" id="rFill"></div></div>
+            </div>
+            <div class="pillSmall">Round: <span class="gold" id="rRound">-</span></div>
+            <div class="pillSmall lockOpen" id="rLock">OPEN</div>
+            <div class="pillSmall">Selected: <span class="gold" id="rPickShow">RED</span></div>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted">Latest Result</div>
+            <div class="prevBox" id="rPrev"></div>
+          </div>
+
+          <div class="miniOuter" id="rLast5Box">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">Last 5 Results</div>
+                <div class="miniSub" id="rLast5Sub">—</div>
+              </div>
+              <span class="miniPill">AUTO</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>#</th><th>Result</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="rLast5Body">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No results yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="miniOuter" id="rMyBetBox">
+            <div class="miniHead">
+              <div>
+                <div class="miniTitle">My Bet</div>
+                <div class="miniSub" id="rMyBetSub">—</div>
+              </div>
+              <span class="miniPill" id="rMyBetStatus">NO BET</span>
+            </div>
+            <div class="miniScroll">
+              <table>
+                <thead><tr><th>Pick</th><th>Points</th><th>Round</th><th>Time</th></tr></thead>
+                <tbody id="rMyBetBody">
+                  <tr><td colspan="4" class="muted" style="padding:12px">No bet placed yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="casinoBoard">
+          <div class="cMid">
+            <div class="betRow" id="rBets">
+              <div class="betBox active" data-pick="RED">
+                <div class="betName">RED</div><div class="betMul">2x</div>
+              </div>
+              <div class="betBox" data-pick="BLACK">
+                <div class="betName">BLACK</div><div class="betMul">2x</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cBottom">
+            <div class="chips">
+              <div class="chip" data-v="50">50</div>
+              <div class="chip" data-v="100">100</div>
+              <div class="chip" data-v="500">500</div>
+              <div class="chip" data-v="1000">1000</div>
+              <div class="chip" data-v="5000">5000</div>
+            </div>
+
+            <div class="stakeBox">
+              <input class="stakeInput" id="rStake" type="number" inputmode="numeric" placeholder="Enter points">
+              <button class="btn" id="rPlay" type="button">PLAY</button>
+            </div>
+
+            <span class="pill" id="rMsg">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Last 10 Bets (Roulette)</h3>
+        <div class="muted" id="rWait"></div>
+        <div class="scrollBox">
+          <table class="table" id="rPast">
+            <thead><tr><th>Time</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= HISTORY ======================= -->
+    <section class="panel" id="hist">
+      <div class="card">
+        <h3>Full Play History</h3>
+        <div class="scrollBox" style="max-height:360px">
+          <table class="table" id="bh">
+            <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Bottom Tabbar (Mobile) ===== -->
+  <nav class="bottomNav" aria-label="Bottom navigation">
+    <div class="navInner">
+      <button class="navBtn active" data-tab="dt" type="button">
+        <div class="navIcon">🐉</div>
+        <div class="navTxt">Dragon</div>
+      </button>
+      <button class="navBtn" data-tab="tp" type="button">
+        <div class="navIcon">🃏</div>
+        <div class="navTxt">Teen Patti</div>
+      </button>
+      <button class="navBtn" data-tab="rl" type="button">
+        <div class="navIcon">🎡</div>
+        <div class="navTxt">Roulette</div>
+      </button>
+      <button class="navBtn" data-tab="hist" type="button">
+        <div class="navIcon">📜</div>
+        <div class="navTxt">History</div>
+      </button>
+    </div>
+  </nav>
+
+  <div class="toast" id="toast">
+    <div class="t" id="toastTitle">-</div>
+    <div class="muted" id="toastBody">-</div>
+  </div>
+
+  <!-- Firebase compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* ================= FIREBASE INIT ================= */
+    firebase.initializeApp({
+      apiKey: "AIzaSyCAFH5_1RjVHyZLwkj26zQPCq0-8S0fSKA",
+      authDomain: "jvbet-bbf90.firebaseapp.com",
+      projectId: "jvbet-bbf90",
+      storageBucket: "jvbet-bbf90.appspot.com",
+      messagingSenderId: "824871692224",
+      appId: "1:824871692224:web:f74baa642b1f43b78aca25"
+    });
+    const db = firebase.firestore();
+
+    /* ================= SESSION + STORAGE ================= */
+    const K_SESSION_A = "jvbet_session";
+    const K_SESSION_B = "jvbet_session_v1";
+
+    function loadJSON(k, f){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : f }catch(e){ return f } }
+    function saveJSON(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+
+    function getSession(){ return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null) }
+    function clearSession(){ localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B) }
+
+    function logout(){ clearSession(); location.href = "../index.html" }
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+
+    function fmtDate(ts){ return new Date(ts || Date.now()).toLocaleString() }
+    function vib(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms) }catch(e){} }
+
+    /* ================= UI HELPERS ================= */
+    function showToast(type, title, body){
+      const t = document.getElementById("toast");
+      t.className = "toast show " + (type || "");
+      document.getElementById("toastTitle").textContent = title;
+      document.getElementById("toastBody").textContent = body || "";
+      setTimeout(() => t.className = "toast", 2200);
+    }
+
+    /* ================= TAB NAV (Top + Bottom synced) ================= */
+    function setActiveTab(tabId){
+      // top tabs
+      document.querySelectorAll(".tabbtn").forEach(x => x.classList.toggle("active", x.dataset.tab === tabId));
+      // panels
+      document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
+      // bottom nav
+      document.querySelectorAll(".navBtn").forEach(x => x.classList.toggle("active", x.dataset.tab === tabId));
+      if(tabId === "hist") renderHistory();
+      try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){}
+    }
+
+    // Top tabs clicks
+    document.querySelectorAll(".tabbtn").forEach(btn=>{
+      btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab));
+    });
+
+    // Bottom nav clicks
+    document.querySelectorAll(".navBtn").forEach(btn=>{
+      btn.addEventListener("click", ()=> setActiveTab(btn.dataset.tab));
+    });
+
+    function bindBetBoxes(containerId, showId, showId2){
+      const cont = document.getElementById(containerId);
+      const show = document.getElementById(showId);
+      const show2 = showId2 ? document.getElementById(showId2) : null;
+
+      let pick = cont.querySelector(".betBox.active")?.dataset?.pick || "";
+      show.textContent = pick;
+      if(show2) show2.textContent = pick;
+
+      cont.querySelectorAll(".betBox").forEach(box=>{
+        box.addEventListener("click", ()=>{
+          cont.querySelectorAll(".betBox").forEach(b=>b.classList.remove("active"));
+          box.classList.add("active");
+          pick = box.dataset.pick || "";
+          show.textContent = pick;
+          if(show2) show2.textContent = pick;
         });
-        const db = firebase.firestore();
+      });
+      return () => pick;
+    }
 
-        /* ================= SESSION + STORAGE ================= */
-        const K_SESSION_A = "jvbet_session";
-        const K_SESSION_B = "jvbet_session_v1";
-
-        function loadJSON(k, f) {
-            try {
-                const r = localStorage.getItem(k);
-                return r ? JSON.parse(r) : f
-            } catch (e) {
-                return f
-            }
-        }
-
-        function saveJSON(k, v) {
-            localStorage.setItem(k, JSON.stringify(v))
-        }
-
-        function getSession() {
-            return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null)
-        }
-
-        function clearSession() {
-            localStorage.removeItem(K_SESSION_A);
-            localStorage.removeItem(K_SESSION_B)
-        }
-
-        function logout() {
-            clearSession();
-            location.href = "../index.html"
-        }
-        document.getElementById("logoutBtn").addEventListener("click", logout);
-
-        function fmtDate(ts) {
-            return new Date(ts || Date.now()).toLocaleString()
-        }
-
-        function vib(ms) {
-            try {
-                if (navigator.vibrate) navigator.vibrate(ms)
-            } catch (e) {}
-        }
-
-        /* ================= UI HELPERS ================= */
-        function showToast(type, title, body) {
-            const t = document.getElementById("toast");
-            t.className = "toast show " + (type || "");
-            document.getElementById("toastTitle").textContent = title;
-            document.getElementById("toastBody").textContent = body || "";
-            setTimeout(() => t.className = "toast", 2200);
-        }
-
-        /* ================= TABS ================= */
-        document.querySelectorAll(".tabbtn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                document.querySelectorAll(".tabbtn").forEach(x => x.classList.remove("active"));
-                document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-                btn.classList.add("active");
-                document.getElementById(btn.dataset.tab).classList.add("active");
-                if (btn.dataset.tab === "hist") renderHistory();
-            });
+    function bindChips(scopeEl, inputEl){
+      scopeEl.querySelectorAll(".chip").forEach(ch=>{
+        ch.addEventListener("click", ()=>{
+          const v = Number(ch.dataset.v || 0);
+          inputEl.value = Number(inputEl.value || 0) + v;
         });
+      });
+    }
 
-        function bindBetBoxes(containerId, showId, showId2) {
-            const cont = document.getElementById(containerId);
-            const show = document.getElementById(showId);
-            const show2 = showId2 ? document.getElementById(showId2) : null;
+    const getDTPick = bindBetBoxes("dtBets","dtPickShow");
+    const dtStake = document.getElementById("dtStake");
+    bindChips(document.getElementById("dt"), dtStake);
 
-            let pick = cont.querySelector(".betBox.active") ? .dataset ? .pick || "";
-            show.textContent = pick;
-            if (show2) show2.textContent = pick;
+    const getTPPick = bindBetBoxes("tpBets","tpPickShow","tpPickShow2");
+    const tpStake = document.getElementById("tpStake");
+    bindChips(document.getElementById("tp"), tpStake);
 
-            cont.querySelectorAll(".betBox").forEach(box => {
-                box.addEventListener("click", () => {
-                    cont.querySelectorAll(".betBox").forEach(b => b.classList.remove("active"));
-                    box.classList.add("active");
-                    pick = box.dataset.pick || "";
-                    show.textContent = pick;
-                    if (show2) show2.textContent = pick;
-                });
-            });
-            return () => pick;
+    const getRPick = bindBetBoxes("rBets","rPickShow");
+    const rStake = document.getElementById("rStake");
+    bindChips(document.getElementById("rl"), rStake);
+
+    /* ================= CONSTANTS ================= */
+    const TOTAL_SEC = 30;
+    const LOCK_REMAINING = 15;
+    const GAME_DOC = (g) => db.collection("gameState").doc(g);
+    const USERS = db.collection("users");
+    const BETS = db.collection("bets");
+
+    /* ================= STATE ================= */
+    let ME_ID = null;
+    let ME_USER = null;
+    const state = { DragonTiger:null, TeenPatti:null, Roulette:null };
+
+    /* ================= ROUND ID ================= */
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function ymdhms(d){
+      return d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+pad2(d.getHours())+pad2(d.getMinutes())+pad2(d.getSeconds());
+    }
+    function rand3(){ return String(Math.floor(Math.random()*1000)).padStart(3,"0"); }
+    function makeRoundId(){ return ymdhms(new Date())+"_"+rand3(); }
+
+    /* ================= LOCK UI ================= */
+    function setLock(el, stateStr){
+      el.classList.remove("lockOpen","lockPlaced","lockLocked","lockClosed");
+      if(stateStr==="OPEN"){ el.classList.add("lockOpen"); el.textContent="OPEN"; }
+      if(stateStr==="PLACED"){ el.classList.add("lockPlaced"); el.textContent="PLAYED"; }
+      if(stateStr==="LOCKED"){ el.classList.add("lockLocked"); el.textContent="LOCKED"; }
+      if(stateStr==="CLOSED"){ el.classList.add("lockClosed"); el.textContent="CLOSED"; }
+    }
+
+    /* ===== Locked overlay helpers (NEW) ===== */
+    function setOverlay(gameKey, show, roundId, timerLeft){
+      const map = {
+        DragonTiger: { box:"dtOverlay", rid:"dtOverlayRound", t:"dtOverlayTimer" },
+        TeenPatti:   { box:"tpOverlay", rid:"tpOverlayRound", t:"tpOverlayTimer" },
+        Roulette:    { box:"rOverlay",  rid:"rOverlayRound",  t:"rOverlayTimer"  },
+      };
+      const m = map[gameKey];
+      if(!m) return;
+
+      const box = document.getElementById(m.box);
+      const rid = document.getElementById(m.rid);
+      const tt = document.getElementById(m.t);
+
+      if(rid) rid.textContent = roundId || "-";
+      if(tt) tt.textContent = String(Math.max(0, Number(timerLeft || 0)));
+
+      if(!box) return;
+      box.classList.toggle("show", !!show);
+    }
+
+    /* ================= FIRESTORE QUEUE (SAFE) ================= */
+    let FS_QUEUE = Promise.resolve();
+    function fsQueue(task){
+      FS_QUEUE = FS_QUEUE.then(task).catch((e)=>console.error("FS_QUEUE ERROR:", e));
+      return FS_QUEUE;
+    }
+
+    /* ================= USER DEFAULTS ================= */
+    async function ensureUserDefaults(){
+      const ref = USERS.doc(ME_ID);
+      await fsQueue(async()=>{
+        const doc = await ref.get();
+        if(!doc.exists) throw new Error("User not found");
+        const data = doc.data() || {};
+        const patch = {};
+        if(typeof data.points !== "number") patch.points = 0;
+        if(typeof data.isBlocked !== "boolean") patch.isBlocked = false;
+        if(!data.clientId) patch.clientId = ME_ID;
+        if(Object.keys(patch).length) await ref.set(patch,{merge:true});
+      });
+    }
+
+    async function refreshTop(){
+      const snap = await USERS.doc(ME_ID).get();
+      if(!snap.exists) return logout();
+      ME_USER = snap.data() || {};
+      document.getElementById("cid").textContent = ME_ID;
+      document.getElementById("pts").textContent = Number(ME_USER.points || 0);
+
+      const wl = await calcWinLoss();
+      document.getElementById("w").textContent = wl.win;
+      document.getElementById("l").textContent = wl.loss;
+    }
+
+    async function calcWinLoss(){
+      const qs = await BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(200).get();
+      let w=0,l=0;
+      qs.forEach(doc=>{
+        const b = doc.data() || {};
+        if(b.result==="WIN") w++;
+        else if(b.result==="LOSS") l++;
+      });
+      return {win:w, loss:l};
+    }
+
+    /* ================= RNG (SERVER-SHARED RESULT) ================= */
+    function randCard(){ return 1 + Math.floor(Math.random()*13) }
+    function cardStr(v){ return (v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v)) }
+
+    function drawDT(){
+      const d=randCard(), t=randCard();
+      const res = (d===t) ? "TIE" : (d>t ? "DRAGON" : "TIGER");
+      return {d,t,res};
+    }
+    function drawTP(){
+      return { res: ["PLAYER","BANKER","TIE"][Math.floor(Math.random()*3)] };
+    }
+    function drawR(){
+      const n = Math.floor(Math.random()*37);
+      const c = (n===0) ? "GREEN" : (n%2===0 ? "BLACK" : "RED");
+      return { n, color:c, res:(c+" "+n) };
+    }
+
+    /* ================= FLIP (DT UI) ================= */
+    function flipReset(){
+      ["fcD","fcT","fcR"].forEach(id => document.getElementById(id).classList.remove("flipped"));
+      ["dtD","dtT","dtR"].forEach(id => document.getElementById(id).textContent="?");
+    }
+    function flipShow(d,t,r){
+      document.getElementById("dtD").textContent=d;
+      document.getElementById("dtT").textContent=t;
+      document.getElementById("dtR").textContent=r;
+      setTimeout(()=>["fcD","fcT","fcR"].forEach(id=>document.getElementById(id).classList.add("flipped")),50);
+    }
+
+    /* ================= SHARED ROUND ENGINE ================= */
+    async function ensureGameDocExists(game){
+      const ref = GAME_DOC(game);
+      const snap = await ref.get();
+      if(snap.exists) return;
+
+      const now = Date.now();
+      const startedAt = now;
+      await ref.set({
+        seq: 1,
+        roundId: makeRoundId(),
+        startedAt,
+        endsAt: startedAt + TOTAL_SEC*1000,
+        lockAt: startedAt + LOCK_REMAINING*1000,
+        status:"OPEN",
+        result:null,
+        payload:null,
+        last5:[]
+      },{merge:true});
+    }
+
+    function secondsLeftFromDoc(doc){
+      const endsAt = Number(doc?.endsAt || 0);
+      return Math.ceil((endsAt - Date.now())/1000);
+    }
+    function statusFromDoc(doc){
+      const left = secondsLeftFromDoc(doc);
+      if(left<=0) return "CLOSED";
+      if(left<=LOCK_REMAINING) return "LOCKED";
+      return "OPEN";
+    }
+
+    async function finalizeIfNeeded(game){
+      const ref = GAME_DOC(game);
+
+      return db.runTransaction(async(tx)=>{
+        const snap = await tx.get(ref);
+        if(!snap.exists) return;
+
+        const g = snap.data() || {};
+        const left = Math.ceil((Number(g.endsAt || 0) - Date.now())/1000);
+
+        if(left>0) return;
+        if(g.result && g.nextStarted) return;
+
+        if(!g.result){
+          let result=null, payload=null;
+
+          if(game==="DragonTiger"){
+            const d = drawDT();
+            result = d.res;
+            payload = { d: cardStr(d.d), t: cardStr(d.t), res: d.res };
+          } else if(game==="TeenPatti"){
+            const d = drawTP();
+            result = d.res;
+            payload = { res: d.res };
+          } else {
+            const d = drawR();
+            result = d.res;
+            payload = { color:d.color, n:d.n, res:d.res };
+          }
+
+          const now = Date.now();
+          const entry = { roundId:g.roundId, seq:g.seq, result, time: now };
+          const old = Array.isArray(g.last5) ? g.last5 : [];
+          const cleaned = old.filter(x => x && x.roundId !== g.roundId);
+          cleaned.unshift(entry);
+          const last5 = cleaned.slice(0,5);
+
+          tx.set(ref,{
+            status:"CLOSED",
+            result,
+            payload,
+            last5,
+            resultAt: now,
+            nextStarted:false
+          },{merge:true});
+          return;
         }
 
-        function bindChips(scopeEl, inputEl) {
-            scopeEl.querySelectorAll(".chip").forEach(ch => {
-                ch.addEventListener("click", () => {
-                    const v = Number(ch.dataset.v || 0);
-                    inputEl.value = Number(inputEl.value || 0) + v;
-                });
-            });
+        if(g.result && !g.nextStarted){
+          const now = Date.now();
+          const nextSeq = Number(g.seq || 0) + 1;
+
+          tx.set(ref,{
+            seq: nextSeq,
+            roundId: makeRoundId(),
+            startedAt: now,
+            endsAt: now + TOTAL_SEC*1000,
+            lockAt: now + LOCK_REMAINING*1000,
+            status:"OPEN",
+            result:null,
+            payload:null,
+            nextStarted:true
+          },{merge:true});
+        }
+      });
+    }
+
+    /* ================= BETS (SERVER) ================= */
+    async function addPoints(delta){
+      delta = Number(delta || 0);
+      if(!delta) return;
+      return fsQueue(() =>
+        USERS.doc(ME_ID).set({ points: firebase.firestore.FieldValue.increment(delta) }, { merge:true })
+      );
+    }
+
+    async function placeBetFS({game,pick,stake,roundId,seq}){
+      stake = Number(stake || 0);
+      if(!stake || stake<=0) throw new Error("Enter valid points");
+      if(Number(ME_USER?.points || 0) < stake) throw new Error("Not enough points");
+
+      const betKey = ME_ID + "_" + game + "_" + roundId;
+      const ref = BETS.doc(betKey);
+
+      await db.runTransaction(async(tx)=>{
+        const bSnap = await tx.get(ref);
+        if(bSnap.exists) throw new Error("Already played");
+
+        tx.set(USERS.doc(ME_ID), { points: firebase.firestore.FieldValue.increment(-stake) }, { merge:true });
+
+        tx.set(ref,{
+          betId: betKey,
+          clientId: ME_ID,
+          game,
+          pick,
+          stake,
+          roundId,
+          seq,
+          at: Date.now(),
+          result:"PENDING",
+          settled:false
+        },{merge:true});
+      });
+    }
+
+    async function settleMyBetIfNeeded(game, gameDoc){
+      if(!gameDoc?.result) return;
+
+      const betKey = ME_ID + "_" + game + "_" + gameDoc.roundId;
+      const ref = BETS.doc(betKey);
+
+      await db.runTransaction(async(tx)=>{
+        const snap = await tx.get(ref);
+        if(!snap.exists) return;
+        const b = snap.data() || {};
+        if(b.settled) return;
+
+        let out="LOSS";
+        if(game==="Roulette"){
+          const color = String(gameDoc.payload?.color || "").toUpperCase();
+          out = (String(b.pick).toUpperCase() === color) ? "WIN" : "LOSS";
+        } else {
+          if(String(gameDoc.result)==="TIE") out = "TIE";
+          else out = (String(b.pick)===String(gameDoc.result)) ? "WIN" : "LOSS";
         }
 
-        const getDTPick = bindBetBoxes("dtBets", "dtPickShow");
-        const dtStake = document.getElementById("dtStake");
-        bindChips(document.getElementById("dt"), dtStake);
-
-        const getTPPick = bindBetBoxes("tpBets", "tpPickShow", "tpPickShow2");
-        const tpStake = document.getElementById("tpStake");
-        bindChips(document.getElementById("tp"), tpStake);
-
-        const getRPick = bindBetBoxes("rBets", "rPickShow");
-        const rStake = document.getElementById("rStake");
-        bindChips(document.getElementById("rl"), rStake);
-
-        /* ================= CONSTANTS ================= */
-        const TOTAL_SEC = 30;
-        const LOCK_REMAINING = 15; // lock when <= 15s remain
-        const GAME_DOC = (g) => db.collection("gameState").doc(g);
-        const USERS = db.collection("users");
-        const BETS = db.collection("bets");
-
-        /* ================= STATE ================= */
-        let ME_ID = null;
-        let ME_USER = null;
-
-        const state = {
-            DragonTiger: null,
-            TeenPatti: null,
-            Roulette: null
-        };
-
-        /* ================= ROUND ID ================= */
-        function pad2(n) {
-            return String(n).padStart(2, "0");
+        if(out==="WIN"){
+          tx.set(USERS.doc(ME_ID), { points: firebase.firestore.FieldValue.increment(Number(b.stake||0)*2) }, { merge:true });
+        } else if(out==="TIE"){
+          tx.set(USERS.doc(ME_ID), { points: firebase.firestore.FieldValue.increment(Number(b.stake||0)) }, { merge:true });
         }
 
-        function ymdhms(d) {
-            return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
+        tx.set(ref,{
+          result: out,
+          settled:true,
+          settledAt: Date.now(),
+          roundResult: gameDoc.result
+        },{merge:true});
+      });
+
+      await refreshTop();
+    }
+
+    /* ================= TABLES / UI RENDER ================= */
+    async function setPastTable(game, tableId, waitId){
+      const tb = document.querySelector("#"+tableId+" tbody");
+      const w = document.getElementById(waitId);
+
+      const qs = await BETS.where("clientId","==",ME_ID)
+        .where("game","==",game)
+        .orderBy("at","desc").limit(10).get();
+
+      const arr=[];
+      qs.forEach(d => arr.push(d.data() || {}));
+      const pending = arr.filter(b => b.result==="PENDING").length;
+      w.textContent = pending ? ("Pending bets: "+pending) : "";
+
+      tb.innerHTML = arr.map(b => (
+        "<tr>"+
+          "<td>"+fmtDate(b.at)+"</td>"+
+          "<td>"+(b.pick||"-")+"</td>"+
+          "<td class='gold'>"+Number(b.stake||0)+"</td>"+
+          "<td>"+(b.result||"-")+"</td>"+
+        "</tr>"
+      )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
+    }
+
+    async function renderHistory(){
+      const tb = document.querySelector("#bh tbody");
+      const qs = await BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(200).get();
+      const arr=[];
+      qs.forEach(d => arr.push(d.data() || {}));
+      tb.innerHTML = arr.map(b => (
+        "<tr><td>"+fmtDate(b.at)+"</td><td>"+b.game+"</td><td>"+b.pick+"</td><td class='gold'>"+b.stake+"</td><td>"+b.result+"</td></tr>"
+      )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+    }
+
+    function renderLast5(game, gameDoc){
+      const map = {
+        DragonTiger: { sub:"dtLast5Sub", body:"dtLast5Body" },
+        TeenPatti: { sub:"tpLast5Sub", body:"tpLast5Body" },
+        Roulette: { sub:"rLast5Sub", body:"rLast5Body" },
+      };
+      const ids = map[game];
+      if(!ids) return;
+
+      document.getElementById(ids.sub).textContent = "Client " + (ME_ID || "-");
+      const arr = (gameDoc?.last5 || []).slice(0,5);
+
+      const bodyEl = document.getElementById(ids.body);
+      if(!arr.length){
+        bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
+        return;
+      }
+
+      bodyEl.innerHTML = arr.map((x,i)=>(
+        "<tr>"+
+          "<td>"+(i+1)+"</td>"+
+          "<td class='gold'>"+String(x.result ?? "-")+"</td>"+
+          "<td>"+String(x.roundId ?? x.seq ?? "-")+"</td>"+
+          "<td>"+fmtDate(x.time ?? Date.now())+"</td>"+
+        "</tr>"
+      )).join("");
+    }
+
+    function renderLatestResult(game, gameDoc){
+      const elId = (game==="DragonTiger") ? "dtPrev" : (game==="TeenPatti") ? "tpPrev" : "rPrev";
+      const el = document.getElementById(elId);
+
+      const v = String(gameDoc?.result || "");
+      el.innerHTML = v ? ('<span class="resChip">'+v+'</span>') : '<span class="muted">No result</span>';
+    }
+
+    function renderMyBetBox(game, gameDoc){
+      const map = {
+        DragonTiger: { sub:"dtMyBetSub", status:"dtMyBetStatus", body:"dtMyBetBody" },
+        TeenPatti: { sub:"tpMyBetSub", status:"tpMyBetStatus", body:"tpMyBetBody" },
+        Roulette: { sub:"rMyBetSub", status:"rMyBetStatus", body:"rMyBetBody" },
+      };
+      const ids = map[game];
+      if(!ids) return;
+
+      const subEl = document.getElementById(ids.sub);
+      const statusEl = document.getElementById(ids.status);
+      const bodyEl = document.getElementById(ids.body);
+
+      subEl.textContent = "Round #" + (gameDoc?.seq ?? "-") + " • Client " + ME_ID;
+
+      const betKey = ME_ID + "_" + game + "_" + (gameDoc?.roundId || "");
+      BETS.doc(betKey).get().then(snap=>{
+        if(!snap.exists){
+          statusEl.className = "miniPill";
+          statusEl.textContent = "NO BET";
+          bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
+          return;
+        }
+        const b = snap.data() || {};
+        const st = b.result || "—";
+
+        function pillClassForStatus(x){
+          if(x==="PENDING") return "miniPill stPending";
+          if(x==="WIN") return "miniPill stWin";
+          if(x==="LOSS") return "miniPill stLoss";
+          if(x==="TIE") return "miniPill stTie";
+          return "miniPill";
         }
 
-        function rand3() {
-            return String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+        statusEl.className = pillClassForStatus(st);
+        statusEl.textContent = st;
+
+        bodyEl.innerHTML =
+          "<tr>"+
+            "<td class='gold'>"+(b.pick||"-")+"</td>"+
+            "<td class='gold'>"+Number(b.stake||0)+"</td>"+
+            "<td>"+(gameDoc?.seq ?? "-")+"</td>"+
+            "<td>"+fmtDate(b.at)+"</td>"+
+          "</tr>";
+      });
+    }
+
+    /* ================= LIVE RENDER PER GAME ================= */
+    function updateTimerUI(game, gameDoc){
+      const left = secondsLeftFromDoc(gameDoc);
+      const showLeft = Math.max(0,left);
+      const pct = Math.max(0, Math.min(100, (showLeft/TOTAL_SEC)*100)) + "%";
+
+      const lockState = statusFromDoc(gameDoc);
+      const isLocked = (lockState === "LOCKED");
+
+      if(game==="DragonTiger"){
+        document.getElementById("dtRound").textContent = gameDoc?.roundId ?? "-";
+        document.getElementById("dtTimer").textContent = showLeft;
+        document.getElementById("dtFill").style.width = pct;
+
+        const lockEl = document.getElementById("dtLock");
+        const btn = document.getElementById("dtPlay");
+
+        if(lockState==="OPEN"){ setLock(lockEl,"OPEN"); btn.disabled=false; }
+        if(lockState==="LOCKED"){ setLock(lockEl,"LOCKED"); btn.disabled=true; }
+        if(lockState==="CLOSED"){ setLock(lockEl,"CLOSED"); btn.disabled=true; }
+
+        // overlay show/hide
+        setOverlay("DragonTiger", isLocked, gameDoc?.roundId, showLeft);
+
+        if(gameDoc?.payload?.d){
+          flipReset();
+          flipShow(gameDoc.payload.d, gameDoc.payload.t, gameDoc.payload.res);
+          document.getElementById("dtLast").textContent = gameDoc.result || "-";
+        }
+      }
+      else if(game==="TeenPatti"){
+        document.getElementById("tpRound").textContent = gameDoc?.roundId ?? "-";
+        document.getElementById("tpRound2").textContent = gameDoc?.roundId ?? "-";
+        document.getElementById("tpTimer").textContent = showLeft;
+        document.getElementById("tpFill").style.width = pct;
+
+        const lockEl = document.getElementById("tpLock");
+        const btn = document.getElementById("tpPlay");
+
+        if(lockState==="OPEN"){ setLock(lockEl,"OPEN"); btn.disabled=false; }
+        if(lockState==="LOCKED"){ setLock(lockEl,"LOCKED"); btn.disabled=true; }
+        if(lockState==="CLOSED"){ setLock(lockEl,"CLOSED"); btn.disabled=true; }
+
+        setOverlay("TeenPatti", isLocked, gameDoc?.roundId, showLeft);
+      }
+      else{
+        document.getElementById("rRound").textContent = gameDoc?.roundId ?? "-";
+        document.getElementById("rTimer").textContent = showLeft;
+        document.getElementById("rFill").style.width = pct;
+
+        const lockEl = document.getElementById("rLock");
+        const btn = document.getElementById("rPlay");
+
+        if(lockState==="OPEN"){ setLock(lockEl,"OPEN"); btn.disabled=false; }
+        if(lockState==="LOCKED"){ setLock(lockEl,"LOCKED"); btn.disabled=true; }
+        if(lockState==="CLOSED"){ setLock(lockEl,"CLOSED"); btn.disabled=true; }
+
+        setOverlay("Roulette", isLocked, gameDoc?.roundId, showLeft);
+      }
+    }
+
+    function subscribeGame(game){
+      const ref = GAME_DOC(game);
+      return ref.onSnapshot(async(snap)=>{
+        if(!snap.exists) return;
+        const g = snap.data() || {};
+        state[game] = g;
+
+        updateTimerUI(game, g);
+        renderLatestResult(game, g);
+        renderLast5(game, g);
+        renderMyBetBox(game, g);
+
+        if(g.result){
+          await settleMyBetIfNeeded(game, g);
+
+          if(game==="DragonTiger") document.getElementById("dtMsg").textContent = "ROUND RESULT: " + g.result;
+          if(game==="TeenPatti") document.getElementById("tpMsg").textContent = "ROUND RESULT: " + g.result;
+          if(game==="Roulette") document.getElementById("rMsg").textContent = "ROUND RESULT: " + g.result;
         }
 
-        function makeRoundId() {
-            return ymdhms(new Date()) + "_" + rand3(); // YYYYMMDDHHMMSS + random
+        const left = secondsLeftFromDoc(g);
+        if(left <= 0){
+          await finalizeIfNeeded(game);
         }
 
-        /* ================= LOCK UI ================= */
-        function setLock(el, stateStr) {
-            el.classList.remove("lockOpen", "lockPlaced", "lockLocked", "lockClosed");
-            if (stateStr === "OPEN") {
-                el.classList.add("lockOpen");
-                el.textContent = "OPEN";
-            }
-            if (stateStr === "PLACED") {
-                el.classList.add("lockPlaced");
-                el.textContent = "PLAYED";
-            }
-            if (stateStr === "LOCKED") {
-                el.classList.add("lockLocked");
-                el.textContent = "LOCKED";
-            }
-            if (stateStr === "CLOSED") {
-                el.classList.add("lockClosed");
-                el.textContent = "CLOSED";
-            }
-        }
-
-        /* ================= FIRESTORE QUEUE (SAFE) ================= */
-        let FS_QUEUE = Promise.resolve();
-
-        function fsQueue(task) {
-            FS_QUEUE = FS_QUEUE.then(task).catch((e) => console.error("FS_QUEUE ERROR:", e));
-            return FS_QUEUE;
-        }
-
-        /* ================= USER DEFAULTS ================= */
-        async function ensureUserDefaults() {
-            const ref = USERS.doc(ME_ID);
-            await fsQueue(async() => {
-                const doc = await ref.get();
-                if (!doc.exists) throw new Error("User not found");
-                const data = doc.data() || {};
-                const patch = {};
-                if (typeof data.points !== "number") patch.points = 0;
-                if (typeof data.isBlocked !== "boolean") patch.isBlocked = false;
-                if (!data.clientId) patch.clientId = ME_ID;
-                if (Object.keys(patch).length) await ref.set(patch, {
-                    merge: true
-                });
-            });
-        }
-
-        async function refreshTop() {
-            const snap = await USERS.doc(ME_ID).get();
-            if (!snap.exists) return logout();
-            ME_USER = snap.data() || {};
-
-            document.getElementById("cid").textContent = ME_ID;
-            document.getElementById("pts").textContent = Number(ME_USER.points || 0);
-
-            // win/loss we can compute from bets collection (client-side last 200)
-            const wl = await calcWinLoss();
-            document.getElementById("w").textContent = wl.win;
-            document.getElementById("l").textContent = wl.loss;
-        }
-
-        async function calcWinLoss() {
-            const qs = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
-            let w = 0,
-                l = 0;
-            qs.forEach(doc => {
-                const b = doc.data() || {};
-                if (b.result === "WIN") w++;
-                else if (b.result === "LOSS") l++;
-            });
-            return {
-                win: w,
-                loss: l
-            };
-        }
-
-        /* ================= RNG (SERVER-SHARED RESULT) ================= */
-        function randCard() {
-            return 1 + Math.floor(Math.random() * 13)
-        }
-
-        function cardStr(v) {
-            return (v === 1 ? "A" : v === 11 ? "J" : v === 12 ? "Q" : v === 13 ? "K" : String(v))
-        }
-
-        function drawDT() {
-            const d = randCard(),
-                t = randCard();
-            const res = (d === t) ? "TIE" : (d > t ? "DRAGON" : "TIGER");
-            return {
-                d,
-                t,
-                res
-            };
-        }
-
-        function drawTP() {
-            return {
-                res: ["PLAYER", "BANKER", "TIE"][Math.floor(Math.random() * 3)]
-            };
-        }
-
-        function drawR() {
-            const n = Math.floor(Math.random() * 37);
-            const c = (n === 0) ? "GREEN" : (n % 2 === 0 ? "BLACK" : "RED");
-            return {
-                n,
-                color: c,
-                res: (c + " " + n)
-            };
-        }
-
-        /* ================= FLIP (DT UI) ================= */
-        function flipReset() {
-            ["fcD", "fcT", "fcR"].forEach(id => document.getElementById(id).classList.remove("flipped"));
-            ["dtD", "dtT", "dtR"].forEach(id => document.getElementById(id).textContent = "?");
-        }
-
-        function flipShow(d, t, r) {
-            document.getElementById("dtD").textContent = d;
-            document.getElementById("dtT").textContent = t;
-            document.getElementById("dtR").textContent = r;
-            setTimeout(() => ["fcD", "fcT", "fcR"].forEach(id => document.getElementById(id).classList.add("flipped")), 50);
-        }
-
-        /* ================= SHARED ROUND ENGINE ================= */
-        async function ensureGameDocExists(game) {
-            const ref = GAME_DOC(game);
-            const snap = await ref.get();
-            if (snap.exists) return;
-
-            const now = Date.now();
-            const startedAt = now;
-            await ref.set({
-                seq: 1,
-                roundId: makeRoundId(),
-                startedAt,
-                endsAt: startedAt + TOTAL_SEC * 1000,
-                lockAt: startedAt + LOCK_REMAINING * 1000,
-                status: "OPEN",
-                result: null,
-                payload: null,
-                last5: []
-            }, {
-                merge: true
-            });
-        }
-
-        function secondsLeftFromDoc(doc) {
-            const endsAt = Number(doc ? .endsAt || 0);
-            return Math.ceil((endsAt - Date.now()) / 1000);
-        }
-
-        function statusFromDoc(doc) {
-            const left = secondsLeftFromDoc(doc);
-            if (left <= 0) return "CLOSED";
-            if (left <= LOCK_REMAINING) return "LOCKED";
-            return "OPEN";
-        }
-
-        async function finalizeIfNeeded(game) {
-            const ref = GAME_DOC(game);
-
-            return db.runTransaction(async(tx) => {
-                const snap = await tx.get(ref);
-                if (!snap.exists) return;
-
-                const g = snap.data() || {};
-                const left = Math.ceil((Number(g.endsAt || 0) - Date.now()) / 1000);
-
-                if (left > 0) return;
-                if (g.result && g.nextStarted) return;
-
-                if (!g.result) {
-                    let result = null;
-                    let payload = null;
-
-                    if (game === "DragonTiger") {
-                        const d = drawDT();
-                        result = d.res;
-                        payload = {
-                            d: cardStr(d.d),
-                            t: cardStr(d.t),
-                            res: d.res
-                        };
-                    } else if (game === "TeenPatti") {
-                        const d = drawTP();
-                        result = d.res;
-                        payload = {
-                            res: d.res
-                        };
-                    } else {
-                        const d = drawR();
-                        result = d.res;
-                        payload = {
-                            color: d.color,
-                            n: d.n,
-                            res: d.res
-                        };
-                    }
-
-                    const now = Date.now();
-                    const entry = {
-                        roundId: g.roundId,
-                        seq: g.seq,
-                        result,
-                        time: now
-                    };
-                    const old = Array.isArray(g.last5) ? g.last5 : [];
-                    const cleaned = old.filter(x => x && x.roundId !== g.roundId);
-                    cleaned.unshift(entry);
-                    const last5 = cleaned.slice(0, 5);
-
-                    tx.set(ref, {
-                        status: "CLOSED",
-                        result,
-                        payload,
-                        last5,
-                        resultAt: now,
-                        nextStarted: false
-                    }, {
-                        merge: true
-                    });
-                    return;
-                }
-
-                if (g.result && !g.nextStarted) {
-                    const now = Date.now();
-                    const nextSeq = Number(g.seq || 0) + 1;
-
-                    tx.set(ref, {
-                        seq: nextSeq,
-                        roundId: makeRoundId(),
-                        startedAt: now,
-                        endsAt: now + TOTAL_SEC * 1000,
-                        lockAt: now + LOCK_REMAINING * 1000,
-                        status: "OPEN",
-                        result: null,
-                        payload: null,
-                        nextStarted: true
-                    }, {
-                        merge: true
-                    });
-                }
-            });
-        }
-
-        /* ================= BETS (SERVER) ================= */
-        async function addPoints(delta) {
-            delta = Number(delta || 0);
-            if (!delta) return;
-            return fsQueue(() =>
-                USERS.doc(ME_ID).set({
-                    points: firebase.firestore.FieldValue.increment(delta)
-                }, {
-                    merge: true
-                })
-            );
-        }
-
-        async function placeBetFS({
-            game,
-            pick,
-            stake,
-            roundId,
-            seq
-        }) {
-            stake = Number(stake || 0);
-            if (!stake || stake <= 0) throw new Error("Enter valid points");
-            if (Number(ME_USER ? .points || 0) < stake) throw new Error("Not enough points");
-
-            const betKey = ME_ID + "_" + game + "_" + roundId;
-            const ref = BETS.doc(betKey);
-
-            await db.runTransaction(async(tx) => {
-                const bSnap = await tx.get(ref);
-                if (bSnap.exists) throw new Error("Already played");
-
-                tx.set(USERS.doc(ME_ID), {
-                    points: firebase.firestore.FieldValue.increment(-stake)
-                }, {
-                    merge: true
-                });
-
-                tx.set(ref, {
-                    betId: betKey,
-                    clientId: ME_ID,
-                    game,
-                    pick,
-                    stake,
-                    roundId,
-                    seq,
-                    at: Date.now(),
-                    result: "PENDING",
-                    settled: false
-                }, {
-                    merge: true
-                });
-            });
-        }
-
-        async function settleMyBetIfNeeded(game, gameDoc) {
-            if (!gameDoc ? .result) return;
-
-            const betKey = ME_ID + "_" + game + "_" + gameDoc.roundId;
-            const ref = BETS.doc(betKey);
-
-            await db.runTransaction(async(tx) => {
-                const snap = await tx.get(ref);
-                if (!snap.exists) return;
-                const b = snap.data() || {};
-                if (b.settled) return;
-
-                let out = "LOSS";
-                if (game === "Roulette") {
-                    const color = String(gameDoc.payload ? .color || "").toUpperCase();
-                    out = (String(b.pick).toUpperCase() === color) ? "WIN" : "LOSS";
-                } else {
-                    if (String(gameDoc.result) === "TIE") out = "TIE";
-                    else out = (String(b.pick) === String(gameDoc.result)) ? "WIN" : "LOSS";
-                }
-
-                if (out === "WIN") {
-                    tx.set(USERS.doc(ME_ID), {
-                        points: firebase.firestore.FieldValue.increment(Number(b.stake || 0) * 2)
-                    }, {
-                        merge: true
-                    });
-                } else if (out === "TIE") {
-                    tx.set(USERS.doc(ME_ID), {
-                        points: firebase.firestore.FieldValue.increment(Number(b.stake || 0))
-                    }, {
-                        merge: true
-                    });
-                }
-
-                tx.set(ref, {
-                    result: out,
-                    settled: true,
-                    settledAt: Date.now(),
-                    roundResult: gameDoc.result
-                }, {
-                    merge: true
-                });
-            });
-
-            await refreshTop();
-        }
-
-        /* ================= TABLES / UI RENDER ================= */
-        async function setPastTable(game, tableId, waitId) {
-            const tb = document.querySelector("#" + tableId + " tbody");
-            const w = document.getElementById(waitId);
-
-            const qs = await BETS.where("clientId", "==", ME_ID)
-                .where("game", "==", game)
-                .orderBy("at", "desc").limit(10).get();
-
-            const arr = [];
-            qs.forEach(d => arr.push(d.data() || {}));
-            const pending = arr.filter(b => b.result === "PENDING").length;
-            w.textContent = pending ? ("Pending bets: " + pending) : "";
-
-            tb.innerHTML = arr.map(b => (
-                "<tr>" +
-                "<td>" + fmtDate(b.at) + "</td>" +
-                "<td>" + (b.pick || "-") + "</td>" +
-                "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-                "<td>" + (b.result || "-") + "</td>" +
-                "</tr>"
-            )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
-        }
-
-        async function renderHistory() {
-            const tb = document.querySelector("#bh tbody");
-            const qs = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
-            const arr = [];
-            qs.forEach(d => arr.push(d.data() || {}));
-            tb.innerHTML = arr.map(b => (
-                "<tr><td>" + fmtDate(b.at) + "</td><td>" + b.game + "</td><td>" + b.pick + "</td><td class='gold'>" + b.stake + "</td><td>" + b.result + "</td></tr>"
-            )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
-        }
-
-        function renderLast5(game, gameDoc) {
-            const map = {
-                DragonTiger: {
-                    sub: "dtLast5Sub",
-                    body: "dtLast5Body"
-                },
-                TeenPatti: {
-                    sub: "tpLast5Sub",
-                    body: "tpLast5Body"
-                },
-                Roulette: {
-                    sub: "rLast5Sub",
-                    body: "rLast5Body"
-                },
-            };
-            const ids = map[game];
-            if (!ids) return;
-
-            document.getElementById(ids.sub).textContent = "Client " + (ME_ID || "-");
-            const arr = (gameDoc ? .last5 || []).slice(0, 5);
-
-            const bodyEl = document.getElementById(ids.body);
-            if (!arr.length) {
-                bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No results yet</td></tr>";
-                return;
-            }
-
-            // ✅ A) Round column now shows RoundId (not seq)
-            bodyEl.innerHTML = arr.map((x, i) => (
-                "<tr>" +
-                "<td>" + (i + 1) + "</td>" +
-                "<td class='gold'>" + String(x.result ? ? "-") + "</td>" +
-                "<td>" + String(x.roundId ? ? x.seq ? ? "-") + "</td>" +
-                "<td>" + fmtDate(x.time ? ? Date.now()) + "</td>" +
-                "</tr>"
-            )).join("");
-        }
-
-        function renderLatestResult(game, gameDoc) {
-            const elId = (game === "DragonTiger") ? "dtPrev" : (game === "TeenPatti") ? "tpPrev" : "rPrev";
-            const el = document.getElementById(elId);
-
-            const v = String(gameDoc ? .result || "");
-            el.innerHTML = v ? ('<span class="resChip">' + v + '</span>') : '<span class="muted">No result</span>';
-        }
-
-        function renderMyBetBox(game, gameDoc) {
-            const map = {
-                DragonTiger: {
-                    sub: "dtMyBetSub",
-                    status: "dtMyBetStatus",
-                    body: "dtMyBetBody"
-                },
-                TeenPatti: {
-                    sub: "tpMyBetSub",
-                    status: "tpMyBetStatus",
-                    body: "tpMyBetBody"
-                },
-                Roulette: {
-                    sub: "rMyBetSub",
-                    status: "rMyBetStatus",
-                    body: "rMyBetBody"
-                },
-            };
-            const ids = map[game];
-            if (!ids) return;
-
-            const subEl = document.getElementById(ids.sub);
-            const statusEl = document.getElementById(ids.status);
-            const bodyEl = document.getElementById(ids.body);
-
-            subEl.textContent = "Round #" + (gameDoc ? .seq ? ? "-") + " • Client " + ME_ID;
-
-            const betKey = ME_ID + "_" + game + "_" + (gameDoc ? .roundId || "");
-            BETS.doc(betKey).get().then(snap => {
-                if (!snap.exists) {
-                    statusEl.className = "miniPill";
-                    statusEl.textContent = "NO BET";
-                    bodyEl.innerHTML = "<tr><td colspan='4' class='muted' style='padding:12px'>No bet placed in this round</td></tr>";
-                    return;
-                }
-                const b = snap.data() || {};
-                const st = b.result || "—";
-
-                function pillClassForStatus(x) {
-                    if (x === "PENDING") return "miniPill stPending";
-                    if (x === "WIN") return "miniPill stWin";
-                    if (x === "LOSS") return "miniPill stLoss";
-                    if (x === "TIE") return "miniPill stTie";
-                    return "miniPill";
-                }
-
-                statusEl.className = pillClassForStatus(st);
-                statusEl.textContent = st;
-
-                bodyEl.innerHTML =
-                    "<tr>" +
-                    "<td class='gold'>" + (b.pick || "-") + "</td>" +
-                    "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-                    "<td>" + (gameDoc ? .seq ? ? "-") + "</td>" +
-                    "<td>" + fmtDate(b.at) + "</td>" +
-                    "</tr>";
-            });
-        }
-
-        /* ================= LIVE RENDER PER GAME ================= */
-        function updateTimerUI(game, gameDoc) {
-            const left = secondsLeftFromDoc(gameDoc);
-            const showLeft = Math.max(0, left);
-            const pct = Math.max(0, Math.min(100, (showLeft / TOTAL_SEC) * 100)) + "%";
-
-            if (game === "DragonTiger") {
-                document.getElementById("dtRound").textContent = gameDoc ? .roundId ? ? "-";
-                document.getElementById("dtTimer").textContent = showLeft;
-                document.getElementById("dtFill").style.width = pct;
-
-                const lockState = statusFromDoc(gameDoc);
-                const lockEl = document.getElementById("dtLock");
-                const btn = document.getElementById("dtPlay");
-                if (lockState === "OPEN") {
-                    setLock(lockEl, "OPEN");
-                    btn.disabled = false;
-                }
-                if (lockState === "LOCKED") {
-                    setLock(lockEl, "LOCKED");
-                    btn.disabled = true;
-                }
-                if (lockState === "CLOSED") {
-                    setLock(lockEl, "CLOSED");
-                    btn.disabled = true;
-                }
-
-                if (gameDoc ? .payload ? .d) {
-                    flipReset();
-                    flipShow(gameDoc.payload.d, gameDoc.payload.t, gameDoc.payload.res);
-                    document.getElementById("dtLast").textContent = gameDoc.result || "-";
-                }
-
-            } else if (game === "TeenPatti") {
-                document.getElementById("tpRound").textContent = gameDoc ? .roundId ? ? "-";
-                document.getElementById("tpRound2").textContent = gameDoc ? .roundId ? ? "-";
-                document.getElementById("tpTimer").textContent = showLeft;
-                document.getElementById("tpFill").style.width = pct;
-
-                const lockState = statusFromDoc(gameDoc);
-                const lockEl = document.getElementById("tpLock");
-                const btn = document.getElementById("tpPlay");
-                if (lockState === "OPEN") {
-                    setLock(lockEl, "OPEN");
-                    btn.disabled = false;
-                }
-                if (lockState === "LOCKED") {
-                    setLock(lockEl, "LOCKED");
-                    btn.disabled = true;
-                }
-                if (lockState === "CLOSED") {
-                    setLock(lockEl, "CLOSED");
-                    btn.disabled = true;
-                }
-
-            } else {
-                document.getElementById("rRound").textContent = gameDoc ? .roundId ? ? "-";
-                document.getElementById("rTimer").textContent = showLeft;
-                document.getElementById("rFill").style.width = pct;
-
-                const lockState = statusFromDoc(gameDoc);
-                const lockEl = document.getElementById("rLock");
-                const btn = document.getElementById("rPlay");
-                if (lockState === "OPEN") {
-                    setLock(lockEl, "OPEN");
-                    btn.disabled = false;
-                }
-                if (lockState === "LOCKED") {
-                    setLock(lockEl, "LOCKED");
-                    btn.disabled = true;
-                }
-                if (lockState === "CLOSED") {
-                    setLock(lockEl, "CLOSED");
-                    btn.disabled = true;
-                }
-            }
-        }
-
-        function subscribeGame(game) {
-            const ref = GAME_DOC(game);
-            return ref.onSnapshot(async(snap) => {
-                if (!snap.exists) return;
-                const g = snap.data() || {};
-                state[game] = g;
-
-                updateTimerUI(game, g);
-                renderLatestResult(game, g);
-                renderLast5(game, g);
-                renderMyBetBox(game, g);
-
-                if (g.result) {
-                    await settleMyBetIfNeeded(game, g);
-
-                    if (game === "DragonTiger") document.getElementById("dtMsg").textContent = "ROUND RESULT: " + g.result;
-                    if (game === "TeenPatti") document.getElementById("tpMsg").textContent = "ROUND RESULT: " + g.result;
-                    if (game === "Roulette") document.getElementById("rMsg").textContent = "ROUND RESULT: " + g.result;
-                }
-
-                const left = secondsLeftFromDoc(g);
-                if (left <= 0) {
-                    await finalizeIfNeeded(game);
-                }
-
-                if (game === "DragonTiger") await setPastTable("DragonTiger", "dtPast", "dtWait");
-                if (game === "TeenPatti") await setPastTable("TeenPatti", "tpPast", "tpWait");
-                if (game === "Roulette") await setPastTable("Roulette", "rPast", "rWait");
-            });
-        }
-
-        /* ================= PLAY BUTTONS ================= */
-        document.getElementById("dtPlay").addEventListener("click", async() => {
-            try {
-                const g = state.DragonTiger;
-                if (!g) return;
-                const left = secondsLeftFromDoc(g);
-                if (left <= LOCK_REMAINING) return document.getElementById("dtMsg").textContent = "Locked (play only when timer > 15)";
-
-                await placeBetFS({
-                    game: "DragonTiger",
-                    pick: getDTPick(),
-                    stake: dtStake.value,
-                    roundId: g.roundId,
-                    seq: g.seq
-                });
-                document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
-                showToast("tie", "🕒 SUBMITTED", "Result at 0 sec");
-                vib(40);
-                await refreshTop();
-                await setPastTable("DragonTiger", "dtPast", "dtWait");
-                renderMyBetBox("DragonTiger", g);
-            } catch (e) {
-                document.getElementById("dtMsg").textContent = e.message || String(e);
-            }
-        });
-
-        document.getElementById("tpPlay").addEventListener("click", async() => {
-            try {
-                const g = state.TeenPatti;
-                if (!g) return;
-                const left = secondsLeftFromDoc(g);
-                if (left <= LOCK_REMAINING) return document.getElementById("tpMsg").textContent = "Locked (play only when timer > 15)";
-
-                await placeBetFS({
-                    game: "TeenPatti",
-                    pick: getTPPick(),
-                    stake: tpStake.value,
-                    roundId: g.roundId,
-                    seq: g.seq
-                });
-                document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
-                vib(40);
-                await refreshTop();
-                await setPastTable("TeenPatti", "tpPast", "tpWait");
-                renderMyBetBox("TeenPatti", g);
-            } catch (e) {
-                document.getElementById("tpMsg").textContent = e.message || String(e);
-            }
-        });
-
-        document.getElementById("rPlay").addEventListener("click", async() => {
-            try {
-                const g = state.Roulette;
-                if (!g) return;
-                const left = secondsLeftFromDoc(g);
-                if (left <= LOCK_REMAINING) return document.getElementById("rMsg").textContent = "Locked (play only when timer > 15)";
-
-                await placeBetFS({
-                    game: "Roulette",
-                    pick: getRPick(),
-                    stake: rStake.value,
-                    roundId: g.roundId,
-                    seq: g.seq
-                });
-                document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
-                vib(40);
-                await refreshTop();
-                await setPastTable("Roulette", "rPast", "rWait");
-                renderMyBetBox("Roulette", g);
-            } catch (e) {
-                document.getElementById("rMsg").textContent = e.message || String(e);
-            }
-        });
-
-        /* ================= VIEWERS (FAKE) ================= */
-        setInterval(() => {
-            const el = id => document.getElementById(id);
-            el("dtView").textContent = "👁 " + (120 + Math.floor(Math.random() * 25));
-            el("tpView").textContent = "👁 " + (200 + Math.floor(Math.random() * 25));
-            el("rView").textContent = "👁 " + (150 + Math.floor(Math.random() * 25));
-        }, 2500);
-
-        /* ================= INIT ================= */
-        (async function init() {
-            const s = getSession();
-            if (!s || !s.id) return logout();
-            ME_ID = s.id;
-
-            await ensureUserDefaults();
-
-            const snap = await USERS.doc(ME_ID).get();
-            if (!snap.exists) return logout();
-            if (snap.data() ? .isBlocked) return logout();
-
-            await refreshTop();
-
-            await ensureGameDocExists("DragonTiger");
-            await ensureGameDocExists("TeenPatti");
-            await ensureGameDocExists("Roulette");
-
-            subscribeGame("DragonTiger");
-            subscribeGame("TeenPatti");
-            subscribeGame("Roulette");
-
-            // safety tick: if doc says time passed, finalize
-            setInterval(async() => {
-                await finalizeIfNeeded("DragonTiger");
-                await finalizeIfNeeded("TeenPatti");
-                await finalizeIfNeeded("Roulette");
-            }, 1000);
-
-            // ✅ B) Smooth timer tick (UI updates even when Firestore doesn't push every second)
-            setInterval(() => {
-                if (state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
-                if (state.TeenPatti) updateTimerUI("TeenPatti", state.TeenPatti);
-                if (state.Roulette) updateTimerUI("Roulette", state.Roulette);
-            }, 200);
-
-        })().catch((e) => {
-            console.error("INIT ERROR:", e);
-            alert(e ? .message || e);
-        });
-    </script>
+        if(game==="DragonTiger") await setPastTable("DragonTiger","dtPast","dtWait");
+        if(game==="TeenPatti") await setPastTable("TeenPatti","tpPast","tpWait");
+        if(game==="Roulette") await setPastTable("Roulette","rPast","rWait");
+      });
+    }
+
+    /* ================= PLAY BUTTONS ================= */
+    document.getElementById("dtPlay").addEventListener("click", async()=>{
+      try{
+        const g = state.DragonTiger;
+        if(!g) return;
+        const left = secondsLeftFromDoc(g);
+        if(left <= LOCK_REMAINING) return document.getElementById("dtMsg").textContent = "Locked (play only when timer > 15)";
+
+        await placeBetFS({ game:"DragonTiger", pick:getDTPick(), stake:dtStake.value, roundId:g.roundId, seq:g.seq });
+        document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
+        showToast("tie","🕒 SUBMITTED","Result at 0 sec");
+        vib(40);
+        await refreshTop();
+        await setPastTable("DragonTiger","dtPast","dtWait");
+        renderMyBetBox("DragonTiger", g);
+      } catch(e){
+        document.getElementById("dtMsg").textContent = e.message || String(e);
+      }
+    });
+
+    document.getElementById("tpPlay").addEventListener("click", async()=>{
+      try{
+        const g = state.TeenPatti;
+        if(!g) return;
+        const left = secondsLeftFromDoc(g);
+        if(left <= LOCK_REMAINING) return document.getElementById("tpMsg").textContent = "Locked (play only when timer > 15)";
+
+        await placeBetFS({ game:"TeenPatti", pick:getTPPick(), stake:tpStake.value, roundId:g.roundId, seq:g.seq });
+        document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
+        vib(40);
+        await refreshTop();
+        await setPastTable("TeenPatti","tpPast","tpWait");
+        renderMyBetBox("TeenPatti", g);
+      } catch(e){
+        document.getElementById("tpMsg").textContent = e.message || String(e);
+      }
+    });
+
+    document.getElementById("rPlay").addEventListener("click", async()=>{
+      try{
+        const g = state.Roulette;
+        if(!g) return;
+        const left = secondsLeftFromDoc(g);
+        if(left <= LOCK_REMAINING) return document.getElementById("rMsg").textContent = "Locked (play only when timer > 15)";
+
+        await placeBetFS({ game:"Roulette", pick:getRPick(), stake:rStake.value, roundId:g.roundId, seq:g.seq });
+        document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
+        vib(40);
+        await refreshTop();
+        await setPastTable("Roulette","rPast","rWait");
+        renderMyBetBox("Roulette", g);
+      } catch(e){
+        document.getElementById("rMsg").textContent = e.message || String(e);
+      }
+    });
+
+    /* ================= VIEWERS (FAKE) ================= */
+    setInterval(()=>{
+      const el = id => document.getElementById(id);
+      el("dtView").textContent = "👁 " + (120 + Math.floor(Math.random()*25));
+      el("tpView").textContent = "👁 " + (200 + Math.floor(Math.random()*25));
+      el("rView").textContent = "👁 " + (150 + Math.floor(Math.random()*25));
+    },2500);
+
+    /* ================= INIT ================= */
+    (async function init(){
+      const s = getSession();
+      if(!s || !s.id) return logout();
+      ME_ID = s.id;
+
+      await ensureUserDefaults();
+
+      const snap = await USERS.doc(ME_ID).get();
+      if(!snap.exists) return logout();
+      if(snap.data()?.isBlocked) return logout();
+
+      await refreshTop();
+
+      await ensureGameDocExists("DragonTiger");
+      await ensureGameDocExists("TeenPatti");
+      await ensureGameDocExists("Roulette");
+
+      subscribeGame("DragonTiger");
+      subscribeGame("TeenPatti");
+      subscribeGame("Roulette");
+
+      setInterval(async()=>{
+        await finalizeIfNeeded("DragonTiger");
+        await finalizeIfNeeded("TeenPatti");
+        await finalizeIfNeeded("Roulette");
+      },1000);
+
+      setInterval(()=>{
+        if(state.DragonTiger) updateTimerUI("DragonTiger", state.DragonTiger);
+        if(state.TeenPatti) updateTimerUI("TeenPatti", state.TeenPatti);
+        if(state.Roulette) updateTimerUI("Roulette", state.Roulette);
+      },200);
+
+    })().catch((e)=>{
+      console.error("INIT ERROR:", e);
+      alert(e?.message || e);
+    });
+  </script>
 </body>
-
 </html>
