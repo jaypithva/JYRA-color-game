@@ -140,6 +140,9 @@
       white-space:nowrap;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
+    .statClickable{cursor:pointer}
+    .statClickable:active{transform:scale(.99)}
+    .statPill b{font-weight:1300}
 
     /* TABS: single row + scroll */
     .tabsRow{
@@ -422,7 +425,6 @@
     }
     th{font-size:12px;color:var(--muted);letter-spacing:.2px}
 
-    /* compact tables on mobile */
     @media (max-width: 560px){
       table{min-width: 520px}
       th,td{padding: 9px 10px}
@@ -527,6 +529,146 @@
       font-weight:1100;
       white-space:nowrap;
     }
+
+    /* ===== WIN/LOSS POPUP ===== */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      z-index:99999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
+    }
+    .modalBack.show{display:flex}
+    .modalCard{
+      width:min(720px, 94vw);
+      max-height: 88vh;
+      border-radius: 18px;
+      border:1px solid rgba(212,175,55,.25);
+      background:
+        radial-gradient(900px 260px at 30% 0%, rgba(212,175,55,.18), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.78));
+      box-shadow: 0 28px 90px rgba(0,0,0,.75);
+      overflow:hidden;
+      transform: translateY(8px);
+      animation: popIn .14s ease-out forwards;
+    }
+    @keyframes popIn{to{transform: translateY(0)}}
+    .modalHead{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.35);
+    }
+    .modalTitle{
+      font-weight:1200;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .modalClose{
+      border:none;
+      background: rgba(0,0,0,.25);
+      color:#fff;
+      font-weight:1200;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .modalBody{padding: 14px 16px; overflow:auto; max-height: calc(88vh - 64px);}
+    .bigCount{
+      text-align:center;
+      font-weight:1300;
+      font-size:44px;
+      letter-spacing:.6px;
+      margin: 10px 0 6px;
+    }
+    .bigSub{
+      text-align:center;
+      color: var(--muted);
+      font-weight:1000;
+      margin-bottom: 14px;
+    }
+    .modalGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:520px){ .modalGrid{grid-template-columns:1fr} }
+    .modalMini{
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.28);
+      padding: 12px;
+    }
+    .modalMini .k{color:var(--muted);font-weight:900;font-size:12px}
+    .modalMini .v{margin-top:6px;font-weight:1200;font-size:18px}
+    .modalBtnRow{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .modalBtn{
+      padding: 12px 16px;
+      border-radius: 12px;
+      border:1px solid rgba(212,175,55,.28);
+      background: rgba(0,0,0,.28);
+      color:#fff;
+      font-weight:1100;
+      cursor:pointer;
+    }
+    .modalBtn.primary{
+      background: linear-gradient(180deg, rgba(212,175,55,1), rgba(255,255,255,.78));
+      color:#120c00;
+    }
+    .modalListCard{
+      margin-top:14px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .modalListHead{
+      padding:10px 12px;
+      background: rgba(0,0,0,.30);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      font-weight:1100;
+    }
+    .modalListScroll{
+      max-height: 260px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .modalTable{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 520px;
+    }
+    .modalTable th,.modalTable td{
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      white-space:nowrap;
+      font-weight:900;
+    }
+    .modalTable th{font-size:12px;color:var(--muted)}
+    @media (max-width:560px){
+      .modalTable{min-width: 480px;}
+    }
   </style>
 </head>
 
@@ -546,12 +688,11 @@
       </button>
     </div>
 
-    <!-- ✅ Role/Points/W/L -->
     <div class="statsBar">
-      <div class="statPill">Role: <span class="gold" id="roleName">-</span></div>
-      <div class="statPill">Points: <span class="gold" id="pointsShow">0</span></div>
-      <div class="statPill">Win: <span class="gold" id="winShow">0</span></div>
-      <div class="statPill">Loss: <span class="gold" id="lossShow">0</span></div>
+      <div class="statPill">Role: <b class="gold" id="roleName">-</b></div>
+      <div class="statPill">Points: <b class="gold" id="pointsShow">0</b></div>
+      <div class="statPill statClickable" id="winPill">Win: <b class="gold" id="winShow">0</b></div>
+      <div class="statPill statClickable" id="lossPill">Loss: <b class="gold" id="lossShow">0</b></div>
     </div>
 
     <div class="tabsRow">
@@ -566,7 +707,6 @@
 
     <!-- ================= DRAGON TIGER ================= -->
     <section class="panel active" id="dt">
-
       <div class="sectionBar">
         <div class="title">🐉 Dragon Tiger</div>
         <div class="badgeLive">🎥 Live <span class="gold" id="dtView">👁 124</span></div>
@@ -597,7 +737,6 @@
             <div class="timerText">⏳ Round ends in: <span class="gold" id="dtTimer">30</span>s</div>
             <div class="progressBar"><div class="progressFill" id="dtFill"></div></div>
           </div>
-
           <div class="statusPill">Round: <span class="gold" id="dtRound">-</span></div>
           <div class="statusPill lockOpen" id="dtLock">OPEN</div>
         </div>
@@ -651,7 +790,6 @@
           <div class="gold" id="dtMsg">-</div>
         </div>
 
-        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
         <div class="miniGrid">
           <div class="miniCard">
             <div class="miniHead">
@@ -769,7 +907,6 @@
           <span id="tpRound2">-</span>
         </div>
 
-        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
         <div class="miniGrid">
           <div class="miniCard">
             <div class="miniHead">
@@ -881,7 +1018,6 @@
           <div class="gold" id="rMsg">-</div>
         </div>
 
-        <!-- ✅ Last5 + MyBet (Old IDs preserved) -->
         <div class="miniGrid">
           <div class="miniCard">
             <div class="miniHead">
@@ -924,6 +1060,7 @@
       <div class="tableCard" style="margin-top:12px;">
         <div class="tableHead">
           <div class="h">📜 Full Play History</div>
+          <div class="tableActions"><span class="muted" id="histInfo"></span></div>
         </div>
         <div class="scroll" style="max-height:420px">
           <table class="table" id="bh">
@@ -936,7 +1073,7 @@
       </div>
     </section>
 
-    <!-- ✅ OLD COMPAT IDs (keep for your older code compatibility too) -->
+    <!-- OLD compat ids -->
     <div style="display:none">
       <span id="cid">-</span>
       <span id="pts">0</span>
@@ -960,6 +1097,60 @@
     <div class="muted" id="toastBody">-</div>
   </div>
 
+  <!-- ===== WIN/LOSS POPUP ===== -->
+  <div class="modalBack" id="wlModal">
+    <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="wlTitle">
+      <div class="modalHead">
+        <div class="modalTitle" id="wlTitle">📊 Stats</div>
+        <button class="modalClose" id="wlClose" type="button">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="bigCount" id="wlBig">0</div>
+        <div class="bigSub" id="wlSub">-</div>
+
+        <div class="modalGrid">
+          <div class="modalMini">
+            <div class="k">Total Bets (last 200)</div>
+            <div class="v" id="wlTotal">0</div>
+          </div>
+          <div class="modalMini">
+            <div class="k">Win Rate</div>
+            <div class="v" id="wlRate">0%</div>
+          </div>
+          <div class="modalMini">
+            <div class="k">Pending Bets</div>
+            <div class="v" id="wlPending">0</div>
+          </div>
+          <div class="modalMini">
+            <div class="k">Points</div>
+            <div class="v gold" id="wlPoints">0</div>
+          </div>
+        </div>
+
+        <div class="modalBtnRow">
+          <button class="modalBtn" id="wlShowWin" type="button">Show WIN Bets</button>
+          <button class="modalBtn" id="wlShowLoss" type="button">Show LOSS Bets</button>
+          <button class="modalBtn primary" id="wlGoHistory" type="button">Open History Tab</button>
+        </div>
+
+        <div class="modalListCard">
+          <div class="modalListHead">
+            <div id="wlListTitle">Latest Bets</div>
+            <div class="muted" id="wlListInfo"></div>
+          </div>
+          <div class="modalListScroll">
+            <table class="modalTable" id="wlTable">
+              <thead><tr><th>Time</th><th>Game</th><th>Pick</th><th>Points</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -970,7 +1161,7 @@
       document.querySelectorAll(".tabBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
       document.querySelectorAll(".bBtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
       document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
-      if (tabId === "hist") renderHistory();
+      if (tabId === "hist") renderHistoryLive();
       try{ window.scrollTo({top:0, behavior:"smooth"}); }catch(e){}
     }
     document.querySelectorAll(".tabBtn").forEach(b => b.addEventListener("click", ()=> setTab(b.dataset.tab)));
@@ -985,6 +1176,7 @@
       setTimeout(() => t.className = "toast", 2200);
     }
     function vib(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+    function qs(id){ return document.getElementById(id); }
 
     /* ================= FIREBASE INIT ================= */
     firebase.initializeApp({
@@ -1004,14 +1196,14 @@
     function getSession() { return loadJSON(K_SESSION_A, null) || loadJSON(K_SESSION_B, null); }
     function clearSession() { localStorage.removeItem(K_SESSION_A); localStorage.removeItem(K_SESSION_B); }
     function logout() { clearSession(); location.href = "../index.html"; }
-    document.getElementById("logoutBtn").addEventListener("click", logout);
+    qs("logoutBtn").addEventListener("click", logout);
     function fmtDate(ts) { return new Date(ts || Date.now()).toLocaleString(); }
 
     /* ================= BET BOXES + CHIPS ================= */
     function bindBetBoxes(containerId, showId, showId2) {
-      const cont = document.getElementById(containerId);
-      const show = document.getElementById(showId);
-      const show2 = showId2 ? document.getElementById(showId2) : null;
+      const cont = qs(containerId);
+      const show = qs(showId);
+      const show2 = showId2 ? qs(showId2) : null;
       if (!cont || !show) return () => "";
 
       let active = cont.querySelector(".betBox.active");
@@ -1030,7 +1222,6 @@
       });
       return () => pick;
     }
-
     function bindChips(scopeEl, inputEl) {
       if (!scopeEl || !inputEl) return;
       scopeEl.querySelectorAll(".chip").forEach(ch => {
@@ -1044,22 +1235,20 @@
     }
 
     const getDTPick = bindBetBoxes("dtBets", "dtPickShow");
-    const dtStake = document.getElementById("dtStake");
-    bindChips(document.getElementById("dtChips"), dtStake);
+    const dtStake = qs("dtStake");
+    bindChips(qs("dtChips"), dtStake);
 
     const getTPPick = bindBetBoxes("tpBets", "tpPickShow", "tpPickShow2");
-    const tpStake = document.getElementById("tpStake");
-    bindChips(document.getElementById("tpChips"), tpStake);
+    const tpStake = qs("tpStake");
+    bindChips(qs("tpChips"), tpStake);
 
     const getRPick = bindBetBoxes("rBets", "rPickShow");
-    const rStake = document.getElementById("rStake");
-    bindChips(document.getElementById("rChips"), rStake);
+    const rStake = qs("rStake");
+    bindChips(qs("rChips"), rStake);
 
     /* ================= CONSTANTS ================= */
     const TOTAL_SEC = 30;
     const LOCK_REMAINING = 15;
-
-    // ✅ separate seq for each game
     const START_SEQ = { DragonTiger: 282, TeenPatti: 500, Roulette: 900 };
 
     const GAME_DOC = (g) => db.collection("gameState").doc(g);
@@ -1071,7 +1260,7 @@
     let ME_USER = null;
     const state = { DragonTiger: null, TeenPatti: null, Roulette: null };
 
-    /* ================= ROUND ID (YYYYMMDDHHMMSS_SEQ) ================= */
+    /* ================= ROUND ID (YYYYMMDDHHMMSS_###) ================= */
     function pad2(n) { return String(n).padStart(2, "0"); }
     function pad3(n) { return String(n).padStart(3, "0"); }
     function ymdhms(d) {
@@ -1104,9 +1293,9 @@
       };
       const m = map[gameKey];
       if(!m) return;
-      const box = document.getElementById(m.box);
-      const rid = document.getElementById(m.rid);
-      const tt  = document.getElementById(m.t);
+      const box = qs(m.box);
+      const rid = qs(m.rid);
+      const tt  = qs(m.t);
       if(rid) rid.textContent = roundId || "-";
       if(tt) tt.textContent = String(Math.max(0, Number(left || 0)));
       if(box) box.classList.toggle("show", !!show);
@@ -1127,9 +1316,9 @@
     }
 
     async function calcWinLoss() {
-      const qs = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
+      const qsnap = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
       let w = 0, l = 0;
-      qs.forEach(doc => {
+      qsnap.forEach(doc => {
         const b = doc.data() || {};
         if (b.result === "WIN") w++;
         else if (b.result === "LOSS") l++;
@@ -1143,25 +1332,24 @@
       ME_USER = snap.data() || {};
 
       // old hidden compat
-      document.getElementById("cid").textContent = ME_ID;
-      document.getElementById("pts").textContent = Number(ME_USER.points || 0);
+      qs("cid").textContent = ME_ID;
+      qs("pts").textContent = Number(ME_USER.points || 0);
 
       // visible
-      document.getElementById("roleName").textContent = String(ME_USER.role || ME_USER.isAdmin ? "admin" : "user");
-      document.getElementById("pointsShow").textContent = String(Number(ME_USER.points || 0));
+      qs("roleName").textContent = String(ME_USER.role || (ME_USER.isAdmin ? "admin" : "user"));
+      qs("pointsShow").textContent = String(Number(ME_USER.points || 0));
 
       const wl = await calcWinLoss();
-      document.getElementById("w").textContent = wl.win;
-      document.getElementById("l").textContent = wl.loss;
+      qs("w").textContent = wl.win;
+      qs("l").textContent = wl.loss;
 
-      document.getElementById("winShow").textContent = String(wl.win);
-      document.getElementById("lossShow").textContent = String(wl.loss);
+      qs("winShow").textContent = String(wl.win);
+      qs("lossShow").textContent = String(wl.loss);
     }
 
     /* ================= RNG ================= */
     function randCard() { return 1 + Math.floor(Math.random() * 13); }
     function cardStr(v) { return (v === 1 ? "A" : v === 11 ? "J" : v === 12 ? "Q" : v === 13 ? "K" : String(v)); }
-
     function drawDT() {
       const d = randCard(), t = randCard();
       const res = (d === t) ? "TIE" : (d > t ? "DRAGON" : "TIGER");
@@ -1370,14 +1558,14 @@
     /* ================= TABLES ================= */
     async function setPastTable(game, tableId, waitId) {
       const tb = document.querySelector("#" + tableId + " tbody");
-      const w = document.getElementById(waitId);
+      const w = qs(waitId);
 
-      const qs = await BETS.where("clientId", "==", ME_ID)
+      const qsnap = await BETS.where("clientId", "==", ME_ID)
         .where("game", "==", game)
         .orderBy("at", "desc").limit(10).get();
 
       const arr = [];
-      qs.forEach(d => arr.push(d.data() || {}));
+      qsnap.forEach(d => arr.push(d.data() || {}));
       const pending = arr.filter(b => b.result === "PENDING").length;
       if (w) w.textContent = pending ? ("Pending bets: " + pending) : "";
 
@@ -1392,32 +1580,39 @@
       )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
     }
 
-    async function renderHistory() {
+    let histUnsub = null;
+    function renderHistoryLive(){
+      if (histUnsub) { try{histUnsub();}catch(e){} histUnsub=null; }
       const tb = document.querySelector("#bh tbody");
-      const qs = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
-      const arr = [];
-      qs.forEach(d => arr.push(d.data() || {}));
+      const info = qs("histInfo");
       if (!tb) return;
-      tb.innerHTML = arr.map(b => (
-        "<tr>" +
-          "<td>" + fmtDate(b.at) + "</td>" +
-          "<td>" + (b.game || "-") + "</td>" +
-          "<td>" + (b.pick || "-") + "</td>" +
-          "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-          "<td>" + (b.result || "-") + "</td>" +
-        "</tr>"
-      )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+
+      histUnsub = BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(200)
+        .onSnapshot((snap)=>{
+          const arr=[];
+          snap.forEach(d=>arr.push(d.data()||{}));
+          if(info) info.textContent = arr.length ? ("Showing last " + arr.length) : "";
+          tb.innerHTML = arr.map(b => (
+            "<tr>" +
+              "<td>" + fmtDate(b.at) + "</td>" +
+              "<td>" + (b.game || "-") + "</td>" +
+              "<td>" + (b.pick || "-") + "</td>" +
+              "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+              "<td>" + (b.result || "-") + "</td>" +
+            "</tr>"
+          )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+        });
     }
 
     function renderLatestResult(game, gameDoc) {
       const elId = (game === "DragonTiger") ? "dtPrev" : (game === "TeenPatti") ? "tpPrev" : "rPrev";
-      const el = document.getElementById(elId);
+      const el = qs(elId);
       if (!el) return;
       const v = String(gameDoc?.result || "");
       el.innerHTML = v ? ('<span class="gold">' + v + '</span>') : '<span class="muted">No result</span>';
     }
 
-    /* ================= LAST5 RENDER (uses old IDs) ================= */
+    /* ================= LAST5 RENDER ================= */
     function renderLast5(game, gdoc) {
       const arr = Array.isArray(gdoc?.last5) ? gdoc.last5 : [];
       const rows = arr.slice(0,5);
@@ -1426,8 +1621,8 @@
       if (game === "TeenPatti") { subId = "tpLast5Sub"; bodyId = "tpLast5Body"; }
       if (game === "Roulette") { subId = "rLast5Sub";  bodyId = "rLast5Body"; }
 
-      const sub = document.getElementById(subId);
-      const body = document.getElementById(bodyId);
+      const sub = qs(subId);
+      const body = qs(bodyId);
       if (sub) sub.textContent = rows.length ? ("Rounds: " + rows.length) : "No data";
       if (!body) return;
 
@@ -1439,17 +1634,16 @@
       )).join("") || "<tr><td colspan='2' class='muted'>No results yet</td></tr>";
     }
 
-    /* ================= MY BET LIVE (without refresh) ================= */
+    /* ================= MY BET LIVE ================= */
     const myBetUnsub = { DragonTiger:null, TeenPatti:null, Roulette:null };
-
     function setMyBetUI(game, bet, roundId){
       let subId="dtMyBetSub", stId="dtMyBetStatus", bodyId="dtMyBetBody";
       if (game === "TeenPatti") { subId="tpMyBetSub"; stId="tpMyBetStatus"; bodyId="tpMyBetBody"; }
       if (game === "Roulette")  { subId="rMyBetSub";  stId="rMyBetStatus";  bodyId="rMyBetBody";  }
 
-      const sub = document.getElementById(subId);
-      const st  = document.getElementById(stId);
-      const bd  = document.getElementById(bodyId);
+      const sub = qs(subId);
+      const st  = qs(stId);
+      const bd  = qs(bodyId);
 
       if (!bet) {
         if (sub) sub.textContent = "Round: " + (roundId || "-");
@@ -1465,22 +1659,15 @@
     }
 
     function watchMyBet(game, roundId){
-      // clear old
       if (myBetUnsub[game]) { try{ myBetUnsub[game](); }catch(e){} myBetUnsub[game]=null; }
-
       const betKey = ME_ID + "_" + game + "_" + roundId;
-      const ref = BETS.doc(betKey);
-
-      myBetUnsub[game] = ref.onSnapshot((snap)=>{
-        if (!snap.exists) {
-          setMyBetUI(game, null, roundId);
-          return;
-        }
-        setMyBetUI(game, snap.data() || null, roundId);
+      myBetUnsub[game] = BETS.doc(betKey).onSnapshot((snap)=>{
+        if (!snap.exists) setMyBetUI(game, null, roundId);
+        else setMyBetUI(game, snap.data() || null, roundId);
       });
     }
 
-    /* ================= UI TIMER UPDATE ================= */
+    /* ================= TIMER UI UPDATE ================= */
     function updateTimerUI(game, gameDoc) {
       const left = secondsLeftFromDoc(gameDoc);
       const showLeft = Math.max(0, left);
@@ -1488,39 +1675,33 @@
       const lockState = statusFromDoc(gameDoc);
 
       if (game === "DragonTiger") {
-        document.getElementById("dtRound").textContent = gameDoc?.roundId ?? "-";
-        document.getElementById("dtTimer").textContent = showLeft;
-        document.getElementById("dtFill").style.width = pct;
-
-        setLock(document.getElementById("dtLock"), lockState);
-        document.getElementById("dtPlay").disabled = (lockState !== "OPEN");
+        qs("dtRound").textContent = gameDoc?.roundId ?? "-";
+        qs("dtTimer").textContent = showLeft;
+        qs("dtFill").style.width = pct;
+        setLock(qs("dtLock"), lockState);
+        qs("dtPlay").disabled = (lockState !== "OPEN");
         setLockedOverlay("DragonTiger", lockState === "LOCKED", gameDoc?.roundId, showLeft);
-
       } else if (game === "TeenPatti") {
-        document.getElementById("tpRound").textContent = gameDoc?.roundId ?? "-";
-        document.getElementById("tpRound2").textContent = gameDoc?.roundId ?? "-";
-        document.getElementById("tpTimer").textContent = showLeft;
-        document.getElementById("tpFill").style.width = pct;
-
-        setLock(document.getElementById("tpLock"), lockState);
-        document.getElementById("tpPlay").disabled = (lockState !== "OPEN");
+        qs("tpRound").textContent = gameDoc?.roundId ?? "-";
+        qs("tpRound2").textContent = gameDoc?.roundId ?? "-";
+        qs("tpTimer").textContent = showLeft;
+        qs("tpFill").style.width = pct;
+        setLock(qs("tpLock"), lockState);
+        qs("tpPlay").disabled = (lockState !== "OPEN");
         setLockedOverlay("TeenPatti", lockState === "LOCKED", gameDoc?.roundId, showLeft);
-
       } else {
-        document.getElementById("rRound").textContent = gameDoc?.roundId ?? "-";
-        document.getElementById("rTimer").textContent = showLeft;
-        document.getElementById("rFill").style.width = pct;
-
-        setLock(document.getElementById("rLock"), lockState);
-        document.getElementById("rPlay").disabled = (lockState !== "OPEN");
+        qs("rRound").textContent = gameDoc?.roundId ?? "-";
+        qs("rTimer").textContent = showLeft;
+        qs("rFill").style.width = pct;
+        setLock(qs("rLock"), lockState);
+        qs("rPlay").disabled = (lockState !== "OPEN");
         setLockedOverlay("Roulette", lockState === "LOCKED", gameDoc?.roundId, showLeft);
       }
     }
 
     /* ================= LIVE SUBSCRIBE ================= */
     function subscribeGame(game) {
-      const ref = GAME_DOC(game);
-      return ref.onSnapshot(async (snap) => {
+      return GAME_DOC(game).onSnapshot(async (snap) => {
         if (!snap.exists) return;
         const g = snap.data() || {};
         state[game] = g;
@@ -1529,14 +1710,13 @@
         renderLatestResult(game, g);
         renderLast5(game, g);
 
-        // My bet live watch per-round (without refresh)
         if (ME_ID && g.roundId) watchMyBet(game, g.roundId);
 
         if (g.result) {
           await settleMyBetIfNeeded(game, g);
-          if (game === "DragonTiger") document.getElementById("dtMsg").textContent = "ROUND RESULT: " + g.result;
-          if (game === "TeenPatti")  document.getElementById("tpMsg").textContent = "ROUND RESULT: " + g.result;
-          if (game === "Roulette")   document.getElementById("rMsg").textContent = "ROUND RESULT: " + g.result;
+          if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
+          if (game === "TeenPatti")  qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
+          if (game === "Roulette")   qs("rMsg").textContent = "ROUND RESULT: " + g.result;
         }
 
         if (secondsLeftFromDoc(g) <= 0) await finalizeIfNeeded(game);
@@ -1548,53 +1728,132 @@
     }
 
     /* ================= PLAY BUTTONS ================= */
-    document.getElementById("dtPlay").addEventListener("click", async () => {
+    qs("dtPlay").addEventListener("click", async () => {
       try {
         const g = state.DragonTiger;
         if (!g) return;
-        const left = secondsLeftFromDoc(g);
-        if (left <= LOCK_REMAINING) return document.getElementById("dtMsg").textContent = "Locked (play only when timer > 15)";
+        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("dtMsg").textContent = "Locked (play only when timer > 15)";
         await placeBetFS({ game:"DragonTiger", pick:getDTPick(), stake:dtStake.value, roundId:g.roundId, seq:g.seq });
-        document.getElementById("dtMsg").textContent = "PLAY SUBMITTED";
+        qs("dtMsg").textContent = "PLAY SUBMITTED";
         showToast("🕒 SUBMITTED", "Result at 0 sec");
         vib(40);
         await refreshTop();
-      } catch (e) { document.getElementById("dtMsg").textContent = e.message || String(e); }
+      } catch (e) { qs("dtMsg").textContent = e.message || String(e); }
     });
 
-    document.getElementById("tpPlay").addEventListener("click", async () => {
+    qs("tpPlay").addEventListener("click", async () => {
       try {
         const g = state.TeenPatti;
         if (!g) return;
-        const left = secondsLeftFromDoc(g);
-        if (left <= LOCK_REMAINING) return document.getElementById("tpMsg").textContent = "Locked (play only when timer > 15)";
+        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("tpMsg").textContent = "Locked (play only when timer > 15)";
         await placeBetFS({ game:"TeenPatti", pick:getTPPick(), stake:tpStake.value, roundId:g.roundId, seq:g.seq });
-        document.getElementById("tpMsg").textContent = "PLAY SUBMITTED";
+        qs("tpMsg").textContent = "PLAY SUBMITTED";
         vib(40);
         await refreshTop();
-      } catch (e) { document.getElementById("tpMsg").textContent = e.message || String(e); }
+      } catch (e) { qs("tpMsg").textContent = e.message || String(e); }
     });
 
-    document.getElementById("rPlay").addEventListener("click", async () => {
+    qs("rPlay").addEventListener("click", async () => {
       try {
         const g = state.Roulette;
         if (!g) return;
-        const left = secondsLeftFromDoc(g);
-        if (left <= LOCK_REMAINING) return document.getElementById("rMsg").textContent = "Locked (play only when timer > 15)";
+        if (secondsLeftFromDoc(g) <= LOCK_REMAINING) return qs("rMsg").textContent = "Locked (play only when timer > 15)";
         await placeBetFS({ game:"Roulette", pick:getRPick(), stake:rStake.value, roundId:g.roundId, seq:g.seq });
-        document.getElementById("rMsg").textContent = "PLAY SUBMITTED";
+        qs("rMsg").textContent = "PLAY SUBMITTED";
         vib(40);
         await refreshTop();
-      } catch (e) { document.getElementById("rMsg").textContent = e.message || String(e); }
+      } catch (e) { qs("rMsg").textContent = e.message || String(e); }
     });
 
     /* ================= VIEWERS (FAKE) ================= */
     setInterval(() => {
-      const el = id => document.getElementById(id);
-      if (el("dtView")) el("dtView").textContent = "👁 " + (120 + Math.floor(Math.random() * 25));
-      if (el("tpView")) el("tpView").textContent = "👁 " + (200 + Math.floor(Math.random() * 25));
-      if (el("rView"))  el("rView").textContent  = "👁 " + (150 + Math.floor(Math.random() * 25));
+      if (qs("dtView")) qs("dtView").textContent = "👁 " + (120 + Math.floor(Math.random() * 25));
+      if (qs("tpView")) qs("tpView").textContent = "👁 " + (200 + Math.floor(Math.random() * 25));
+      if (qs("rView"))  qs("rView").textContent  = "👁 " + (150 + Math.floor(Math.random() * 25));
     }, 2500);
+
+    /* ================= WIN/LOSS MODAL (with bet list) ================= */
+    let wlMode = "WIN";
+    function openWLModal(mode){
+      wlMode = mode || "WIN";
+      qs("wlModal").classList.add("show");
+      fillWLModal(wlMode);
+    }
+    function closeWLModal(){ qs("wlModal").classList.remove("show"); }
+
+    async function loadWLList(mode){
+      const tbody = qs("wlTable").querySelector("tbody");
+      const info = qs("wlListInfo");
+      const title = qs("wlListTitle");
+
+      // filter latest 50 (then show only matching in UI)
+      const snap = await BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(50).get();
+      const arr = [];
+      snap.forEach(d=>arr.push(d.data()||{}));
+
+      const filtered = arr.filter(b => (mode==="ALL") ? true : (b.result === mode));
+      title.textContent = (mode==="ALL") ? "Latest Bets" : ("Latest " + mode + " Bets");
+      if(info) info.textContent = filtered.length ? ("Showing " + filtered.length + " / 50") : "No data";
+
+      tbody.innerHTML = filtered.map(b => (
+        "<tr>" +
+          "<td>" + fmtDate(b.at) + "</td>" +
+          "<td>" + (b.game || "-") + "</td>" +
+          "<td>" + (b.pick || "-") + "</td>" +
+          "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+          "<td>" + (b.result || "-") + "</td>" +
+        "</tr>"
+      )).join("") || "<tr><td colspan='5' class='muted'>No bets</td></tr>";
+    }
+
+    async function fillWLModal(mode){
+      qs("wlPoints").textContent = String(Number(ME_USER?.points || 0));
+
+      const snap = await BETS.where("clientId","==",ME_ID).orderBy("at","desc").limit(200).get();
+      let win=0, loss=0, pending=0, tie=0, total=0;
+
+      snap.forEach(d=>{
+        const b=d.data()||{};
+        total++;
+        if(b.result==="WIN") win++;
+        else if(b.result==="LOSS") loss++;
+        else if(b.result==="PENDING") pending++;
+        else if(b.result==="TIE") tie++;
+      });
+
+      qs("wlTotal").textContent = String(total);
+      qs("wlPending").textContent = String(pending);
+
+      const decided = Math.max(1, (win+loss+tie));
+      const rate = Math.round((win/decided)*100);
+      qs("wlRate").textContent = String(rate) + "%";
+
+      if(mode==="WIN"){
+        qs("wlTitle").textContent = "✅ WIN Stats";
+        qs("wlBig").textContent = String(win);
+        qs("wlSub").textContent = "Total WIN bets (last 200)";
+        await loadWLList("WIN");
+      } else if(mode==="LOSS"){
+        qs("wlTitle").textContent = "❌ LOSS Stats";
+        qs("wlBig").textContent = String(loss);
+        qs("wlSub").textContent = "Total LOSS bets (last 200)";
+        await loadWLList("LOSS");
+      } else {
+        qs("wlTitle").textContent = "📊 Stats";
+        qs("wlBig").textContent = String(total);
+        qs("wlSub").textContent = "Total bets (last 200)";
+        await loadWLList("ALL");
+      }
+    }
+
+    qs("winPill").addEventListener("click", ()=> openWLModal("WIN"));
+    qs("lossPill").addEventListener("click", ()=> openWLModal("LOSS"));
+    qs("wlClose").addEventListener("click", closeWLModal);
+    qs("wlModal").addEventListener("click", (e)=>{ if(e.target===qs("wlModal")) closeWLModal(); });
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeWLModal(); });
+    qs("wlShowWin").addEventListener("click", ()=> fillWLModal("WIN"));
+    qs("wlShowLoss").addEventListener("click", ()=> fillWLModal("LOSS"));
+    qs("wlGoHistory").addEventListener("click", ()=>{ closeWLModal(); setTab("hist"); });
 
     /* ================= INIT ================= */
     (async function init() {
@@ -1609,8 +1868,6 @@
       if (snap.data()?.isBlocked) return logout();
 
       await refreshTop();
-
-      // keep top live updates too
       USERS.doc(ME_ID).onSnapshot(()=> refreshTop());
 
       await ensureGameDocExists("DragonTiger");
