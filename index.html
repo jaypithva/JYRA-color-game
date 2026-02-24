@@ -1,94 +1,774 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>JYRA</title>
-    <link rel="icon" type="image/x-icon" href="images/logo.png">
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>JYRA</title>
+  <link rel="icon" type="image/x-icon" href="logo-1.png" />
+
+  <style>
+    :root{
+      --bg1:#05060a;
+      --bg2:#0a1030;
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(0,0,0,.30);
+      --stroke: rgba(255,255,255,.14);
+
+      --gold:#d4af37;
+      --gold2:#ffcc4a;
+      --green:#22c55e;
+      --teal:#10b981;
+      --cyan:#22d3ee;
+
+      --text:#ffffff;
+      --muted: rgba(255,255,255,.75);
+
+      --shadow: 0 22px 70px rgba(0,0,0,.60);
+      --radius: 22px;
+      --radius2: 18px;
+      --max: 1200px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(34,211,238,.18), transparent 55%),
+        radial-gradient(900px 500px at 80% 25%, rgba(34,197,94,.12), transparent 55%),
+        radial-gradient(900px 650px at 50% 100%, rgba(212,175,55,.18), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* subtle stars */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.18) 40%, transparent 41%),
+        radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,.12) 40%, transparent 41%),
+        radial-gradient(2px 2px at 65% 25%, rgba(255,255,255,.16) 40%, transparent 41%),
+        radial-gradient(1px 1px at 80% 55%, rgba(255,255,255,.10) 40%, transparent 41%),
+        radial-gradient(1px 1px at 55% 75%, rgba(255,255,255,.12) 40%, transparent 41%),
+        radial-gradient(2px 2px at 20% 75%, rgba(255,255,255,.12) 40%, transparent 41%);
+      opacity:.8;
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+
+    .wrap{
+      width:min(var(--max), calc(100% - 40px));
+      margin:0 auto;
+    }
+
+    /* ===== top nav ===== */
+    .nav{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.20));
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    .navInner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 0;
+      gap:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      text-decoration:none; color:inherit;
+    }
+    .brand img{
+      height:44px; width:auto;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,.7));
+    }
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color:var(--text);
+      padding:12px 18px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:700;
+      letter-spacing:.2px;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      box-shadow: 0 14px 40px rgba(0,0,0,.30);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22)}
+    .btn:active{transform: translateY(0)}
+    .btn.green{
+      background: linear-gradient(180deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 18px 60px rgba(34,197,94,.16);
+    }
+    .btn.green:hover{background: linear-gradient(180deg, rgba(34,197,94,1), rgba(16,185,129,.92))}
+    .btn.small{padding:10px 16px; font-size:14px}
+
+    /* ===== hero board ===== */
+    .hero{
+      padding:26px 0 34px;
+    }
+
+    .board{
+      position:relative;
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(800px 340px at 15% 20%, rgba(34,211,238,.12), transparent 60%),
+        radial-gradient(900px 450px at 85% 30%, rgba(34,197,94,.10), transparent 65%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.28));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      padding:22px;
+    }
+
+    /* glowing corners */
+    .board:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(220px 220px at 20% 15%, rgba(212,175,55,.35), transparent 60%),
+        radial-gradient(260px 260px at 85% 20%, rgba(34,197,94,.22), transparent 60%),
+        radial-gradient(300px 240px at 50% 110%, rgba(34,211,238,.18), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+      filter: blur(2px);
+    }
+
+    /* floating gems */
+    .gem{
+      position:absolute;
+      width:14px; height:14px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(34,197,94,.55) 45%, rgba(0,0,0,0) 70%);
+      border-radius:6px;
+      transform: rotate(25deg);
+      filter: drop-shadow(0 10px 20px rgba(34,197,94,.20));
+      opacity:.85;
+      pointer-events:none;
+    }
+    .gem.g1{top:84px; left:56%; animation: floaty 5.8s ease-in-out infinite}
+    .gem.g2{top:210px; left:78%; width:10px;height:10px; animation: floaty 6.8s ease-in-out infinite}
+    .gem.g3{top:140px; left:34%; width:9px;height:9px; opacity:.65; animation: floaty 7.6s ease-in-out infinite}
+
+    @keyframes floaty{
+      0%,100%{transform: translateY(0) rotate(25deg)}
+      50%{transform: translateY(-10px) rotate(18deg)}
+    }
+
+    .topRow{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+      z-index:1;
+    }
+
+    .panel{
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.40));
+      box-shadow: 0 18px 55px rgba(0,0,0,.40);
+      padding:18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .welcomeTitle{
+      margin:6px 0 4px;
+      font-size: clamp(28px, 4.2vw, 44px);
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1.08;
+    }
+    .welcomeTitle .jyra{
+      color: rgba(34,197,94,1);
+      text-shadow: 0 10px 28px rgba(34,197,94,.12);
+    }
+    .subline{
+      color: rgba(255,255,255,.84);
+      font-weight:700;
+      margin:0 0 14px;
+      opacity:.95;
+    }
+    .subline span{
+      color: rgba(255,255,255,.65);
+      font-weight:700;
+    }
+
+    .lockCard{
+      display:flex; gap:12px; align-items:flex-start;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding:14px 14px;
+      margin-top:10px;
+    }
+    .lock{
+      width:38px; height:38px; flex:0 0 auto;
+      border-radius:12px;
+      background: rgba(212,175,55,.18);
+      border:1px solid rgba(212,175,55,.35);
+      display:grid; place-items:center;
+      box-shadow: 0 18px 45px rgba(212,175,55,.10);
+    }
+    .lock svg{width:18px;height:18px; fill:rgba(255,225,150,.95)}
+    .lockCard b{display:block; margin-bottom:4px}
+    .lockCard p{margin:0; color:rgba(255,255,255,.75); line-height:1.35}
+
+    /* big center logo area */
+    .bigLogoArea{
+      position:relative;
+      margin-top:18px;
+      border-radius: 24px;
+      padding:18px 18px 8px;
+      min-height: 220px;
+      display:flex; align-items:flex-end; justify-content:center;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(500px 240px at 50% 70%, rgba(212,175,55,.20), transparent 65%),
+        linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.42));
+    }
+    .bigLogoArea:before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(220px 120px at 16% 85%, rgba(212,175,55,.20), transparent 70%),
+        radial-gradient(240px 140px at 86% 88%, rgba(255,255,255,.10), transparent 70%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .bigLogo{
+      position:relative;
+      width:min(520px, 90%);
+      height:auto;
+      filter: drop-shadow(0 20px 55px rgba(0,0,0,.75));
+      z-index:1;
+      opacity:1;
+    }
+
+    /* fake platform + dice */
+    .platform{
+      position:absolute;
+      bottom:18px; left:50%;
+      transform: translateX(-50%);
+      width: min(520px, 92%);
+      height: 84px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.55));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 22px 60px rgba(0,0,0,.55);
+      opacity:.75;
+      z-index:0;
+    }
+    .dice{
+      position:absolute;
+      width:42px; height:42px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.55));
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      bottom: 28px;
+      z-index:2;
+    }
+    .dice:before, .dice:after{
+      content:"";
+      position:absolute;
+      width:6px;height:6px;border-radius:50%;
+      background: rgba(255,255,255,.85);
+      box-shadow:
+        10px 10px 0 rgba(255,255,255,.85),
+        20px 20px 0 rgba(255,255,255,.85);
+      top:10px; left:10px;
+      opacity:.9;
+    }
+    .dice.d1{left: calc(50% + 190px); transform: rotate(10deg)}
+    .dice.d2{
+      left: calc(50% + 238px);
+      bottom: 18px;
+      width:38px;height:38px;
+      transform: rotate(-12deg);
+      opacity:.9;
+    }
+
+    /* ===== right how it works ===== */
+    .h2{
+      margin:0 0 12px;
+      font-size:20px;
+      letter-spacing:.2px;
+      font-weight:900;
+      text-align:center;
+    }
+    .steps{
+      display:flex; flex-direction:column; gap:12px;
+      margin: 6px 0 0;
+      padding:0; list-style:none;
+    }
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding:12px;
+    }
+    .badge{
+      width:28px;height:28px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      font-weight:900;
+      background: rgba(34,197,94,.18);
+      border:1px solid rgba(34,197,94,.35);
+      color: rgba(255,255,255,.95);
+      box-shadow: 0 18px 55px rgba(34,197,94,.10);
+      flex:0 0 auto;
+      margin-top:2px;
+    }
+    .step b{display:block; margin:0 0 3px}
+    .step small{display:block; color:rgba(255,255,255,.72); line-height:1.35}
+
+    /* ===== stats + footer line ===== */
+    .statsBar{
+      position:relative;
+      margin-top:18px;
+      border-radius: 20px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.40));
+      padding:12px 14px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      z-index:1;
+      backdrop-filter: blur(10px);
+    }
+    .stat{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 10px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      min-height: 56px;
+    }
+    .ico{
+      width:40px;height:40px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      display:grid; place-items:center;
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .ico svg{width:18px;height:18px; fill: rgba(255,255,255,.88)}
+    .stat .num{font-weight:900; font-size:18px; line-height:1}
+    .stat .lbl{color:rgba(255,255,255,.72); font-weight:700; font-size:12px; margin-top:2px}
+
+    .footerLine{
+      margin-top:14px;
+      text-align:center;
+      font-weight:900;
+      letter-spacing:.3px;
+      color: rgba(255,255,255,.86);
+      padding:10px 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+    }
+    .footerLine .gold{color: var(--gold2); text-shadow: 0 18px 45px rgba(212,175,55,.18)}
+    .chev{opacity:.7}
+
+    /* ===== phone preview (right side, like poster) ===== */
+    .phoneWrap{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .phone{
+      border-radius: 36px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.30);
+      box-shadow: 0 30px 90px rgba(0,0,0,.70);
+      padding: 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .phone:before{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,0));
+      pointer-events:none;
+      opacity:.6;
+    }
+    .phoneTop{
+      height: 18px;
+      display:flex; justify-content:center;
+      margin-bottom: 8px;
+    }
+    .notch{
+      width: 120px; height: 18px;
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      box-shadow: 0 16px 50px rgba(0,0,0,.55);
+    }
+
+    .phoneScreen{
+      border-radius: 26px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(550px 280px at 50% 15%, rgba(34,211,238,.14), transparent 60%),
+        radial-gradient(520px 280px at 50% 70%, rgba(212,175,55,.18), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.45));
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .phoneLogoTop{
+      width: 120px;
+      margin: 6px auto 10px;
+      display:block;
+      filter: drop-shadow(0 14px 40px rgba(0,0,0,.75));
+    }
+    .phoneTitle{
+      text-align:center;
+      font-weight: 900;
+      font-size: 18px;
+      margin: 2px 0 6px;
+    }
+    .phoneTitle .jyra{color: rgba(34,197,94,1)}
+    .phoneSub{
+      text-align:center;
+      color: rgba(255,255,255,.78);
+      font-weight: 800;
+      font-size: 12px;
+      margin:0 0 10px;
+    }
+
+    .phoneLock{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.30);
+      padding: 12px;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+    }
+    .phoneLock b{font-size: 12px}
+    .phoneLock p{margin:2px 0 0; font-size: 11px; color: rgba(255,255,255,.72); line-height:1.35}
+    .phoneBtnRow{
+      margin-top: 12px;
+      display:flex;
+      justify-content:center;
+    }
+    .phoneBtn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 11px 16px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(34,197,94,1), rgba(16,185,129,.88));
+      border: 1px solid rgba(34,197,94,.55);
+      font-weight: 900;
+      text-decoration:none;
+      color: #0b1b12;
+      box-shadow: 0 18px 60px rgba(34,197,94,.18);
+      min-width: 170px;
+    }
+    .phoneBtn span{color: rgba(255,255,255,.92)}
+    .phoneLogoBottom{
+      width: 210px;
+      margin: 14px auto 10px;
+      display:block;
+      filter: drop-shadow(0 18px 55px rgba(0,0,0,.80));
+    }
+    .phoneStats{
+      margin-top: 8px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.26);
+      padding: 10px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .phoneStat{
+      display:flex; gap:8px; align-items:center;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding: 8px;
+    }
+    .phoneStat .n{font-weight: 900; font-size: 12px; line-height:1}
+    .phoneStat .t{font-size: 9px; color: rgba(255,255,255,.70); font-weight: 800; margin-top:2px}
+
+    .phoneFooter{
+      margin-top: 10px;
+      text-align:center;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.24);
+      padding: 8px 10px;
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+    }
+    .phoneFooter small{display:block; font-weight:800; font-size: 10px; color: rgba(255,255,255,.70); margin-top:2px}
+
+    /* ===== responsive ===== */
+    @media (max-width: 980px){
+      .topRow{grid-template-columns: 1fr; }
+      .phoneWrap{grid-template-columns: 1fr;}
+      .phone{max-width: 420px; margin: 0 auto;}
+      .dice{display:none;}
+    }
+    @media (max-width: 520px){
+      .wrap{width: calc(100% - 26px)}
+      .board{padding:16px}
+      .statsBar{grid-template-columns: 1fr; }
+      .btn.small{padding:10px 14px}
+      .brand img{height:40px}
+      .bigLogoArea{min-height: 200px}
+    }
+  </style>
 </head>
 
 <body>
-    <!-- ===== Header ===== -->
-    <div class="nav">
-        <div class="container">
-            <div class="row header-row">
+  <!-- ===== NAV ===== -->
+  <div class="nav">
+    <div class="wrap">
+      <div class="navInner">
+        <a class="brand" href="index.html" aria-label="JYRA Home">
+          <img src="logo-1.png" alt="JYRA Logo" />
+        </a>
 
-                <div class="brand">
-                    <a href="index.html">
-                        <img src="logo.png" alt="Logo" class="logo">
-                    </a>
-                </div>
-
-                <div class="row-actions" id="topActions">
-                    <a href="login.html" class="btn small">Login</a>
-                </div>
-
-            </div>
+        <div id="topActions">
+          <a class="btn green small" href="login.html">
+            <!-- user icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="rgba(255,255,255,.92)" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4.5A1.5 1.5 0 0 0 5.5 20h13A1.5 1.5 0 0 0 20 18.5C20 16 16.42 14 12 14Z"/>
+            </svg>
+            Login
+          </a>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- ===== Main ===== -->
-    <div class="container">
-        <div class="grid two">
-            <div class="card">
-                <div class="h1">Welcome</div>
-                <p class="p">
-                    Is website me sirf authorized users hi login kar sakte hain. Account create karna public ke liye band hai. ID/Password admin provide karega.
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="board">
+        <div class="gem g1"></div><div class="gem g2"></div><div class="gem g3"></div>
+
+        <div class="topRow">
+          <!-- LEFT -->
+          <div class="panel">
+            <div class="welcomeTitle">
+              Welcome to <span class="jyra">JYRA</span>
+            </div>
+            <div class="subline">
+              Play Smart <span>•</span> Earn Points <span>•</span> Win Big!
+            </div>
+
+            <div class="lockCard">
+              <div class="lock" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4Z"/>
+                </svg>
+              </div>
+              <div>
+                <b>Only Authorized Users Can Login</b>
+                <p>
+                  Account creation is disabled. ID &amp; Password are provided by Admin.
                 </p>
-
-                <div class="row-actions">
-                    <a class="btn" href="login.html">Go to Login</a>
-                </div>
-
-                <div class="hr"></div>
-
-                <div class="notice">
-                    🔥 Your skills decide your success. Start playing, manage your points wisely, and turn strategy into victory.
-                </div>
+              </div>
             </div>
 
-            <div class="card">
-                <div class="h2">How it works</div>
-                <ul class="p">
-                    <li>Admin panel se admin client ID banayega</li>
-                    <li>Admin client ko ID + password dega</li>
-                    <li>Client sirf login karke game open karega</li>
-                </ul>
-                <div class="notice small">Note: Demo localStorage par chal raha hai.</div>
+            <div class="bigLogoArea" aria-label="JYRA big logo section">
+              <div class="platform" aria-hidden="true"></div>
+              <div class="dice d1" aria-hidden="true"></div>
+              <div class="dice d2" aria-hidden="true"></div>
+              <img class="bigLogo" src="logo-1.png" alt="JYRA Logo Large" />
             </div>
+
+            <div class="statsBar" role="group" aria-label="Platform stats">
+              <div class="stat">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.57 2.99-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11Zm-8 0c1.66 0 3-1.57 3-3.5S9.66 4 8 4S5 5.57 5 7.5S6.34 11 8 11Zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.96 1.97 3.45V20h6v-3.5C23 14.17 18.33 13 16 13Z"/></svg>
+                </div>
+                <div>
+                  <div class="num">10K+</div>
+                  <div class="lbl">Active Users</div>
+                </div>
+              </div>
+
+              <div class="stat">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Zm-1 2h-4v2H8v2h2v2h4v-2h2v-2h-2Z"/></svg>
+                </div>
+                <div>
+                  <div class="num">25K+</div>
+                  <div class="lbl">Games Played</div>
+                </div>
+              </div>
+
+              <div class="stat">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="m12 17.27l5.18 3.12l-1.64-5.81L20 10.5l-5.9-.5L12 4.5L9.9 10L4 10.5l4.46 4.08L6.82 20.4Z"/></svg>
+                </div>
+                <div>
+                  <div class="num">5★</div>
+                  <div class="lbl">Trusted Platform</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footerLine">
+              <span class="chev">«</span>
+              Master the Game, <span class="gold">Elevate Your Skills</span>, Achieve Greatness!
+              <span class="chev">»</span>
+            </div>
+          </div>
+
+          <!-- RIGHT -->
+          <div class="panel">
+            <div class="h2">How It Works</div>
+
+            <ul class="steps">
+              <li class="step">
+                <div class="badge">1</div>
+                <div>
+                  <b>Admin Creates ID</b>
+                  <small>From Admin Panel</small>
+                </div>
+              </li>
+              <li class="step">
+                <div class="badge">2</div>
+                <div>
+                  <b>Admin Shares</b>
+                  <small>ID + Password to Client</small>
+                </div>
+              </li>
+              <li class="step">
+                <div class="badge">3</div>
+                <div>
+                  <b>Client Logs In</b>
+                  <small>And Starts Playing</small>
+                </div>
+              </li>
+            </ul>
+
+            <div style="height:14px"></div>
+
+            <!-- right side phone preview like your image -->
+            <div class="phone">
+              <div class="phoneTop"><div class="notch"></div></div>
+
+              <div class="phoneScreen">
+                <img class="phoneLogoTop" src="logo-1.png" alt="JYRA Logo" />
+                <div class="phoneTitle">Welcome to <span class="jyra">JYRA</span></div>
+                <div class="phoneSub">Play Smart • Earn Points • Win Big!</div>
+
+                <div class="phoneLock">
+                  <div class="lock" aria-hidden="true" style="width:34px;height:34px;border-radius:12px">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4Z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <b>Only Authorized Users Can Login</b>
+                    <p>Account creation is disabled. ID &amp; Password are provided by Admin.</p>
+                  </div>
+                </div>
+
+                <div class="phoneBtnRow">
+                  <a class="phoneBtn" href="login.html">
+                    <span>Go to Login</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="rgba(255,255,255,.92)" d="M10 17l5-5l-5-5v10z"/>
+                    </svg>
+                  </a>
+                </div>
+
+                <img class="phoneLogoBottom" src="logo-1.png" alt="JYRA Logo Large" />
+
+                <div class="phoneStats">
+                  <div class="phoneStat">
+                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
+                      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.57 2.99-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11Zm-8 0c1.66 0 3-1.57 3-3.5S9.66 4 8 4S5 5.57 5 7.5S6.34 11 8 11Z"/></svg>
+                    </div>
+                    <div>
+                      <div class="n">10K+</div>
+                      <div class="t">Active Users</div>
+                    </div>
+                  </div>
+                  <div class="phoneStat">
+                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
+                      <svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Z"/></svg>
+                    </div>
+                    <div>
+                      <div class="n">25K+</div>
+                      <div class="t">Games Played</div>
+                    </div>
+                  </div>
+                  <div class="phoneStat">
+                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
+                      <svg viewBox="0 0 24 24"><path d="m12 17.27l5.18 3.12l-1.64-5.81L20 10.5l-5.9-.5L12 4.5Z"/></svg>
+                    </div>
+                    <div>
+                      <div class="n">5★</div>
+                      <div class="t">Trusted</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="phoneFooter">
+                  Strategize • Play • <span style="color:var(--gold2)">Conquer!</span>
+                  <small>Only the Best Rise to the Top!</small>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
+      </div>
     </div>
+  </section>
 
-    <script src="app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof currentUser !== "function") return;
+  <script>
+    // OPTIONAL: If you already have currentUser/logout functions in other pages,
+    // you can paste them here too. For now, just UI swap demo with localStorage.
+    // (No external file needed.)
 
-            var u = currentUser();
-            if (!u) return;
+    function currentUser(){
+      try { return JSON.parse(localStorage.getItem("jyra_user") || "null"); }
+      catch(e){ return null; }
+    }
+    function logout(){
+      localStorage.removeItem("jyra_user");
+      location.reload();
+    }
 
-            var top = document.getElementById("topActions");
-            if (!top) return;
+    document.addEventListener("DOMContentLoaded", function(){
+      var u = currentUser();
+      if(!u) return;
 
-            // Render buttons
-            top.innerHTML =
-                '<button class="btn secondary small" id="btnLogoutTop" type="button">Logout</button>' +
-                '<a class="btn small" style="margin-left:8px;" href="' +
-                (u.role === "admin" ? "admin.html" : "game.html") +
-                '">Open</a>';
+      var top = document.getElementById("topActions");
+      if(!top) return;
 
-            // Logout bind (SAFE)
-            var lo = document.getElementById("btnLogoutTop");
-            if (lo) {
-                lo.addEventListener("click", function() {
-                    logout();
-                });
-            }
-        });
-    </script>
+      top.innerHTML =
+        '<button class="btn small" id="btnLogoutTop" type="button">Logout</button>' +
+        '<a class="btn green small" style="margin-left:10px" href="' +
+        (u.role === "admin" ? "admin.html" : "game.html") + '">Open</a>';
+
+      var lo = document.getElementById("btnLogoutTop");
+      if(lo) lo.addEventListener("click", logout);
+    });
+  </script>
 </body>
-
-
 </html>
