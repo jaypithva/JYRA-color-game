@@ -5,17 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Game</title>
   <link rel="icon" type="image/x-icon" href="images/logo.png">
-  <link rel="stylesheet" href="styles.css" />
 
   <style>
     body{visibility:hidden}
 
     :root{
-      --bg:#060712;
+      --bg:#050512;
       --panel: rgba(255,255,255,.04);
-      --panel2: rgba(0,0,0,.25);
+      --panel2: rgba(0,0,0,.35);
       --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(212,175,55,.24);
+      --stroke2: rgba(212,175,55,.22);
       --text:#eaf0ff;
       --muted: rgba(234,240,255,.70);
 
@@ -28,13 +27,20 @@
       --red1:#dc2626; --red2:#ef4444;
       --vio1:#7c3aed; --vio2:#a855f7;
 
-      --shadow: 0 24px 80px rgba(0,0,0,.55);
-      --shadow2: 0 18px 60px rgba(0,0,0,.45);
-      --r: 22px;
-      --r2: 16px;
+      --shadow: 0 26px 90px rgba(0,0,0,.60);
+      --shadow2: 0 18px 60px rgba(0,0,0,.48);
 
-      --brand: var(--gold2);
-      --brand2: var(--neon1);
+      --r: 18px;
+      --r2: 14px;
+
+      --sideW: 300px;
+      --rightW: 360px;
+
+      --glass: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.28));
+      --glass2: radial-gradient(900px 450px at 35% -10%, rgba(109,76,255,.22), transparent 60%),
+                radial-gradient(850px 520px at 75% 20%, rgba(43,231,255,.14), transparent 60%),
+                radial-gradient(900px 600px at 25% 40%, rgba(244,212,122,.12), transparent 62%),
+                linear-gradient(180deg, #040416 0%, #07071a 45%, #040416 100%);
     }
 
     *{box-sizing:border-box}
@@ -43,62 +49,50 @@
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--text);
-      background:
-        radial-gradient(900px 500px at 50% -10%, rgba(109,76,255,.25), transparent 60%),
-        radial-gradient(700px 400px at 85% 25%, rgba(43,231,255,.16), transparent 60%),
-        radial-gradient(700px 520px at 20% 35%, rgba(244,212,122,.14), transparent 60%),
-        linear-gradient(180deg, #040510 0%, #090a18 60%, #040510 100%);
+      background: var(--glass2);
       overflow-x:hidden;
     }
 
-    .container{
-      /* width:min(1200px, 92vw); */
-      margin:0 auto;
-    }
-
-    .nav{
+    /* ===== Top bar (like image: small, dark, gold stroke) ===== */
+    .topbar{
       position:sticky; top:0; z-index:50;
       backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.22));
+      background: linear-gradient(180deg, rgba(0,0,0,.68), rgba(0,0,0,.28));
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
-
-    .row{display:flex; align-items:center}
-    .header-row{
-      padding:12px 0;
+    .topbar-inner{
+      width:min(1280px, 94vw);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
       justify-content:space-between;
+      padding:10px 0;
       gap:12px;
     }
-
-    .brand{display:flex; align-items:center; gap:12px}
+    .brand{
+      display:flex;align-items:center;gap:10px;
+    }
     .logo{
-      width:44px; height:44px; border-radius:14px;
-      object-fit:cover;
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: 0 10px 28px rgba(0,0,0,.45);
+      width:38px;height:38px;border-radius:12px;object-fit:cover;
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 30px rgba(0,0,0,.45);
+      background: rgba(0,0,0,.22);
     }
-    .brand-title{
-      display:flex; flex-direction:column; line-height:1.1
-    }
+    .brand-title{line-height:1.05}
     .brand-title b{
-      letter-spacing:.8px;
+      letter-spacing:1px;
       background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      font-size:16px;
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      font-size:15px;font-weight:1000;
     }
-    .brand-title span{
-      font-size:12px; color:var(--muted)
-    }
+    .brand-title span{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 
     .btn{
-      border:0;
-      cursor:pointer;
+      border:0; cursor:pointer;
       color:#101318;
-      font-weight:900;
-      padding:11px 14px;
-      border-radius:14px;
+      font-weight:1000;
+      padding:10px 14px;
+      border-radius:12px;
       background: linear-gradient(135deg, var(--gold1), var(--gold2));
       box-shadow: 0 14px 34px rgba(0,0,0,.35);
       transition: transform .12s ease, filter .12s ease;
@@ -106,7 +100,7 @@
     }
     .btn:hover{transform: translateY(-1px); filter:brightness(1.05)}
     .btn:active{transform: translateY(0px); filter:brightness(.98)}
-    .btn.small{padding:9px 12px; border-radius:12px; font-size:12px}
+    .btn.small{padding:8px 12px; border-radius:12px; font-size:12px}
     .btn.secondary{
       color:var(--text);
       background: rgba(255,255,255,.06);
@@ -115,147 +109,167 @@
     }
     .btn.secondary:hover{background: rgba(255,255,255,.09)}
 
-    .row-actions{display:flex; gap:10px; align-items:center}
-
-    .card{
-      margin-top:14px;
-      border-radius: var(--r);
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(650px 220px at 50% 0%, rgba(244,212,122,.10), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
-      box-shadow: var(--shadow2);
-      overflow:hidden;
+    /* ===== App layout (Image style: left wallet, center hero, right timer) ===== */
+    .container{
+      width:min(1280px, 94vw);
+      margin:14px auto 34px;
+    }
+    .app-grid{
+      display:grid;
+      grid-template-columns: var(--sideW) 1fr var(--rightW);
+      gap:14px;
+      align-items:start;
     }
 
-    .card-inner{padding:14px}
-
+    /* ===== Card / panel base ===== */
+    .card{
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background: var(--glass);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(650px 240px at 50% 0%, rgba(244,212,122,.10), transparent 70%),
+        radial-gradient(520px 220px at 30% 25%, rgba(109,76,255,.12), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .card-inner{position:relative; padding:14px}
     .h2{
       font-weight:1000;
       letter-spacing:.4px;
-      margin:0 0 8px 0;
-      font-size:18px;
+      margin:0 0 10px 0;
+      font-size:16px;
     }
     .small{font-size:12px; color:var(--muted)}
-    .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+    .hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
 
-    .kpi{
+    /* ===== Left Wallet Sidebar (match image: compact stacked boxes) ===== */
+    .wallet-kpi{
       display:grid;
-      grid-template-columns: repeat(3,1fr);
+      grid-template-columns:1fr;
       gap:10px;
-      margin-top:10px;
     }
     .box{
-      border-radius: 18px;
+      border-radius: 16px;
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
+      background: rgba(0,0,0,.22);
       padding:12px;
+      box-shadow: inset 0 0 0 1px rgba(244,212,122,.06);
     }
     .label{font-size:12px; color:rgba(255,255,255,.72)}
     .val{
       margin-top:6px;
-      font-size:18px;
-      font-weight:1100;
-      letter-spacing:.5px;
+      font-size:16px;
+      font-weight:1000;
+      letter-spacing:.4px;
       color:#eaf0ff;
       word-break:break-word;
     }
-
-    /* ===== HERO header inside game card ===== */
-    .wg-hero{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:12px;
-      align-items:stretch;
-      padding:14px;
+    .bet-lock{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);font-size:12px;
     }
-    .wg-hero-left{
+    .bet-open{color:#86efac}
+    .bet-closed{color:#fca5a5}
+
+    /* ===== Center Hero (big logo like image) ===== */
+    .hero{
+      min-height:210px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:
+        radial-gradient(900px 320px at 50% 20%, rgba(244,212,122,.18), transparent 64%),
+        radial-gradient(700px 320px at 50% 10%, rgba(109,76,255,.22), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.28));
       border-radius: var(--r);
       border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(420px 220px at 50% 0%, rgba(109,76,255,.25), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
-      box-shadow: var(--shadow2);
+      position:relative;
       overflow:hidden;
-      position:relative;
-      min-height:190px;
+      box-shadow: var(--shadow2);
     }
-    .wg-hero-bg{
-      position:absolute; inset:0;
+    .hero::after{
+      content:"";
+      position:absolute; inset:-2px;
       background:
-        radial-gradient(700px 260px at 50% 20%, rgba(244,212,122,.14), transparent 70%),
-        linear-gradient(135deg, rgba(0,0,0,.15), rgba(0,0,0,.35));
+        linear-gradient(135deg, rgba(212,175,55,.18), transparent 38%),
+        linear-gradient(225deg, rgba(43,231,255,.10), transparent 40%);
       pointer-events:none;
+      opacity:.9;
+      mix-blend-mode:screen;
     }
-    .wg-hero-content{
+    .hero-center{
       position:relative;
-      padding:16px;
+      text-align:center;
       display:flex;
+      flex-direction:column;
       align-items:center;
-      gap:14px;
-    }
-    .wg-hero-logo{
-      width:86px; height:86px; border-radius:24px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.22);
-      padding:10px;
-      display:grid; place-items:center;
-      box-shadow: 0 18px 60px rgba(0,0,0,.45);
-    }
-    .wg-hero-logo img{width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,.35))}
-    .wg-hero-text{flex:1}
-    .wg-hero-title{
-      font-size:22px;
-      font-weight:1100;
-      margin:0;
-      letter-spacing:.8px;
-      background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-    }
-    .wg-hero-sub{margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35}
-    .wg-hero-meta{
-      margin-top:12px;
-      display:flex;
       gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
     }
+    .hero-logo{
+      width:min(420px, 82%);
+      filter: drop-shadow(0 20px 50px rgba(0,0,0,.60));
+    }
+    .hero-title{
+      margin:0;
+      font-weight:1000;
+      letter-spacing:1px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      font-size:18px;
+    }
+    .hero-sub{max-width:560px; font-size:12px; color:var(--muted); line-height:1.35}
 
-    .wg-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:900;font-size:12px;color:rgba(255,255,255,.92);white-space:nowrap}
+    .wg-chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      font-weight:900;font-size:12px;color:rgba(255,255,255,.92);
+      white-space:nowrap;
+    }
     .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
     .dot-live{background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
     .dot-lock{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
     .dot-end{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}
 
-    .wg-meta{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-width:180px}
+    .meta-row{
+      display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+      margin-top:2px;
+    }
+    .wg-meta{
+      padding:10px 12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      min-width:220px;
+      text-align:left;
+    }
     .wg-meta-label{font-size:12px;color:rgba(255,255,255,.65)}
     .wg-meta-value{margin-top:4px;font-size:16px;font-weight:1000;letter-spacing:.6px;color:#e8efff;word-break:break-word}
 
-    /* right timer */
-    .wg-timer{
-      border-radius: var(--r);
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(520px 200px at 60% 0%, rgba(43,231,255,.18), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
-      box-shadow: var(--shadow2);
+    /* ===== Right Timer (like image: tabs + big digits + progress bar) ===== */
+    .timer-card{
       padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      min-height:190px;
     }
-
-    .wg-tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .wg-tabs{display:flex;gap:10px}
     .wg-tab{
-      padding:10px 14px;border-radius:14px;
+      padding:10px 12px;border-radius:12px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.04);
       color:var(--text);
       cursor:pointer;
       font-weight:1000;
       flex:1;
-      min-width:140px;
       transition: transform .12s ease, background .12s ease, border .12s ease;
     }
     .wg-tab:hover{transform: translateY(-1px)}
@@ -264,30 +278,30 @@
       color:#0c0f16;
       border:0;
     }
-
-    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:1000}
-    .wg-timer-time{margin-top:6px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:1000;margin-top:10px}
+    .wg-timer-time{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
     .wg-t{
-      width:52px;height:58px;
+      width:56px;height:62px;
       display:flex;align-items:center;justify-content:center;
       border-radius:16px;
       border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      font-weight:1200;font-size:30px;
+      background: rgba(0,0,0,.22);
+      font-weight:1200;font-size:32px;
       box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
     }
     .wg-colon{font-weight:1200;font-size:26px;opacity:.9;margin:0 2px}
-    .wg-timer-sub{font-size:12px;color:rgba(255,255,255,.70);text-align:right}
+    .wg-timer-sub{font-size:12px;color:rgba(255,255,255,.70);text-align:center;margin-top:8px}
 
-    .wg-progress{height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);overflow:hidden}
+    .wg-progress{margin-top:12px;height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);overflow:hidden}
     .wg-progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(34,197,94,.95),rgba(255,59,59,.95));transition:width .25s ease;width:0%}
 
-    /* ===== Main grid ===== */
-    .grid.two{
+    /* ===== Center Main panels (Select / Place) ===== */
+    .center-stack{display:flex;flex-direction:column;gap:14px}
+
+    .bet-grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap:12px;
-      padding:14px;
+      gap:14px;
     }
     .panel{
       border-radius: var(--r);
@@ -297,36 +311,29 @@
         linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
       box-shadow: var(--shadow2);
       padding:14px;
+      position:relative;
+      overflow:hidden;
     }
-
-    /* inputs */
-    .input{margin-top:10px}
-    .input label{display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:900;margin-bottom:6px}
-    .input input{
-      width:100%;
-      padding:12px 12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
-      color:var(--text);
-      outline:none;
-      font-weight:900;
-      letter-spacing:.2px;
+    .panel::before{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(500px 240px at 50% 0%, rgba(244,212,122,.10), transparent 70%);
+      pointer-events:none;
+      opacity:.65;
     }
-    .input input::placeholder{color:rgba(255,255,255,.35)}
+    .panel > *{position:relative}
 
     /* selection */
     .wg-colors{display:flex;gap:10px;flex-wrap:wrap}
     .wg-color{
-      padding:11px 12px;
-      border-radius:16px;
+      padding:11px 12px;border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
       color:#fff;
       cursor:pointer;
       font-weight:1000;
       flex:1;
-      min-width:140px;
+      min-width:120px;
       transition: transform .12s ease, filter .12s ease;
     }
     .wg-color:hover{transform: translateY(-1px); filter:brightness(1.05)}
@@ -334,11 +341,11 @@
     .wg-color.red{background:linear-gradient(135deg,var(--red1),var(--red2));border:0}
     .wg-color.violet{background:linear-gradient(135deg,var(--vio1),var(--vio2));border:0}
 
-    .wg-color.active,.wg-num.active,.wg-bs-btn.active{outline:3px solid rgba(244,212,122,.35)}
+    .wg-color.active,.wg-num.active,.wg-bs-btn.active{outline:3px solid rgba(244,212,122,.32)}
 
     .wg-numbers{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
     .wg-num{
-      height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+      height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
       color:#fff;
       font-weight:1100;
@@ -349,7 +356,7 @@
 
     .wg-bs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .wg-bs-btn{
-      padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.12);
+      padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
       color:#fff;
       font-weight:1100;
@@ -360,41 +367,57 @@
     .wg-bs-btn.big{background:linear-gradient(135deg,#f59e0b,#fbbf24);border:0;color:#111827}
     .wg-bs-btn.small{background:linear-gradient(135deg,#3b82f6,#60a5fa);border:0}
 
-    .bet-lock{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
-    .bet-open{color:#86efac}
-    .bet-closed{color:#fca5a5}
+    /* inputs */
+    .input{margin-top:10px}
+    .input label{display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:900;margin-bottom:6px}
+    .input input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .input input::placeholder{color:rgba(255,255,255,.35)}
 
     /* chips row */
     .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
     .chipbtn{
-      padding:10px 12px;border-radius:16px;
+      padding:10px 12px;border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
       background:
         radial-gradient(120px 60px at 30% 25%, rgba(255,255,255,.12), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.20));
-      color:#fff;font-weight:1100;cursor:pointer;min-width:72px;text-align:center;
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+      color:#fff;font-weight:1100;cursor:pointer;min-width:68px;text-align:center;
       box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
       transition: transform .12s ease, background .12s ease, filter .12s ease;
     }
     .chipbtn:hover{transform: translateY(-1px); filter:brightness(1.05); background: rgba(255,255,255,.08)}
 
+    .row-actions{display:flex; gap:10px; align-items:center}
+
     .notice{
       padding:10px 12px;
-      border-radius:16px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.9);
+      background: rgba(0,0,0,.20);
+      color: rgba(255,255,255,.92);
       font-weight:900;
     }
 
-    /* Last5 */
-    .last5{margin-top:10px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:hidden}
+    /* Latest + Last5 on right panel (match image: compact boxes) */
+    .kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .last5{margin-top:10px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:hidden}
     .last5-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
     .last5-row:last-child{border-bottom:0}
-    .last5-per{font-weight:1100;opacity:.95}
+    .last5-per{font-weight:1000;opacity:.95}
     .last5-res{opacity:.9;text-align:right}
 
-    /* table */
+    /* ===== History full width below (same as before) ===== */
+    .history-wrap{margin-top:14px}
     .table{width:100%; border-collapse:separate; border-spacing:0; min-width:780px}
     .table thead th{
       text-align:left;
@@ -413,7 +436,7 @@
       white-space:nowrap;
     }
 
-    /* popup same (kept) */
+    /* popup */
     .pop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:999}
     .pop{width:min(420px,100%);border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,72,72,.95),rgba(255,190,120,.20));box-shadow:0 30px 80px rgba(0,0,0,.55)}
     .pop-top{padding:18px 16px 14px;text-align:center;background:linear-gradient(180deg,rgba(255,120,80,.95),rgba(255,60,60,.95))}
@@ -428,22 +451,25 @@
     .pop-actions{display:flex;justify-content:center;padding:14px}
     .pop-actions .btn{min-width:140px}
 
-    /* ===== responsive ===== */
+    /* ===== Responsive ===== */
+    @media (max-width: 1100px){
+      :root{ --sideW: 280px; --rightW: 320px; }
+      .hero{min-height:190px}
+      .hero-logo{width:min(360px, 88%)}
+    }
     @media (max-width: 980px){
-      .wg-hero{grid-template-columns:1fr}
-      .grid.two{grid-template-columns:1fr}
+      .app-grid{
+        grid-template-columns: 1fr;
+      }
+      .hero{min-height:200px}
+      .bet-grid{grid-template-columns:1fr}
       .table{min-width:720px}
     }
-    @media (max-width: 700px){
-      .kpi{grid-template-columns:1fr; }
-      .wg-timer-time{justify-content:space-between}
-      .wg-tab{min-width:0}
-      .wg-meta{min-width:100%}
-    }
     @media (max-width: 420px){
-      .wg-t{width:44px;height:52px;font-size:26px;border-radius:14px}
+      .wg-t{width:48px;height:56px;font-size:28px;border-radius:14px}
       .wg-numbers{grid-template-columns:repeat(4,1fr)}
       .wg-color{min-width:100%}
+      .chipbtn{min-width:64px;padding:9px 10px}
     }
     @media (max-width: 360px){
       .wg-numbers{grid-template-columns:repeat(3,1fr)}
@@ -452,99 +478,192 @@
 </head>
 
 <body>
-  <!-- ===== Header ===== -->
-  <div class="nav">
-    <div class="container">
-      <div class="row header-row">
-        <div class="brand">
-          <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
-          <div class="brand-title">
-            <b>JYRA</b>
-            <span>Win Go • Premium UI</span>
-          </div>
-        </div>
-        <div class="row-actions">
-          <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
+  <!-- ===== TOP BAR ===== -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+        <div class="brand-title">
+          <b>JYRA</b>
+          <span>Win Go • Premium UI</span>
         </div>
       </div>
+      <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
     </div>
   </div>
 
   <div class="container">
+    <div class="app-grid">
 
-    <!-- ===== Wallet ===== -->
-    <div class="card">
-      <div class="card-inner">
-        <div class="h2">My Wallet</div>
-        <div class="kpi">
-          <div class="box">
-            <div class="label">Client ID</div>
-            <div class="val" id="cid">-</div>
-          </div>
-          <div class="box">
-            <div class="label">Name</div>
-            <div class="val" id="nm">-</div>
-          </div>
-          <div class="box">
-            <div class="label">Balance</div>
-            <div class="val" id="pts">0</div>
-            <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
-          </div>
-        </div>
+      <!-- ===== LEFT: WALLET SIDEBAR ===== -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="h2">My Wallet</div>
 
-        <div class="small" style="margin-top:12px;">
-          Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
-          <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
+          <div class="wallet-kpi">
+            <div class="box">
+              <div class="label">Client ID</div>
+              <div class="val" id="cid">-</div>
+            </div>
+            <div class="box">
+              <div class="label">Name</div>
+              <div class="val" id="nm">-</div>
+            </div>
+            <div class="box">
+              <div class="label">Balance</div>
+              <div class="val" id="pts">0</div>
+              <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="small">
+            Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b>
+          </div>
+          <div style="margin-top:10px;">
+            <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ===== Game ===== -->
-    <div class="card">
-      <!-- HERO -->
-      <div class="wg-hero">
-        <div class="wg-hero-left">
-          <div class="wg-hero-bg"></div>
-          <div class="wg-hero-content">
-            <div class="wg-hero-logo">
-              <img src="logo.png" alt="Logo">
-            </div>
-            <div class="wg-hero-text">
-              <h1 class="wg-hero-title" style="margin:0;">Win Go</h1>
-              <div class="wg-hero-sub">Choose Color / Number / Big-Small. Result at round end. Same logic, new premium UI.</div>
+      <!-- ===== CENTER: HERO + BET PANELS ===== -->
+      <div class="center-stack">
 
-              <div class="wg-hero-meta">
-                <div class="wg-chip" aria-live="polite">
-                  <span class="dot dot-live" id="wgDot"></span>
-                  <span id="wgStatusText">LIVE</span>
-                </div>
+        <!-- Hero (big logo) -->
+        <div class="hero">
+          <div class="hero-center">
+            <img class="hero-logo" src="logo.png" alt="JYRA Logo">
+            <h1 class="hero-title">Win Go</h1>
 
-                <div class="wg-meta">
-                  <div class="wg-meta-label">Period</div>
-                  <div class="wg-meta-value" id="periodId">-</div>
-                </div>
+            <div class="hero-sub">Choose Color / Number / Big-Small. Result at round end. Same logic, premium UI like your reference.</div>
+
+            <div class="meta-row">
+              <div class="wg-chip" aria-live="polite">
+                <span class="dot dot-live" id="wgDot"></span>
+                <span id="wgStatusText">LIVE</span>
+              </div>
+
+              <div class="wg-meta">
+                <div class="wg-meta-label">Period</div>
+                <div class="wg-meta-value" id="periodId">-</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="wg-timer">
+        <!-- Select + Place -->
+        <div class="bet-grid">
+          <!-- LEFT: Select -->
+          <div class="panel">
+            <div class="h2" style="margin-top:0;">Select Bet</div>
+
+            <div class="small" style="margin-bottom:8px;">Color</div>
+            <div class="wg-colors">
+              <button class="wg-color green" id="btnGreen" type="button">Green</button>
+              <button class="wg-color violet" id="btnViolet" type="button">Violet</button>
+              <button class="wg-color red" id="btnRed" type="button">Red</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="small" style="margin-bottom:8px;">Number (0-9)</div>
+            <div class="wg-numbers" id="numGrid"></div>
+
+            <div class="hr"></div>
+
+            <div class="small" style="margin-bottom:8px;">Big / Small</div>
+            <div class="wg-bs">
+              <button class="wg-bs-btn big" id="btnBig" type="button">Big</button>
+              <button class="wg-bs-btn small" id="btnSmall" type="button">Small</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: Place -->
+          <div class="panel">
+            <div class="h2" style="margin-top:0;">Place Bet</div>
+
+            <div class="input">
+              <label>Selected Bet</label>
+              <input id="selBet" readonly placeholder="Choose any one option" />
+            </div>
+
+            <div class="input">
+              <label>Bet Amount (min 50)</label>
+              <input id="betAmt" type="number" min="50" placeholder="Enter points" />
+              <div class="small" id="betAmtInr" style="margin-top:6px;">₹0.00</div>
+
+              <div class="chips" id="chipsRow">
+                <button class="chipbtn" type="button" data-chip="50">50</button>
+                <button class="chipbtn" type="button" data-chip="100">100</button>
+                <button class="chipbtn" type="button" data-chip="200">200</button>
+                <button class="chipbtn" type="button" data-chip="500">500</button>
+                <button class="chipbtn" type="button" data-chip="1000">1000</button>
+              </div>
+            </div>
+
+            <div class="row-actions" style="margin-top:12px;">
+              <button class="btn" id="btnBet" type="button">Confirm Bet</button>
+              <button class="btn secondary" id="btnClear" type="button">Clear</button>
+            </div>
+
+            <div class="notice" id="betMsg" style="display:none;margin-top:10px;"></div>
+
+            <div class="hr"></div>
+
+            <div class="h2" style="margin-top:0;">Latest Result</div>
+            <div class="kpi3">
+              <div class="box">
+                <div class="label">Number</div>
+                <div class="val" id="resNum">-</div>
+              </div>
+              <div class="box">
+                <div class="label">Color</div>
+                <div class="val" id="resColor">-</div>
+              </div>
+              <div class="box">
+                <div class="label">Big/Small</div>
+                <div class="val" id="resBS">-</div>
+              </div>
+            </div>
+
+            <div class="notice" id="roundMsg" style="display:none;margin-top:10px;"></div>
+
+            <div class="hr"></div>
+
+            <div class="h2" style="margin-top:0;">Last 5 Results</div>
+            <div class="small" style="opacity:.85">All users (even without bet)</div>
+            <div class="last5" id="last5Box">
+              <div class="last5-row"><div class="small">Loading…</div></div>
+            </div>
+
+            <div class="hr"></div>
+            <div class="small">Rule: Bet place hote hi amount minus hota hai. Win pe <b>+2x</b> add hota hai.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RIGHT: TIMER SIDEBAR ===== -->
+      <div class="card">
+        <div class="card-inner timer-card">
+          <div class="h2" style="margin-bottom:8px;">Timer</div>
+
           <div class="wg-tabs">
             <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
             <button class="wg-tab" id="tab3m" type="button">3 Min</button>
           </div>
 
-          <div>
-            <div class="wg-timer-title">Remaining</div>
-            <div class="wg-timer-time" role="timer" aria-live="polite">
-              <span class="wg-t" id="tm_m1">0</span>
-              <span class="wg-t" id="tm_m2">0</span>
-              <span class="wg-colon">:</span>
-              <span class="wg-t" id="tm_s1">0</span>
-              <span class="wg-t" id="tm_s2">0</span>
-            </div>
-            <div class="wg-timer-sub" id="wgTimerHint">Place bets before time ends</div>
+          <div class="wg-timer-title">Remaining</div>
+
+          <div class="wg-timer-time" role="timer" aria-live="polite">
+            <span class="wg-t" id="tm_m1">0</span>
+            <span class="wg-t" id="tm_m2">0</span>
+            <span class="wg-colon">:</span>
+            <span class="wg-t" id="tm_s1">0</span>
+            <span class="wg-t" id="tm_s2">0</span>
           </div>
+
+          <div class="wg-timer-sub" id="wgTimerHint">Place bets before time ends</div>
 
           <div class="wg-progress">
             <div class="wg-progress-bar" id="wgProgressBar"></div>
@@ -552,100 +671,10 @@
         </div>
       </div>
 
-      <div class="hr" style="margin:0;"></div>
-
-      <div class="grid two">
-        <!-- LEFT -->
-        <div class="panel">
-          <div class="h2" style="margin-top:0;">Select Bet</div>
-
-          <div class="small" style="margin-bottom:8px;">Color</div>
-          <div class="wg-colors">
-            <button class="wg-color green" id="btnGreen" type="button">Green</button>
-            <button class="wg-color violet" id="btnViolet" type="button">Violet</button>
-            <button class="wg-color red" id="btnRed" type="button">Red</button>
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="small" style="margin-bottom:8px;">Number (0-9)</div>
-          <div class="wg-numbers" id="numGrid"></div>
-
-          <div class="hr"></div>
-
-          <div class="small" style="margin-bottom:8px;">Big / Small</div>
-          <div class="wg-bs">
-            <button class="wg-bs-btn big" id="btnBig" type="button">Big</button>
-            <button class="wg-bs-btn small" id="btnSmall" type="button">Small</button>
-          </div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="panel">
-          <div class="h2" style="margin-top:0;">Place Bet</div>
-
-          <div class="input">
-            <label>Selected Bet</label>
-            <input id="selBet" readonly placeholder="Choose any one option" />
-          </div>
-
-          <div class="input">
-            <label>Bet Amount (min 50)</label>
-            <input id="betAmt" type="number" min="50" placeholder="Enter points" />
-            <div class="small" id="betAmtInr" style="margin-top:6px;">₹0.00</div>
-
-            <div class="chips" id="chipsRow">
-              <button class="chipbtn" type="button" data-chip="50">50</button>
-              <button class="chipbtn" type="button" data-chip="100">100</button>
-              <button class="chipbtn" type="button" data-chip="200">200</button>
-              <button class="chipbtn" type="button" data-chip="500">500</button>
-              <button class="chipbtn" type="button" data-chip="1000">1000</button>
-            </div>
-          </div>
-
-          <div class="row-actions" style="margin-top:12px;">
-            <button class="btn" id="btnBet" type="button">Confirm Bet</button>
-            <button class="btn secondary" id="btnClear" type="button">Clear</button>
-          </div>
-
-          <div class="notice" id="betMsg" style="display:none;margin-top:10px;"></div>
-
-          <div class="hr"></div>
-
-          <div class="h2" style="margin-top:0;">Latest Result</div>
-          <div class="kpi">
-            <div class="box">
-              <div class="label">Number</div>
-              <div class="val" id="resNum">-</div>
-            </div>
-            <div class="box">
-              <div class="label">Color</div>
-              <div class="val" id="resColor">-</div>
-            </div>
-            <div class="box">
-              <div class="label">Big/Small</div>
-              <div class="val" id="resBS">-</div>
-            </div>
-          </div>
-
-          <div class="notice" id="roundMsg" style="display:none;margin-top:10px;"></div>
-
-          <div class="hr"></div>
-
-          <div class="h2" style="margin-top:0;">Last 5 Results</div>
-          <div class="small" style="opacity:.85">All users (even without bet)</div>
-          <div class="last5" id="last5Box">
-            <div class="last5-row"><div class="small">Loading…</div></div>
-          </div>
-
-          <div class="hr"></div>
-          <div class="small">Rule: Bet place hote hi amount minus hota hai. Win pe <b>+2x</b> add hota hai.</div>
-        </div>
-      </div>
     </div>
 
-    <!-- ===== History (BET HISTORY) ===== -->
-    <div class="card">
+    <!-- ===== History (same function, UI below full width like image) ===== -->
+    <div class="card history-wrap">
       <div class="card-inner">
         <div class="row-actions" style="justify-content:space-between;">
           <div>
@@ -655,7 +684,7 @@
           <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
         </div>
 
-        <div style="overflow:auto;margin-top:12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);">
+        <div style="overflow:auto;margin-top:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);">
           <table class="table">
             <thead>
               <tr>
@@ -676,7 +705,7 @@
 
   </div>
 
-  <!-- ===== Result Popup ===== -->
+  <!-- ===== Result Popup (same) ===== -->
   <div class="pop-backdrop" id="popBack">
     <div class="pop" role="dialog" aria-modal="true">
       <div class="pop-top">
@@ -712,6 +741,7 @@
     };
   </script>
 
+  <!-- Your existing logic file -->
   <script src="app.js"></script>
 
   <script>
