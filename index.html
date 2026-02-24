@@ -5,34 +5,26 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>JYRA</title>
 
-  <!-- ✅ Keep same paths -->
+  <!-- ✅ keep same -->
   <link rel="icon" type="image/x-icon" href="images/logo.png">
 
   <style>
     :root{
-      --bg:#05060a;
+      --green:#1fd37a;
+      --green2:#11b36a;
+      --text:#fff;
+      --muted:rgba(255,255,255,.72);
+
       --glass: rgba(18, 22, 38, .55);
-      --glass2: rgba(10, 14, 28, .65);
+      --glass2: rgba(10, 14, 28, .60);
       --line: rgba(255,255,255,.12);
-      --text:#ffffff;
-      --muted: rgba(255,255,255,.72);
 
-      --green:#19d37a;
-      --green2:#10b981;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 35px rgba(0,0,0,.38);
 
-      --gold:#d4af37;
-      --goldSoft: rgba(212,175,55,.22);
-
-      --violet:#9b5cff;
-      --violetSoft: rgba(155,92,255,.18);
-
-      --shadow: 0 18px 70px rgba(0,0,0,.55);
-      --shadow2: 0 10px 40px rgba(0,0,0,.35);
-
-      --r20: 20px;
-      --r16: 16px;
-
-      --max: 1180px;
+      --r18:18px;
+      --r14:14px;
+      --max: 1100px;
     }
 
     *{box-sizing:border-box}
@@ -41,516 +33,508 @@
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
       color:var(--text);
-      background: var(--bg);
       overflow-x:hidden;
+      background:#05060a;
     }
 
-    /* ===== Background (✅ path required) ===== */
-    body::before{
-      content:"";
+    /* ✅ Background image path */
+    .bg{
       position:fixed;
       inset:0;
       background:
-        radial-gradient(1100px 700px at 60% 35%, rgba(19, 234, 255, .12), transparent 60%),
-        radial-gradient(900px 650px at 25% 55%, rgba(155, 92, 255, .10), transparent 62%),
-        radial-gradient(800px 600px at 80% 70%, rgba(212, 175, 55, .12), transparent 60%),
-        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.75)),
+        radial-gradient(900px 500px at 65% 35%, rgba(50, 190, 255, .14), transparent 60%),
+        radial-gradient(900px 600px at 30% 70%, rgba(255, 180, 0, .10), transparent 62%),
+        linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.80)),
         url("bg-desktop-4k.jpg");
-      background-size: cover;
-      background-position: center;
+      background-size:cover;
+      background-position:center;
       background-repeat:no-repeat;
-      filter: saturate(1.05) contrast(1.05);
       z-index:-3;
+      filter: saturate(1.05) contrast(1.05);
     }
 
-    /* subtle stars */
-    body::after{
-      content:"";
+    /* subtle top line like screenshot */
+    .topLine{
       position:fixed;
-      inset:-200px;
-      background:
-        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.25), transparent 60%),
-        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.18), transparent 60%),
-        radial-gradient(1.6px 1.6px at 70% 30%, rgba(255,255,255,.20), transparent 60%),
-        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,.12), transparent 60%);
-      opacity:.55;
-      z-index:-2;
-      pointer-events:none;
-      animation: drift 14s linear infinite;
-    }
-    @keyframes drift{
-      0%{transform:translateY(0)}
-      100%{transform:translateY(35px)}
+      left:0; right:0;
+      top:88px;
+      height:1px;
+      background: rgba(255,255,255,.12);
+      z-index:-1;
     }
 
-    .container{
+    .wrap{
       width:min(var(--max), calc(100% - 40px));
       margin:0 auto;
-    }
-
-    /* ===== Top Nav ===== */
-    .nav{
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.22));
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-
-    .header-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:14px 0;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 120px;
-    }
-
-    .logo{
-      height:56px;
-      width:auto;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.6));
-    }
-
-    /* ===== Hero ===== */
-    .hero{
-      padding: 26px 0 18px;
-    }
-
-    .heroCard{
       position:relative;
-      border-radius: calc(var(--r20) + 6px);
-      padding: 26px;
-      background: linear-gradient(180deg, rgba(8,10,18,.55), rgba(10,12,22,.35));
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+      padding-bottom:36px;
     }
 
-    .heroCard::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background: radial-gradient(700px 240px at 35% 10%, rgba(155,92,255,.18), transparent 60%),
-                  radial-gradient(800px 260px at 75% 25%, rgba(25,211,122,.16), transparent 60%),
-                  radial-gradient(900px 260px at 50% 80%, rgba(212,175,55,.12), transparent 60%);
-      z-index:0;
-      pointer-events:none;
-    }
-
-    .heroInner{
+    /* ===== Header like screenshot (logo center top, login right) ===== */
+    .header{
       position:relative;
-      z-index:1;
-      display:grid;
-      grid-template-columns: 1.25fr .9fr;
-      gap:18px;
-      align-items:stretch;
-    }
-
-    .welcomeTitle{
-      font-size: 48px;
-      line-height:1.05;
-      margin: 8px 0 10px;
-      letter-spacing:.2px;
-      text-shadow: 0 16px 30px rgba(0,0,0,.55);
-    }
-    .welcomeTitle span{
-      color: var(--green);
-      text-shadow: 0 16px 35px rgba(25,211,122,.20);
-    }
-
-    .subline{
-      color: rgba(255,255,255,.78);
-      font-size: 18px;
-      margin: 0 0 18px;
-    }
-    .subline .dot{opacity:.6}
-    .subline strong{color:#fff}
-
-    .glassBox{
-      background: linear-gradient(180deg, rgba(20,24,40,.52), rgba(12,16,30,.38));
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: var(--r16);
-      padding: 16px 16px;
-      box-shadow: var(--shadow2);
-    }
-
-    .authRow{
+      padding: 26px 0 10px;
       display:flex;
-      gap:12px;
       align-items:flex-start;
-    }
-    .lock{
-      width:38px;height:38px;
-      border-radius:12px;
-      display:grid;place-items:center;
-      background: rgba(212,175,55,.14);
-      border:1px solid rgba(212,175,55,.35);
-      box-shadow: 0 16px 30px rgba(0,0,0,.35);
-      flex:0 0 auto;
-    }
-    .lock svg{width:20px;height:20px;fill: var(--gold)}
-    .authTitle{
-      font-weight:800;
-      margin:0;
-      font-size:18px;
-      letter-spacing:.2px;
-    }
-    .authText{
-      margin:6px 0 0;
-      color: var(--muted);
-      font-size:14px;
-      line-height:1.45;
+      justify-content:center;
     }
 
-    .heroActions{
-      margin-top:16px;
+    .brandTop{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      pointer-events:auto;
+    }
+
+    .brandTop img{
+      height:92px;
+      width:auto;
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,.65));
+    }
+
+    /* top right login pill */
+    #topActions{
+      position:absolute;
+      right:0;
+      top:30px;
       display:flex;
       gap:10px;
-      flex-wrap:wrap;
       align-items:center;
     }
 
-    /* ===== Right panel: How it works ===== */
-    .howPanel{
-      position:relative;
-      padding:16px 16px 14px;
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 18px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:800;
+      color:#eafff6;
+      background: linear-gradient(180deg, rgba(28,210,125,.95), rgba(16,150,88,.92));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 16px 35px rgba(0,0,0,.35);
+      user-select:none;
+      cursor:pointer;
+    }
+    .pill svg{width:16px;height:16px;fill:#eafff6;opacity:.95}
+
+    .pill.secondary{
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      color:#fff;
     }
 
-    .howHead{
-      font-size:20px;
-      margin:0 0 12px;
+    /* ===== Main frame ===== */
+    .frame{
+      position:relative;
+      border-radius: 0;
+      padding: 8px 0 0;
+      min-height: calc(100vh - 140px);
+    }
+
+    /* Welcome block left */
+    .welcome{
+      position:relative;
+      margin-top: 64px;
+      max-width: 540px;
+    }
+    .welcome h1{
+      margin:0;
+      font-size: 44px;
       font-weight:900;
       letter-spacing:.2px;
+      text-shadow: 0 18px 35px rgba(0,0,0,.55);
+    }
+    .welcome h1 .g{color:var(--green)}
+    .welcome .sub{
+      margin: 10px 0 18px;
+      font-size: 16px;
+      color: rgba(255,255,255,.78);
+      text-shadow: 0 14px 30px rgba(0,0,0,.55);
+    }
+
+    .authBox{
+      margin-top: 8px;
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(28, 33, 55, .55);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow2);
+      width: 420px;
+      max-width: 100%;
+    }
+
+    .lockIcon{
+      width:36px;height:36px;
+      border-radius:12px;
+      display:grid;place-items:center;
+      background: rgba(255, 170, 0, .10);
+      border:1px solid rgba(255, 200, 70, .22);
+      flex:0 0 auto;
+    }
+    .lockIcon svg{width:18px;height:18px;fill:rgba(255,195,90,.95)}
+
+    .authBox b{
+      display:block;
+      font-size:16px;
+      letter-spacing:.2px;
+      margin-top:2px;
+    }
+    .authBox p{
+      margin:6px 0 0;
+      font-size:12.8px;
+      line-height:1.35;
+      color: rgba(255,255,255,.70);
+    }
+
+    /* ===== How it works card right ===== */
+    .how{
+      position:absolute;
+      right: 0;
+      top: 160px;
+      width: 360px;
+      max-width: 42vw;
+      padding: 14px 14px 10px;
+      border-radius: 16px;
+      background: rgba(12, 16, 30, .58);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow2);
+    }
+    .how h3{
+      margin:0 0 10px;
+      text-align:center;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.2px;
+      color: rgba(255,255,255,.88);
+    }
+
+    .steps{
+      position:relative;
+      padding-left: 18px;
+    }
+    /* dotted vertical line */
+    .steps::before{
+      content:"";
+      position:absolute;
+      left: 18px;
+      top: 10px;
+      bottom: 18px;
+      width:2px;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.22) 0 6px,
+        rgba(255,255,255,0) 6px 14px
+      );
+      opacity:.55;
     }
 
     .step{
+      position:relative;
       display:flex;
       gap:12px;
-      align-items:flex-start;
-      padding:10px 10px;
-      border-radius:14px;
+      padding: 10px 10px 10px 32px;
+      border-radius: 14px;
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
     }
     .step + .step{margin-top:10px}
 
-    .badge{
-      width:34px;height:34px;
+    /* green number circles (outside-ish) */
+    .num{
+      position:absolute;
+      left: 0px;
+      top: 50%;
+      transform: translate(-38%, -50%);
+      width:26px;height:26px;
       border-radius:999px;
+      background: rgba(31,211,122,.95);
+      color:#052012;
+      font-weight:900;
       display:grid;place-items:center;
-      background: rgba(25,211,122,.16);
-      border: 1px solid rgba(25,211,122,.32);
-      box-shadow: 0 14px 24px rgba(0,0,0,.25);
+      box-shadow: 0 14px 25px rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.22);
+    }
+
+    .sIco{
+      width:34px;height:34px;
+      border-radius:12px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
       flex:0 0 auto;
-      font-weight:900;
-      color:#c9ffe7;
     }
-    .step h4{
-      margin:0;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .step p{
-      margin:3px 0 0;
-      font-size:12.8px;
-      color: var(--muted);
-      line-height:1.35;
-    }
+    .sIco svg{width:18px;height:18px;fill:rgba(255,255,255,.86)}
+    .step b{display:block; font-size:13px; font-weight:900}
+    .step span{display:block; margin-top:3px; font-size:12px; color:rgba(255,255,255,.70)}
 
-    /* ===== Big Logo area ===== */
-    .bigLogoWrap{
-      margin-top:18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 8px 0 6px;
-    }
+    /* ===== Big center logo overlay ===== */
     .bigLogo{
-      width:min(520px, 100%);
-      height:auto;
-      filter: drop-shadow(0 22px 35px rgba(0,0,0,.65));
-      opacity:1;
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      top: 330px; /* screenshot style */
+      width: 640px;
+      max-width: 70vw;
+      pointer-events:none;
+      filter: drop-shadow(0 26px 35px rgba(0,0,0,.65));
     }
+    .bigLogo img{width:100%; height:auto; display:block}
 
-    /* ===== Stats bar ===== */
-    .statsBar{
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(12,16,30,.58), rgba(8,10,18,.38));
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow2);
+    /* ===== Bottom stats bar ===== */
+    .stats{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom: 78px;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
-      gap:10px;
+      gap:12px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(10, 14, 26, .58);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow2);
     }
     .stat{
       display:flex;
-      gap:10px;
       align-items:center;
-      padding:10px 12px;
+      gap:10px;
+      padding: 10px 12px;
       border-radius: 16px;
       background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
     }
-    .ico{
+    .stat .icon{
       width:34px;height:34px;
-      border-radius: 14px;
+      border-radius:14px;
       display:grid;place-items:center;
-      background: rgba(155,92,255,.14);
-      border: 1px solid rgba(155,92,255,.28);
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
       flex:0 0 auto;
     }
-    .ico svg{width:18px;height:18px;fill:#e7d7ff}
-    .stat b{
-      display:block;
-      font-size:18px;
-      letter-spacing:.2px;
-    }
-    .stat span{
-      display:block;
-      margin-top:2px;
-      font-size:12.5px;
-      color: var(--muted);
-    }
+    .stat .icon svg{width:18px;height:18px;fill:rgba(255,255,255,.85)}
+    .stat b{display:block; font-size:18px; font-weight:900}
+    .stat span{display:block; font-size:12px; color:rgba(255,255,255,.72); margin-top:2px}
 
-    /* ===== Bottom slogan ===== */
+    /* ===== Slogan strip ===== */
     .slogan{
-      margin-top: 14px;
+      position:absolute;
+      left:0; right:0;
+      bottom: 22px;
       text-align:center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.80);
       font-weight:900;
-      letter-spacing:.3px;
-      padding: 14px 10px 2px;
-      color: rgba(255,255,255,.82);
-      text-shadow: 0 12px 25px rgba(0,0,0,.55);
+      letter-spacing:.2px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.30);
     }
     .slogan em{
       font-style:normal;
-      color: var(--gold);
+      color: rgba(255, 205, 80, .95);
     }
+    .slogan .chev{opacity:.6}
 
-    /* ===== Buttons ===== */
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 12px 18px;
-      border-radius: 999px;
-      font-weight:900;
-      letter-spacing:.2px;
-      color:#062313;
-      background: linear-gradient(180deg, #26f0a0, #0fb777);
-      box-shadow: 0 18px 40px rgba(16,185,129,.22), 0 10px 28px rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.14);
-      transition: transform .12s ease, filter .12s ease;
-      user-select:none;
-    }
-    .btn:hover{transform: translateY(-1px); filter: brightness(1.02)}
-    .btn:active{transform: translateY(0px); filter: brightness(.98)}
-    .btn.small{padding: 10px 14px; font-size: 13px}
-
-    .btn.secondary{
-      color:#fff;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 10px 25px rgba(0,0,0,.35);
-    }
-
-    .btn .arrow{
-      width:18px;height:18px;
-      display:inline-grid;place-items:center;
-      border-radius:999px;
-      background: rgba(0,0,0,.14);
-    }
-    .btn.secondary .arrow{background: rgba(255,255,255,.10)}
-    .btn svg{width:14px;height:14px;fill: currentColor}
-
-    /* ===== Responsive ===== */
+    /* ===== Mobile layout (similar to phone preview) ===== */
     @media (max-width: 980px){
-      .heroInner{grid-template-columns: 1fr}
-      .welcomeTitle{font-size:42px}
-      .logo{height:52px}
-      .statsBar{grid-template-columns:1fr; gap:10px}
-      .bigLogoWrap{margin-top:14px}
-    }
-    @media (max-width: 520px){
-      .container{width:calc(100% - 26px)}
-      .heroCard{padding:18px}
-      .welcomeTitle{font-size:34px}
-      .subline{font-size:15px}
-      .logo{height:48px}
-      .btn{width:100%}
-      .heroActions{gap:8px}
+      .how{
+        position:relative;
+        right:auto;
+        top:auto;
+        width:100%;
+        max-width:100%;
+        margin-top: 16px;
+      }
+      .bigLogo{
+        position:relative;
+        top:auto;
+        left:auto;
+        transform:none;
+        margin: 14px auto 0;
+        width: min(520px, 92%);
+      }
+      .stats{
+        position:relative;
+        bottom:auto;
+        margin-top: 14px;
+        grid-template-columns:1fr;
+      }
+      .slogan{
+        position:relative;
+        bottom:auto;
+        margin-top: 12px;
+      }
+      .welcome{
+        margin-top: 10px;
+      }
+      .welcome h1{font-size:34px}
+      #topActions{top:22px}
+      .brandTop img{height:76px}
     }
 
-    /* helper */
-    .row-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    @media (max-width: 520px){
+      .wrap{width: calc(100% - 26px)}
+      #topActions{
+        position:relative;
+        top:auto;
+        right:auto;
+        margin-top: 12px;
+        justify-content:center;
+      }
+      .header{
+        flex-direction:column;
+        align-items:center;
+      }
+      .authBox{width:100%}
+      .welcome h1{font-size:30px}
+      .welcome .sub{font-size:14px}
+      .pill{width:100%; justify-content:center}
+    }
   </style>
 </head>
 
 <body>
+  <div class="bg"></div>
+  <div class="topLine"></div>
 
-  <!-- ===== Header ===== -->
-  <div class="nav">
-    <div class="container">
-      <div class="header-row">
+  <div class="wrap">
+    <!-- ===== Header (logo center + login right) ===== -->
+    <div class="header">
+      <div class="brandTop">
+        <!-- ✅ keep same path -->
+        <a href="index.html" aria-label="Home">
+          <img src="logo.png" alt="JYRA Logo">
+        </a>
+      </div>
 
-        <div class="brand">
-          <a href="index.html" aria-label="Home">
-            <!-- ✅ Keep logo path same -->
-            <img src="logo.png" alt="JYRA Logo" class="logo">
-          </a>
+      <!-- ✅ same id used by your JS -->
+      <div id="topActions">
+        <a class="pill" href="login.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.015-8 4.5V21h16v-2.5c0-2.485-3.582-4.5-8-4.5Z"/></svg>
+          Login
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== Main Frame ===== -->
+    <div class="frame">
+      <!-- Left welcome -->
+      <div class="welcome">
+        <h1>Welcome to <span class="g">JYRA</span></h1>
+        <div class="sub">Play Smart <span style="opacity:.6">•</span> Earn Points <span style="opacity:.6">•</span> Win Big!</div>
+
+        <div class="authBox">
+          <div class="lockIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3H9Z"/></svg>
+          </div>
+          <div>
+            <b>Only Authorized Users Can Login</b>
+            <p>Account creation is disabled. ID &amp; Password are provided by Admin.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right how it works -->
+      <div class="how">
+        <h3>How It Works</h3>
+
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div class="sIco" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 4.18 5 2.22V11c0 3.7-2.47 7.35-5 8.57C9.47 18.35 7 14.7 7 11V7.4l5-2.22Z"/></svg>
+            </div>
+            <div>
+              <b>Admin Creates ID</b>
+              <span>From Admin Panel</span>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="num">2</div>
+            <div class="sIco" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 4h18v12H7l-4 4V4Zm4 5h10a1 1 0 1 0 0-2H7a1 1 0 0 0 0 2Zm0 4h7a1 1 0 1 0 0-2H7a1 1 0 0 0 0 2Z"/></svg>
+            </div>
+            <div>
+              <b>Admin Shares</b>
+              <span>ID + Password to Client</span>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="num">3</div>
+            <div class="sIco" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M10 17 5 12l1.41-1.41L10 14.17l7.59-7.58L19 8l-9 9Z"/></svg>
+            </div>
+            <div>
+              <b>Client Logs In</b>
+              <span>And Starts Playing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center big logo overlay -->
+      <div class="bigLogo">
+        <!-- ✅ keep same path -->
+        <img src="logo.png" alt="JYRA Big Logo">
+      </div>
+
+      <!-- Bottom stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM12 17c-4.418 0-8 2.015-8 4.5V23h16v-1.5c0-2.485-3.582-4.5-8-4.5Z"/></svg>
+          </div>
+          <div>
+            <b>10K+</b>
+            <span>Active Users</span>
+          </div>
         </div>
 
-        <!-- ✅ Same id: topActions (your old JS uses it) -->
-        <div class="row-actions" id="topActions">
-          <a href="login.html" class="btn small">Login</a>
+        <div class="stat">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v12H7.4L4 19.4V4Zm4 6h8a1 1 0 1 0 0-2H8a1 1 0 0 0 0 2Z"/></svg>
+          </div>
+          <div>
+            <b>25K+</b>
+            <span>Games Played</span>
+          </div>
         </div>
 
+        <div class="stat">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2l2.917 6.26 6.83.61-5.165 4.51 1.54 6.62L12 16.9 5.878 20l1.54-6.62L2.253 8.87l6.83-.61L12 2Z"/></svg>
+          </div>
+          <div>
+            <b>5 ★</b>
+            <span>Trusted Platform</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom slogan strip -->
+      <div class="slogan">
+        <span class="chev">«</span>
+        Master the Game, <em>Elevate Your Skills</em>, Achieve Greatness!
+        <span class="chev">»</span>
       </div>
     </div>
   </div>
 
-  <!-- ===== Main ===== -->
-  <div class="container hero">
-    <div class="heroCard">
-      <div class="heroInner">
-
-        <!-- Left -->
-        <div>
-          <div class="welcomeTitle">Welcome to <span>JYRA</span></div>
-          <div class="subline">
-            <strong>Play Smart</strong> <span class="dot">•</span> Earn Points <span class="dot">•</span> Win Big!
-          </div>
-
-          <div class="glassBox">
-            <div class="authRow">
-              <div class="lock" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3H9Zm3 5a2 2 0 0 1 1 3.732V19a1 1 0 1 1-2 0v-1.268A2 2 0 0 1 12 14Z"/>
-                </svg>
-              </div>
-
-              <div>
-                <p class="authTitle">Only Authorized Users Can Login</p>
-                <p class="authText">
-                  Account creation is disabled. ID &amp; Password are provided by Admin.
-                </p>
-
-                <div class="heroActions">
-                  <a class="btn" href="login.html">
-                    Go to Login
-                    <span class="arrow" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M13.2 5.2a1 1 0 0 0 0 1.4L17.6 11H5a1 1 0 1 0 0 2h12.6l-4.4 4.4a1 1 0 1 0 1.4 1.4l6.1-6.1a1.5 1.5 0 0 0 0-2.1l-6.1-6.1a1 1 0 0 0-1.4 0Z"/></svg>
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Big logo area -->
-          <div class="bigLogoWrap">
-            <!-- ✅ If your big logo is same file, keep same path.
-                 If you want different image, just replace src but keep file in same folder. -->
-            <img src="logo.png" alt="JYRA" class="bigLogo">
-          </div>
-
-          <!-- Stats -->
-          <div class="statsBar">
-            <div class="stat">
-              <div class="ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm-4 6c-4.418 0-8 2.015-8 4.5V23h16v-1.5c0-2.485-3.582-4.5-8-4.5Zm9-5h-3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2Z"/></svg>
-              </div>
-              <div>
-                <b>10K+</b>
-                <span>Active Users</span>
-              </div>
-            </div>
-
-            <div class="stat">
-              <div class="ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M8 11a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm-3 8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.414l-2.707 2.707A1 1 0 0 1 3 21.999V19h2Zm0-2h2a1 1 0 0 1 1 1v.586l1.293-1.293A1 1 0 0 1 10 17h9V7H5v10Z"/></svg>
-              </div>
-              <div>
-                <b>25K+</b>
-                <span>Games Played</span>
-              </div>
-            </div>
-
-            <div class="stat">
-              <div class="ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M12 2l2.917 6.26 6.83.61-5.165 4.51 1.54 6.62L12 16.9 5.878 20l1.54-6.62L2.253 8.87l6.83-.61L12 2Z"/></svg>
-              </div>
-              <div>
-                <b>5★</b>
-                <span>Trusted Platform</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="slogan">
-            « Master the Game, <em>Elevate Your Skills</em>, Achieve Greatness! »
-          </div>
-        </div>
-
-        <!-- Right -->
-        <div class="glassBox howPanel">
-          <div class="howHead">How It Works</div>
-
-          <div class="step">
-            <div class="badge">1</div>
-            <div>
-              <h4>Admin Creates ID</h4>
-              <p>From Admin Panel</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="badge">2</div>
-            <div>
-              <h4>Admin Shares</h4>
-              <p>ID + Password to Client</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="badge">3</div>
-            <div>
-              <h4>Client Logs In</h4>
-              <p>And Starts Playing</p>
-            </div>
-          </div>
-
-          <div style="margin-top:12px; color:rgba(255,255,255,.70); font-size:12.5px;">
-            Note: Demo localStorage par chal raha hai.
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ✅ Keep your external JS so functions break na ho -->
+  <!-- ✅ keep your functions / storage logic -->
   <script src="app.js"></script>
 
-  <!-- ✅ Same logic as your old page (topActions/login/logout/open) -->
+  <!-- ✅ same dynamic buttons (Logout/Open) -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (typeof currentUser !== "function") return;
@@ -562,10 +546,8 @@
       if (!top) return;
 
       top.innerHTML =
-        '<button class="btn secondary small" id="btnLogoutTop" type="button">Logout</button>' +
-        '<a class="btn small" style="margin-left:8px;" href="' +
-        (u.role === "admin" ? "admin.html" : "game.html") +
-        '">Open</a>';
+        '<button class="pill secondary" id="btnLogoutTop" type="button">Logout</button>' +
+        '<a class="pill" href="' + (u.role === "admin" ? "admin.html" : "game.html") + '">Open</a>';
 
       var lo = document.getElementById("btnLogoutTop");
       if (lo) {
