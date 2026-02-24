@@ -39,9 +39,18 @@
   function nowISO() { return new Date().toISOString(); }
   function safeNum(n) { n = Number(n); return Number.isFinite(n) ? n : 0; }
 
-  function fmtDate(iso) {
-    try { return new Date(iso).toLocaleString("en-IN"); }
-    catch (e) { return String(iso || "-"); }
+  // ✅ Improved: supports ISO string, Date, Firestore Timestamp
+  function fmtDate(v) {
+    try {
+      if (!v) return "-";
+      if (typeof v === "string") return new Date(v).toLocaleString("en-IN");
+      if (v instanceof Date) return v.toLocaleString("en-IN");
+      if (v && typeof v.toDate === "function") return v.toDate().toLocaleString("en-IN"); // Timestamp
+      if (v && typeof v.seconds === "number") return new Date(v.seconds * 1000).toLocaleString("en-IN");
+      return String(v);
+    } catch (e) {
+      return String(v || "-");
+    }
   }
 
   async function sha256(text) {
@@ -50,8 +59,10 @@
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
-  function setSession(userId) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ userId, at: nowISO() }));
+  // ✅ Store both userId + clientId (some pages expect clientId)
+  function setSession(userIdOrClientId) {
+    const id = String(userIdOrClientId || "").trim();
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ userId: id, clientId: id, at: nowISO() }));
   }
 
   function clearSession() {
@@ -59,10 +70,18 @@
     window.__ME = null;
   }
 
+  // ✅ Normalize old sessions that had only userId OR only clientId
   function getSession() {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
-      return raw ? JSON.parse(raw) : null;
+      const s = raw ? JSON.parse(raw) : null;
+      if (!s) return null;
+
+      // normalize
+      if (!s.userId && s.clientId) s.userId = s.clientId;
+      if (!s.clientId && s.userId) s.clientId = s.userId;
+
+      return s;
     } catch (e) {
       return null;
     }
@@ -77,6 +96,12 @@
   async function getUserById(userId) {
     const snap = await userRef(userId).get();
     return snap.exists ? snap.data() : null;
+  }
+
+  // ✅ alias for older admin.html fallback
+  async function getUserByIdFS(userId) {
+    const snap = await userRef(String(userId)).get();
+    return snap.exists ? ({ id: snap.id, ...snap.data() }) : null;
   }
 
   async function getUserByPhone(phone) {
@@ -275,6 +300,99 @@
   }
 
   // =====================================================
+  // ✅ ADMIN LISTING + ADMIN ACTIONS (MISSING IN YOUR app.js)
+  // =====================================================
+
+  // ✅ Used by admin.html tables
+  async function listUsers() {
+    const snap = await db().collection("users").get();
+    const arr = [];
+    snap.forEach((doc) => arr.push({ id: doc.id, ...doc.data() }));
+    return arr;
+  }
+  // alias
+  async function listAllUsers() { return await listUsers(); }
+
+  // ✅ Clear bet history (users/{id}/plays)
+  async function clearClientHistory(userId, resetWallet) {
+    userId = String(userId || "").trim();
+    if (!userId) return { ok: false, msg: "User missing" };
+
+    try {
+      const pSnap = await playsCol(userId).get();
+      if (!pSnap.empty) {
+        const batch = db().batch();
+        pSnap.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+
+      if (resetWallet) {
+        await userRef(userId).update({ points: 0, updatedAt: nowISO() });
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e && e.message ? e.message : String(e) };
+    }
+  }
+
+  // ✅ Reset passwordHash
+  async function adminResetClientPassword(userId, newPass, adminId) {
+    userId = String(userId || "").trim();
+    newPass = String(newPass || "");
+    if (!userId) return { ok: false, msg: "User missing" };
+    if (newPass.length < 4) return { ok: false, msg: "Password min 4 chars" };
+
+    // optional admin validation
+    if (adminId) {
+      const a = await getUserById(String(adminId));
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    }
+
+    try {
+      const passwordHash = await sha256(newPass);
+      await userRef(userId).update({ passwordHash, updatedAt: nowISO() });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e && e.message ? e.message : String(e) };
+    }
+  }
+
+  // ✅ Delete user + plays + txns
+  async function deleteClient(userId, adminId) {
+    userId = String(userId || "").trim();
+    if (!userId) return { ok: false, msg: "User missing" };
+
+    // optional admin validation
+    if (adminId) {
+      const a = await getUserById(String(adminId));
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+    }
+
+    try {
+      // delete plays
+      const pSnap = await playsCol(userId).get();
+      if (!pSnap.empty) {
+        const batch = db().batch();
+        pSnap.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+
+      // delete txns
+      const tSnap = await txnsCol(userId).get();
+      if (!tSnap.empty) {
+        const batch2 = db().batch();
+        tSnap.forEach((d) => batch2.delete(d.ref));
+        await batch2.commit();
+      }
+
+      await userRef(userId).delete();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e && e.message ? e.message : String(e) };
+    }
+  }
+
+  // =====================================================
   // GAME RESULTS ENGINE (IST 30s Period Store)
   // =====================================================
   const GAME_CFG = { cycleSec: 30, resultsCol: "game_results_v1" };
@@ -386,6 +504,14 @@
 
   window.addPlayRow = addPlayRow;
   window.playsForUser = playsForUser;
+
+  // ✅ NEW exports
+  window.listUsers = listUsers;
+  window.listAllUsers = listAllUsers;
+  window.getUserByIdFS = getUserByIdFS;
+  window.clearClientHistory = clearClientHistory;
+  window.adminResetClientPassword = adminResetClientPassword;
+  window.deleteClient = deleteClient;
 
   window.logout = logout;
 
