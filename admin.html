@@ -3,32 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin</title>
+  <title>Admin-f4sdfsdfsfdafdssfdfd</title>
   <link rel="icon" type="image/x-icon" href="logo.png">
   <link rel="stylesheet" href="styles.css" />
-
   <style>
     body { visibility: hidden; }
-
     .errbar{
       display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
       border:1px solid rgba(255,90,90,.35);background:rgba(255,60,60,.12);
       color:#ffd6d6;font-weight:800
     }
-
     .pw-wrap{ position:relative; }
     .pw-toggle{
       position:absolute;right:10px;top:34px;border:0;background:transparent;cursor:pointer;
       font-size:18px;line-height:1;padding:6px;opacity:.9;user-select:none
     }
-
     select{
       width:100%;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);color:#fff;font-size:16px;outline:none;
       -webkit-appearance:none;appearance:none
     }
     select option{ color:#111; }
-
     .table-wrap{
       width:100%;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:14px;
       border:1px solid rgba(255,255,255,.10);touch-action:pan-x pan-y
@@ -39,11 +34,9 @@
       .table-wrap .table{ min-width:1100px; }
       table.table th, table.table td{ white-space:nowrap; }
     }
-
     .grid3{ display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
     @media (max-width:900px){ .grid3{ grid-template-columns:1fr 1fr; } }
     @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
-
     .row-actions{ gap:10px;flex-wrap:wrap; }
     .mini{ font-size:12px;opacity:.75; }
     .pill{
@@ -55,7 +48,6 @@
 </head>
 
 <body>
-  <!-- ===== Header ===== -->
   <div class="nav">
     <div class="container">
       <div class="row header-row">
@@ -73,7 +65,6 @@
   <div class="container">
     <div class="errbar" id="errBar"></div>
 
-    <!-- ===== Admin Panel ===== -->
     <div class="card">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
@@ -86,7 +77,6 @@
       <div class="hr"></div>
 
       <div class="grid3">
-        <!-- Update Admin -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Update Profile</div>
 
@@ -98,7 +88,7 @@
           <div class="input pw-wrap">
             <label>New Password (min 4)</label>
             <input id="admNewPass" type="password" placeholder="New password" />
-            <button type="button" class="pw-toggle" data-target="admNewPass" aria-label="Toggle password">👁️</button>
+            <button type="button" class="pw-toggle" data-target="admNewPass">👁️</button>
           </div>
 
           <div class="row-actions">
@@ -108,7 +98,6 @@
           <div class="notice" id="admMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
-        <!-- Create Client -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Create Client</div>
 
@@ -123,7 +112,7 @@
           <div class="input pw-wrap">
             <label>Password</label>
             <input id="cPass" type="password" placeholder="Client password" />
-            <button type="button" class="pw-toggle" data-target="cPass" aria-label="Toggle password">👁️</button>
+            <button type="button" class="pw-toggle" data-target="cPass">👁️</button>
           </div>
 
           <div class="row-actions">
@@ -133,7 +122,6 @@
           <div class="notice" id="createMsg" style="display:none;margin-top:10px;"></div>
         </div>
 
-        <!-- Quick Actions -->
         <div class="card" style="padding:12px;">
           <div class="h2" style="margin-top:0;">Quick Actions</div>
 
@@ -158,7 +146,7 @@
           <div class="input pw-wrap" style="margin-bottom:0;">
             <label>Reset Client Password</label>
             <input id="resetPass" type="password" placeholder="New password" />
-            <button type="button" class="pw-toggle" data-target="resetPass" aria-label="Toggle password">👁️</button>
+            <button type="button" class="pw-toggle" data-target="resetPass">👁️</button>
           </div>
 
           <div class="row-actions" style="margin-top:10px;">
@@ -176,7 +164,6 @@
       </div>
     </div>
 
-    <!-- ===== Clients List ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
@@ -204,7 +191,6 @@
       </div>
     </div>
 
-    <!-- ===== Client Bet History ===== -->
     <div class="card" style="margin-top:14px;">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
@@ -240,10 +226,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <!-- (optional) your existing init file if you use it -->
+  <!-- your config -->
   <script>
-    // If you already have firebase-init.js, you can remove this block and include firebase-init.js instead.
-    const firebaseConfig = {
+    window.firebaseConfig = {
       apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
       authDomain: "wingo-app-f68dd.firebaseapp.com",
       projectId: "wingo-app-f68dd",
@@ -252,21 +237,12 @@
       appId: "1:533037771285:web:d72372f86108a8379dbc1c",
       measurementId: "G-RJ1XX4FX3W"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
   </script>
 
-  <!-- ===== Admin Logic (NO app.js required) ===== -->
-  <script>
-    const CFG = {
-      SESSION_KEY: "club_session_v2",
-      USERS_COL: "users",
-      PLAYS_SUBCOL: "plays",
-      TXNS_SUBCOL: "txns",
-      RESULTS_COL: "game_results_v1",
-      HISTORY_LIMIT: 30
-    };
+  <!-- ✅ MUST: app.js -->
+  <script src="app.js?v=7"></script>
 
+  <script>
     function errBar(msg){
       const el = document.getElementById("errBar");
       if(!el) return;
@@ -276,238 +252,16 @@
     function showBox(id, text){
       const el = document.getElementById(id);
       if(!el) return;
-      el.style.display="block";
-      el.textContent=text;
+      el.style.display="block"; el.textContent=text;
     }
     function hideBox(id){
       const el = document.getElementById(id);
       if(!el) return;
-      el.style.display="none";
-      el.textContent="";
-    }
-    function fmtDate(x){
-      try{
-        if(!x) return "-";
-        if (typeof x === "string") return x;
-        if (x.seconds) return new Date(x.seconds*1000).toLocaleString("en-IN");
-        if (x.toDate) return x.toDate().toLocaleString("en-IN");
-        return new Date(x).toLocaleString("en-IN");
-      }catch(e){ return "-"; }
+      el.style.display="none"; el.textContent="";
     }
     function selectedClientId(){
       const s = document.getElementById("selClient");
       return s ? String(s.value||"") : "";
-    }
-
-    function readSession(){
-      try{ return JSON.parse(localStorage.getItem(CFG.SESSION_KEY)||"null"); }
-      catch(e){ return null; }
-    }
-    function clearSession(){ localStorage.removeItem(CFG.SESSION_KEY); }
-    function logout(){ clearSession(); location.replace("login.html"); }
-
-    // SHA-256 hex (for passwordHash)
-    async function sha256hex(text){
-      const enc = new TextEncoder().encode(String(text||""));
-      const buf = await crypto.subtle.digest("SHA-256", enc);
-      const arr = Array.from(new Uint8Array(buf));
-      return arr.map(b => b.toString(16).padStart(2,"0")).join("");
-    }
-
-    async function getUserByIdFS(id){
-      id = String(id||"");
-      if(!id) return null;
-      const snap = await db.collection(CFG.USERS_COL).doc(id).get();
-      if(!snap.exists) return null;
-      return { id: snap.id, ...snap.data() };
-    }
-
-    async function listUsers(){
-      const snap = await db.collection(CFG.USERS_COL).get();
-      const out = [];
-      snap.forEach(d => out.push({ id: d.id, ...d.data() }));
-      return out;
-    }
-
-    async function requireAdminAsync(){
-      const sess = readSession();
-      if(!sess || !sess.clientId){
-        location.replace("login.html");
-        return null;
-      }
-      const u = await getUserByIdFS(sess.clientId);
-      if(!u || u.role !== "admin"){
-        clearSession();
-        location.replace("login.html");
-        return null;
-      }
-      return u;
-    }
-
-    async function playsForUser(clientId, limit){
-      clientId = String(clientId||"");
-      limit = Number(limit||CFG.HISTORY_LIMIT);
-
-      // reads users/{clientId}/plays
-      const ref = db.collection(CFG.USERS_COL).doc(clientId).collection(CFG.PLAYS_SUBCOL)
-        .orderBy("createdAt","desc").limit(limit);
-
-      const snap = await ref.get();
-      const rows = [];
-      snap.forEach(d => rows.push({ id:d.id, ...d.data() }));
-      return rows;
-    }
-
-    async function updateAdminProfile(adminId, newName, newPass){
-      adminId = String(adminId||"");
-      const upd = {};
-
-      if(newName && String(newName).trim()) upd.name = String(newName).trim();
-
-      if(newPass && String(newPass).trim()){
-        const pw = String(newPass).trim();
-        if(pw.length < 4) return { ok:false, msg:"Password min 4 chars." };
-        upd.passwordHash = await sha256hex(pw);
-      }
-
-      if(Object.keys(upd).length === 0) return { ok:false, msg:"Nothing to update." };
-
-      upd.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection(CFG.USERS_COL).doc(adminId).update(upd);
-      return { ok:true };
-    }
-
-    function genClientId(){
-      // Your DB shows like C60570 - keep same style
-      return "C" + Math.floor(10000 + Math.random()*90000);
-    }
-
-    async function adminCreateClient(payload, adminId){
-      const name = (payload && payload.name ? String(payload.name).trim() : "");
-      const phone = (payload && payload.phone ? String(payload.phone).trim() : "");
-      const password = (payload && payload.password ? String(payload.password).trim() : "");
-
-      if(!name) return { ok:false, msg:"Enter client name." };
-      if(!/^\d{10}$/.test(phone)) return { ok:false, msg:"Phone must be 10 digits." };
-      if(password.length < 4) return { ok:false, msg:"Password min 4 chars." };
-
-      // prevent duplicate phone
-      const dup = await db.collection(CFG.USERS_COL).where("phone","==",phone).limit(1).get();
-      if(!dup.empty) return { ok:false, msg:"Phone already exists." };
-
-      // create unique id
-      let clientId = genClientId();
-      for(let i=0;i<8;i++){
-        const ex = await db.collection(CFG.USERS_COL).doc(clientId).get();
-        if(!ex.exists) break;
-        clientId = genClientId();
-      }
-
-      const now = firebase.firestore.FieldValue.serverTimestamp();
-      const doc = {
-        clientId,
-        role: "user",
-        name,
-        phone,
-        points: 0,
-        passwordHash: await sha256hex(password),
-        createdAt: now,
-        updatedAt: now,
-        createdBy: adminId || null
-      };
-
-      await db.collection(CFG.USERS_COL).doc(clientId).set(doc);
-      return { ok:true, user: doc };
-    }
-
-    async function adjustPoints(clientId, delta, reason, adminId){
-      clientId = String(clientId||"");
-      delta = Number(delta||0);
-      if(!clientId) return { ok:false, msg:"Client missing." };
-      if(!delta) return { ok:false, msg:"Amount invalid." };
-
-      const uref = db.collection(CFG.USERS_COL).doc(clientId);
-      let newPoints = 0;
-
-      await db.runTransaction(async (tx) => {
-        const snap = await tx.get(uref);
-        if(!snap.exists) throw new Error("Client not found");
-        const cur = Number(snap.data().points||0);
-        newPoints = cur + delta;
-        if(newPoints < 0) newPoints = 0;
-        tx.update(uref, { points: newPoints, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      });
-
-      // log txns
-      try{
-        await db.collection(CFG.USERS_COL).doc(clientId).collection(CFG.TXNS_SUBCOL).add({
-          delta,
-          reason: reason || "",
-          adminId: adminId || null,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }catch(e){}
-
-      return { ok:true, points: newPoints };
-    }
-
-    async function adminResetClientPassword(clientId, newPass, adminId){
-      clientId = String(clientId||"");
-      newPass = String(newPass||"").trim();
-      if(!clientId) return { ok:false, msg:"Client missing." };
-      if(newPass.length < 4) return { ok:false, msg:"Password min 4 chars." };
-
-      await db.collection(CFG.USERS_COL).doc(clientId).update({
-        passwordHash: await sha256hex(newPass),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedBy: adminId || null
-      });
-      return { ok:true };
-    }
-
-    async function clearClientHistory(clientId, resetWallet){
-      clientId = String(clientId||"");
-      resetWallet = !!resetWallet;
-      if(!clientId) return { ok:false, msg:"Client missing." };
-
-      // delete plays in batches
-      const playsRef = db.collection(CFG.USERS_COL).doc(clientId).collection(CFG.PLAYS_SUBCOL);
-      const snap = await playsRef.get();
-      if(!snap.empty){
-        const batch = db.batch();
-        snap.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-      }
-
-      if(resetWallet){
-        await db.collection(CFG.USERS_COL).doc(clientId).update({
-          points: 0,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-
-      return { ok:true };
-    }
-
-    async function deleteClient(clientId, adminId){
-      clientId = String(clientId||"");
-      if(!clientId) return { ok:false, msg:"Client missing." };
-
-      // clear history first
-      await clearClientHistory(clientId, false);
-
-      // delete txns
-      try{
-        const txSnap = await db.collection(CFG.USERS_COL).doc(clientId).collection(CFG.TXNS_SUBCOL).get();
-        if(!txSnap.empty){
-          const batch = db.batch();
-          txSnap.forEach(d => batch.delete(d.ref));
-          await batch.commit();
-        }
-      }catch(e){}
-
-      await db.collection(CFG.USERS_COL).doc(clientId).delete();
-      return { ok:true };
     }
 
     async function updateSelectedClientInfo(){
@@ -523,30 +277,19 @@
       const cid = selectedClientId();
       const tb = document.getElementById("histBody");
       if(!tb) return;
-
       if(!cid){
         tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
         return;
       }
-
-      let rows = [];
-      try{
-        rows = await playsForUser(cid, CFG.HISTORY_LIMIT);
-      }catch(e){
-        tb.innerHTML = `<tr><td colspan="7" class="small">History load error: ${e.message||e}</td></tr>`;
-        return;
-      }
-
+      const rows = await playsForUser(cid, 30);
       if(!rows.length){
         tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
         return;
       }
-
-      tb.innerHTML = rows.map(r => {
-        const resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
+      tb.innerHTML = rows.map(r=>{
+        const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
         const resCol = r.resultColor || "-";
         const resBS  = r.resultBigSmall || "-";
-
         return `<tr>
           <td>${fmtDate(r.createdAt)}</td>
           <td>${r.period || "-"}</td>
@@ -563,67 +306,59 @@
       const users = await listUsers();
 
       users.sort((a,b)=>{
-        const ar = a.role || "", br = b.role || "";
-        if(ar !== br) return (ar === "admin" ? -1 : 1);
-        const aid = String(a.clientId || a.id || "");
-        const bid = String(b.clientId || b.id || "");
-        return aid.localeCompare(bid);
+        const ar=a.role||"", br=b.role||"";
+        if(ar!==br) return (ar==="admin"?-1:1);
+        return String(a.clientId||a.id||"").localeCompare(String(b.clientId||b.id||""));
       });
 
-      // dropdown (only users)
       const sel = document.getElementById("selClient");
       sel.innerHTML = "";
-      const clients = users.filter(u => u.role === "user");
+      const clients = users.filter(u=>u.role==="user");
 
       if(!clients.length){
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "No clients";
+        const opt=document.createElement("option");
+        opt.value=""; opt.textContent="No clients";
         sel.appendChild(opt);
       }else{
         clients.forEach(u=>{
-          const opt = document.createElement("option");
+          const opt=document.createElement("option");
           opt.value = u.clientId || u.id;
           opt.textContent = `${u.clientId||u.id} • ${u.name||"-"} • ${u.phone||"-"}`;
           sel.appendChild(opt);
         });
       }
 
-      // clients table
-      const tb = document.getElementById("clientsBody");
-      if(!tb) return;
-
-      if(!users.length){
-        tb.innerHTML = `<tr><td colspan="6" class="small">No users found.</td></tr>`;
-      }else{
-        tb.innerHTML = users.map(u=>{
-          const pts = (typeof u.points === "number") ? u.points : 0;
-          const id = u.clientId || u.id || "-";
-          return `<tr>
-            <td>${id}</td>
-            <td>${u.name || "-"}</td>
-            <td>${u.phone || "-"}</td>
-            <td>${u.role || "-"}</td>
-            <td>${pts}</td>
-            <td>${fmtDate(u.createdAt)}</td>
-          </tr>`;
-        }).join("");
-      }
+      const tb=document.getElementById("clientsBody");
+      tb.innerHTML = users.length ? users.map(u=>{
+        const id = u.clientId || u.id || "-";
+        const pts = typeof u.points==="number" ? u.points : 0;
+        return `<tr>
+          <td>${id}</td>
+          <td>${u.name||"-"}</td>
+          <td>${u.phone||"-"}</td>
+          <td>${u.role||"-"}</td>
+          <td>${pts}</td>
+          <td>${fmtDate(u.createdAt)}</td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="6" class="small">No users found.</td></tr>`;
 
       await updateSelectedClientInfo();
       await renderHistory();
     }
 
-    // password toggle
+    // ✅ password toggle
     document.addEventListener("click", function(e){
       const btn = e.target.closest(".pw-toggle");
       if(!btn) return;
       const id = btn.getAttribute("data-target");
       const inp = document.getElementById(id);
       if(!inp) return;
-      if(inp.type === "password"){ inp.type="text"; btn.textContent="🙈"; }
+      if(inp.type==="password"){ inp.type="text"; btn.textContent="🙈"; }
       else { inp.type="password"; btn.textContent="👁️"; }
     });
+
+    // ✅ Fail-safe: never keep page hidden
+    setTimeout(()=>{ document.body.style.visibility="visible"; }, 1200);
 
     document.addEventListener("DOMContentLoaded", async function(){
       try{
@@ -634,6 +369,7 @@
         document.getElementById("adminName").textContent = ADMIN.name || "Admin";
 
         document.getElementById("btnLogout").onclick = logout;
+
         document.getElementById("btnReload").onclick = async ()=>{
           errBar(""); hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
           await loadClientsUI();
@@ -646,101 +382,100 @@
 
         document.getElementById("btnSaveAdmin").onclick = async ()=>{
           hideBox("admMsg");
-          const nm = (document.getElementById("admNewName").value||"").trim();
-          const pw = (document.getElementById("admNewPass").value||"").trim();
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await updateAdminProfile(id, nm, pw);
-          if(!r || !r.ok) return showBox("admMsg", (r && r.msg) ? r.msg : "Failed");
+          const nm=(document.getElementById("admNewName").value||"").trim();
+          const pw=(document.getElementById("admNewPass").value||"").trim();
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await updateAdminProfile(id,nm,pw);
+          if(!r.ok) return showBox("admMsg", r.msg||"Failed");
           showBox("admMsg","Saved.");
-          const fresh = await getUserByIdFS(id);
-          document.getElementById("adminName").textContent = fresh ? (fresh.name||"Admin") : "Admin";
-          document.getElementById("admNewPass").value = "";
+          document.getElementById("admNewPass").value="";
+          await loadClientsUI();
         };
 
         document.getElementById("btnCreateClient").onclick = async ()=>{
           hideBox("createMsg");
-          const name = (document.getElementById("cName").value||"").trim();
-          const phone= (document.getElementById("cPhone").value||"").trim();
-          const pass = (document.getElementById("cPass").value||"").trim();
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adminCreateClient({name, phone, password: pass}, id);
-          if(!r || !r.ok) return showBox("createMsg", (r && r.msg) ? r.msg : "Failed");
-          showBox("createMsg", `Client created: ${r.user.clientId || r.user.id}`);
-          document.getElementById("cName").value = "";
-          document.getElementById("cPhone").value = "";
-          document.getElementById("cPass").value = "";
+          const name=(document.getElementById("cName").value||"").trim();
+          const phone=(document.getElementById("cPhone").value||"").trim();
+          const pass=(document.getElementById("cPass").value||"").trim();
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await adminCreateClient({name,phone,password:pass}, id);
+          if(!r.ok) return showBox("createMsg", r.msg||"Failed");
+          showBox("createMsg", `Client created: ${r.user.clientId||r.user.id}`);
+          document.getElementById("cName").value="";
+          document.getElementById("cPhone").value="";
+          document.getElementById("cPass").value="";
           await loadClientsUI();
         };
 
         document.getElementById("btnCredit").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
-          const amt = Number(document.getElementById("amt").value||0);
+          const cid=selectedClientId();
+          const amt=Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
-          if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adjustPoints(cid, +amt, "Admin Credit", id);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          if(!amt||amt<=0) return showBox("actMsg","Enter amount.");
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await adjustPoints(cid, +amt, "Admin Credit", id);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg", `Credited. New points: ${r.points}`);
           await loadClientsUI();
         };
 
         document.getElementById("btnDebit").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
-          const amt = Number(document.getElementById("amt").value||0);
+          const cid=selectedClientId();
+          const amt=Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
-          if(!amt || amt<=0) return showBox("actMsg","Enter amount.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adjustPoints(cid, -amt, "Admin Debit", id);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          if(!amt||amt<=0) return showBox("actMsg","Enter amount.");
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await adjustPoints(cid, -amt, "Admin Debit", id);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg", `Debited. New points: ${r.points}`);
           await loadClientsUI();
         };
 
         document.getElementById("btnResetPass").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
-          const np = (document.getElementById("resetPass").value||"").trim();
+          const cid=selectedClientId();
+          const np=(document.getElementById("resetPass").value||"").trim();
           if(!cid) return showBox("actMsg","Select client first.");
-          if(!np || np.length<4) return showBox("actMsg","Password min 4 chars.");
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await adminResetClientPassword(cid, np, id);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          if(!np||np.length<4) return showBox("actMsg","Password min 4 chars.");
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await adminResetClientPassword(cid, np, id);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Password reset done.");
-          document.getElementById("resetPass").value = "";
+          document.getElementById("resetPass").value="";
         };
 
         document.getElementById("btnClearHistory").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
+          const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear selected client history?")) return;
-          const r = await clearClientHistory(cid, false);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          const r=await clearClientHistory(cid, false);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","History cleared.");
           await renderHistory();
         };
 
         document.getElementById("btnClearAll").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
+          const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear history AND reset wallet to 0?")) return;
-          const r = await clearClientHistory(cid, true);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          const r=await clearClientHistory(cid, true);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Cleared + Wallet reset.");
           await loadClientsUI();
         };
 
         document.getElementById("btnDeleteClient").onclick = async ()=>{
           hideBox("actMsg");
-          const cid = selectedClientId();
+          const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Delete client permanently?")) return;
-          const id = ADMIN.clientId || ADMIN.id;
-          const r = await deleteClient(cid, id);
-          if(!r || !r.ok) return showBox("actMsg",(r && r.msg)?r.msg:"Failed");
+          const id=ADMIN.clientId||ADMIN.id;
+          const r=await deleteClient(cid, id);
+          if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Client deleted.");
           await loadClientsUI();
         };
@@ -751,9 +486,8 @@
         };
 
         await loadClientsUI();
-
       }catch(e){
-        document.body.style.visibility = "visible";
+        document.body.style.visibility="visible";
         errBar("Error: " + (e && e.message ? e.message : String(e)));
       }
     });
