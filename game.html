@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,66 +8,412 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    body { visibility: hidden; }
-    /* (आपका पूरा CSS exactly same) */
-    .wg-tabs{display:flex;gap:10px;flex-wrap:wrap}
-    .wg-tab{padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;font-weight:800;flex:0 0 auto}
-    .wg-tab.active{background:linear-gradient(135deg,var(--brand),var(--brand2));border:0}
-    .wg-topbar{display:flex;align-items:stretch;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .wg-top-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    body{visibility:hidden}
+
+    :root{
+      --bg:#060712;
+      --panel: rgba(255,255,255,.04);
+      --panel2: rgba(0,0,0,.25);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(212,175,55,.24);
+      --text:#eaf0ff;
+      --muted: rgba(234,240,255,.70);
+
+      --gold1:#f4d47a;
+      --gold2:#caa34c;
+      --neon1:#6d4cff;
+      --neon2:#2be7ff;
+
+      --green1:#16a34a; --green2:#22c55e;
+      --red1:#dc2626; --red2:#ef4444;
+      --vio1:#7c3aed; --vio2:#a855f7;
+
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --shadow2: 0 18px 60px rgba(0,0,0,.45);
+      --r: 22px;
+      --r2: 16px;
+
+      --brand: var(--gold2);
+      --brand2: var(--neon1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 50% -10%, rgba(109,76,255,.25), transparent 60%),
+        radial-gradient(700px 400px at 85% 25%, rgba(43,231,255,.16), transparent 60%),
+        radial-gradient(700px 520px at 20% 35%, rgba(244,212,122,.14), transparent 60%),
+        linear-gradient(180deg, #040510 0%, #090a18 60%, #040510 100%);
+      overflow-x:hidden;
+    }
+
+    .container{
+      width:min(1200px, 92vw);
+      margin:0 auto;
+    }
+
+    .nav{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.22));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .row{display:flex; align-items:center}
+    .header-row{
+      padding:12px 0;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 28px rgba(0,0,0,.45);
+    }
+    .brand-title{
+      display:flex; flex-direction:column; line-height:1.1
+    }
+    .brand-title b{
+      letter-spacing:.8px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      font-size:16px;
+    }
+    .brand-title span{
+      font-size:12px; color:var(--muted)
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      color:#101318;
+      font-weight:900;
+      padding:11px 14px;
+      border-radius:14px;
+      background: linear-gradient(135deg, var(--gold1), var(--gold2));
+      box-shadow: 0 14px 34px rgba(0,0,0,.35);
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); filter:brightness(1.05)}
+    .btn:active{transform: translateY(0px); filter:brightness(.98)}
+    .btn.small{padding:9px 12px; border-radius:12px; font-size:12px}
+    .btn.secondary{
+      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:none;
+    }
+    .btn.secondary:hover{background: rgba(255,255,255,.09)}
+
+    .row-actions{display:flex; gap:10px; align-items:center}
+
+    .card{
+      margin-top:14px;
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(650px 220px at 50% 0%, rgba(244,212,122,.10), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+
+    .card-inner{padding:14px}
+
+    .h2{
+      font-weight:1000;
+      letter-spacing:.4px;
+      margin:0 0 8px 0;
+      font-size:18px;
+    }
+    .small{font-size:12px; color:var(--muted)}
+    .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    .box{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding:12px;
+    }
+    .label{font-size:12px; color:rgba(255,255,255,.72)}
+    .val{
+      margin-top:6px;
+      font-size:18px;
+      font-weight:1100;
+      letter-spacing:.5px;
+      color:#eaf0ff;
+      word-break:break-word;
+    }
+
+    /* ===== HERO header inside game card ===== */
+    .wg-hero{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+      align-items:stretch;
+      padding:14px;
+    }
+    .wg-hero-left{
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(420px 220px at 50% 0%, rgba(109,76,255,.25), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      position:relative;
+      min-height:190px;
+    }
+    .wg-hero-bg{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(700px 260px at 50% 20%, rgba(244,212,122,.14), transparent 70%),
+        linear-gradient(135deg, rgba(0,0,0,.15), rgba(0,0,0,.35));
+      pointer-events:none;
+    }
+    .wg-hero-content{
+      position:relative;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .wg-hero-logo{
+      width:86px; height:86px; border-radius:24px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      padding:10px;
+      display:grid; place-items:center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    }
+    .wg-hero-logo img{width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,.35))}
+    .wg-hero-text{flex:1}
+    .wg-hero-title{
+      font-size:22px;
+      font-weight:1100;
+      margin:0;
+      letter-spacing:.8px;
+      background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .wg-hero-sub{margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35}
+    .wg-hero-meta{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
     .wg-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:900;font-size:12px;color:rgba(255,255,255,.92);white-space:nowrap}
     .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
     .dot-live{background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
     .dot-lock{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
     .dot-end{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}
-    .wg-meta{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.15);min-width:180px}
+
+    .wg-meta{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-width:180px}
     .wg-meta-label{font-size:12px;color:rgba(255,255,255,.65)}
     .wg-meta-value{margin-top:4px;font-size:16px;font-weight:1000;letter-spacing:.6px;color:#e8efff;word-break:break-word}
-    .wg-top-right{margin-left:auto;min-width:320px;flex:1;display:flex;justify-content:flex-end}
-    .wg-timer-card{width:min(420px,100%);padding:12px 14px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.16));box-shadow:0 12px 50px rgba(0,0,0,.25)}
-    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:900}
-    .wg-timer-time{margin-top:8px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
-    .wg-t{width:44px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);font-weight:1100;font-size:26px}
-    .wg-colon{font-weight:1100;font-size:24px;opacity:.9;margin:0 2px}
-    .wg-timer-sub{margin-top:8px;font-size:12px;color:rgba(255,255,255,.70);text-align:right}
-    .wg-progress{margin-top:10px;height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);overflow:hidden}
+
+    /* right timer */
+    .wg-timer{
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(520px 200px at 60% 0%, rgba(43,231,255,.18), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+      box-shadow: var(--shadow2);
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:190px;
+    }
+
+    .wg-tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .wg-tab{
+      padding:10px 14px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:1000;
+      flex:1;
+      min-width:140px;
+      transition: transform .12s ease, background .12s ease, border .12s ease;
+    }
+    .wg-tab:hover{transform: translateY(-1px)}
+    .wg-tab.active{
+      background: linear-gradient(135deg, rgba(244,212,122,.95), rgba(202,163,76,.92));
+      color:#0c0f16;
+      border:0;
+    }
+
+    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:1000}
+    .wg-timer-time{margin-top:6px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+    .wg-t{
+      width:52px;height:58px;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-weight:1200;font-size:30px;
+      box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
+    }
+    .wg-colon{font-weight:1200;font-size:26px;opacity:.9;margin:0 2px}
+    .wg-timer-sub{font-size:12px;color:rgba(255,255,255,.70);text-align:right}
+
+    .wg-progress{height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);overflow:hidden}
     .wg-progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(34,197,94,.95),rgba(255,59,59,.95));transition:width .25s ease;width:0%}
-    @media (max-width:700px){
-      .wg-top-right{min-width:100%;justify-content:stretch;margin-left:0}
-      .wg-meta{min-width:100%}
-      .wg-timer-card{width:100%}
-      .wg-timer-time{justify-content:space-between}
-      .wg-tab{flex:1;text-align:center}
+
+    /* ===== Main grid ===== */
+    .grid.two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      padding:14px;
     }
-    @media (max-width:420px){
-      .wg-t{width:38px;height:46px;font-size:22px;border-radius:12px}
-      .wg-meta-value{font-size:15px}
+    .panel{
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(520px 220px at 50% 0%, rgba(109,76,255,.14), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
+      box-shadow: var(--shadow2);
+      padding:14px;
     }
+
+    /* inputs */
+    .input{margin-top:10px}
+    .input label{display:block;font-size:12px;color:rgba(255,255,255,.72);font-weight:900;margin-bottom:6px}
+    .input input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color:var(--text);
+      outline:none;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .input input::placeholder{color:rgba(255,255,255,.35)}
+
+    /* selection */
     .wg-colors{display:flex;gap:10px;flex-wrap:wrap}
-    .wg-color{padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-weight:900;flex:1;min-width:160px}
-    .wg-color.green{background:linear-gradient(135deg,#16a34a,#22c55e);border:0}
-    .wg-color.red{background:linear-gradient(135deg,#dc2626,#ef4444);border:0}
-    .wg-color.violet{background:linear-gradient(135deg,#7c3aed,#a855f7);border:0}
-    .wg-color.active,.wg-num.active,.wg-bs-btn.active{outline:3px solid rgba(255,255,255,.35)}
+    .wg-color{
+      padding:11px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      cursor:pointer;
+      font-weight:1000;
+      flex:1;
+      min-width:140px;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .wg-color:hover{transform: translateY(-1px); filter:brightness(1.05)}
+    .wg-color.green{background:linear-gradient(135deg,var(--green1),var(--green2));border:0}
+    .wg-color.red{background:linear-gradient(135deg,var(--red1),var(--red2));border:0}
+    .wg-color.violet{background:linear-gradient(135deg,var(--vio1),var(--vio2));border:0}
+
+    .wg-color.active,.wg-num.active,.wg-bs-btn.active{outline:3px solid rgba(244,212,122,.35)}
+
     .wg-numbers{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-    .wg-num{height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-weight:900;cursor:pointer}
+    .wg-num{
+      height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      font-weight:1100;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .wg-num:hover{transform: translateY(-1px); background: rgba(255,255,255,.08)}
+
     .wg-bs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .wg-bs-btn{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-weight:900;cursor:pointer}
+    .wg-bs-btn{
+      padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      font-weight:1100;
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .wg-bs-btn:hover{transform: translateY(-1px); filter:brightness(1.05)}
     .wg-bs-btn.big{background:linear-gradient(135deg,#f59e0b,#fbbf24);border:0;color:#111827}
     .wg-bs-btn.small{background:linear-gradient(135deg,#3b82f6,#60a5fa);border:0}
+
     .bet-lock{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
     .bet-open{color:#86efac}
     .bet-closed{color:#fca5a5}
+
+    /* chips row */
     .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .chipbtn{padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-weight:900;cursor:pointer;min-width:72px;text-align:center}
-    .chipbtn:hover{background:rgba(255,255,255,.08)}
-    @media (max-width:520px){
-      .wg-numbers{grid-template-columns:repeat(4,1fr)}
-      .wg-color{min-width:100%}
+    .chipbtn{
+      padding:10px 12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(120px 60px at 30% 25%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.20));
+      color:#fff;font-weight:1100;cursor:pointer;min-width:72px;text-align:center;
+      box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
+      transition: transform .12s ease, background .12s ease, filter .12s ease;
     }
-    @media (max-width:380px){
-      .wg-numbers{grid-template-columns:repeat(3,1fr)}
+    .chipbtn:hover{transform: translateY(-1px); filter:brightness(1.05); background: rgba(255,255,255,.08)}
+
+    .notice{
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.9);
+      font-weight:900;
     }
+
+    /* Last5 */
+    .last5{margin-top:10px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.14);overflow:hidden}
+    .last5-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .last5-row:last-child{border-bottom:0}
+    .last5-per{font-weight:1100;opacity:.95}
+    .last5-res{opacity:.9;text-align:right}
+
+    /* table */
+    .table{width:100%; border-collapse:separate; border-spacing:0; min-width:780px}
+    .table thead th{
+      text-align:left;
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+      padding:12px 12px;
+      background: rgba(0,0,0,.22);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      position:sticky; top:0;
+    }
+    .table tbody td{
+      padding:11px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.92);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    /* popup same (kept) */
     .pop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:999}
     .pop{width:min(420px,100%);border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,72,72,.95),rgba(255,190,120,.20));box-shadow:0 30px 80px rgba(0,0,0,.55)}
     .pop-top{padding:18px 16px 14px;text-align:center;background:linear-gradient(180deg,rgba(255,120,80,.95),rgba(255,60,60,.95))}
@@ -83,12 +428,26 @@
     .pop-actions{display:flex;justify-content:center;padding:14px}
     .pop-actions .btn{min-width:140px}
 
-    /* ✅ small list styling */
-    .last5{margin-top:10px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.12);overflow:hidden}
-    .last5-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
-    .last5-row:last-child{border-bottom:0}
-    .last5-per{font-weight:1000;opacity:.95}
-    .last5-res{opacity:.9;text-align:right}
+    /* ===== responsive ===== */
+    @media (max-width: 980px){
+      .wg-hero{grid-template-columns:1fr}
+      .grid.two{grid-template-columns:1fr}
+      .table{min-width:720px}
+    }
+    @media (max-width: 700px){
+      .kpi{grid-template-columns:1fr; }
+      .wg-timer-time{justify-content:space-between}
+      .wg-tab{min-width:0}
+      .wg-meta{min-width:100%}
+    }
+    @media (max-width: 420px){
+      .wg-t{width:44px;height:52px;font-size:26px;border-radius:14px}
+      .wg-numbers{grid-template-columns:repeat(4,1fr)}
+      .wg-color{min-width:100%}
+    }
+    @media (max-width: 360px){
+      .wg-numbers{grid-template-columns:repeat(3,1fr)}
+    }
   </style>
 </head>
 
@@ -99,6 +458,10 @@
       <div class="row header-row">
         <div class="brand">
           <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
+          <div class="brand-title">
+            <b>JYRA</b>
+            <span>Win Go • Premium UI</span>
+          </div>
         </div>
         <div class="row-actions">
           <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
@@ -111,52 +474,67 @@
 
     <!-- ===== Wallet ===== -->
     <div class="card">
-      <div class="h2">My Wallet</div>
-      <div class="kpi">
-        <div class="box">
-          <div class="label">Client ID</div>
-          <div class="val" id="cid">-</div>
+      <div class="card-inner">
+        <div class="h2">My Wallet</div>
+        <div class="kpi">
+          <div class="box">
+            <div class="label">Client ID</div>
+            <div class="val" id="cid">-</div>
+          </div>
+          <div class="box">
+            <div class="label">Name</div>
+            <div class="val" id="nm">-</div>
+          </div>
+          <div class="box">
+            <div class="label">Balance</div>
+            <div class="val" id="pts">0</div>
+            <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
+          </div>
         </div>
-        <div class="box">
-          <div class="label">Name</div>
-          <div class="val" id="nm">-</div>
-        </div>
-        <div class="box">
-          <div class="label">Balance</div>
-          <div class="val" id="pts">0</div>
-          <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
-        </div>
-      </div>
 
-      <div class="small" style="margin-top:10px;">
-        Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
-        <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
+        <div class="small" style="margin-top:12px;">
+          Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
+          <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
+        </div>
       </div>
     </div>
 
     <!-- ===== Game ===== -->
-    <div class="card" style="margin-top:14px;">
-      <div class="wg-topbar">
-        <div class="wg-top-left">
-          <div class="wg-chip" aria-live="polite">
-            <span class="dot dot-live" id="wgDot"></span>
-            <span id="wgStatusText">LIVE</span>
-          </div>
+    <div class="card">
+      <!-- HERO -->
+      <div class="wg-hero">
+        <div class="wg-hero-left">
+          <div class="wg-hero-bg"></div>
+          <div class="wg-hero-content">
+            <div class="wg-hero-logo">
+              <img src="logo.png" alt="Logo">
+            </div>
+            <div class="wg-hero-text">
+              <h1 class="wg-hero-title" style="margin:0;">Win Go</h1>
+              <div class="wg-hero-sub">Choose Color / Number / Big-Small. Result at round end. Same logic, new premium UI.</div>
 
-          <div>
-            <div class="h2" style="margin:0;">Win Go</div>
-            <div class="small">Choose Color / Number / Big-Small. Result at round end.</div>
-          </div>
+              <div class="wg-hero-meta">
+                <div class="wg-chip" aria-live="polite">
+                  <span class="dot dot-live" id="wgDot"></span>
+                  <span id="wgStatusText">LIVE</span>
+                </div>
 
-          <div class="wg-meta">
-            <div class="wg-meta-label">Period</div>
-            <!-- ✅ ONLY ONE PERIOD -->
-            <div class="wg-meta-value" id="periodId">-</div>
+                <div class="wg-meta">
+                  <div class="wg-meta-label">Period</div>
+                  <div class="wg-meta-value" id="periodId">-</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="wg-top-right">
-          <div class="wg-timer-card">
+        <div class="wg-timer">
+          <div class="wg-tabs">
+            <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
+            <button class="wg-tab" id="tab3m" type="button">3 Min</button>
+          </div>
+
+          <div>
             <div class="wg-timer-title">Remaining</div>
             <div class="wg-timer-time" role="timer" aria-live="polite">
               <span class="wg-t" id="tm_m1">0</span>
@@ -165,26 +543,20 @@
               <span class="wg-t" id="tm_s1">0</span>
               <span class="wg-t" id="tm_s2">0</span>
             </div>
-
             <div class="wg-timer-sub" id="wgTimerHint">Place bets before time ends</div>
+          </div>
 
-            <div class="wg-progress">
-              <div class="wg-progress-bar" id="wgProgressBar"></div>
-            </div>
+          <div class="wg-progress">
+            <div class="wg-progress-bar" id="wgProgressBar"></div>
           </div>
         </div>
       </div>
 
-      <div class="hr"></div>
+      <div class="hr" style="margin:0;"></div>
 
-      <div class="wg-tabs">
-        <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
-        <button class="wg-tab" id="tab3m" type="button">3 Min</button>
-      </div>
-
-      <div class="grid two" style="margin-top:12px;">
+      <div class="grid two">
         <!-- LEFT -->
-        <div class="card" style="padding:12px;">
+        <div class="panel">
           <div class="h2" style="margin-top:0;">Select Bet</div>
 
           <div class="small" style="margin-bottom:8px;">Color</div>
@@ -209,7 +581,7 @@
         </div>
 
         <!-- RIGHT -->
-        <div class="card" style="padding:12px;">
+        <div class="panel">
           <div class="h2" style="margin-top:0;">Place Bet</div>
 
           <div class="input">
@@ -220,7 +592,7 @@
           <div class="input">
             <label>Bet Amount (min 50)</label>
             <input id="betAmt" type="number" min="50" placeholder="Enter points" />
-            <div class="small" id="betAmtInr">₹0.00</div>
+            <div class="small" id="betAmtInr" style="margin-top:6px;">₹0.00</div>
 
             <div class="chips" id="chipsRow">
               <button class="chipbtn" type="button" data-chip="50">50</button>
@@ -231,7 +603,7 @@
             </div>
           </div>
 
-          <div class="row-actions">
+          <div class="row-actions" style="margin-top:12px;">
             <button class="btn" id="btnBet" type="button">Confirm Bet</button>
             <button class="btn secondary" id="btnClear" type="button">Clear</button>
           </div>
@@ -260,7 +632,6 @@
 
           <div class="hr"></div>
 
-          <!-- ✅ Last 5 Results (ended periods only) -->
           <div class="h2" style="margin-top:0;">Last 5 Results</div>
           <div class="small" style="opacity:.85">All users (even without bet)</div>
           <div class="last5" id="last5Box">
@@ -274,30 +645,32 @@
     </div>
 
     <!-- ===== History (BET HISTORY) ===== -->
-    <div class="card" style="margin-top:14px;">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Game History</div>
-          <div class="small">Last 30 records</div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="row-actions" style="justify-content:space-between;">
+          <div>
+            <div class="h2" style="margin:0;">Game History</div>
+            <div class="small">Last 30 records</div>
+          </div>
+          <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
         </div>
-        <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
-      </div>
 
-      <div style="overflow:auto;margin-top:10px;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Period</th>
-              <th>Mode</th>
-              <th>Bet</th>
-              <th>Result</th>
-              <th>Before</th>
-              <th>After</th>
-            </tr>
-          </thead>
-          <tbody id="histBody"></tbody>
-        </table>
+        <div style="overflow:auto;margin-top:12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Period</th>
+                <th>Mode</th>
+                <th>Bet</th>
+                <th>Result</th>
+                <th>Before</th>
+                <th>After</th>
+              </tr>
+            </thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -363,9 +736,7 @@
       var utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
       return new Date(utcMs + (5.5 * 3600000));
     }
-    function ymdIST(d) {
-      return "" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
-    }
+    function ymdIST(d) { return "" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()); }
     function secondsSinceISTMidnight() {
       var d = istNow();
       return (d.getHours() * 3600) + (d.getMinutes() * 60) + d.getSeconds();
@@ -375,20 +746,13 @@
       var idx = Math.floor(secSinceMidnight / 30) + 1; // 1..2880
       return ymdIST(d) + "-" + pad4(idx);
     }
-    function currentPeriodIST() {
-      return periodFromIstSeconds(secondsSinceISTMidnight());
-    }
+    function currentPeriodIST() { return periodFromIstSeconds(secondsSinceISTMidnight()); }
     function periodAtOffsetSeconds(offsetSec) {
-      // offsetSec negative -> past
       var d = istNow();
       var base = secondsSinceISTMidnight();
       var target = base + Number(offsetSec || 0);
-
-      // day rollover simple handling
-      while (target < 0) { target += 86400; /* previous day not handled perfectly at midnight, but ok */ }
+      while (target < 0) { target += 86400; }
       while (target >= 86400) { target -= 86400; }
-
-      // NOTE: at midnight boundary, ymd might be off by 1 day. rare; acceptable for now.
       var idx = Math.floor(target / 30) + 1;
       return ymdIST(d) + "-" + pad4(idx);
     }
@@ -407,12 +771,7 @@
       if (!window.sha256) throw new Error("sha256 not found (app.js not loaded)");
       var hex = await sha256(String(period));
       var n = parseInt(hex.slice(0, 8), 16) % 10;
-      var r = {
-        period: period,
-        resultNumber: n,
-        resultColor: numberToColor(n),
-        resultBigSmall: numberToBigSmall(n)
-      };
+      var r = { period: period, resultNumber: n, resultColor: numberToColor(n), resultBigSmall: numberToBigSmall(n) };
       RESULT_CACHE[period] = r;
       return r;
     }
@@ -427,13 +786,9 @@
     var activeBet = null;
     var selectedBet = null;
 
-    // settle guard (ONE time at 0 sec)
     var lastSettledKey = null;
 
-    function bettingAllowed() {
-      // ✅ OPEN first 30 sec of MODE round
-      return Number(remain || 0) > (MODE_SEC - BET_OPEN_SEC);
-    }
+    function bettingAllowed() { return Number(remain || 0) > (MODE_SEC - BET_OPEN_SEC); }
 
     function updateBetWindowUI() {
       var el = document.getElementById("betWindow");
@@ -496,7 +851,6 @@
     }
 
     function remainingInModeBlock() {
-      // ✅ exact countdown: at boundary remain=0
       var s = secondsSinceISTMidnight();
       var into = s % MODE_SEC;
       return (MODE_SEC - into) % MODE_SEC;
@@ -574,16 +928,11 @@
       var box = document.getElementById("last5Box");
       if (!box) return;
 
-      // ended periods only: take previous 5 periods (each 30 sec)
       var arr = [];
-      for (var i = 1; i <= 5; i++) {
-        arr.push(periodAtOffsetSeconds(-30 * i));
-      }
+      for (var i = 1; i <= 5; i++) arr.push(periodAtOffsetSeconds(-30 * i));
 
       var rows = [];
-      for (var k = 0; k < arr.length; k++) {
-        rows.push(await resultForPeriod(arr[k]));
-      }
+      for (var k = 0; k < arr.length; k++) rows.push(await resultForPeriod(arr[k]));
 
       box.innerHTML = rows.map(function (r) {
         return (
@@ -598,36 +947,29 @@
     async function settleAtZeroOnly() {
       if (Number(remain || 0) !== 0) return;
 
-      // key ensures one time only per MODE block end
       var key = ymdIST(istNow()) + "|" + MODE_SEC + "|" + secondsSinceISTMidnight();
       if (lastSettledKey === key) return;
       lastSettledKey = key;
 
-      // ended period = previous 30 sec period
-      var endedPeriod = periodAtOffsetSeconds(-1); // previous second belongs to ended period
+      var endedPeriod = periodAtOffsetSeconds(-1);
       var r = await resultForPeriod(endedPeriod);
 
-      // Update latest result UI
       setText("resNum", String(r.resultNumber));
       setText("resColor", r.resultColor);
       setText("resBS", r.resultBigSmall);
 
-      // No bet
       if (!activeBet) {
         showMsg("roundMsg", "Round ended. No bet placed.");
         showResultPopup({ win: false, period: endedPeriod, num: r.resultNumber, color: r.resultColor, bs: r.resultBigSmall, bonusText: fmtINR(0) });
         return;
       }
 
-      // Bet settlement
       var isWin = false;
       if (activeBet.type === "color") isWin = (String(activeBet.value).toLowerCase() === String(r.resultColor).toLowerCase());
       if (activeBet.type === "number") isWin = (Number(activeBet.value) === Number(r.resultNumber));
       if (activeBet.type === "bs") isWin = (String(activeBet.value).toLowerCase() === String(r.resultBigSmall).toLowerCase());
 
-      if (isWin) {
-        await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)", null);
-      }
+      if (isWin) await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)", null);
 
       const me = await currentUserAsync();
       const after = me ? (me.points || 0) : 0;
@@ -635,7 +977,7 @@
       await addPlayRow({
         userId: USER.clientId,
         createdAt: new Date().toISOString(),
-        period: activeBet.period,         // ✅ bet placed period (as you want)
+        period: activeBet.period,
         modeSec: activeBet.modeSec,
         modeLabel: (activeBet.modeSec === 60 ? "1 Min" : "3 Min"),
         betType: activeBet.type,
@@ -671,10 +1013,7 @@
       const me = await currentUserAsync();
       if (!me) return;
 
-      if (!bettingAllowed()) {
-        showMsg("betMsg", "Betting closed for this round. Wait next round.");
-        return;
-      }
+      if (!bettingAllowed()) { showMsg("betMsg", "Betting closed for this round. Wait next round."); return; }
 
       var amt = Number(document.getElementById("betAmt").value);
 
@@ -687,15 +1026,7 @@
       var r = await adjustPoints(me.clientId, -amt, "Bet entry (" + selectedBet.label + ")", null);
       if (!r || !r.ok) return showMsg("betMsg", (r && r.msg) ? r.msg : "Bet failed");
 
-      activeBet = {
-        type: selectedBet.type,
-        value: selectedBet.value,
-        label: selectedBet.label,
-        amount: amt,
-        period: currentPeriodIST(),   // ✅ Bet period saved here
-        modeSec: MODE_SEC,
-        beforePoints: before
-      };
+      activeBet = { type: selectedBet.type, value: selectedBet.value, label: selectedBet.label, amount: amt, period: currentPeriodIST(), modeSec: MODE_SEC, beforePoints: before };
 
       showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Wait for result.");
       await renderWallet();
@@ -703,7 +1034,6 @@
 
     function setMode(sec) {
       MODE_SEC = sec;
-
       var t1 = document.getElementById("tab1m");
       var t3 = document.getElementById("tab3m");
       if (t1 && t3) {
@@ -719,10 +1049,7 @@
 
         document.body.style.visibility = "visible";
 
-        if (USER.role === "admin") {
-          window.location.replace("admin.html");
-          return;
-        }
+        if (USER.role === "admin") { window.location.replace("admin.html"); return; }
 
         var lo = document.getElementById("btnLogout");
         if (lo) lo.onclick = logout;
@@ -804,23 +1131,13 @@
         await renderHistory();
         setMode(60);
 
-        // ✅ Main loop (smooth + auto update)
         if (timer) clearInterval(timer);
         timer = setInterval(async function () {
           remain = remainingInModeBlock();
-
-          // period box always current
           setText("periodId", currentPeriodIST());
-
           setTimerUI(remain, MODE_SEC);
           updateBetWindowUI();
-
-          // update last 5 (light)
-          if (remain % 2 === 0) {
-            await renderLast5();
-          }
-
-          // settle only at 0
+          if (remain % 2 === 0) await renderLast5();
           await settleAtZeroOnly();
         }, 500);
 
@@ -834,5 +1151,4 @@
     });
   </script>
 </body>
-
 </html>
