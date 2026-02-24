@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JYRA • Win Go</title>
-  <link rel="icon" type="image/x-icon" href="logo.png" />
+  <title>Game</title>
+  <link rel="icon" type="image/x-icon" href="images/logo.png">
+  <link rel="stylesheet" href="styles.css" />
 
   <style>
-    /* ========= BASE / THEME ========= */
     body{visibility:hidden}
+
     :root{
       --bg:#060712;
       --panel: rgba(255,255,255,.04);
@@ -31,6 +32,9 @@
       --shadow2: 0 18px 60px rgba(0,0,0,.45);
       --r: 22px;
       --r2: 16px;
+
+      --brand: var(--gold2);
+      --brand2: var(--neon1);
     }
 
     *{box-sizing:border-box}
@@ -47,28 +51,10 @@
       overflow-x:hidden;
     }
 
-    /* extra “mockup” feel: vignette + glow overlay */
-    body:before{
-      content:"";
-      position:fixed; inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(1200px 700px at 50% -10%, rgba(255,200,120,.10), transparent 60%),
-        radial-gradient(900px 600px at 20% 20%, rgba(120,80,255,.14), transparent 60%),
-        radial-gradient(900px 650px at 85% 35%, rgba(60,255,255,.10), transparent 60%),
-        radial-gradient(1000px 800px at 50% 115%, rgba(0,0,0,.70), transparent 55%);
-      mix-blend-mode:screen;
-      opacity:1;
+    .container{
+      /* width:min(1200px, 92vw); */
+      margin:0 auto;
     }
-    body:after{
-      content:"";
-      position:fixed; inset:0;
-      pointer-events:none;
-      background: radial-gradient(900px 700px at 50% 45%, transparent 55%, rgba(0,0,0,.60) 100%);
-      opacity:.95;
-    }
-
-    .container{margin:0 auto; width:min(1200px, 92vw);}
 
     .nav{
       position:sticky; top:0; z-index:50;
@@ -76,12 +62,14 @@
       background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.22));
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
+
     .row{display:flex; align-items:center}
     .header-row{
       padding:12px 0;
       justify-content:space-between;
       gap:12px;
     }
+
     .brand{display:flex; align-items:center; gap:12px}
     .logo{
       width:44px; height:44px; border-radius:14px;
@@ -89,7 +77,9 @@
       border:1px solid rgba(255,255,255,.12);
       box-shadow: 0 10px 28px rgba(0,0,0,.45);
     }
-    .brand-title{display:flex; flex-direction:column; line-height:1.1}
+    .brand-title{
+      display:flex; flex-direction:column; line-height:1.1
+    }
     .brand-title b{
       letter-spacing:.8px;
       background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
@@ -97,31 +87,22 @@
       background-clip:text;
       color:transparent;
       font-size:16px;
-      font-weight:1000;
     }
-    .brand-title span{font-size:12px; color:var(--muted)}
+    .brand-title span{
+      font-size:12px; color:var(--muted)
+    }
 
     .btn{
-      border:0; cursor:pointer;
+      border:0;
+      cursor:pointer;
       color:#101318;
-      font-weight:1000;
+      font-weight:900;
       padding:11px 14px;
       border-radius:14px;
       background: linear-gradient(135deg, var(--gold1), var(--gold2));
       box-shadow: 0 14px 34px rgba(0,0,0,.35);
       transition: transform .12s ease, filter .12s ease;
       user-select:none;
-      position:relative;
-      overflow:hidden;
-    }
-    .btn:before{
-      content:"";
-      position:absolute; inset:1px 1px auto 1px;
-      height:45%;
-      border-radius:inherit;
-      background: linear-gradient(180deg, rgba(255,255,255,.28), transparent);
-      pointer-events:none;
-      opacity:.7;
     }
     .btn:hover{transform: translateY(-1px); filter:brightness(1.05)}
     .btn:active{transform: translateY(0px); filter:brightness(.98)}
@@ -132,10 +113,9 @@
       border:1px solid rgba(255,255,255,.12);
       box-shadow:none;
     }
-    .btn.secondary:before{display:none}
     .btn.secondary:hover{background: rgba(255,255,255,.09)}
 
-    .row-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .row-actions{display:flex; gap:10px; align-items:center}
 
     .card{
       margin-top:14px;
@@ -146,30 +126,12 @@
         linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
       box-shadow: var(--shadow2);
       overflow:hidden;
-      position:relative;
-    }
-    /* bevel / glow border */
-    .card:before{
-      content:"";
-      position:absolute; inset:0;
-      border-radius:inherit;
-      padding:1px;
-      background: linear-gradient(135deg,
-        rgba(244,212,122,.55),
-        rgba(109,76,255,.25),
-        rgba(43,231,255,.18),
-        rgba(244,212,122,.25)
-      );
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events:none;
-      opacity:.75;
     }
 
-    .card-inner{padding:14px; position:relative; z-index:1}
+    .card-inner{padding:14px}
+
     .h2{
-      font-weight:1100;
+      font-weight:1000;
       letter-spacing:.4px;
       margin:0 0 8px 0;
       font-size:18px;
@@ -188,7 +150,6 @@
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
       padding:12px;
-      box-shadow: inset 0 0 0 1px rgba(244,212,122,.08);
     }
     .label{font-size:12px; color:rgba(255,255,255,.72)}
     .val{
@@ -200,67 +161,6 @@
       word-break:break-word;
     }
 
-    /* ===== AUTH SCREEN ===== */
-    .authWrap{padding:18px 0 24px}
-    .authGrid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:12px;
-      align-items:stretch;
-    }
-    .authHero{
-      border-radius: var(--r);
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(520px 220px at 50% 0%, rgba(109,76,255,.22), transparent 70%),
-        radial-gradient(520px 240px at 30% 20%, rgba(244,212,122,.12), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
-      box-shadow: var(--shadow2);
-      padding:18px;
-      position:relative;
-      overflow:hidden;
-    }
-    .authHero:after{
-      content:"";
-      position:absolute; inset:-60px;
-      background: radial-gradient(520px 280px at 50% 35%, rgba(244,212,122,.16), transparent 60%);
-      opacity:.9;
-      pointer-events:none;
-    }
-    .authLogoBig{
-      width:86px;height:86px;border-radius:24px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.22);
-      padding:10px;
-      display:grid; place-items:center;
-      box-shadow: 0 18px 60px rgba(0,0,0,.45);
-    }
-    .authLogoBig img{width:100%;height:100%;object-fit:contain; filter: drop-shadow(0 14px 28px rgba(0,0,0,.40));}
-    .authTitle{
-      margin:12px 0 6px;
-      font-size:28px;
-      font-weight:1200;
-      letter-spacing:1px;
-      background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow:
-        0 0 18px rgba(244,212,122,.25),
-        0 0 32px rgba(109,76,255,.18);
-    }
-    .authNote{color:rgba(255,255,255,.82); font-size:13px; line-height:1.45; max-width:520px}
-
-    .panel{
-      border-radius: var(--r);
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(520px 220px at 50% 0%, rgba(43,231,255,.12), transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
-      box-shadow: var(--shadow2);
-      padding:14px;
-      position:relative;
-      overflow:hidden;
-    }
-
     /* ===== HERO header inside game card ===== */
     .wg-hero{
       display:grid;
@@ -268,8 +168,6 @@
       gap:12px;
       align-items:stretch;
       padding:14px;
-      position:relative;
-      z-index:1;
     }
     .wg-hero-left{
       border-radius: var(--r);
@@ -281,14 +179,6 @@
       overflow:hidden;
       position:relative;
       min-height:190px;
-    }
-    .wg-hero-left:after{
-      content:"";
-      position:absolute; inset:-60px;
-      background: radial-gradient(520px 280px at 50% 40%, rgba(244,212,122,.16), transparent 60%);
-      opacity:.9;
-      pointer-events:none;
-      filter: blur(1px);
     }
     .wg-hero-bg{
       position:absolute; inset:0;
@@ -312,21 +202,17 @@
       display:grid; place-items:center;
       box-shadow: 0 18px 60px rgba(0,0,0,.45);
     }
-    .wg-hero-logo img{width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 14px 28px rgba(0,0,0,.40))}
+    .wg-hero-logo img{width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,.35))}
     .wg-hero-text{flex:1}
     .wg-hero-title{
-      font-size:24px;
-      font-weight:1200;
+      font-size:22px;
+      font-weight:1100;
       margin:0;
-      letter-spacing:1px;
+      letter-spacing:.8px;
       background: linear-gradient(90deg, var(--gold1), var(--gold2), var(--neon2));
       -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow:
-        0 0 18px rgba(244,212,122,.25),
-        0 0 32px rgba(109,76,255,.18);
     }
     .wg-hero-sub{margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35}
-
     .wg-hero-meta{
       margin-top:12px;
       display:flex;
@@ -335,23 +221,15 @@
       align-items:center;
     }
 
-    .wg-chip{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.04);
-      font-weight:1000;font-size:12px;color:rgba(255,255,255,.92);white-space:nowrap
-    }
+    .wg-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:900;font-size:12px;color:rgba(255,255,255,.92);white-space:nowrap}
     .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
     .dot-live{background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
     .dot-lock{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
     .dot-end{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}
 
-    .wg-meta{
-      padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18);min-width:180px
-    }
+    .wg-meta{padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);min-width:180px}
     .wg-meta-label{font-size:12px;color:rgba(255,255,255,.65)}
-    .wg-meta-value{margin-top:4px;font-size:16px;font-weight:1100;letter-spacing:.6px;color:#e8efff;word-break:break-word}
+    .wg-meta-value{margin-top:4px;font-size:16px;font-weight:1000;letter-spacing:.6px;color:#e8efff;word-break:break-word}
 
     /* right timer */
     .wg-timer{
@@ -366,17 +244,7 @@
       flex-direction:column;
       gap:10px;
       min-height:190px;
-      position:relative;
-      overflow:hidden;
     }
-    .wg-timer:before{
-      content:"";
-      position:absolute; inset:-70px;
-      background: radial-gradient(520px 260px at 55% 35%, rgba(109,76,255,.10), transparent 60%);
-      opacity:.95;
-      pointer-events:none;
-    }
-    .wg-timer > *{position:relative; z-index:1}
 
     .wg-tabs{display:flex;gap:10px;flex-wrap:wrap}
     .wg-tab{
@@ -385,7 +253,7 @@
       background:rgba(255,255,255,.04);
       color:var(--text);
       cursor:pointer;
-      font-weight:1100;
+      font-weight:1000;
       flex:1;
       min-width:140px;
       transition: transform .12s ease, background .12s ease, border .12s ease;
@@ -395,10 +263,9 @@
       background: linear-gradient(135deg, rgba(244,212,122,.95), rgba(202,163,76,.92));
       color:#0c0f16;
       border:0;
-      box-shadow: 0 14px 34px rgba(0,0,0,.35);
     }
 
-    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:1100}
+    .wg-timer-title{font-size:12px;color:rgba(255,255,255,.70);font-weight:1000}
     .wg-timer-time{margin-top:6px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
     .wg-t{
       width:52px;height:58px;
@@ -407,17 +274,13 @@
       border:1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.18);
       font-weight:1200;font-size:30px;
-      box-shadow: inset 0 0 0 1px rgba(244,212,122,.12);
+      box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
     }
     .wg-colon{font-weight:1200;font-size:26px;opacity:.9;margin:0 2px}
     .wg-timer-sub{font-size:12px;color:rgba(255,255,255,.70);text-align:right}
 
     .wg-progress{height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);overflow:hidden}
-    .wg-progress-bar{
-      height:100%;border-radius:999px;
-      background:linear-gradient(90deg,rgba(34,197,94,.95),rgba(255,59,59,.95));
-      transition:width .25s ease;width:0%
-    }
+    .wg-progress-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,rgba(34,197,94,.95),rgba(255,59,59,.95));transition:width .25s ease;width:0%}
 
     /* ===== Main grid ===== */
     .grid.two{
@@ -425,8 +288,15 @@
       grid-template-columns: 1fr 1fr;
       gap:12px;
       padding:14px;
-      position:relative;
-      z-index:1;
+    }
+    .panel{
+      border-radius: var(--r);
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(520px 220px at 50% 0%, rgba(109,76,255,.14), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.22));
+      box-shadow: var(--shadow2);
+      padding:14px;
     }
 
     /* inputs */
@@ -454,11 +324,10 @@
       background:rgba(255,255,255,.04);
       color:#fff;
       cursor:pointer;
-      font-weight:1100;
+      font-weight:1000;
       flex:1;
       min-width:140px;
       transition: transform .12s ease, filter .12s ease;
-      box-shadow: inset 0 0 0 1px rgba(244,212,122,.08);
     }
     .wg-color:hover{transform: translateY(-1px); filter:brightness(1.05)}
     .wg-color.green{background:linear-gradient(135deg,var(--green1),var(--green2));border:0}
@@ -472,10 +341,9 @@
       height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
       color:#fff;
-      font-weight:1200;
+      font-weight:1100;
       cursor:pointer;
       transition: transform .12s ease, background .12s ease;
-      box-shadow: inset 0 0 0 1px rgba(244,212,122,.08);
     }
     .wg-num:hover{transform: translateY(-1px); background: rgba(255,255,255,.08)}
 
@@ -484,20 +352,15 @@
       padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
       color:#fff;
-      font-weight:1200;
+      font-weight:1100;
       cursor:pointer;
       transition: transform .12s ease, filter .12s ease;
-      box-shadow: inset 0 0 0 1px rgba(244,212,122,.08);
     }
     .wg-bs-btn:hover{transform: translateY(-1px); filter:brightness(1.05)}
     .wg-bs-btn.big{background:linear-gradient(135deg,#f59e0b,#fbbf24);border:0;color:#111827}
     .wg-bs-btn.small{background:linear-gradient(135deg,#3b82f6,#60a5fa);border:0}
 
-    .bet-lock{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);
-      color:var(--muted);font-size:12px
-    }
+    .bet-lock{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
     .bet-open{color:#86efac}
     .bet-closed{color:#fca5a5}
 
@@ -507,12 +370,10 @@
       padding:10px 12px;border-radius:16px;
       border:1px solid rgba(255,255,255,.12);
       background:
-        radial-gradient(120px 60px at 30% 25%, rgba(255,255,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.20));
-      color:#fff;font-weight:1200;cursor:pointer;min-width:72px;text-align:center;
-      box-shadow:
-        inset 0 0 0 1px rgba(244,212,122,.12),
-        0 12px 30px rgba(0,0,0,.28);
+        radial-gradient(120px 60px at 30% 25%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.20));
+      color:#fff;font-weight:1100;cursor:pointer;min-width:72px;text-align:center;
+      box-shadow: inset 0 0 0 1px rgba(244,212,122,.10);
       transition: transform .12s ease, background .12s ease, filter .12s ease;
     }
     .chipbtn:hover{transform: translateY(-1px); filter:brightness(1.05); background: rgba(255,255,255,.08)}
@@ -523,7 +384,7 @@
       border:1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.18);
       color: rgba(255,255,255,.9);
-      font-weight:1000;
+      font-weight:900;
     }
 
     /* Last5 */
@@ -552,34 +413,16 @@
       white-space:nowrap;
     }
 
-    /* popup */
-    .pop-backdrop{
-      position:fixed;inset:0;background:rgba(0,0,0,.55);
-      display:none;align-items:center;justify-content:center;padding:18px;z-index:999
-    }
-    .pop{
-      width:min(420px,100%);
-      border-radius:22px;overflow:hidden;
-      border:1px solid rgba(255,255,255,.12);
-      background:linear-gradient(180deg,rgba(255,72,72,.95),rgba(255,190,120,.20));
-      box-shadow:0 30px 80px rgba(0,0,0,.55)
-    }
-    .pop-top{
-      padding:18px 16px 14px;text-align:center;
-      background:linear-gradient(180deg,rgba(255,120,80,.95),rgba(255,60,60,.95))
-    }
-    .pop-title{font-size:20px;font-weight:1200;color:#fff}
+    /* popup same (kept) */
+    .pop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:999}
+    .pop{width:min(420px,100%);border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,72,72,.95),rgba(255,190,120,.20));box-shadow:0 30px 80px rgba(0,0,0,.55)}
+    .pop-top{padding:18px 16px 14px;text-align:center;background:linear-gradient(180deg,rgba(255,120,80,.95),rgba(255,60,60,.95))}
+    .pop-title{font-size:20px;font-weight:1000;color:#fff}
     .pop-sub{margin-top:8px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-    .chip{
-      padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.20);
-      color:#fff;font-weight:900;font-size:12px;border:1px solid rgba(255,255,255,.22)
-    }
+    .chip{padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.20);color:#fff;font-weight:800;font-size:12px;border:1px solid rgba(255,255,255,.22)}
     .pop-body{background:rgba(11,18,32,.65);padding:16px}
-    .ticket{
-      border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.12);padding:14px
-    }
-    .bonus{font-size:28px;font-weight:1200;color:#fff;text-align:center;margin:6px 0}
+    .ticket{border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);padding:14px}
+    .bonus{font-size:28px;font-weight:1000;color:#fff;text-align:center;margin:6px 0}
     .bonus.lose{color:#fecaca}
     .periodline{color:rgba(255,255,255,.85);font-size:12px;text-align:center}
     .pop-actions{display:flex;justify-content:center;padding:14px}
@@ -590,7 +433,6 @@
       .wg-hero{grid-template-columns:1fr}
       .grid.two{grid-template-columns:1fr}
       .table{min-width:720px}
-      .authGrid{grid-template-columns:1fr}
     }
     @media (max-width: 700px){
       .kpi{grid-template-columns:1fr; }
@@ -602,7 +444,6 @@
       .wg-t{width:44px;height:52px;font-size:26px;border-radius:14px}
       .wg-numbers{grid-template-columns:repeat(4,1fr)}
       .wg-color{min-width:100%}
-      .table{min-width:680px}
     }
     @media (max-width: 360px){
       .wg-numbers{grid-template-columns:repeat(3,1fr)}
@@ -616,14 +457,14 @@
     <div class="container">
       <div class="row header-row">
         <div class="brand">
-          <img src="logo.png" alt="Logo" class="logo" />
+          <a href="index.html"><img src="logo.png" alt="Logo" class="logo"></a>
           <div class="brand-title">
             <b>JYRA</b>
             <span>Win Go • Premium UI</span>
           </div>
         </div>
         <div class="row-actions">
-          <button class="btn secondary small" id="btnLogout" type="button" style="display:none">Logout</button>
+          <button class="btn secondary small" id="btnLogout" type="button">Logout</button>
         </div>
       </div>
     </div>
@@ -631,275 +472,209 @@
 
   <div class="container">
 
-    <!-- ===== AUTH (Login/Register) ===== -->
-    <div class="authWrap" id="authScreen" style="display:none">
-      <div class="authGrid">
-        <div class="authHero">
-          <div class="authLogoBig"><img src="logo.png" alt="Logo"></div>
-          <div class="authTitle">JYRA • Win Go</div>
-          <div class="authNote">
-            Login karo, wallet points show honge. <br/>
-            Demo/Testing ke liye “Register” se new user bana sakte ho.
-            <div class="small" style="margin-top:10px;opacity:.85">
-              NOTE: Firebase Firestore required. “logo.png” same folder me rakho.
-            </div>
+    <!-- ===== Wallet ===== -->
+    <div class="card">
+      <div class="card-inner">
+        <div class="h2">My Wallet</div>
+        <div class="kpi">
+          <div class="box">
+            <div class="label">Client ID</div>
+            <div class="val" id="cid">-</div>
+          </div>
+          <div class="box">
+            <div class="label">Name</div>
+            <div class="val" id="nm">-</div>
+          </div>
+          <div class="box">
+            <div class="label">Balance</div>
+            <div class="val" id="pts">0</div>
+            <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
           </div>
         </div>
 
-        <div class="panel">
-          <div class="h2" style="margin-top:0">Login</div>
-          <div class="input">
-            <label>Client ID</label>
-            <input id="loginId" placeholder="e.g. JYRA001" autocomplete="off" />
-          </div>
-          <div class="input">
-            <label>Password</label>
-            <input id="loginPw" type="password" placeholder="••••••••" />
-          </div>
-          <div class="row-actions" style="margin-top:12px">
-            <button class="btn" id="btnLogin" type="button">Login</button>
-            <button class="btn secondary" id="btnShowReg" type="button">Register</button>
-          </div>
-          <div class="notice" id="authMsg" style="display:none;margin-top:10px"></div>
-
-          <div class="hr"></div>
-
-          <div id="regBox" style="display:none">
-            <div class="h2" style="margin-top:0">Register</div>
-            <div class="input">
-              <label>Name</label>
-              <input id="regName" placeholder="Your name" autocomplete="off" />
-            </div>
-            <div class="input">
-              <label>Client ID (unique)</label>
-              <input id="regId" placeholder="e.g. JYRA002" autocomplete="off" />
-            </div>
-            <div class="input">
-              <label>Password</label>
-              <input id="regPw" type="password" placeholder="Create password" />
-            </div>
-            <div class="input">
-              <label>Starting Points</label>
-              <input id="regPts" type="number" value="5000" min="0" />
-              <div class="small" style="margin-top:6px;opacity:.85">Admin panel nahi banaya (single-file). Role default: user</div>
-            </div>
-            <div class="row-actions" style="margin-top:12px">
-              <button class="btn" id="btnRegister" type="button">Create Account</button>
-              <button class="btn secondary" id="btnHideReg" type="button">Cancel</button>
-            </div>
-          </div>
+        <div class="small" style="margin-top:12px;">
+          Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
+          <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
         </div>
       </div>
     </div>
 
-    <!-- ===== APP (Game) ===== -->
-    <div id="appScreen" style="display:none">
-
-      <!-- ===== Wallet ===== -->
-      <div class="card">
-        <div class="card-inner">
-          <div class="h2">My Wallet</div>
-          <div class="kpi">
-            <div class="box">
-              <div class="label">Client ID</div>
-              <div class="val" id="cid">-</div>
+    <!-- ===== Game ===== -->
+    <div class="card">
+      <!-- HERO -->
+      <div class="wg-hero">
+        <div class="wg-hero-left">
+          <div class="wg-hero-bg"></div>
+          <div class="wg-hero-content">
+            <div class="wg-hero-logo">
+              <img src="logo.png" alt="Logo">
             </div>
-            <div class="box">
-              <div class="label">Name</div>
-              <div class="val" id="nm">-</div>
-            </div>
-            <div class="box">
-              <div class="label">Balance</div>
-              <div class="val" id="pts">0</div>
-              <div class="small" id="ptsInr" style="margin-top:6px;">₹0.00</div>
-            </div>
-          </div>
+            <div class="wg-hero-text">
+              <h1 class="wg-hero-title" style="margin:0;">Win Go</h1>
+              <div class="wg-hero-sub">Choose Color / Number / Big-Small. Result at round end. Same logic, new premium UI.</div>
 
-          <div class="small" style="margin-top:12px;">
-            Min Bet: <b>50</b> | Max Bet: <b>Wallet Balance</b> |
-            <span class="bet-lock" id="betWindow">Betting: <b class="bet-open">OPEN</b> (first 30 sec)</span>
-          </div>
-        </div>
-      </div>
+              <div class="wg-hero-meta">
+                <div class="wg-chip" aria-live="polite">
+                  <span class="dot dot-live" id="wgDot"></span>
+                  <span id="wgStatusText">LIVE</span>
+                </div>
 
-      <!-- ===== Game ===== -->
-      <div class="card">
-        <!-- HERO -->
-        <div class="wg-hero">
-          <div class="wg-hero-left">
-            <div class="wg-hero-bg"></div>
-            <div class="wg-hero-content">
-              <div class="wg-hero-logo">
-                <img src="logo.png" alt="Logo">
-              </div>
-              <div class="wg-hero-text">
-                <h1 class="wg-hero-title">Win Go</h1>
-                <div class="wg-hero-sub">Choose Color / Number / Big-Small. Result at round end. Same logic, premium UI.</div>
-
-                <div class="wg-hero-meta">
-                  <div class="wg-chip" aria-live="polite">
-                    <span class="dot dot-live" id="wgDot"></span>
-                    <span id="wgStatusText">LIVE</span>
-                  </div>
-
-                  <div class="wg-meta">
-                    <div class="wg-meta-label">Period</div>
-                    <div class="wg-meta-value" id="periodId">-</div>
-                  </div>
+                <div class="wg-meta">
+                  <div class="wg-meta-label">Period</div>
+                  <div class="wg-meta-value" id="periodId">-</div>
                 </div>
               </div>
             </div>
           </div>
-
-          <div class="wg-timer">
-            <div class="wg-tabs">
-              <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
-              <button class="wg-tab" id="tab3m" type="button">3 Min</button>
-            </div>
-
-            <div>
-              <div class="wg-timer-title">Remaining</div>
-              <div class="wg-timer-time" role="timer" aria-live="polite">
-                <span class="wg-t" id="tm_m1">0</span>
-                <span class="wg-t" id="tm_m2">0</span>
-                <span class="wg-colon">:</span>
-                <span class="wg-t" id="tm_s1">0</span>
-                <span class="wg-t" id="tm_s2">0</span>
-              </div>
-              <div class="wg-timer-sub" id="wgTimerHint">Place bets before time ends</div>
-            </div>
-
-            <div class="wg-progress">
-              <div class="wg-progress-bar" id="wgProgressBar"></div>
-            </div>
-          </div>
         </div>
 
-        <div class="hr" style="margin:0;"></div>
-
-        <div class="grid two">
-          <!-- LEFT -->
-          <div class="panel">
-            <div class="h2" style="margin-top:0;">Select Bet</div>
-
-            <div class="small" style="margin-bottom:8px;">Color</div>
-            <div class="wg-colors">
-              <button class="wg-color green" id="btnGreen" type="button">Green</button>
-              <button class="wg-color violet" id="btnViolet" type="button">Violet</button>
-              <button class="wg-color red" id="btnRed" type="button">Red</button>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="small" style="margin-bottom:8px;">Number (0-9)</div>
-            <div class="wg-numbers" id="numGrid"></div>
-
-            <div class="hr"></div>
-
-            <div class="small" style="margin-bottom:8px;">Big / Small</div>
-            <div class="wg-bs">
-              <button class="wg-bs-btn big" id="btnBig" type="button">Big</button>
-              <button class="wg-bs-btn small" id="btnSmall" type="button">Small</button>
-            </div>
+        <div class="wg-timer">
+          <div class="wg-tabs">
+            <button class="wg-tab active" id="tab1m" type="button">1 Min</button>
+            <button class="wg-tab" id="tab3m" type="button">3 Min</button>
           </div>
 
-          <!-- RIGHT -->
-          <div class="panel">
-            <div class="h2" style="margin-top:0;">Place Bet</div>
-
-            <div class="input">
-              <label>Selected Bet</label>
-              <input id="selBet" readonly placeholder="Choose any one option" />
+          <div>
+            <div class="wg-timer-title">Remaining</div>
+            <div class="wg-timer-time" role="timer" aria-live="polite">
+              <span class="wg-t" id="tm_m1">0</span>
+              <span class="wg-t" id="tm_m2">0</span>
+              <span class="wg-colon">:</span>
+              <span class="wg-t" id="tm_s1">0</span>
+              <span class="wg-t" id="tm_s2">0</span>
             </div>
+            <div class="wg-timer-sub" id="wgTimerHint">Place bets before time ends</div>
+          </div>
 
-            <div class="input">
-              <label>Bet Amount (min 50)</label>
-              <input id="betAmt" type="number" min="50" placeholder="Enter points" />
-              <div class="small" id="betAmtInr" style="margin-top:6px;">₹0.00</div>
-
-              <div class="chips" id="chipsRow">
-                <button class="chipbtn" type="button" data-chip="50">50</button>
-                <button class="chipbtn" type="button" data-chip="100">100</button>
-                <button class="chipbtn" type="button" data-chip="200">200</button>
-                <button class="chipbtn" type="button" data-chip="500">500</button>
-                <button class="chipbtn" type="button" data-chip="1000">1000</button>
-              </div>
-            </div>
-
-            <div class="row-actions" style="margin-top:12px;">
-              <button class="btn" id="btnBet" type="button">Confirm Bet</button>
-              <button class="btn secondary" id="btnClear" type="button">Clear</button>
-            </div>
-
-            <div class="notice" id="betMsg" style="display:none;margin-top:10px;"></div>
-
-            <div class="hr"></div>
-
-            <div class="h2" style="margin-top:0;">Latest Result</div>
-            <div class="kpi">
-              <div class="box">
-                <div class="label">Number</div>
-                <div class="val" id="resNum">-</div>
-              </div>
-              <div class="box">
-                <div class="label">Color</div>
-                <div class="val" id="resColor">-</div>
-              </div>
-              <div class="box">
-                <div class="label">Big/Small</div>
-                <div class="val" id="resBS">-</div>
-              </div>
-            </div>
-
-            <div class="notice" id="roundMsg" style="display:none;margin-top:10px;"></div>
-
-            <div class="hr"></div>
-
-            <div class="h2" style="margin-top:0;">Last 5 Results</div>
-            <div class="small" style="opacity:.85">All users (even without bet)</div>
-            <div class="last5" id="last5Box">
-              <div class="last5-row"><div class="small">Loading…</div></div>
-            </div>
-
-            <div class="hr"></div>
-            <div class="small">Rule: Bet place hote hi amount minus hota hai. Win pe <b>+2x</b> add hota hai.</div>
+          <div class="wg-progress">
+            <div class="wg-progress-bar" id="wgProgressBar"></div>
           </div>
         </div>
       </div>
 
-      <!-- ===== History (BET HISTORY) ===== -->
-      <div class="card">
-        <div class="card-inner">
-          <div class="row-actions" style="justify-content:space-between;">
-            <div>
-              <div class="h2" style="margin:0;">Game History</div>
-              <div class="small">Last 30 records</div>
-            </div>
-            <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
+      <div class="hr" style="margin:0;"></div>
+
+      <div class="grid two">
+        <!-- LEFT -->
+        <div class="panel">
+          <div class="h2" style="margin-top:0;">Select Bet</div>
+
+          <div class="small" style="margin-bottom:8px;">Color</div>
+          <div class="wg-colors">
+            <button class="wg-color green" id="btnGreen" type="button">Green</button>
+            <button class="wg-color violet" id="btnViolet" type="button">Violet</button>
+            <button class="wg-color red" id="btnRed" type="button">Red</button>
           </div>
 
-          <div style="overflow:auto;margin-top:12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Period</th>
-                  <th>Mode</th>
-                  <th>Bet</th>
-                  <th>Result</th>
-                  <th>Before</th>
-                  <th>After</th>
-                </tr>
-              </thead>
-              <tbody id="histBody"></tbody>
-            </table>
+          <div class="hr"></div>
+
+          <div class="small" style="margin-bottom:8px;">Number (0-9)</div>
+          <div class="wg-numbers" id="numGrid"></div>
+
+          <div class="hr"></div>
+
+          <div class="small" style="margin-bottom:8px;">Big / Small</div>
+          <div class="wg-bs">
+            <button class="wg-bs-btn big" id="btnBig" type="button">Big</button>
+            <button class="wg-bs-btn small" id="btnSmall" type="button">Small</button>
           </div>
         </div>
+
+        <!-- RIGHT -->
+        <div class="panel">
+          <div class="h2" style="margin-top:0;">Place Bet</div>
+
+          <div class="input">
+            <label>Selected Bet</label>
+            <input id="selBet" readonly placeholder="Choose any one option" />
+          </div>
+
+          <div class="input">
+            <label>Bet Amount (min 50)</label>
+            <input id="betAmt" type="number" min="50" placeholder="Enter points" />
+            <div class="small" id="betAmtInr" style="margin-top:6px;">₹0.00</div>
+
+            <div class="chips" id="chipsRow">
+              <button class="chipbtn" type="button" data-chip="50">50</button>
+              <button class="chipbtn" type="button" data-chip="100">100</button>
+              <button class="chipbtn" type="button" data-chip="200">200</button>
+              <button class="chipbtn" type="button" data-chip="500">500</button>
+              <button class="chipbtn" type="button" data-chip="1000">1000</button>
+            </div>
+          </div>
+
+          <div class="row-actions" style="margin-top:12px;">
+            <button class="btn" id="btnBet" type="button">Confirm Bet</button>
+            <button class="btn secondary" id="btnClear" type="button">Clear</button>
+          </div>
+
+          <div class="notice" id="betMsg" style="display:none;margin-top:10px;"></div>
+
+          <div class="hr"></div>
+
+          <div class="h2" style="margin-top:0;">Latest Result</div>
+          <div class="kpi">
+            <div class="box">
+              <div class="label">Number</div>
+              <div class="val" id="resNum">-</div>
+            </div>
+            <div class="box">
+              <div class="label">Color</div>
+              <div class="val" id="resColor">-</div>
+            </div>
+            <div class="box">
+              <div class="label">Big/Small</div>
+              <div class="val" id="resBS">-</div>
+            </div>
+          </div>
+
+          <div class="notice" id="roundMsg" style="display:none;margin-top:10px;"></div>
+
+          <div class="hr"></div>
+
+          <div class="h2" style="margin-top:0;">Last 5 Results</div>
+          <div class="small" style="opacity:.85">All users (even without bet)</div>
+          <div class="last5" id="last5Box">
+            <div class="last5-row"><div class="small">Loading…</div></div>
+          </div>
+
+          <div class="hr"></div>
+          <div class="small">Rule: Bet place hote hi amount minus hota hai. Win pe <b>+2x</b> add hota hai.</div>
+        </div>
       </div>
+    </div>
 
-    </div><!-- /appScreen -->
+    <!-- ===== History (BET HISTORY) ===== -->
+    <div class="card">
+      <div class="card-inner">
+        <div class="row-actions" style="justify-content:space-between;">
+          <div>
+            <div class="h2" style="margin:0;">Game History</div>
+            <div class="small">Last 30 records</div>
+          </div>
+          <button class="btn secondary small" id="btnRefresh" type="button">Refresh</button>
+        </div>
 
-  </div><!-- /container -->
+        <div style="overflow:auto;margin-top:12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Period</th>
+                <th>Mode</th>
+                <th>Bet</th>
+                <th>Result</th>
+                <th>Before</th>
+                <th>After</th>
+              </tr>
+            </thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
   <!-- ===== Result Popup ===== -->
   <div class="pop-backdrop" id="popBack">
@@ -921,15 +696,12 @@
     </div>
   </div>
 
-  <!-- ✅ Firebase SDK (compat) -->
+  <!-- ✅ Firebase SDK FIRST -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
-    /* =========================
-       FIREBASE CONFIG (yours)
-    ========================== */
-    const firebaseConfig = {
+    window.firebaseConfig = {
       apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
       authDomain: "wingo-app-f68dd.firebaseapp.com",
       projectId: "wingo-app-f68dd",
@@ -938,289 +710,136 @@
       appId: "1:533037771285:web:d72372f86108a8379dbc1c",
       measurementId: "G-RJ1XX4FX3W"
     };
+  </script>
 
-    /* =========================
-       SMALL HELPERS
-    ========================== */
-    window.addEventListener("error", function () { document.body.style.visibility = "visible"; });
+  <script src="app.js"></script>
 
-    function fmtINR(n){
+  <script>
+    // ✅ If any error happens, don't keep page hidden
+    window.addEventListener("error", function () {
+      document.body.style.visibility = "visible";
+    });
+
+    function fmtINR(n) {
       n = Number(n || 0);
       return "₹" + n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    function setText(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
-    function showMsg(id, text){ const el=document.getElementById(id); if(el){ el.style.display="block"; el.textContent=text; } }
-    function hideMsg(id){ const el=document.getElementById(id); if(el){ el.style.display="none"; el.textContent=""; } }
-    function pad2(n){ return (n<10?"0":"")+n; }
-    function pad4(n){ return String(n).padStart(4,"0"); }
-    function fmtDate(iso){
-      try{
-        const d = new Date(iso);
-        return d.toLocaleString("en-IN", { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
-      }catch(e){ return iso || "-"; }
-    }
+    function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+    function showMsg(id, text) { var el = document.getElementById(id); if (el) { el.style.display = "block"; el.textContent = text; } }
+    function hideMsg(id) { var el = document.getElementById(id); if (el) { el.style.display = "none"; el.textContent = ""; } }
+    function pad2(n) { return (n < 10 ? "0" : "") + n; }
+    function pad4(n) { return String(n).padStart(4, "0"); }
 
-    /* =========================
-       IST TIME
-    ========================== */
-    function istNow(){
-      const now = new Date();
-      const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    // ===== PERIOD (IST) 30-sec index =====
+    function istNow() {
+      var now = new Date();
+      var utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
       return new Date(utcMs + (5.5 * 3600000));
     }
-    function ymdIST(d){ return "" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()); }
-    function secondsSinceISTMidnight(){
-      const d = istNow();
-      return (d.getHours()*3600) + (d.getMinutes()*60) + d.getSeconds();
+    function ymdIST(d) { return "" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()); }
+    function secondsSinceISTMidnight() {
+      var d = istNow();
+      return (d.getHours() * 3600) + (d.getMinutes() * 60) + d.getSeconds();
+    }
+    function periodFromIstSeconds(secSinceMidnight) {
+      var d = istNow();
+      var idx = Math.floor(secSinceMidnight / 30) + 1; // 1..2880
+      return ymdIST(d) + "-" + pad4(idx);
+    }
+    function currentPeriodIST() { return periodFromIstSeconds(secondsSinceISTMidnight()); }
+    function periodAtOffsetSeconds(offsetSec) {
+      var d = istNow();
+      var base = secondsSinceISTMidnight();
+      var target = base + Number(offsetSec || 0);
+      while (target < 0) { target += 86400; }
+      while (target >= 86400) { target -= 86400; }
+      var idx = Math.floor(target / 30) + 1;
+      return ymdIST(d) + "-" + pad4(idx);
     }
 
-    /* =========================
-       PERIOD (MODE-AWARE)
-       period = YYYYMMDD-M<modeSec>-INDEX
-       index starts 1..(86400/modeSec)
-    ========================== */
-    function currentPeriodIST(modeSec){
-      const d = istNow();
-      const sec = secondsSinceISTMidnight();
-      const idx = Math.floor(sec / modeSec) + 1;
-      return ymdIST(d) + "-M" + modeSec + "-" + pad4(idx);
-    }
-    function periodAtOffset(modeSec, offsetPeriodsBack){
-      // offsetPeriodsBack: 1 means previous period
-      const d = istNow();
-      const sec = secondsSinceISTMidnight();
-      const curIdx = Math.floor(sec / modeSec) + 1;
-      let idx = curIdx - (offsetPeriodsBack||0);
-
-      const max = Math.floor(86400 / modeSec);
-      while(idx < 1) idx += max;
-      while(idx > max) idx -= max;
-
-      return ymdIST(d) + "-M" + modeSec + "-" + pad4(idx);
-    }
-    function remainingInModeBlock(modeSec){
-      const s = secondsSinceISTMidnight();
-      const into = s % modeSec;
-      return (modeSec - into) % modeSec; // 0..modeSec-1
-    }
-
-    /* =========================
-       SHA-256 (WebCrypto)
-    ========================== */
-    async function sha256(str){
-      const enc = new TextEncoder();
-      const buf = await crypto.subtle.digest("SHA-256", enc.encode(str));
-      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-    }
-
-    /* =========================
-       DETERMINISTIC RESULT
-    ========================== */
-    const RESULT_CACHE = {};
-    function numberToColor(n){
+    // ===== Deterministic result for a period (same everywhere) =====
+    var RESULT_CACHE = {};
+    function numberToColor(n) {
       if (n === 0 || n === 5) return "Violet";
       if (n === 1 || n === 3 || n === 7 || n === 9) return "Green";
       return "Red";
     }
-    function numberToBigSmall(n){ return (n >= 5) ? "Big" : "Small"; }
+    function numberToBigSmall(n) { return (n >= 5) ? "Big" : "Small"; }
 
-    async function resultForPeriod(period){
+    async function resultForPeriod(period) {
       if (RESULT_CACHE[period]) return RESULT_CACHE[period];
-      const hex = await sha256(String(period));
-      const n = parseInt(hex.slice(0, 8), 16) % 10;
-      const r = { period, resultNumber:n, resultColor:numberToColor(n), resultBigSmall:numberToBigSmall(n) };
+      if (!window.sha256) throw new Error("sha256 not found (app.js not loaded)");
+      var hex = await sha256(String(period));
+      var n = parseInt(hex.slice(0, 8), 16) % 10;
+      var r = { period: period, resultNumber: n, resultColor: numberToColor(n), resultBigSmall: numberToBigSmall(n) };
       RESULT_CACHE[period] = r;
       return r;
     }
 
-    /* =========================
-       FIRESTORE (single file)
-    ========================== */
-    let db = null;
+    // ===== Game State =====
+    var USER = null;
+    var MODE_SEC = 60;   // 1 min default
+    var remain = 60;
+    var timer = null;
 
-    function initFirebase(){
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-    }
+    var BET_OPEN_SEC = 30;
+    var activeBet = null;
+    var selectedBet = null;
 
-    const SESSION_KEY = "jyra_session_v1";
+    var lastSettledKey = null;
 
-    function saveSession(o){ localStorage.setItem(SESSION_KEY, JSON.stringify(o||{})); }
-    function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||"null"); }catch(e){ return null; } }
-    function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+    function bettingAllowed() { return Number(remain || 0) > (MODE_SEC - BET_OPEN_SEC); }
 
-    async function getUserDoc(clientId){
-      const ref = db.collection("users").doc(String(clientId));
-      const snap = await ref.get();
-      if (!snap.exists) return null;
-      return { id: snap.id, ...snap.data() };
-    }
-
-    async function createUser({clientId, name, password, points}){
-      const id = String(clientId).trim();
-      if (!id) throw new Error("Client ID required");
-      const ref = db.collection("users").doc(id);
-      const snap = await ref.get();
-      if (snap.exists) throw new Error("Client ID already exists");
-
-      const nowIso = new Date().toISOString();
-      await ref.set({
-        clientId: id,
-        name: String(name||"User"),
-        password: String(password||""),
-        role: "user",
-        points: Number(points||0),
-        createdAt: nowIso,
-        updatedAt: nowIso
-      });
-      return true;
-    }
-
-    async function login(clientId, password){
-      const u = await getUserDoc(clientId);
-      if (!u) throw new Error("User not found");
-      if (String(u.password||"") !== String(password||"")) throw new Error("Wrong password");
-      saveSession({ clientId: u.clientId });
-      return u;
-    }
-
-    async function currentUserAsync(){
-      const s = loadSession();
-      if (!s || !s.clientId) return null;
-      return await getUserDoc(s.clientId);
-    }
-
-    async function requireLoginAsync(){
-      const u = await currentUserAsync();
-      if (!u) return null;
-      return u;
-    }
-
-    async function adjustPoints(clientId, delta, reason){
-      const ref = db.collection("users").doc(String(clientId));
-      const d = Number(delta||0);
-
-      try{
-        const res = await db.runTransaction(async (tx)=>{
-          const snap = await tx.get(ref);
-          if (!snap.exists) throw new Error("User missing");
-          const cur = Number(snap.data().points||0);
-          const next = cur + d;
-          if (next < 0) throw new Error("Insufficient points");
-          tx.update(ref, { points: next, updatedAt: new Date().toISOString() });
-          return { before: cur, after: next };
-        });
-        return { ok:true, before: res.before, after: res.after, msg:"OK", reason: reason||"" };
-      }catch(e){
-        return { ok:false, msg: (e && e.message) ? e.message : "Transaction error" };
-      }
-    }
-
-    async function addPlayRow(row){
-      // row: {userId, createdAt, period, modeSec, modeLabel, betType, betValue, betLabel, betAmount, resultNumber, resultColor, resultBigSmall, result, before, after}
-      const ref = db.collection("plays").doc();
-      await ref.set({
-        ...row,
-        createdAt: row.createdAt || new Date().toISOString()
-      });
-      return true;
-    }
-
-    async function playsForUser(userId, limitN){
-      const lim = Number(limitN||30);
-      const q = db.collection("plays")
-        .where("userId", "==", String(userId))
-        .orderBy("createdAt", "desc")
-        .limit(lim);
-
-      const snap = await q.get();
-      return snap.docs.map(d=>({ id:d.id, ...d.data() }));
-    }
-
-    /* =========================
-       GAME STATE
-    ========================== */
-    let USER = null;
-
-    let MODE_SEC = 60;          // 1 min default
-    let remain = 0;
-
-    const BET_OPEN_SEC = 30;    // first 30 seconds open
-    let selectedBet = null;
-    let activeBet = null;
-
-    // To avoid multiple settle per round per mode:
-    let lastSettledPeriod = null;
-
-    function bettingAllowed(){
-      // remain decreases to 0. Open in first BET_OPEN_SEC seconds from start => remain > MODE_SEC - BET_OPEN_SEC
-      return Number(remain||0) > (MODE_SEC - BET_OPEN_SEC);
-    }
-
-    function updateBetWindowUI(){
-      const el = document.getElementById("betWindow");
+    function updateBetWindowUI() {
+      var el = document.getElementById("betWindow");
       if (!el) return;
       if (bettingAllowed()) el.innerHTML = 'Betting: <b class="bet-open">OPEN</b> (first 30 sec)';
       else el.innerHTML = 'Betting: <b class="bet-closed">CLOSED</b> (wait next round)';
     }
 
-    function clearSelectionUI(){
-      document.querySelectorAll(".wg-num, .wg-bs-btn, .wg-color").forEach(x=>x.classList.remove("active"));
+    function clearSelectionUI() {
+      var all = document.querySelectorAll(".wg-num, .wg-bs-btn, .wg-color");
+      for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
     }
 
-    function setSelectedBet(bet){
+    function setSelectedBet(bet) {
       selectedBet = bet;
-      const inp = document.getElementById("selBet");
+      var inp = document.getElementById("selBet");
       if (inp) inp.value = bet ? bet.label : "";
       hideMsg("betMsg");
     }
 
-    function setMode(sec){
-      MODE_SEC = sec;
-      document.getElementById("tab1m").classList.toggle("active", sec===60);
-      document.getElementById("tab3m").classList.toggle("active", sec===180);
+    function setTimerUI(remainSec, totalSec) {
+      remainSec = Math.max(0, Number(remainSec) || 0);
+      totalSec = Math.max(1, Number(totalSec) || 1);
 
-      // Reset round-related state when switching mode (so TP/DT type confusion not happens)
-      // We keep wallet & history.
-      activeBet = null;
-      clearSelectionUI();
-      setSelectedBet(null);
-      const betAmt = document.getElementById("betAmt");
-      if (betAmt) betAmt.value = "";
-      setText("betAmtInr", fmtINR(0));
-      hideMsg("betMsg");
-      hideMsg("roundMsg");
-      lastSettledPeriod = null;
-      renderLast5(); // refresh for mode
-    }
+      var mm = pad2(Math.floor(remainSec / 60));
+      var ss = pad2(remainSec % 60);
 
-    function setTimerUI(remainSec, totalSec){
-      remainSec = Math.max(0, Number(remainSec)||0);
-      totalSec  = Math.max(1, Number(totalSec)||1);
+      var m1 = document.getElementById("tm_m1"), m2 = document.getElementById("tm_m2");
+      var s1 = document.getElementById("tm_s1"), s2 = document.getElementById("tm_s2");
+      if (m1) m1.textContent = mm[0];
+      if (m2) m2.textContent = mm[1];
+      if (s1) s1.textContent = ss[0];
+      if (s2) s2.textContent = ss[1];
 
-      const mm = pad2(Math.floor(remainSec/60));
-      const ss = pad2(remainSec%60);
-
-      setText("tm_m1", mm[0]); setText("tm_m2", mm[1]);
-      setText("tm_s1", ss[0]); setText("tm_s2", ss[1]);
-
-      const done = totalSec - remainSec;
-      const pct = Math.min(100, Math.max(0, (done/totalSec)*100));
-      const bar = document.getElementById("wgProgressBar");
+      var done = totalSec - remainSec;
+      var pct = Math.min(100, Math.max(0, (done / totalSec) * 100));
+      var bar = document.getElementById("wgProgressBar");
       if (bar) bar.style.width = pct + "%";
 
-      const dot = document.getElementById("wgDot");
-      const hint = document.getElementById("wgTimerHint");
-      const status = document.getElementById("wgStatusText");
+      var dot = document.getElementById("wgDot");
+      var hint = document.getElementById("wgTimerHint");
+      var status = document.getElementById("wgStatusText");
 
-      if (remainSec <= 0){
+      if (remainSec <= 0) {
         if (dot) dot.className = "dot dot-end";
         if (status) status.textContent = "ENDED";
         if (hint) hint.textContent = "Result generating…";
         return;
       }
 
-      if (bettingAllowed()){
+      if (bettingAllowed()) {
         if (dot) dot.className = "dot dot-live";
         if (status) status.textContent = "LIVE";
         if (hint) hint.textContent = "Place bets before time ends";
@@ -1231,133 +850,126 @@
       }
     }
 
-    async function renderWallet(){
+    function remainingInModeBlock() {
+      var s = secondsSinceISTMidnight();
+      var into = s % MODE_SEC;
+      return (MODE_SEC - into) % MODE_SEC;
+    }
+
+    async function renderWallet() {
       const me = await currentUserAsync();
       if (!me) return;
       setText("cid", me.clientId || "-");
       setText("nm", me.name || "-");
-      const pts = (typeof me.points === "number") ? me.points : 0;
+      var pts = (typeof me.points === "number") ? me.points : 0;
       setText("pts", String(pts));
       setText("ptsInr", fmtINR(pts));
     }
 
-    async function renderHistory(){
+    async function renderHistory() {
       const me = await currentUserAsync();
       if (!me) return;
 
       const rows = await playsForUser(me.clientId, 30);
-      const tb = document.getElementById("histBody");
+      var tb = document.getElementById("histBody");
       if (!tb) return;
 
-      if (rows.length === 0){
+      if (rows.length === 0) {
         tb.innerHTML = '<tr><td colspan="7" class="small">No history yet.</td></tr>';
         return;
       }
 
-      tb.innerHTML = rows.map(r=>{
-        const resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
-        const resCol = r.resultColor || "-";
-        const resBS  = r.resultBigSmall || "-";
-        return `
-          <tr>
-            <td>${fmtDate(r.createdAt)}</td>
-            <td>${r.period || "-"}</td>
-            <td>${r.modeLabel || "-"}</td>
-            <td>${(r.betLabel || "-")} (${r.betAmount || 0})</td>
-            <td>${resNum} / ${resCol} / ${resBS} (${r.result||"-"})</td>
-            <td>${r.before || 0}</td>
-            <td>${r.after || 0}</td>
-          </tr>
-        `;
+      tb.innerHTML = rows.map(function (r) {
+        var resNum = (r.resultNumber === 0 || r.resultNumber) ? r.resultNumber : "-";
+        var resCol = r.resultColor || "-";
+        var resBS = r.resultBigSmall || "-";
+
+        return "<tr>" +
+          "<td>" + fmtDate(r.createdAt) + "</td>" +
+          "<td>" + (r.period || "-") + "</td>" +
+          "<td>" + (r.modeLabel || "-") + "</td>" +
+          "<td>" + (r.betLabel || "-") + " (" + (r.betAmount || 0) + ")</td>" +
+          "<td>" + (resNum + " / " + resCol + " / " + resBS) + "</td>" +
+          "<td>" + (r.before || 0) + "</td>" +
+          "<td>" + (r.after || 0) + "</td>" +
+          "</tr>";
       }).join("");
     }
 
-    function showResultPopup(o){
-      const back = document.getElementById("popBack");
-      const title = document.getElementById("popTitle");
-      const chips = document.getElementById("popChips");
-      const bonus = document.getElementById("popBonus");
-      const per = document.getElementById("popPeriod");
+    function showResultPopup(o) {
+      var back = document.getElementById("popBack");
+      var title = document.getElementById("popTitle");
+      var chips = document.getElementById("popChips");
+      var bonus = document.getElementById("popBonus");
+      var per = document.getElementById("popPeriod");
 
       if (title) title.textContent = o.win ? "Congratulations" : "Better Luck Next Time";
-      if (chips){
+      if (chips) {
         chips.innerHTML =
-          `<span class="chip">${o.modeLabel || ""}</span>` +
-          `<span class="chip">${o.color}</span>` +
-          `<span class="chip">${o.num}</span>` +
-          `<span class="chip">${o.bs}</span>`;
+          '<span class="chip">Lottery results</span>' +
+          '<span class="chip">' + o.color + '</span>' +
+          '<span class="chip">' + o.num + '</span>' +
+          '<span class="chip">' + o.bs + '</span>';
       }
-      if (bonus){
+      if (bonus) {
         bonus.textContent = o.bonusText || "₹0.00";
         bonus.classList.toggle("lose", !o.win);
       }
       if (per) per.textContent = "Period: " + (o.period || "-");
       if (back) back.style.display = "flex";
     }
-    function hideResultPopup(){
-      const back = document.getElementById("popBack");
+
+    function hideResultPopup() {
+      var back = document.getElementById("popBack");
       if (back) back.style.display = "none";
     }
 
-    async function renderLast5(){
-      const box = document.getElementById("last5Box");
+    async function renderLast5() {
+      var box = document.getElementById("last5Box");
       if (!box) return;
 
-      const periods = [];
-      for (let i=1;i<=5;i++) periods.push(periodAtOffset(MODE_SEC, i));
+      var arr = [];
+      for (var i = 1; i <= 5; i++) arr.push(periodAtOffsetSeconds(-30 * i));
 
-      const rows = [];
-      for (const p of periods) rows.push(await resultForPeriod(p));
+      var rows = [];
+      for (var k = 0; k < arr.length; k++) rows.push(await resultForPeriod(arr[k]));
 
-      box.innerHTML = rows.map(r=>{
-        return `
-          <div class="last5-row">
-            <div class="last5-per">${r.period}</div>
-            <div class="last5-res">${r.resultNumber} / ${r.resultColor} / ${r.resultBigSmall}</div>
-          </div>
-        `;
+      box.innerHTML = rows.map(function (r) {
+        return (
+          "<div class='last5-row'>" +
+            "<div class='last5-per'>" + r.period + "</div>" +
+            "<div class='last5-res'>" + r.resultNumber + " / " + r.resultColor + " / " + r.resultBigSmall + "</div>" +
+          "</div>"
+        );
       }).join("");
     }
 
-    async function settleAtRoundEnd(){
-      if (Number(remain||0) !== 0) return;
+    async function settleAtZeroOnly() {
+      if (Number(remain || 0) !== 0) return;
 
-      // ended period is previous one
-      const endedPeriod = periodAtOffset(MODE_SEC, 1);
-      if (lastSettledPeriod === endedPeriod) return;
-      lastSettledPeriod = endedPeriod;
+      var key = ymdIST(istNow()) + "|" + MODE_SEC + "|" + secondsSinceISTMidnight();
+      if (lastSettledKey === key) return;
+      lastSettledKey = key;
 
-      const r = await resultForPeriod(endedPeriod);
+      var endedPeriod = periodAtOffsetSeconds(-1);
+      var r = await resultForPeriod(endedPeriod);
 
       setText("resNum", String(r.resultNumber));
       setText("resColor", r.resultColor);
       setText("resBS", r.resultBigSmall);
 
-      // If no bet this round
-      if (!activeBet){
+      if (!activeBet) {
         showMsg("roundMsg", "Round ended. No bet placed.");
-        showResultPopup({
-          win:false,
-          period: endedPeriod,
-          modeLabel: (MODE_SEC===60?"1 Min":"3 Min"),
-          num:r.resultNumber, color:r.resultColor, bs:r.resultBigSmall,
-          bonusText: fmtINR(0)
-        });
+        showResultPopup({ win: false, period: endedPeriod, num: r.resultNumber, color: r.resultColor, bs: r.resultBigSmall, bonusText: fmtINR(0) });
         return;
       }
 
-      // If bet exists but somehow different period/mode => still settle on its own period for fairness
-      const settlePeriod = activeBet.period || endedPeriod;
-      const rr = (settlePeriod === endedPeriod) ? r : await resultForPeriod(settlePeriod);
+      var isWin = false;
+      if (activeBet.type === "color") isWin = (String(activeBet.value).toLowerCase() === String(r.resultColor).toLowerCase());
+      if (activeBet.type === "number") isWin = (Number(activeBet.value) === Number(r.resultNumber));
+      if (activeBet.type === "bs") isWin = (String(activeBet.value).toLowerCase() === String(r.resultBigSmall).toLowerCase());
 
-      let isWin = false;
-      if (activeBet.type === "color")  isWin = String(activeBet.value).toLowerCase() === String(rr.resultColor).toLowerCase();
-      if (activeBet.type === "number") isWin = Number(activeBet.value) === Number(rr.resultNumber);
-      if (activeBet.type === "bs")     isWin = String(activeBet.value).toLowerCase() === String(rr.resultBigSmall).toLowerCase();
-
-      if (isWin){
-        await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)");
-      }
+      if (isWin) await adjustPoints(USER.clientId, activeBet.amount * 2, "Win reward (2x)", null);
 
       const me = await currentUserAsync();
       const after = me ? (me.points || 0) : 0;
@@ -1372,9 +984,9 @@
         betValue: activeBet.value,
         betLabel: activeBet.label,
         betAmount: activeBet.amount,
-        resultNumber: rr.resultNumber,
-        resultColor: rr.resultColor,
-        resultBigSmall: rr.resultBigSmall,
+        resultNumber: r.resultNumber,
+        resultColor: r.resultColor,
+        resultBigSmall: r.resultBigSmall,
         result: isWin ? "WIN" : "LOSE",
         before: activeBet.beforePoints,
         after: after
@@ -1384,253 +996,157 @@
       await renderWallet();
       await renderHistory();
 
-      const bonusVal = isWin ? (activeBet.amount * 2) : (-activeBet.amount);
+      var bonusVal = isWin ? (activeBet.amount * 2) : (-activeBet.amount);
       showResultPopup({
-        win:isWin,
+        win: isWin,
         period: endedPeriod,
-        modeLabel: (MODE_SEC===60?"1 Min":"3 Min"),
-        num: rr.resultNumber,
-        color: rr.resultColor,
-        bs: rr.resultBigSmall,
+        num: r.resultNumber,
+        color: r.resultColor,
+        bs: r.resultBigSmall,
         bonusText: (bonusVal < 0 ? ("-" + fmtINR(Math.abs(bonusVal))) : fmtINR(bonusVal))
       });
 
       activeBet = null;
     }
 
-    async function confirmBet(){
+    async function confirmBet() {
       const me = await currentUserAsync();
       if (!me) return;
 
-      if (!bettingAllowed()){ showMsg("betMsg", "Betting closed for this round. Wait next round."); return; }
+      if (!bettingAllowed()) { showMsg("betMsg", "Betting closed for this round. Wait next round."); return; }
 
-      const betAmtEl = document.getElementById("betAmt");
-      const amt = Number(betAmtEl ? betAmtEl.value : 0);
+      var amt = Number(document.getElementById("betAmt").value);
 
       if (!selectedBet) return showMsg("betMsg", "Please select Color / Number / Big-Small.");
       if (!amt || amt < 50) return showMsg("betMsg", "Minimum bet is 50.");
       if (amt > (me.points || 0)) return showMsg("betMsg", "Insufficient wallet points.");
       if (activeBet) return showMsg("betMsg", "You already placed bet in this round.");
 
-      const before = me.points || 0;
-
-      const r = await adjustPoints(me.clientId, -amt, "Bet entry (" + selectedBet.label + ")");
+      var before = me.points || 0;
+      var r = await adjustPoints(me.clientId, -amt, "Bet entry (" + selectedBet.label + ")", null);
       if (!r || !r.ok) return showMsg("betMsg", (r && r.msg) ? r.msg : "Bet failed");
 
-      activeBet = {
-        type: selectedBet.type,
-        value: selectedBet.value,
-        label: selectedBet.label,
-        amount: amt,
-        period: currentPeriodIST(MODE_SEC),
-        modeSec: MODE_SEC,
-        beforePoints: before
-      };
+      activeBet = { type: selectedBet.type, value: selectedBet.value, label: selectedBet.label, amount: amt, period: currentPeriodIST(), modeSec: MODE_SEC, beforePoints: before };
 
       showMsg("betMsg", "Bet placed: " + selectedBet.label + " (" + amt + "). Wait for result.");
       await renderWallet();
     }
 
-    /* =========================
-       AUTH UI HANDLERS
-    ========================== */
-    function showAuth(msg){
-      document.getElementById("authScreen").style.display = "block";
-      document.getElementById("appScreen").style.display = "none";
-      const lo = document.getElementById("btnLogout");
-      if (lo) lo.style.display = "none";
-      if (msg) showMsg("authMsg", msg);
-      else hideMsg("authMsg");
-    }
-    function showApp(){
-      document.getElementById("authScreen").style.display = "none";
-      document.getElementById("appScreen").style.display = "block";
-      const lo = document.getElementById("btnLogout");
-      if (lo) lo.style.display = "inline-flex";
-    }
-
-    async function doLogout(){
-      clearSession();
-      USER = null;
-      showAuth("Logged out.");
-    }
-
-    async function doLogin(){
-      hideMsg("authMsg");
-      const id = (document.getElementById("loginId").value || "").trim();
-      const pw = (document.getElementById("loginPw").value || "");
-      if (!id || !pw) return showMsg("authMsg", "Enter Client ID & Password");
-
-      try{
-        await login(id, pw);
-        await boot();
-      }catch(e){
-        showMsg("authMsg", (e && e.message) ? e.message : "Login failed");
+    function setMode(sec) {
+      MODE_SEC = sec;
+      var t1 = document.getElementById("tab1m");
+      var t3 = document.getElementById("tab3m");
+      if (t1 && t3) {
+        if (sec === 60) { t1.classList.add("active"); t3.classList.remove("active"); }
+        else { t3.classList.add("active"); t1.classList.remove("active"); }
       }
     }
 
-    async function doRegister(){
-      hideMsg("authMsg");
-      const name = (document.getElementById("regName").value || "").trim();
-      const id   = (document.getElementById("regId").value || "").trim();
-      const pw   = (document.getElementById("regPw").value || "");
-      const pts  = Number(document.getElementById("regPts").value || 0);
+    document.addEventListener("DOMContentLoaded", async function () {
+      try {
+        USER = await requireLoginAsync();
+        if (!USER) { document.body.style.visibility = "visible"; return; }
 
-      if (!name || !id || !pw) return showMsg("authMsg", "Name, Client ID & Password required");
-
-      try{
-        await createUser({ clientId:id, name, password:pw, points:pts });
-        showMsg("authMsg", "Account created! Now login.");
-        document.getElementById("regBox").style.display = "none";
-      }catch(e){
-        showMsg("authMsg", (e && e.message) ? e.message : "Register failed");
-      }
-    }
-
-    /* =========================
-       BOOT / BINDINGS
-    ========================== */
-    let mainTimer = null;
-    let walletTimer = null;
-
-    async function boot(){
-      USER = await requireLoginAsync();
-      if (!USER){
-        showAuth();
         document.body.style.visibility = "visible";
-        return;
-      }
 
-      showApp();
-      document.body.style.visibility = "visible";
+        if (USER.role === "admin") { window.location.replace("admin.html"); return; }
 
-      // Build number grid once
-      const grid = document.getElementById("numGrid");
-      if (grid && !grid.dataset.ready){
-        let html="";
-        for(let i=0;i<=9;i++) html += `<button class="wg-num" type="button" data-num="${i}">${i}</button>`;
-        grid.innerHTML = html;
-        grid.dataset.ready="1";
-      }
+        var lo = document.getElementById("btnLogout");
+        if (lo) lo.onclick = logout;
 
-      // Selection handlers
-      const g = document.getElementById("btnGreen");
-      const v = document.getElementById("btnViolet");
-      const rr = document.getElementById("btnRed");
-      g.onclick  = ()=>{ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); g.classList.add("active"); setSelectedBet({type:"color", value:"Green",  label:"Color: Green"}); };
-      v.onclick  = ()=>{ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); v.classList.add("active"); setSelectedBet({type:"color", value:"Violet", label:"Color: Violet"}); };
-      rr.onclick = ()=>{ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); rr.classList.add("active"); setSelectedBet({type:"color", value:"Red",    label:"Color: Red"}); };
+        var ok = document.getElementById("popOk");
+        if (ok) ok.onclick = hideResultPopup;
 
-      grid.addEventListener("click",(e)=>{
-        const b = e.target.closest(".wg-num");
-        if(!b) return;
-        if(activeBet) return showMsg("betMsg","Bet already placed. Wait result.");
-        const n = Number(b.getAttribute("data-num"));
-        clearSelectionUI();
-        b.classList.add("active");
-        setSelectedBet({type:"number", value:n, label:"Number: " + n});
-      });
+        var back = document.getElementById("popBack");
+        if (back) back.addEventListener("click", function (e) { if (e.target === back) hideResultPopup(); });
 
-      const bb = document.getElementById("btnBig");
-      const bs = document.getElementById("btnSmall");
-      bb.onclick = ()=>{ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); bb.classList.add("active"); setSelectedBet({type:"bs", value:"Big",   label:"Big"}); };
-      bs.onclick = ()=>{ if(activeBet) return showMsg("betMsg","Bet already placed. Wait result."); clearSelectionUI(); bs.classList.add("active"); setSelectedBet({type:"bs", value:"Small", label:"Small"}); };
+        var t1 = document.getElementById("tab1m");
+        var t3 = document.getElementById("tab3m");
+        if (t1) t1.onclick = function () { setMode(60); };
+        if (t3) t3.onclick = function () { setMode(180); };
 
-      // Mode tabs
-      document.getElementById("tab1m").onclick = ()=> setMode(60);
-      document.getElementById("tab3m").onclick = ()=> setMode(180);
+        var g = document.getElementById("btnGreen");
+        var v = document.getElementById("btnViolet");
+        var rr = document.getElementById("btnRed");
 
-      // Bet amount inr
-      const betAmt = document.getElementById("betAmt");
-      betAmt.addEventListener("input", ()=> setText("betAmtInr", fmtINR(Number(betAmt.value||0))));
+        if (g) g.onclick = function () { if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({ type: "color", value: "Green", label: "Color: Green" }); };
+        if (v) v.onclick = function () { if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({ type: "color", value: "Violet", label: "Color: Violet" }); };
+        if (rr) rr.onclick = function () { if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({ type: "color", value: "Red", label: "Color: Red" }); };
 
-      // Chips
-      document.getElementById("chipsRow").addEventListener("click",(e)=>{
-        const b = e.target.closest(".chipbtn"); if(!b) return;
-        const val = Number(b.getAttribute("data-chip")||0);
-        betAmt.value = String(val);
-        setText("betAmtInr", fmtINR(val));
-      });
+        var grid = document.getElementById("numGrid");
+        if (grid) {
+          var html = "";
+          for (var i = 0; i <= 9; i++) html += '<button class="wg-num" type="button" data-num="' + i + '">' + i + '</button>';
+          grid.innerHTML = html;
 
-      // Actions
-      document.getElementById("btnBet").onclick = confirmBet;
-      document.getElementById("btnClear").onclick = ()=>{
-        if(activeBet) return showMsg("betMsg","Bet already placed. Wait result.");
-        clearSelectionUI();
-        setSelectedBet(null);
-        betAmt.value="";
-        setText("betAmtInr", fmtINR(0));
-        hideMsg("betMsg");
-      };
-      document.getElementById("btnRefresh").onclick = async ()=>{
+          grid.addEventListener("click", function (e) {
+            var b = e.target.closest(".wg-num");
+            if (!b) return;
+            if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+            var n = Number(b.getAttribute("data-num"));
+            clearSelectionUI();
+            b.classList.add("active");
+            setSelectedBet({ type: "number", value: n, label: "Number: " + n });
+          });
+        }
+
+        var bb = document.getElementById("btnBig");
+        var bs = document.getElementById("btnSmall");
+        if (bb) bb.onclick = function () { if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({ type: "bs", value: "Big", label: "Big" }); };
+        if (bs) bs.onclick = function () { if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result."); clearSelectionUI(); this.classList.add("active"); setSelectedBet({ type: "bs", value: "Small", label: "Small" }); };
+
+        var betAmt = document.getElementById("betAmt");
+        if (betAmt) betAmt.addEventListener("input", function () { setText("betAmtInr", fmtINR(Number(this.value || 0))); });
+
+        var chipsRow = document.getElementById("chipsRow");
+        if (chipsRow) chipsRow.addEventListener("click", function (e) {
+          var b = e.target.closest(".chipbtn");
+          if (!b) return;
+          var val = Number(b.getAttribute("data-chip") || 0);
+          if (betAmt) { betAmt.value = String(val); setText("betAmtInr", fmtINR(val)); }
+        });
+
+        var btnBet = document.getElementById("btnBet");
+        var btnClear = document.getElementById("btnClear");
+        var btnRefresh = document.getElementById("btnRefresh");
+
+        if (btnBet) btnBet.onclick = confirmBet;
+
+        if (btnClear) btnClear.onclick = function () {
+          if (activeBet) return showMsg("betMsg", "Bet already placed. Wait result.");
+          clearSelectionUI();
+          setSelectedBet(null);
+          if (betAmt) betAmt.value = "";
+          setText("betAmtInr", fmtINR(0));
+          hideMsg("betMsg");
+        };
+
+        if (btnRefresh) btnRefresh.onclick = async function () {
+          await renderWallet();
+          await renderHistory();
+          await renderLast5();
+        };
+
         await renderWallet();
         await renderHistory();
-        await renderLast5();
-      };
+        setMode(60);
 
-      // Popup
-      document.getElementById("popOk").onclick = hideResultPopup;
-      document.getElementById("popBack").addEventListener("click",(e)=>{
-        if(e.target === document.getElementById("popBack")) hideResultPopup();
-      });
+        if (timer) clearInterval(timer);
+        timer = setInterval(async function () {
+          remain = remainingInModeBlock();
+          setText("periodId", currentPeriodIST());
+          setTimerUI(remain, MODE_SEC);
+          updateBetWindowUI();
+          if (remain % 2 === 0) await renderLast5();
+          await settleAtZeroOnly();
+        }, 500);
 
-      // Logout
-      document.getElementById("btnLogout").onclick = doLogout;
+        setInterval(renderWallet, 1500);
 
-      // First render
-      await renderWallet();
-      await renderHistory();
-      setMode(60);
-
-      // Timers
-      if (mainTimer) clearInterval(mainTimer);
-      mainTimer = setInterval(async ()=>{
-        remain = remainingInModeBlock(MODE_SEC);
-        setText("periodId", currentPeriodIST(MODE_SEC));
-        setTimerUI(remain, MODE_SEC);
-        updateBetWindowUI();
-
-        // last 5 results refresh (every 2 seconds)
-        if ((Date.now()/1000|0) % 2 === 0) await renderLast5();
-
-        await settleAtRoundEnd();
-      }, 500);
-
-      if (walletTimer) clearInterval(walletTimer);
-      walletTimer = setInterval(renderWallet, 1500);
-    }
-
-    /* =========================
-       DOM READY
-    ========================== */
-    document.addEventListener("DOMContentLoaded", async ()=>{
-      try{
-        initFirebase();
-
-        // Auth screen buttons
-        document.getElementById("btnLogin").onclick = doLogin;
-        document.getElementById("btnShowReg").onclick = ()=>{
-          document.getElementById("regBox").style.display="block";
-          hideMsg("authMsg");
-        };
-        document.getElementById("btnHideReg").onclick = ()=>{
-          document.getElementById("regBox").style.display="none";
-          hideMsg("authMsg");
-        };
-        document.getElementById("btnRegister").onclick = doRegister;
-
-        // Try boot
-        await boot();
-
-        // If not logged in, show auth
-        if (!await currentUserAsync()){
-          showAuth();
-          document.body.style.visibility = "visible";
-        }
-      }catch(e){
+      } catch (e) {
         console.error(e);
         document.body.style.visibility = "visible";
-        alert("App error: " + (e && e.message ? e.message : e));
+        alert("Game error: " + (e && e.message ? e.message : e));
       }
     });
   </script>
