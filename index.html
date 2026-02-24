@@ -1,94 +1,579 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>JYRA</title>
-    <link rel="icon" type="image/x-icon" href="images/logo.png">
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JYRA</title>
+
+  <!-- ✅ Keep same paths -->
+  <link rel="icon" type="image/x-icon" href="images/logo.png">
+
+  <style>
+    :root{
+      --bg:#05060a;
+      --glass: rgba(18, 22, 38, .55);
+      --glass2: rgba(10, 14, 28, .65);
+      --line: rgba(255,255,255,.12);
+      --text:#ffffff;
+      --muted: rgba(255,255,255,.72);
+
+      --green:#19d37a;
+      --green2:#10b981;
+
+      --gold:#d4af37;
+      --goldSoft: rgba(212,175,55,.22);
+
+      --violet:#9b5cff;
+      --violetSoft: rgba(155,92,255,.18);
+
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --shadow2: 0 10px 40px rgba(0,0,0,.35);
+
+      --r20: 20px;
+      --r16: 16px;
+
+      --max: 1180px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      color:var(--text);
+      background: var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* ===== Background (✅ path required) ===== */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(1100px 700px at 60% 35%, rgba(19, 234, 255, .12), transparent 60%),
+        radial-gradient(900px 650px at 25% 55%, rgba(155, 92, 255, .10), transparent 62%),
+        radial-gradient(800px 600px at 80% 70%, rgba(212, 175, 55, .12), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.75)),
+        url("bg-desktop-4k.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat:no-repeat;
+      filter: saturate(1.05) contrast(1.05);
+      z-index:-3;
+    }
+
+    /* subtle stars */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-200px;
+      background:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.25), transparent 60%),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.18), transparent 60%),
+        radial-gradient(1.6px 1.6px at 70% 30%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,.12), transparent 60%);
+      opacity:.55;
+      z-index:-2;
+      pointer-events:none;
+      animation: drift 14s linear infinite;
+    }
+    @keyframes drift{
+      0%{transform:translateY(0)}
+      100%{transform:translateY(35px)}
+    }
+
+    .container{
+      width:min(var(--max), calc(100% - 40px));
+      margin:0 auto;
+    }
+
+    /* ===== Top Nav ===== */
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.22));
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 120px;
+    }
+
+    .logo{
+      height:56px;
+      width:auto;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.6));
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      padding: 26px 0 18px;
+    }
+
+    .heroCard{
+      position:relative;
+      border-radius: calc(var(--r20) + 6px);
+      padding: 26px;
+      background: linear-gradient(180deg, rgba(8,10,18,.55), rgba(10,12,22,.35));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .heroCard::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(700px 240px at 35% 10%, rgba(155,92,255,.18), transparent 60%),
+                  radial-gradient(800px 260px at 75% 25%, rgba(25,211,122,.16), transparent 60%),
+                  radial-gradient(900px 260px at 50% 80%, rgba(212,175,55,.12), transparent 60%);
+      z-index:0;
+      pointer-events:none;
+    }
+
+    .heroInner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns: 1.25fr .9fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .welcomeTitle{
+      font-size: 48px;
+      line-height:1.05;
+      margin: 8px 0 10px;
+      letter-spacing:.2px;
+      text-shadow: 0 16px 30px rgba(0,0,0,.55);
+    }
+    .welcomeTitle span{
+      color: var(--green);
+      text-shadow: 0 16px 35px rgba(25,211,122,.20);
+    }
+
+    .subline{
+      color: rgba(255,255,255,.78);
+      font-size: 18px;
+      margin: 0 0 18px;
+    }
+    .subline .dot{opacity:.6}
+    .subline strong{color:#fff}
+
+    .glassBox{
+      background: linear-gradient(180deg, rgba(20,24,40,.52), rgba(12,16,30,.38));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--r16);
+      padding: 16px 16px;
+      box-shadow: var(--shadow2);
+    }
+
+    .authRow{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .lock{
+      width:38px;height:38px;
+      border-radius:12px;
+      display:grid;place-items:center;
+      background: rgba(212,175,55,.14);
+      border:1px solid rgba(212,175,55,.35);
+      box-shadow: 0 16px 30px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .lock svg{width:20px;height:20px;fill: var(--gold)}
+    .authTitle{
+      font-weight:800;
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .authText{
+      margin:6px 0 0;
+      color: var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .heroActions{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    /* ===== Right panel: How it works ===== */
+    .howPanel{
+      position:relative;
+      padding:16px 16px 14px;
+    }
+
+    .howHead{
+      font-size:20px;
+      margin:0 0 12px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    .step{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+    .step + .step{margin-top:10px}
+
+    .badge{
+      width:34px;height:34px;
+      border-radius:999px;
+      display:grid;place-items:center;
+      background: rgba(25,211,122,.16);
+      border: 1px solid rgba(25,211,122,.32);
+      box-shadow: 0 14px 24px rgba(0,0,0,.25);
+      flex:0 0 auto;
+      font-weight:900;
+      color:#c9ffe7;
+    }
+    .step h4{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .step p{
+      margin:3px 0 0;
+      font-size:12.8px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    /* ===== Big Logo area ===== */
+    .bigLogoWrap{
+      margin-top:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 8px 0 6px;
+    }
+    .bigLogo{
+      width:min(520px, 100%);
+      height:auto;
+      filter: drop-shadow(0 22px 35px rgba(0,0,0,.65));
+      opacity:1;
+    }
+
+    /* ===== Stats bar ===== */
+    .statsBar{
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(12,16,30,.58), rgba(8,10,18,.38));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    .stat{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .ico{
+      width:34px;height:34px;
+      border-radius: 14px;
+      display:grid;place-items:center;
+      background: rgba(155,92,255,.14);
+      border: 1px solid rgba(155,92,255,.28);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      flex:0 0 auto;
+    }
+    .ico svg{width:18px;height:18px;fill:#e7d7ff}
+    .stat b{
+      display:block;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .stat span{
+      display:block;
+      margin-top:2px;
+      font-size:12.5px;
+      color: var(--muted);
+    }
+
+    /* ===== Bottom slogan ===== */
+    .slogan{
+      margin-top: 14px;
+      text-align:center;
+      font-weight:900;
+      letter-spacing:.3px;
+      padding: 14px 10px 2px;
+      color: rgba(255,255,255,.82);
+      text-shadow: 0 12px 25px rgba(0,0,0,.55);
+    }
+    .slogan em{
+      font-style:normal;
+      color: var(--gold);
+    }
+
+    /* ===== Buttons ===== */
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight:900;
+      letter-spacing:.2px;
+      color:#062313;
+      background: linear-gradient(180deg, #26f0a0, #0fb777);
+      box-shadow: 0 18px 40px rgba(16,185,129,.22), 0 10px 28px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.14);
+      transition: transform .12s ease, filter .12s ease;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); filter: brightness(1.02)}
+    .btn:active{transform: translateY(0px); filter: brightness(.98)}
+    .btn.small{padding: 10px 14px; font-size: 13px}
+
+    .btn.secondary{
+      color:#fff;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+
+    .btn .arrow{
+      width:18px;height:18px;
+      display:inline-grid;place-items:center;
+      border-radius:999px;
+      background: rgba(0,0,0,.14);
+    }
+    .btn.secondary .arrow{background: rgba(255,255,255,.10)}
+    .btn svg{width:14px;height:14px;fill: currentColor}
+
+    /* ===== Responsive ===== */
+    @media (max-width: 980px){
+      .heroInner{grid-template-columns: 1fr}
+      .welcomeTitle{font-size:42px}
+      .logo{height:52px}
+      .statsBar{grid-template-columns:1fr; gap:10px}
+      .bigLogoWrap{margin-top:14px}
+    }
+    @media (max-width: 520px){
+      .container{width:calc(100% - 26px)}
+      .heroCard{padding:18px}
+      .welcomeTitle{font-size:34px}
+      .subline{font-size:15px}
+      .logo{height:48px}
+      .btn{width:100%}
+      .heroActions{gap:8px}
+    }
+
+    /* helper */
+    .row-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  </style>
 </head>
 
 <body>
-    <!-- ===== Header ===== -->
-    <div class="nav">
-        <div class="container">
-            <div class="row header-row">
 
-                <div class="brand">
-                    <a href="index.html">
-                        <img src="logo.png" alt="Logo" class="logo">
-                    </a>
-                </div>
-
-                <div class="row-actions" id="topActions">
-                    <a href="login.html" class="btn small">Login</a>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== Main ===== -->
+  <!-- ===== Header ===== -->
+  <div class="nav">
     <div class="container">
-        <div class="grid two">
-            <div class="card">
-                <div class="h1">Welcome</div>
-                <p class="p">
-                    Is website me sirf authorized users hi login kar sakte hain. Account create karna public ke liye band hai. ID/Password admin provide karega.
+      <div class="header-row">
+
+        <div class="brand">
+          <a href="index.html" aria-label="Home">
+            <!-- ✅ Keep logo path same -->
+            <img src="logo.png" alt="JYRA Logo" class="logo">
+          </a>
+        </div>
+
+        <!-- ✅ Same id: topActions (your old JS uses it) -->
+        <div class="row-actions" id="topActions">
+          <a href="login.html" class="btn small">Login</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main ===== -->
+  <div class="container hero">
+    <div class="heroCard">
+      <div class="heroInner">
+
+        <!-- Left -->
+        <div>
+          <div class="welcomeTitle">Welcome to <span>JYRA</span></div>
+          <div class="subline">
+            <strong>Play Smart</strong> <span class="dot">•</span> Earn Points <span class="dot">•</span> Win Big!
+          </div>
+
+          <div class="glassBox">
+            <div class="authRow">
+              <div class="lock" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3H9Zm3 5a2 2 0 0 1 1 3.732V19a1 1 0 1 1-2 0v-1.268A2 2 0 0 1 12 14Z"/>
+                </svg>
+              </div>
+
+              <div>
+                <p class="authTitle">Only Authorized Users Can Login</p>
+                <p class="authText">
+                  Account creation is disabled. ID &amp; Password are provided by Admin.
                 </p>
 
-                <div class="row-actions">
-                    <a class="btn" href="login.html">Go to Login</a>
+                <div class="heroActions">
+                  <a class="btn" href="login.html">
+                    Go to Login
+                    <span class="arrow" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M13.2 5.2a1 1 0 0 0 0 1.4L17.6 11H5a1 1 0 1 0 0 2h12.6l-4.4 4.4a1 1 0 1 0 1.4 1.4l6.1-6.1a1.5 1.5 0 0 0 0-2.1l-6.1-6.1a1 1 0 0 0-1.4 0Z"/></svg>
+                    </span>
+                  </a>
                 </div>
+              </div>
+            </div>
+          </div>
 
-                <div class="hr"></div>
+          <!-- Big logo area -->
+          <div class="bigLogoWrap">
+            <!-- ✅ If your big logo is same file, keep same path.
+                 If you want different image, just replace src but keep file in same folder. -->
+            <img src="logo.png" alt="JYRA" class="bigLogo">
+          </div>
 
-                <div class="notice">
-                    🔥 Your skills decide your success. Start playing, manage your points wisely, and turn strategy into victory.
-                </div>
+          <!-- Stats -->
+          <div class="statsBar">
+            <div class="stat">
+              <div class="ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm-4 6c-4.418 0-8 2.015-8 4.5V23h16v-1.5c0-2.485-3.582-4.5-8-4.5Zm9-5h-3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2Z"/></svg>
+              </div>
+              <div>
+                <b>10K+</b>
+                <span>Active Users</span>
+              </div>
             </div>
 
-            <div class="card">
-                <div class="h2">How it works</div>
-                <ul class="p">
-                    <li>Admin panel se admin client ID banayega</li>
-                    <li>Admin client ko ID + password dega</li>
-                    <li>Client sirf login karke game open karega</li>
-                </ul>
-                <div class="notice small">Note: Demo localStorage par chal raha hai.</div>
+            <div class="stat">
+              <div class="ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 11a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm-3 8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.414l-2.707 2.707A1 1 0 0 1 3 21.999V19h2Zm0-2h2a1 1 0 0 1 1 1v.586l1.293-1.293A1 1 0 0 1 10 17h9V7H5v10Z"/></svg>
+              </div>
+              <div>
+                <b>25K+</b>
+                <span>Games Played</span>
+              </div>
             </div>
+
+            <div class="stat">
+              <div class="ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2l2.917 6.26 6.83.61-5.165 4.51 1.54 6.62L12 16.9 5.878 20l1.54-6.62L2.253 8.87l6.83-.61L12 2Z"/></svg>
+              </div>
+              <div>
+                <b>5★</b>
+                <span>Trusted Platform</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="slogan">
+            « Master the Game, <em>Elevate Your Skills</em>, Achieve Greatness! »
+          </div>
         </div>
+
+        <!-- Right -->
+        <div class="glassBox howPanel">
+          <div class="howHead">How It Works</div>
+
+          <div class="step">
+            <div class="badge">1</div>
+            <div>
+              <h4>Admin Creates ID</h4>
+              <p>From Admin Panel</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="badge">2</div>
+            <div>
+              <h4>Admin Shares</h4>
+              <p>ID + Password to Client</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="badge">3</div>
+            <div>
+              <h4>Client Logs In</h4>
+              <p>And Starts Playing</p>
+            </div>
+          </div>
+
+          <div style="margin-top:12px; color:rgba(255,255,255,.70); font-size:12.5px;">
+            Note: Demo localStorage par chal raha hai.
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 
-    <script src="app.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof currentUser !== "function") return;
+  <!-- ✅ Keep your external JS so functions break na ho -->
+  <script src="app.js"></script>
 
-            var u = currentUser();
-            if (!u) return;
+  <!-- ✅ Same logic as your old page (topActions/login/logout/open) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof currentUser !== "function") return;
 
-            var top = document.getElementById("topActions");
-            if (!top) return;
+      var u = currentUser();
+      if (!u) return;
 
-            // Render buttons
-            top.innerHTML =
-                '<button class="btn secondary small" id="btnLogoutTop" type="button">Logout</button>' +
-                '<a class="btn small" style="margin-left:8px;" href="' +
-                (u.role === "admin" ? "admin.html" : "game.html") +
-                '">Open</a>';
+      var top = document.getElementById("topActions");
+      if (!top) return;
 
-            // Logout bind (SAFE)
-            var lo = document.getElementById("btnLogoutTop");
-            if (lo) {
-                lo.addEventListener("click", function() {
-                    logout();
-                });
-            }
+      top.innerHTML =
+        '<button class="btn secondary small" id="btnLogoutTop" type="button">Logout</button>' +
+        '<a class="btn small" style="margin-left:8px;" href="' +
+        (u.role === "admin" ? "admin.html" : "game.html") +
+        '">Open</a>';
+
+      var lo = document.getElementById("btnLogoutTop");
+      if (lo) {
+        lo.addEventListener("click", function () {
+          if (typeof logout === "function") logout();
         });
-    </script>
+      }
+    });
+  </script>
 </body>
-
-
 </html>
