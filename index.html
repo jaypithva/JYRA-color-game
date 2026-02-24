@@ -2,44 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>JYRA</title>
-  <link rel="icon" type="image/x-icon" href="logo-1.png" />
+
+  <!-- ✅ Use logo-1 everywhere -->
+  <link rel="icon" type="image/png" href="images/logo-1.png" />
 
   <style>
     :root{
-      --bg1:#05060a;
-      --bg2:#0a1030;
-      --glass: rgba(255,255,255,.08);
-      --glass2: rgba(0,0,0,.30);
-      --stroke: rgba(255,255,255,.14);
+      --bg:#070812;
+      --panel: rgba(10,12,22,.62);
+      --panel2: rgba(10,12,22,.40);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
 
       --gold:#d4af37;
-      --gold2:#ffcc4a;
-      --green:#22c55e;
-      --teal:#10b981;
-      --cyan:#22d3ee;
+      --gold2:#ffda6a;
 
-      --text:#ffffff;
-      --muted: rgba(255,255,255,.75);
+      --green:#19d57d;
+      --green2:#0fb46a;
 
-      --shadow: 0 22px 70px rgba(0,0,0,.60);
-      --radius: 22px;
-      --radius2: 18px;
-      --max: 1200px;
+      --teal:#27e2d0;
+      --purple:#a855f7;
+
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 16px 40px rgba(0,0,0,.45);
+
+      --r16:16px;
+      --r20:20px;
+      --r24:24px;
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(34,211,238,.18), transparent 55%),
-        radial-gradient(900px 500px at 80% 25%, rgba(34,197,94,.12), transparent 55%),
-        radial-gradient(900px 650px at 50% 100%, rgba(212,175,55,.18), transparent 60%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
+      background: radial-gradient(1200px 600px at 25% 20%, rgba(39,226,208,.16), transparent 60%),
+                  radial-gradient(900px 500px at 80% 25%, rgba(168,85,247,.18), transparent 58%),
+                  radial-gradient(900px 700px at 50% 90%, rgba(212,175,55,.12), transparent 60%),
+                  linear-gradient(180deg, #03030b 0%, #070812 40%, #060613 100%);
       overflow-x:hidden;
     }
 
@@ -47,726 +51,610 @@
     body:before{
       content:"";
       position:fixed; inset:0;
-      background-image:
-        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.18) 40%, transparent 41%),
-        radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,.12) 40%, transparent 41%),
-        radial-gradient(2px 2px at 65% 25%, rgba(255,255,255,.16) 40%, transparent 41%),
-        radial-gradient(1px 1px at 80% 55%, rgba(255,255,255,.10) 40%, transparent 41%),
-        radial-gradient(1px 1px at 55% 75%, rgba(255,255,255,.12) 40%, transparent 41%),
-        radial-gradient(2px 2px at 20% 75%, rgba(255,255,255,.12) 40%, transparent 41%);
-      opacity:.8;
+      background:
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.55) 45%, transparent 55%),
+        radial-gradient(1px 1px at 65% 18%, rgba(255,255,255,.45) 45%, transparent 55%),
+        radial-gradient(1px 1px at 35% 68%, rgba(255,255,255,.35) 45%, transparent 55%),
+        radial-gradient(2px 2px at 82% 62%, rgba(255,255,255,.40) 45%, transparent 55%),
+        radial-gradient(1px 1px at 78% 40%, rgba(255,255,255,.30) 45%, transparent 55%);
+      opacity:.55;
       pointer-events:none;
-      filter: blur(.2px);
+      mix-blend-mode:screen;
     }
 
-    .wrap{
-      width:min(var(--max), calc(100% - 40px));
+    /* =========================
+       Layout
+    ========================= */
+    .wrap{min-height:100vh; display:flex; flex-direction:column}
+    .container{
+      width:min(1200px, calc(100% - 40px));
       margin:0 auto;
     }
 
-    /* ===== top nav ===== */
+    /* =========================
+       Header / Nav
+    ========================= */
     .nav{
       position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.20));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.18));
       border-bottom:1px solid rgba(255,255,255,.10);
     }
-    .navInner{
+    .header-row{
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 0;
       gap:14px;
     }
+
     .brand{
-      display:flex; align-items:center; gap:10px;
-      text-decoration:none; color:inherit;
+      display:flex; align-items:center; gap:12px;
+      min-width:160px;
     }
-    .brand img{
-      height:44px; width:auto;
-      filter: drop-shadow(0 10px 24px rgba(0,0,0,.7));
+    .logo{
+      height:44px;
+      width:auto;
+      filter: drop-shadow(0 10px 26px rgba(212,175,55,.18));
     }
 
+    /* =========================
+       Buttons
+    ========================= */
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
       gap:10px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.10);
-      color:var(--text);
-      padding:12px 18px;
+      padding:12px 16px;
       border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(25,213,125,.95), rgba(15,180,106,.92));
+      color:#062713;
+      font-weight:800;
       text-decoration:none;
-      font-weight:700;
-      letter-spacing:.2px;
-      transition: transform .15s ease, background .15s ease, border-color .15s ease;
-      box-shadow: 0 14px 40px rgba(0,0,0,.30);
+      box-shadow: 0 16px 44px rgba(25,213,125,.20);
+      cursor:pointer;
       user-select:none;
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
       white-space:nowrap;
     }
-    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22)}
-    .btn:active{transform: translateY(0)}
-    .btn.green{
-      background: linear-gradient(180deg, rgba(34,197,94,.95), rgba(16,185,129,.85));
-      border-color: rgba(34,197,94,.55);
-      box-shadow: 0 18px 60px rgba(34,197,94,.16);
-    }
-    .btn.green:hover{background: linear-gradient(180deg, rgba(34,197,94,1), rgba(16,185,129,.92))}
-    .btn.small{padding:10px 16px; font-size:14px}
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.02); box-shadow:0 18px 50px rgba(25,213,125,.25)}
+    .btn:active{ transform: translateY(0px) scale(.99) }
 
-    /* ===== hero board ===== */
-    .hero{
-      padding:26px 0 34px;
+    .btn.small{ padding:10px 14px; font-size:14px; font-weight:800 }
+    .btn.secondary{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      color: rgba(255,255,255,.92);
+      box-shadow: none;
     }
 
-    .board{
+    .btn .ico{
+      width:18px; height:18px; display:inline-block;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
       position:relative;
-      border-radius:28px;
+    }
+    .btn .ico:before{
+      content:"";
+      position:absolute; inset:4px 5px 4px 5px;
+      border-radius:6px;
+      border:2px solid rgba(255,255,255,.85);
+      border-top-color:transparent;
+      border-left-color:transparent;
+      transform: rotate(45deg);
+      opacity:.9;
+    }
+
+    /* =========================
+       Hero
+    ========================= */
+    .hero{
+      padding:34px 0 26px;
+    }
+
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .card{
+      position:relative;
+      border-radius: var(--r24);
+      background: linear-gradient(180deg, rgba(10,12,22,.62), rgba(10,12,22,.40));
       border:1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(800px 340px at 15% 20%, rgba(34,211,238,.12), transparent 60%),
-        radial-gradient(900px 450px at 85% 30%, rgba(34,197,94,.10), transparent 65%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.28));
       box-shadow: var(--shadow);
       overflow:hidden;
+    }
+
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(600px 260px at 30% 10%, rgba(212,175,55,.18), transparent 65%),
+                  radial-gradient(600px 260px at 80% 30%, rgba(39,226,208,.14), transparent 60%),
+                  radial-gradient(700px 260px at 50% 90%, rgba(168,85,247,.13), transparent 62%);
+      pointer-events:none;
+      opacity:.9;
+      filter: blur(0px);
+    }
+
+    .cardInner{
+      position:relative;
       padding:22px;
     }
 
-    /* glowing corners */
-    .board:before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(220px 220px at 20% 15%, rgba(212,175,55,.35), transparent 60%),
-        radial-gradient(260px 260px at 85% 20%, rgba(34,197,94,.22), transparent 60%),
-        radial-gradient(300px 240px at 50% 110%, rgba(34,211,238,.18), transparent 60%);
-      pointer-events:none;
-      opacity:.9;
-      filter: blur(2px);
-    }
-
-    /* floating gems */
-    .gem{
-      position:absolute;
-      width:14px; height:14px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(34,197,94,.55) 45%, rgba(0,0,0,0) 70%);
-      border-radius:6px;
-      transform: rotate(25deg);
-      filter: drop-shadow(0 10px 20px rgba(34,197,94,.20));
-      opacity:.85;
-      pointer-events:none;
-    }
-    .gem.g1{top:84px; left:56%; animation: floaty 5.8s ease-in-out infinite}
-    .gem.g2{top:210px; left:78%; width:10px;height:10px; animation: floaty 6.8s ease-in-out infinite}
-    .gem.g3{top:140px; left:34%; width:9px;height:9px; opacity:.65; animation: floaty 7.6s ease-in-out infinite}
-
-    @keyframes floaty{
-      0%,100%{transform: translateY(0) rotate(25deg)}
-      50%{transform: translateY(-10px) rotate(18deg)}
-    }
-
-    .topRow{
-      position:relative;
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap:18px;
-      z-index:1;
-    }
-
-    .panel{
-      border-radius: var(--radius);
-      border:1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.40));
-      box-shadow: 0 18px 55px rgba(0,0,0,.40);
-      padding:18px;
-      backdrop-filter: blur(10px);
-    }
-
     .welcomeTitle{
-      margin:6px 0 4px;
-      font-size: clamp(28px, 4.2vw, 44px);
-      font-weight:900;
-      letter-spacing:.2px;
-      line-height:1.08;
+      margin:0;
+      font-size:44px;
+      line-height:1.05;
+      letter-spacing:.3px;
+      text-shadow:0 14px 55px rgba(0,0,0,.60);
     }
     .welcomeTitle .jyra{
-      color: rgba(34,197,94,1);
-      text-shadow: 0 10px 28px rgba(34,197,94,.12);
-    }
-    .subline{
-      color: rgba(255,255,255,.84);
-      font-weight:700;
-      margin:0 0 14px;
-      opacity:.95;
-    }
-    .subline span{
-      color: rgba(255,255,255,.65);
-      font-weight:700;
+      color: var(--green);
+      font-weight:900;
+      text-shadow: 0 12px 40px rgba(25,213,125,.18);
     }
 
-    .lockCard{
-      display:flex; gap:12px; align-items:flex-start;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      padding:14px 14px;
-      margin-top:10px;
+    .subline{
+      margin:10px 0 18px;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .subline .dot{ opacity:.55; padding:0 6px }
+
+    .authBox{
+      display:flex; gap:14px;
+      padding:16px 16px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.30);
+      box-shadow: var(--shadow2);
+      align-items:flex-start;
+      margin:18px 0 18px;
     }
     .lock{
-      width:38px; height:38px; flex:0 0 auto;
-      border-radius:12px;
-      background: rgba(212,175,55,.18);
-      border:1px solid rgba(212,175,55,.35);
+      width:44px; height:44px; flex:0 0 44px;
+      border-radius:14px;
       display:grid; place-items:center;
-      box-shadow: 0 18px 45px rgba(212,175,55,.10);
+      background: rgba(212,175,55,.13);
+      border:1px solid rgba(212,175,55,.22);
+      box-shadow: 0 14px 32px rgba(0,0,0,.35);
     }
-    .lock svg{width:18px;height:18px; fill:rgba(255,225,150,.95)}
-    .lockCard b{display:block; margin-bottom:4px}
-    .lockCard p{margin:0; color:rgba(255,255,255,.75); line-height:1.35}
+    .lock svg{ width:22px; height:22px; fill: var(--gold2); }
 
-    /* big center logo area */
-    .bigLogoArea{
-      position:relative;
-      margin-top:18px;
-      border-radius: 24px;
-      padding:18px 18px 8px;
-      min-height: 220px;
-      display:flex; align-items:flex-end; justify-content:center;
-      overflow:hidden;
+    .authBox h3{
+      margin:0 0 6px;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .authBox p{
+      margin:0;
+      color: var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .ctaRow{ display:flex; gap:12px; align-items:center; margin:8px 0 10px }
+    .hr{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      margin:18px 0 14px;
+    }
+
+    .notice{
+      padding:12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.82);
+      font-size:14px;
+      line-height:1.55;
+    }
+    .notice.small{ font-size:13px; opacity:.95 }
+
+    /* Big logo / stage area like screenshot */
+    .stage{
+      margin-top:14px;
+      border-radius: 18px;
       border:1px solid rgba(255,255,255,.10);
       background:
-        radial-gradient(500px 240px at 50% 70%, rgba(212,175,55,.20), transparent 65%),
-        linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.42));
-    }
-    .bigLogoArea:before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(220px 120px at 16% 85%, rgba(212,175,55,.20), transparent 70%),
-        radial-gradient(240px 140px at 86% 88%, rgba(255,255,255,.10), transparent 70%);
-      opacity:.9;
-      pointer-events:none;
-    }
-    .bigLogo{
+        radial-gradient(400px 180px at 50% 20%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(420px 200px at 30% 40%, rgba(39,226,208,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      padding:18px;
       position:relative;
+      overflow:hidden;
+    }
+    .stage:after{
+      content:"";
+      position:absolute; left:0; right:0; bottom:-40px; height:120px;
+      background: radial-gradient(55% 75% at 50% 50%, rgba(212,175,55,.22), transparent 70%);
+      pointer-events:none;
+      opacity:.85;
+    }
+
+    .bigLogo{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      padding:8px 0 4px;
+    }
+    .bigLogo img{
       width:min(520px, 90%);
       height:auto;
-      filter: drop-shadow(0 20px 55px rgba(0,0,0,.75));
-      z-index:1;
-      opacity:1;
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,.70))
+              drop-shadow(0 14px 40px rgba(212,175,55,.16));
+      user-select:none;
+      -webkit-user-drag:none;
     }
 
-    /* fake platform + dice */
-    .platform{
-      position:absolute;
-      bottom:18px; left:50%;
-      transform: translateX(-50%);
-      width: min(520px, 92%);
-      height: 84px;
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.55));
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: 0 22px 60px rgba(0,0,0,.55);
-      opacity:.75;
-      z-index:0;
-    }
-    .dice{
-      position:absolute;
-      width:42px; height:42px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.18);
-      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.55));
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-      bottom: 28px;
-      z-index:2;
-    }
-    .dice:before, .dice:after{
-      content:"";
-      position:absolute;
-      width:6px;height:6px;border-radius:50%;
-      background: rgba(255,255,255,.85);
-      box-shadow:
-        10px 10px 0 rgba(255,255,255,.85),
-        20px 20px 0 rgba(255,255,255,.85);
-      top:10px; left:10px;
-      opacity:.9;
-    }
-    .dice.d1{left: calc(50% + 190px); transform: rotate(10deg)}
-    .dice.d2{
-      left: calc(50% + 238px);
-      bottom: 18px;
-      width:38px;height:38px;
-      transform: rotate(-12deg);
-      opacity:.9;
-    }
-
-    /* ===== right how it works ===== */
-    .h2{
-      margin:0 0 12px;
-      font-size:20px;
-      letter-spacing:.2px;
+    /* Right panel "How it works" */
+    .rightTitle{
+      display:flex;
+      align-items:center;
+      justify-content:center;
       font-weight:900;
-      text-align:center;
+      letter-spacing:.4px;
+      font-size:22px;
+      margin:0 0 14px;
+      text-shadow: 0 16px 60px rgba(0,0,0,.60);
     }
+
     .steps{
       display:flex; flex-direction:column; gap:12px;
-      margin: 6px 0 0;
-      padding:0; list-style:none;
+      margin-top:10px;
     }
+
     .step{
-      display:flex; gap:12px; align-items:flex-start;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding:12px;
+      display:flex; gap:12px;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      align-items:center;
     }
-    .badge{
-      width:28px;height:28px;
+    .stepNum{
+      width:30px; height:30px; flex:0 0 30px;
       border-radius:999px;
       display:grid; place-items:center;
       font-weight:900;
-      background: rgba(34,197,94,.18);
-      border:1px solid rgba(34,197,94,.35);
-      color: rgba(255,255,255,.95);
-      box-shadow: 0 18px 55px rgba(34,197,94,.10);
-      flex:0 0 auto;
-      margin-top:2px;
+      color:#052315;
+      background: linear-gradient(180deg, rgba(25,213,125,.95), rgba(15,180,106,.92));
+      box-shadow: 0 14px 40px rgba(25,213,125,.18);
     }
-    .step b{display:block; margin:0 0 3px}
-    .step small{display:block; color:rgba(255,255,255,.72); line-height:1.35}
-
-    /* ===== stats + footer line ===== */
-    .statsBar{
-      position:relative;
-      margin-top:18px;
-      border-radius: 20px;
+    .stepIcon{
+      width:38px; height:38px; flex:0 0 38px;
+      border-radius: 14px;
       border:1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.40));
-      padding:12px 14px;
+      background: rgba(255,255,255,.06);
+      display:grid; place-items:center;
+    }
+    .stepIcon svg{ width:18px; height:18px; fill: rgba(255,255,255,.90) }
+    .stepText strong{ display:block; font-size:14px; letter-spacing:.2px }
+    .stepText span{ display:block; font-size:13px; color: var(--muted); margin-top:2px }
+
+    /* =========================
+       Stats Bar (bottom)
+    ========================= */
+    .statsWrap{
+      margin-top:18px;
+    }
+    .stats{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
-      gap:10px;
-      z-index:1;
-      backdrop-filter: blur(10px);
+      gap:12px;
+      padding:12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      box-shadow: var(--shadow2);
     }
     .stat{
-      display:flex; align-items:center; gap:10px;
-      padding:10px 10px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      min-height: 56px;
-    }
-    .ico{
-      width:40px;height:40px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.07);
-      display:grid; place-items:center;
-      box-shadow: 0 18px 55px rgba(0,0,0,.35);
-      flex:0 0 auto;
-    }
-    .ico svg{width:18px;height:18px; fill: rgba(255,255,255,.88)}
-    .stat .num{font-weight:900; font-size:18px; line-height:1}
-    .stat .lbl{color:rgba(255,255,255,.72); font-weight:700; font-size:12px; margin-top:2px}
-
-    .footerLine{
-      margin-top:14px;
-      text-align:center;
-      font-weight:900;
-      letter-spacing:.3px;
-      color: rgba(255,255,255,.86);
-      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 12px;
       border-radius: 16px;
       border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .stat .sIco{
+      width:42px; height:42px; flex:0 0 42px;
+      border-radius: 16px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.25);
     }
-    .footerLine .gold{color: var(--gold2); text-shadow: 0 18px 45px rgba(212,175,55,.18)}
-    .chev{opacity:.7}
-
-    /* ===== phone preview (right side, like poster) ===== */
-    .phoneWrap{
-      margin-top: 16px;
-      display:grid;
-      grid-template-columns: 1fr 360px;
-      gap: 16px;
-      align-items: start;
+    .stat .sIco svg{ width:22px; height:22px; fill: rgba(255,255,255,.86) }
+    .stat .sVal{
+      font-weight:900;
+      font-size:22px;
+      line-height:1.1;
+    }
+    .stat .sLbl{
+      color: var(--muted);
+      font-size:13px;
+      margin-top:2px;
+      font-weight:700;
+      letter-spacing:.1px;
     }
 
-    .phone{
-      border-radius: 36px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.30);
-      box-shadow: 0 30px 90px rgba(0,0,0,.70);
-      padding: 12px;
-      position:relative;
-      overflow:hidden;
-    }
-    .phone:before{
-      content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,0));
-      pointer-events:none;
-      opacity:.6;
-    }
-    .phoneTop{
-      height: 18px;
-      display:flex; justify-content:center;
-      margin-bottom: 8px;
-    }
-    .notch{
-      width: 120px; height: 18px;
-      background: rgba(0,0,0,.55);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 999px;
-      box-shadow: 0 16px 50px rgba(0,0,0,.55);
-    }
-
-    .phoneScreen{
-      border-radius: 26px;
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(550px 280px at 50% 15%, rgba(34,211,238,.14), transparent 60%),
-        radial-gradient(520px 280px at 50% 70%, rgba(212,175,55,.18), transparent 62%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.45));
-      padding: 16px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .phoneLogoTop{
-      width: 120px;
-      margin: 6px auto 10px;
-      display:block;
-      filter: drop-shadow(0 14px 40px rgba(0,0,0,.75));
-    }
-    .phoneTitle{
-      text-align:center;
-      font-weight: 900;
-      font-size: 18px;
-      margin: 2px 0 6px;
-    }
-    .phoneTitle .jyra{color: rgba(34,197,94,1)}
-    .phoneSub{
+    .tagline{
+      margin:16px 0 0;
       text-align:center;
       color: rgba(255,255,255,.78);
-      font-weight: 800;
-      font-size: 12px;
-      margin:0 0 10px;
+      font-weight:900;
+      letter-spacing:.2px;
+      padding:12px 14px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      box-shadow: var(--shadow2);
     }
+    .tagline .hi{ color: var(--gold2); text-shadow: 0 14px 40px rgba(212,175,55,.14); }
 
-    .phoneLock{
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.30);
-      padding: 12px;
-      display:flex;
-      gap: 10px;
-      align-items:flex-start;
-    }
-    .phoneLock b{font-size: 12px}
-    .phoneLock p{margin:2px 0 0; font-size: 11px; color: rgba(255,255,255,.72); line-height:1.35}
-    .phoneBtnRow{
-      margin-top: 12px;
+    .taglineRow{
       display:flex;
       justify-content:center;
+      padding-bottom:26px;
     }
-    .phoneBtn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      padding: 11px 16px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(34,197,94,1), rgba(16,185,129,.88));
-      border: 1px solid rgba(34,197,94,.55);
-      font-weight: 900;
-      text-decoration:none;
-      color: #0b1b12;
-      box-shadow: 0 18px 60px rgba(34,197,94,.18);
-      min-width: 170px;
-    }
-    .phoneBtn span{color: rgba(255,255,255,.92)}
-    .phoneLogoBottom{
-      width: 210px;
-      margin: 14px auto 10px;
-      display:block;
-      filter: drop-shadow(0 18px 55px rgba(0,0,0,.80));
-    }
-    .phoneStats{
-      margin-top: 8px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.26);
-      padding: 10px;
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .phoneStat{
-      display:flex; gap:8px; align-items:center;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding: 8px;
-    }
-    .phoneStat .n{font-weight: 900; font-size: 12px; line-height:1}
-    .phoneStat .t{font-size: 9px; color: rgba(255,255,255,.70); font-weight: 800; margin-top:2px}
 
-    .phoneFooter{
-      margin-top: 10px;
-      text-align:center;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.24);
-      padding: 8px 10px;
-      font-weight: 900;
-      font-size: 12px;
-      color: rgba(255,255,255,.85);
-    }
-    .phoneFooter small{display:block; font-weight:800; font-size: 10px; color: rgba(255,255,255,.70); margin-top:2px}
-
-    /* ===== responsive ===== */
+    /* =========================
+       Responsiveness (mobile)
+    ========================= */
     @media (max-width: 980px){
-      .topRow{grid-template-columns: 1fr; }
-      .phoneWrap{grid-template-columns: 1fr;}
-      .phone{max-width: 420px; margin: 0 auto;}
-      .dice{display:none;}
+      .welcomeTitle{ font-size:38px }
+      .heroGrid{ grid-template-columns: 1fr; }
+      .brand{ min-width:auto }
+      .stats{ grid-template-columns: 1fr; }
+      .bigLogo img{ width:min(420px, 92%) }
     }
+
     @media (max-width: 520px){
-      .wrap{width: calc(100% - 26px)}
-      .board{padding:16px}
-      .statsBar{grid-template-columns: 1fr; }
-      .btn.small{padding:10px 14px}
-      .brand img{height:40px}
-      .bigLogoArea{min-height: 200px}
+      .container{ width: calc(100% - 24px); }
+      .header-row{ padding:12px 0 }
+      .logo{ height:40px }
+      .welcomeTitle{ font-size:30px }
+      .subline{ font-size:14px }
+      .btn{ padding:11px 14px }
+      .cardInner{ padding:16px }
+      .authBox{ padding:14px }
+      .stat .sVal{ font-size:20px }
+      .tagline{ font-size:13px; padding:10px 12px }
     }
   </style>
 </head>
 
 <body>
-  <!-- ===== NAV ===== -->
-  <div class="nav">
-    <div class="wrap">
-      <div class="navInner">
-        <a class="brand" href="index.html" aria-label="JYRA Home">
-          <img src="logo-1.png" alt="JYRA Logo" />
-        </a>
+  <div class="wrap">
 
-        <div id="topActions">
-          <a class="btn green small" href="login.html">
-            <!-- user icon -->
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="rgba(255,255,255,.92)" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4.5A1.5 1.5 0 0 0 5.5 20h13A1.5 1.5 0 0 0 20 18.5C20 16 16.42 14 12 14Z"/>
-            </svg>
-            Login
-          </a>
+    <!-- ===== Header ===== -->
+    <div class="nav">
+      <div class="container">
+        <div class="header-row">
+
+          <div class="brand">
+            <a href="index.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+              <!-- ✅ logo-1 -->
+              <img src="images/logo-1.png" alt="JYRA Logo" class="logo">
+            </a>
+          </div>
+
+          <div id="topActions" style="display:flex; align-items:center; gap:10px;">
+            <a href="login.html" class="btn small">
+              <span class="ico" aria-hidden="true"></span>
+              Login
+            </a>
+          </div>
+
         </div>
       </div>
     </div>
+
+    <!-- ===== Main / Hero ===== -->
+    <main class="hero">
+      <div class="container">
+        <div class="heroGrid">
+
+          <!-- LEFT: Welcome -->
+          <section class="card">
+            <div class="cardInner">
+              <h1 class="welcomeTitle">Welcome to <span class="jyra">JYRA</span></h1>
+              <div class="subline">
+                Play Smart<span class="dot">•</span>Earn Points<span class="dot">•</span>Win Big!
+              </div>
+
+              <div class="authBox">
+                <div class="lock" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm3 9.73V18a1 1 0 1 1-2 0v-1.27a2 2 0 1 1 2 0Z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Only Authorized Users Can Login</h3>
+                  <p>
+                    Account creation is disabled. ID &amp; Password are provided by Admin.
+                  </p>
+                </div>
+              </div>
+
+              <div class="ctaRow">
+                <a class="btn" href="login.html">Go to Login</a>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="notice">
+                🔥 Your skills decide your success. Start playing, manage your points wisely, and turn strategy into victory.
+              </div>
+
+              <!-- Big logo stage (desktop design jaisa feel) -->
+              <div class="stage" style="margin-top:16px;">
+                <div class="bigLogo">
+                  <!-- ✅ logo-1 again (center big) -->
+                  <img src="images/logo-1.png" alt="JYRA Big Logo" />
+                </div>
+              </div>
+
+              <!-- Stats + tagline under left card (like screenshot feel) -->
+              <div class="statsWrap">
+                <div class="stats">
+                  <div class="stat">
+                    <div class="sIco" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3ZM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h7v-2.5c0-2.33-4.67-3.5-7-3.5Z"/></svg>
+                    </div>
+                    <div>
+                      <div class="sVal">10K+</div>
+                      <div class="sLbl">Active Users</div>
+                    </div>
+                  </div>
+
+                  <div class="stat">
+                    <div class="sIco" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M7 6h10a2 2 0 0 1 2 2v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8a2 2 0 0 1 2-2Zm2 12h6v2H9v-2Z"/></svg>
+                    </div>
+                    <div>
+                      <div class="sVal">25K+</div>
+                      <div class="sLbl">Games Played</div>
+                    </div>
+                  </div>
+
+                  <div class="stat">
+                    <div class="sIco" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                    <div>
+                      <div class="sVal">5★</div>
+                      <div class="sLbl">Trusted Platform</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="taglineRow">
+                <div class="tagline">
+                  « <span>Master the Game,</span> <span class="hi">Elevate Your Skills,</span> <span>Achieve Greatness!</span> »
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- RIGHT: How it works -->
+          <aside class="card">
+            <div class="cardInner">
+              <div class="rightTitle">How It Works</div>
+
+              <div class="steps">
+                <div class="step">
+                  <div class="stepNum">1</div>
+                  <div class="stepIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.74 8 11 4.6-1.26 8-6 8-11V5l-8-3Zm0 19.3C8.53 20.14 6 16.5 6 11.5V6.3l6-2.25 6 2.25v5.2c0 5-2.53 8.64-6 9.8Z"/></svg>
+                  </div>
+                  <div class="stepText">
+                    <strong>Admin Creates ID</strong>
+                    <span>From Admin Panel</span>
+                  </div>
+                </div>
+
+                <div class="step">
+                  <div class="stepNum">2</div>
+                  <div class="stepIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5L4 8V6l8 5 8-5v2Z"/></svg>
+                  </div>
+                  <div class="stepText">
+                    <strong>Admin Shares</strong>
+                    <span>ID + Password to Client</span>
+                  </div>
+                </div>
+
+                <div class="step">
+                  <div class="stepNum">3</div>
+                  <div class="stepIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M10 17 15 12 10 7v10Zm11-5a2 2 0 0 1-2 2h-2v4H7v-4H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4Z"/></svg>
+                  </div>
+                  <div class="stepText">
+                    <strong>Client Logs In</strong>
+                    <span>And Starts Playing</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;" class="notice small">
+                Note: Demo localStorage par chal raha hai.
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="notice">
+                ✅ Tip: Admin ID share kare, client sirf login kare. Public signup disabled rahe.
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </main>
+
   </div>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero">
-    <div class="wrap">
-      <div class="board">
-        <div class="gem g1"></div><div class="gem g2"></div><div class="gem g3"></div>
-
-        <div class="topRow">
-          <!-- LEFT -->
-          <div class="panel">
-            <div class="welcomeTitle">
-              Welcome to <span class="jyra">JYRA</span>
-            </div>
-            <div class="subline">
-              Play Smart <span>•</span> Earn Points <span>•</span> Win Big!
-            </div>
-
-            <div class="lockCard">
-              <div class="lock" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4Z"/>
-                </svg>
-              </div>
-              <div>
-                <b>Only Authorized Users Can Login</b>
-                <p>
-                  Account creation is disabled. ID &amp; Password are provided by Admin.
-                </p>
-              </div>
-            </div>
-
-            <div class="bigLogoArea" aria-label="JYRA big logo section">
-              <div class="platform" aria-hidden="true"></div>
-              <div class="dice d1" aria-hidden="true"></div>
-              <div class="dice d2" aria-hidden="true"></div>
-              <img class="bigLogo" src="logo-1.png" alt="JYRA Logo Large" />
-            </div>
-
-            <div class="statsBar" role="group" aria-label="Platform stats">
-              <div class="stat">
-                <div class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.57 2.99-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11Zm-8 0c1.66 0 3-1.57 3-3.5S9.66 4 8 4S5 5.57 5 7.5S6.34 11 8 11Zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05c1.16.84 1.97 1.96 1.97 3.45V20h6v-3.5C23 14.17 18.33 13 16 13Z"/></svg>
-                </div>
-                <div>
-                  <div class="num">10K+</div>
-                  <div class="lbl">Active Users</div>
-                </div>
-              </div>
-
-              <div class="stat">
-                <div class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Zm-1 2h-4v2H8v2h2v2h4v-2h2v-2h-2Z"/></svg>
-                </div>
-                <div>
-                  <div class="num">25K+</div>
-                  <div class="lbl">Games Played</div>
-                </div>
-              </div>
-
-              <div class="stat">
-                <div class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="m12 17.27l5.18 3.12l-1.64-5.81L20 10.5l-5.9-.5L12 4.5L9.9 10L4 10.5l4.46 4.08L6.82 20.4Z"/></svg>
-                </div>
-                <div>
-                  <div class="num">5★</div>
-                  <div class="lbl">Trusted Platform</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="footerLine">
-              <span class="chev">«</span>
-              Master the Game, <span class="gold">Elevate Your Skills</span>, Achieve Greatness!
-              <span class="chev">»</span>
-            </div>
-          </div>
-
-          <!-- RIGHT -->
-          <div class="panel">
-            <div class="h2">How It Works</div>
-
-            <ul class="steps">
-              <li class="step">
-                <div class="badge">1</div>
-                <div>
-                  <b>Admin Creates ID</b>
-                  <small>From Admin Panel</small>
-                </div>
-              </li>
-              <li class="step">
-                <div class="badge">2</div>
-                <div>
-                  <b>Admin Shares</b>
-                  <small>ID + Password to Client</small>
-                </div>
-              </li>
-              <li class="step">
-                <div class="badge">3</div>
-                <div>
-                  <b>Client Logs In</b>
-                  <small>And Starts Playing</small>
-                </div>
-              </li>
-            </ul>
-
-            <div style="height:14px"></div>
-
-            <!-- right side phone preview like your image -->
-            <div class="phone">
-              <div class="phoneTop"><div class="notch"></div></div>
-
-              <div class="phoneScreen">
-                <img class="phoneLogoTop" src="logo-1.png" alt="JYRA Logo" />
-                <div class="phoneTitle">Welcome to <span class="jyra">JYRA</span></div>
-                <div class="phoneSub">Play Smart • Earn Points • Win Big!</div>
-
-                <div class="phoneLock">
-                  <div class="lock" aria-hidden="true" style="width:34px;height:34px;border-radius:12px">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4Z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <b>Only Authorized Users Can Login</b>
-                    <p>Account creation is disabled. ID &amp; Password are provided by Admin.</p>
-                  </div>
-                </div>
-
-                <div class="phoneBtnRow">
-                  <a class="phoneBtn" href="login.html">
-                    <span>Go to Login</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                      <path fill="rgba(255,255,255,.92)" d="M10 17l5-5l-5-5v10z"/>
-                    </svg>
-                  </a>
-                </div>
-
-                <img class="phoneLogoBottom" src="logo-1.png" alt="JYRA Logo Large" />
-
-                <div class="phoneStats">
-                  <div class="phoneStat">
-                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
-                      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.57 2.99-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11Zm-8 0c1.66 0 3-1.57 3-3.5S9.66 4 8 4S5 5.57 5 7.5S6.34 11 8 11Z"/></svg>
-                    </div>
-                    <div>
-                      <div class="n">10K+</div>
-                      <div class="t">Active Users</div>
-                    </div>
-                  </div>
-                  <div class="phoneStat">
-                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
-                      <svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Z"/></svg>
-                    </div>
-                    <div>
-                      <div class="n">25K+</div>
-                      <div class="t">Games Played</div>
-                    </div>
-                  </div>
-                  <div class="phoneStat">
-                    <div class="ico" aria-hidden="true" style="width:30px;height:30px;border-radius:12px">
-                      <svg viewBox="0 0 24 24"><path d="m12 17.27l5.18 3.12l-1.64-5.81L20 10.5l-5.9-.5L12 4.5Z"/></svg>
-                    </div>
-                    <div>
-                      <div class="n">5★</div>
-                      <div class="t">Trusted</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="phoneFooter">
-                  Strategize • Play • <span style="color:var(--gold2)">Conquer!</span>
-                  <small>Only the Best Rise to the Top!</small>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <script>
-    // OPTIONAL: If you already have currentUser/logout functions in other pages,
-    // you can paste them here too. For now, just UI swap demo with localStorage.
-    // (No external file needed.)
+    /* =========================================================
+       Minimal auth demo (localStorage) so header can switch:
+       - If user logged in: show Logout + Open (admin/game)
+       - Else: show Login
+       NOTE: Replace with your real Firebase/app.js logic later.
+    ========================================================= */
+
+    const SESSION_KEY = "jyra_session_v1";
 
     function currentUser(){
-      try { return JSON.parse(localStorage.getItem("jyra_user") || "null"); }
+      try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
       catch(e){ return null; }
     }
-    function logout(){
-      localStorage.removeItem("jyra_user");
-      location.reload();
+
+    function setUser(u){
+      localStorage.setItem(SESSION_KEY, JSON.stringify(u));
     }
 
-    document.addEventListener("DOMContentLoaded", function(){
-      var u = currentUser();
-      if(!u) return;
+    function logout(){
+      localStorage.removeItem(SESSION_KEY);
+      location.href = "index.html";
+    }
 
-      var top = document.getElementById("topActions");
+    // OPTIONAL quick demo login (remove if you have login.html)
+    // setUser({ role:"admin", name:"Admin" });
+
+    document.addEventListener("DOMContentLoaded", function(){
+      const top = document.getElementById("topActions");
       if(!top) return;
 
-      top.innerHTML =
-        '<button class="btn small" id="btnLogoutTop" type="button">Logout</button>' +
-        '<a class="btn green small" style="margin-left:10px" href="' +
-        (u.role === "admin" ? "admin.html" : "game.html") + '">Open</a>';
+      const u = currentUser();
+      if(!u){
+        top.innerHTML = `
+          <a href="login.html" class="btn small">
+            <span class="ico" aria-hidden="true"></span>
+            Login
+          </a>
+        `;
+        return;
+      }
 
-      var lo = document.getElementById("btnLogoutTop");
+      const openLink = (u.role === "admin") ? "admin.html" : "game.html";
+
+      top.innerHTML = `
+        <button class="btn secondary small" id="btnLogoutTop" type="button">Logout</button>
+        <a class="btn small" style="margin-left:8px;" href="${openLink}">Open</a>
+      `;
+
+      const lo = document.getElementById("btnLogoutTop");
       if(lo) lo.addEventListener("click", logout);
     });
   </script>
