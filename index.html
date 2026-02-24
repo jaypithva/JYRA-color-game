@@ -10,21 +10,25 @@
 
   <style>
     :root{
-      --green:#1fd37a;
-      --green2:#11b36a;
-      --text:#fff;
-      --muted:rgba(255,255,255,.72);
+      --green:#17d07a;
+      --greenDeep:#10b36b;
 
-      --glass: rgba(18, 22, 38, .55);
-      --glass2: rgba(10, 14, 28, .60);
-      --line: rgba(255,255,255,.12);
+      --bg:#05060a;
+      --text:#fff;
+      --muted: rgba(255,255,255,.70);
+
+      --glass: rgba(16, 20, 34, .55);
+      --glass2: rgba(12, 16, 28, .55);
+      --stroke: rgba(255,255,255,.10);
 
       --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --shadow2: 0 10px 35px rgba(0,0,0,.38);
+      --shadow2: 0 12px 35px rgba(0,0,0,.35);
 
       --r18:18px;
+      --r16:16px;
       --r14:14px;
-      --max: 1100px;
+
+      --max: 1280px;
     }
 
     *{box-sizing:border-box}
@@ -33,74 +37,82 @@
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
       color:var(--text);
+      background:var(--bg);
       overflow-x:hidden;
-      background:#05060a;
     }
 
-    /* ✅ Background image path */
+    /* ✅ screenshot-like polygon background + color glows (and required image path) */
     .bg{
       position:fixed;
       inset:0;
       background:
-        radial-gradient(900px 500px at 65% 35%, rgba(50, 190, 255, .14), transparent 60%),
-        radial-gradient(900px 600px at 30% 70%, rgba(255, 180, 0, .10), transparent 62%),
+        radial-gradient(900px 520px at 75% 18%, rgba(0, 255, 195, .18), transparent 62%),
+        radial-gradient(900px 620px at 18% 78%, rgba(180, 0, 255, .12), transparent 65%),
         linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.80)),
         url("bg-desktop-4k.jpg");
       background-size:cover;
       background-position:center;
       background-repeat:no-repeat;
-      z-index:-3;
-      filter: saturate(1.05) contrast(1.05);
+      z-index:-4;
+      filter:saturate(1.05) contrast(1.05);
     }
 
-    /* subtle top line like screenshot */
-    .topLine{
+    /* extra polygon overlay to match screenshot vibe */
+    .poly{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      opacity:.55;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.06) 0 0),
+        radial-gradient(1200px 500px at 55% 55%, rgba(0,0,0,.40), transparent 55%);
+      pointer-events:none;
+      mix-blend-mode: overlay;
+    }
+    .poly::before{
+      content:"";
+      position:absolute; inset:-80px;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.05) 0 18%, transparent 18% 28%, rgba(255,255,255,.04) 28% 38%, transparent 38% 50%, rgba(255,255,255,.03) 50% 58%, transparent 58% 100%),
+        linear-gradient(60deg, rgba(255,255,255,.03) 0 12%, transparent 12% 26%, rgba(255,255,255,.04) 26% 35%, transparent 35% 47%, rgba(255,255,255,.03) 47% 100%);
+      filter: blur(0.2px);
+      opacity:.70;
+      clip-path: polygon(0 0,100% 0,100% 100%,0 100%);
+    }
+
+    /* thin horizontal line like screenshot */
+    .hline{
       position:fixed;
       left:0; right:0;
-      top:88px;
+      top: 118px;
       height:1px;
-      background: rgba(255,255,255,.12);
-      z-index:-1;
+      background: rgba(255,255,255,.10);
+      z-index:-2;
     }
 
     .wrap{
-      width:min(var(--max), calc(100% - 40px));
+      width:min(var(--max), calc(100% - 60px));
       margin:0 auto;
+      padding: 10px 0 36px;
       position:relative;
-      padding-bottom:36px;
+      min-height:100vh;
     }
 
-    /* ===== Header like screenshot (logo center top, login right) ===== */
-    .header{
+    /* ===== Top logo area (not changing functions here) ===== */
+    .topArea{
+      height: 110px;
       position:relative;
-      padding: 26px 0 10px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
     }
 
-    .brandTop{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      pointer-events:auto;
-    }
-
-    .brandTop img{
-      height:92px;
-      width:auto;
-      filter: drop-shadow(0 18px 28px rgba(0,0,0,.65));
-    }
-
-    /* top right login pill */
+    /* ✅ top-right login pill (same id for JS) */
     #topActions{
       position:absolute;
-      right:0;
-      top:30px;
+      top: 26px;
+      right: 0;
       display:flex;
       gap:10px;
       align-items:center;
+      z-index:5;
     }
 
     .pill{
@@ -110,13 +122,13 @@
       padding: 10px 18px;
       border-radius:999px;
       text-decoration:none;
-      font-weight:800;
+      font-weight:900;
       color:#eafff6;
-      background: linear-gradient(180deg, rgba(28,210,125,.95), rgba(16,150,88,.92));
+      background: linear-gradient(180deg, rgba(26,220,130,.95), rgba(16,150,88,.92));
       border:1px solid rgba(255,255,255,.16);
       box-shadow: 0 16px 35px rgba(0,0,0,.35);
-      user-select:none;
       cursor:pointer;
+      user-select:none;
     }
     .pill svg{width:16px;height:16px;fill:#eafff6;opacity:.95}
 
@@ -127,296 +139,331 @@
       color:#fff;
     }
 
-    /* ===== Main frame ===== */
-    .frame{
+    /* ===== Main layout like screenshot ===== */
+    .stage{
       position:relative;
-      border-radius: 0;
-      padding: 8px 0 0;
-      min-height: calc(100vh - 140px);
+      padding-top: 6px;
+      padding-bottom: 16px;
+      min-height: 720px; /* gives space for middle poster + bottom bars */
     }
 
-    /* Welcome block left */
-    .welcome{
-      position:relative;
-      margin-top: 64px;
-      max-width: 540px;
+    /* left heading */
+    .title{
+      position:absolute;
+      left: 0;
+      top: 40px;
+      width: 720px;
+      max-width: 60vw;
     }
-    .welcome h1{
+    .title h1{
       margin:0;
-      font-size: 44px;
-      font-weight:900;
+      font-size: 62px;
+      line-height:1.02;
+      font-weight: 900;
       letter-spacing:.2px;
-      text-shadow: 0 18px 35px rgba(0,0,0,.55);
+      text-shadow: 0 22px 44px rgba(0,0,0,.55);
     }
-    .welcome h1 .g{color:var(--green)}
-    .welcome .sub{
-      margin: 10px 0 18px;
-      font-size: 16px;
-      color: rgba(255,255,255,.78);
-      text-shadow: 0 14px 30px rgba(0,0,0,.55);
+    .title h1 span{color:var(--green)}
+    .title .sub{
+      margin-top: 12px;
+      font-size: 18px;
+      color: rgba(255,255,255,.75);
+      text-shadow: 0 18px 36px rgba(0,0,0,.55);
     }
 
-    .authBox{
-      margin-top: 8px;
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(28, 33, 55, .55);
-      border:1px solid rgba(255,255,255,.14);
+    /* authorized card */
+    .authCard{
+      position:absolute;
+      left: 0;
+      top: 170px;
+      width: 560px;
+      max-width: 52vw;
+      padding: 16px 18px;
+      border-radius: var(--r18);
+      background: rgba(18, 22, 40, .55);
+      border: 1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow2);
-      width: 420px;
-      max-width: 100%;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-
-    .lockIcon{
-      width:36px;height:36px;
-      border-radius:12px;
+    .authRow{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+    .lock{
+      width:42px;height:42px;
+      border-radius: 14px;
       display:grid;place-items:center;
-      background: rgba(255, 170, 0, .10);
-      border:1px solid rgba(255, 200, 70, .22);
+      background: rgba(255, 190, 70, .10);
+      border:1px solid rgba(255, 210, 110, .22);
       flex:0 0 auto;
     }
-    .lockIcon svg{width:18px;height:18px;fill:rgba(255,195,90,.95)}
-
-    .authBox b{
+    .lock svg{width:20px;height:20px;fill:rgba(255,205,105,.95)}
+    .authCard b{
       display:block;
-      font-size:16px;
-      letter-spacing:.2px;
       margin-top:2px;
+      font-size: 18px;
+      letter-spacing:.2px;
+      font-weight: 900;
     }
-    .authBox p{
-      margin:6px 0 0;
-      font-size:12.8px;
+    .authCard p{
+      margin:8px 0 0;
+      font-size: 14px;
       line-height:1.35;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
     }
 
-    /* ===== How it works card right ===== */
-    .how{
+    /* how it works right */
+    .howCard{
       position:absolute;
       right: 0;
-      top: 160px;
-      width: 360px;
-      max-width: 42vw;
-      padding: 14px 14px 10px;
-      border-radius: 16px;
-      background: rgba(12, 16, 30, .58);
-      border:1px solid rgba(255,255,255,.12);
+      top: 150px;
+      width: 520px;
+      max-width: 44vw;
+      padding: 16px 16px 14px;
+      border-radius: var(--r18);
+      background: rgba(10, 16, 28, .58);
+      border: 1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-    .how h3{
-      margin:0 0 10px;
+    .howCard h3{
+      margin: 0 0 12px;
       text-align:center;
-      font-size:18px;
-      font-weight:900;
+      font-size: 22px;
+      font-weight: 900;
       letter-spacing:.2px;
       color: rgba(255,255,255,.88);
     }
 
     .steps{
       position:relative;
-      padding-left: 18px;
+      padding-left: 42px;
     }
-    /* dotted vertical line */
+    /* vertical dotted line */
     .steps::before{
       content:"";
       position:absolute;
-      left: 18px;
+      left: 20px;
       top: 10px;
-      bottom: 18px;
+      bottom: 12px;
       width:2px;
       background: repeating-linear-gradient(
         to bottom,
         rgba(255,255,255,.22) 0 6px,
         rgba(255,255,255,0) 6px 14px
       );
-      opacity:.55;
+      opacity:.6;
     }
 
     .step{
       position:relative;
       display:flex;
-      gap:12px;
-      padding: 10px 10px 10px 32px;
+      gap:14px;
+      align-items:center;
+      padding: 12px 12px;
       border-radius: 14px;
-      border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
     }
-    .step + .step{margin-top:10px}
+    .step + .step{margin-top:12px}
 
-    /* green number circles (outside-ish) */
     .num{
       position:absolute;
-      left: 0px;
+      left: 20px;
       top: 50%;
-      transform: translate(-38%, -50%);
-      width:26px;height:26px;
+      transform: translate(-50%,-50%);
+      width:28px;height:28px;
       border-radius:999px;
-      background: rgba(31,211,122,.95);
-      color:#052012;
-      font-weight:900;
       display:grid;place-items:center;
-      box-shadow: 0 14px 25px rgba(0,0,0,.35);
+      background: rgba(23,208,122,.95);
+      color:#062413;
+      font-weight: 900;
       border:1px solid rgba(255,255,255,.22);
+      box-shadow: 0 14px 25px rgba(0,0,0,.35);
     }
 
     .sIco{
-      width:34px;height:34px;
-      border-radius:12px;
+      width:40px;height:40px;
+      border-radius: 14px;
       display:grid;place-items:center;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
       flex:0 0 auto;
     }
-    .sIco svg{width:18px;height:18px;fill:rgba(255,255,255,.86)}
-    .step b{display:block; font-size:13px; font-weight:900}
-    .step span{display:block; margin-top:3px; font-size:12px; color:rgba(255,255,255,.70)}
+    .sIco svg{width:18px;height:18px;fill:rgba(255,255,255,.85)}
+    .stepText b{
+      display:block;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .stepText span{
+      display:block;
+      margin-top:4px;
+      font-size: 13px;
+      color: rgba(255,255,255,.70);
+    }
 
-    /* ===== Big center logo overlay ===== */
-    .bigLogo{
+    /* ===== Middle poster rectangle (screenshot has big rectangular area) ===== */
+    .poster{
       position:absolute;
       left:50%;
       transform:translateX(-50%);
-      top: 330px; /* screenshot style */
-      width: 640px;
+      top: 320px;
+      width: 760px;
       max-width: 70vw;
-      pointer-events:none;
+      height: 430px;
+      border-radius: 6px;
+      background:
+        radial-gradient(600px 260px at 50% 40%, rgba(0,0,0,.10), rgba(0,0,0,.65)),
+        rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+
+    /*  inside poster (centered like screenshot) */
+    .poster .big{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom: 40px;
+      width: 640px;
+      max-width: 92%;
       filter: drop-shadow(0 26px 35px rgba(0,0,0,.65));
     }
-    .bigLogo img{width:100%; height:auto; display:block}
 
-    /* ===== Bottom stats bar ===== */
-    .stats{
+    /* slogan line inside poster near top (like screenshot text on poster) */
+    .poster .posterLine{
       position:absolute;
-      left:0;
-      right:0;
-      bottom: 78px;
+      left:0; right:0;
+      top: 205px;
+      text-align:center;
+      font-weight:900;
+      letter-spacing:.2px;
+      color: rgba(255,255,255,.70);
+      text-shadow: 0 18px 40px rgba(0,0,0,.65);
+      padding: 0 14px;
+    }
+    .poster .posterLine em{
+      font-style:normal;
+      color: rgba(255, 210, 90, .95);
+    }
+
+    /* ===== Bottom bars exactly like screenshot ===== */
+    .statsBar{
+      position:absolute;
+      left:0; right:0;
+      top: 520px;
+      margin-top: 0;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-      padding: 12px 14px;
+      gap: 18px;
+      padding: 16px 18px;
       border-radius: 18px;
-      background: rgba(10, 14, 26, .58);
-      border:1px solid rgba(255,255,255,.12);
+      background: rgba(12, 16, 28, .50);
+      border: 1px solid rgba(255,255,255,.10);
       box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
     .stat{
       display:flex;
+      gap:12px;
       align-items:center;
-      gap:10px;
-      padding: 10px 12px;
+      padding: 14px 14px;
       border-radius: 16px;
       background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
     }
-    .stat .icon{
-      width:34px;height:34px;
-      border-radius:14px;
+    .stat .ico{
+      width:42px;height:42px;
+      border-radius: 16px;
       display:grid;place-items:center;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
       flex:0 0 auto;
     }
-    .stat .icon svg{width:18px;height:18px;fill:rgba(255,255,255,.85)}
-    .stat b{display:block; font-size:18px; font-weight:900}
-    .stat span{display:block; font-size:12px; color:rgba(255,255,255,.72); margin-top:2px}
+    .stat .ico svg{width:18px;height:18px;fill:rgba(255,255,255,.85)}
+    .stat b{
+      display:block;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing:.2px;
+      line-height:1;
+    }
+    .stat span{
+      display:block;
+      margin-top:6px;
+      font-size: 13px;
+      color: rgba(255,255,255,.72);
+    }
 
-    /* ===== Slogan strip ===== */
-    .slogan{
+    /* bottom slogan strip separate (below stats) */
+    .bottomStrip{
       position:absolute;
       left:0; right:0;
-      bottom: 22px;
+      top: 610px;
+      padding: 14px 14px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.10);
       text-align:center;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.10);
-      color: rgba(255,255,255,.80);
-      font-weight:900;
-      letter-spacing:.2px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.30);
+      font-weight: 900;
+      color: rgba(255,255,255,.72);
+      box-shadow: var(--shadow2);
     }
-    .slogan em{
+    .bottomStrip em{
       font-style:normal;
-      color: rgba(255, 205, 80, .95);
+      color: rgba(255, 210, 90, .95);
     }
-    .slogan .chev{opacity:.6}
+    .bottomStrip .q{opacity:.6}
 
-    /* ===== Mobile layout (similar to phone preview) ===== */
-    @media (max-width: 980px){
-      .how{
-        position:relative;
-        right:auto;
-        top:auto;
-        width:100%;
-        max-width:100%;
-        margin-top: 16px;
-      }
-      .bigLogo{
-        position:relative;
-        top:auto;
-        left:auto;
-        transform:none;
-        margin: 14px auto 0;
-        width: min(520px, 92%);
-      }
-      .stats{
-        position:relative;
-        bottom:auto;
-        margin-top: 14px;
-        grid-template-columns:1fr;
-      }
-      .slogan{
-        position:relative;
-        bottom:auto;
-        margin-top: 12px;
-      }
-      .welcome{
-        margin-top: 10px;
-      }
-      .welcome h1{font-size:34px}
-      #topActions{top:22px}
-      .brandTop img{height:76px}
+    /* ===== Responsive (phone like) ===== */
+    @media (max-width: 1100px){
+      .wrap{width: calc(100% - 34px)}
+      .title h1{font-size:48px}
+      .authCard{width: 520px}
+      .howCard{width: 480px}
+      .poster{width: 680px; height: 420px}
+      .statsBar{gap:12px}
+    }
+
+    @media (max-width: 900px){
+      .stage{min-height: unset; padding-bottom: 26px}
+      .title,.authCard,.howCard,.poster,.statsBar,.bottomStrip{position:relative; left:auto; right:auto; top:auto; transform:none; width:100%; max-width:100%}
+      .title{margin-top: 10px}
+      .authCard{margin-top: 14px}
+      .howCard{margin-top: 16px}
+      .poster{margin-top: 18px; height: 420px}
+      .statsBar{margin-top: 14px; grid-template-columns:1fr}
+      .bottomStrip{margin-top: 12px}
+      #topActions{top: 18px}
+      .topArea{height: 80px}
     }
 
     @media (max-width: 520px){
-      .wrap{width: calc(100% - 26px)}
-      #topActions{
-        position:relative;
-        top:auto;
-        right:auto;
-        margin-top: 12px;
-        justify-content:center;
-      }
-      .header{
-        flex-direction:column;
-        align-items:center;
-      }
-      .authBox{width:100%}
-      .welcome h1{font-size:30px}
-      .welcome .sub{font-size:14px}
-      .pill{width:100%; justify-content:center}
+      #topActions{position:relative; top:auto; right:auto; justify-content:center; margin-top: 8px}
+      .topArea{height:auto; padding-bottom: 6px}
+      .title h1{font-size:38px}
+      .title{max-width:100%}
+      .poster{height: 360px}
+      .poster .posterLine{top: 165px; font-size: 14px}
     }
   </style>
 </head>
 
 <body>
   <div class="bg"></div>
-  <div class="topLine"></div>
+  <div class="poly"></div>
+  <div class="hline"></div>
 
   <div class="wrap">
-    <!-- ===== Header (logo center + login right) ===== -->
-    <div class="header">
-      <div class="brandTop">
-        <!-- ✅ keep same path -->
-        <a href="index.html" aria-label="Home">
-          <img src="logo.png" alt="JYRA Logo">
-        </a>
-      </div>
-
-      <!-- ✅ same id used by your JS -->
+    <div class="topArea">
+      <!-- ✅ same id for JS replace -->
       <div id="topActions">
         <a class="pill" href="login.html">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.015-8 4.5V21h16v-2.5c0-2.485-3.582-4.5-8-4.5Z"/></svg>
@@ -425,15 +472,17 @@
       </div>
     </div>
 
-    <!-- ===== Main Frame ===== -->
-    <div class="frame">
-      <!-- Left welcome -->
-      <div class="welcome">
-        <h1>Welcome to <span class="g">JYRA</span></h1>
-        <div class="sub">Play Smart <span style="opacity:.6">•</span> Earn Points <span style="opacity:.6">•</span> Win Big!</div>
+    <div class="stage">
+      <!-- Left title -->
+      <div class="title">
+        <h1>Welcome to <span>JYRA</span></h1>
+        <div class="sub">Play Smart • Earn Points • Win Big!</div>
+      </div>
 
-        <div class="authBox">
-          <div class="lockIcon" aria-hidden="true">
+      <!-- Left auth card -->
+      <div class="authCard">
+        <div class="authRow">
+          <div class="lock" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 0 1 6 0v3H9Z"/></svg>
           </div>
           <div>
@@ -444,16 +493,16 @@
       </div>
 
       <!-- Right how it works -->
-      <div class="how">
+      <div class="howCard">
         <h3>How It Works</h3>
-
         <div class="steps">
+
           <div class="step">
             <div class="num">1</div>
             <div class="sIco" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 4.18 5 2.22V11c0 3.7-2.47 7.35-5 8.57C9.47 18.35 7 14.7 7 11V7.4l5-2.22Z"/></svg>
             </div>
-            <div>
+            <div class="stepText">
               <b>Admin Creates ID</b>
               <span>From Admin Panel</span>
             </div>
@@ -464,7 +513,7 @@
             <div class="sIco" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M3 4h18v12H7l-4 4V4Zm4 5h10a1 1 0 1 0 0-2H7a1 1 0 0 0 0 2Zm0 4h7a1 1 0 1 0 0-2H7a1 1 0 0 0 0 2Z"/></svg>
             </div>
-            <div>
+            <div class="stepText">
               <b>Admin Shares</b>
               <span>ID + Password to Client</span>
             </div>
@@ -475,24 +524,28 @@
             <div class="sIco" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M10 17 5 12l1.41-1.41L10 14.17l7.59-7.58L19 8l-9 9Z"/></svg>
             </div>
-            <div>
+            <div class="stepText">
               <b>Client Logs In</b>
               <span>And Starts Playing</span>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Center big logo overlay -->
-      <div class="bigLogo">
-        <!-- ✅ keep same path -->
-        <img src="logo.png" alt="JYRA Big Logo">
+      <!-- Middle poster block -->
+      <div class="poster">
+        <div class="posterLine">
+          « Master the Game, <em>Elevate Your Skills</em>, Achieve Greatness! »
+        </div>
+        <!-- ✅ keep same  path -->
+        <img class="bigLogo" src="logo-1.png" alt="JYRA">
       </div>
 
-      <!-- Bottom stats -->
-      <div class="stats">
+      <!-- Stats bar -->
+      <div class="statsBar">
         <div class="stat">
-          <div class="icon" aria-hidden="true">
+          <div class="ico" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0ZM12 17c-4.418 0-8 2.015-8 4.5V23h16v-1.5c0-2.485-3.582-4.5-8-4.5Z"/></svg>
           </div>
           <div>
@@ -502,7 +555,7 @@
         </div>
 
         <div class="stat">
-          <div class="icon" aria-hidden="true">
+          <div class="ico" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M4 4h16v12H7.4L4 19.4V4Zm4 6h8a1 1 0 1 0 0-2H8a1 1 0 0 0 0 2Z"/></svg>
           </div>
           <div>
@@ -512,7 +565,7 @@
         </div>
 
         <div class="stat">
-          <div class="icon" aria-hidden="true">
+          <div class="ico" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M12 2l2.917 6.26 6.83.61-5.165 4.51 1.54 6.62L12 16.9 5.878 20l1.54-6.62L2.253 8.87l6.83-.61L12 2Z"/></svg>
           </div>
           <div>
@@ -522,19 +575,19 @@
         </div>
       </div>
 
-      <!-- bottom slogan strip -->
-      <div class="slogan">
-        <span class="chev">«</span>
+      <!-- Bottom strip -->
+      <div class="bottomStrip">
+        <span class="q">«</span>
         Master the Game, <em>Elevate Your Skills</em>, Achieve Greatness!
-        <span class="chev">»</span>
+        <span class="q">»</span>
       </div>
     </div>
   </div>
 
-  <!-- ✅ keep your functions / storage logic -->
+  <!-- ✅ keep your functions -->
   <script src="app.js"></script>
 
-  <!-- ✅ same dynamic buttons (Logout/Open) -->
+  <!-- ✅ same dynamic top actions -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (typeof currentUser !== "function") return;
