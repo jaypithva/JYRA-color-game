@@ -8,11 +8,23 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     body { visibility: hidden; }
+
     .errbar{
       display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
       border:1px solid rgba(255,90,90,.35);background:rgba(255,60,60,.12);
       color:#ffd6d6;font-weight:800
     }
+    .okbar{
+      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
+      border:1px solid rgba(80,200,120,.35);background:rgba(80,200,120,.12);
+      color:#d6ffe6;font-weight:800
+    }
+    .dbgbar{
+      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);
+      color:#fff;font-weight:700;font-size:12px;white-space:pre-wrap;word-break:break-word
+    }
+
     .pw-wrap{ position:relative; }
     .pw-toggle{
       position:absolute;right:10px;top:34px;border:0;background:transparent;cursor:pointer;
@@ -64,6 +76,8 @@
 
   <div class="container">
     <div class="errbar" id="errBar"></div>
+    <div class="okbar" id="okBar"></div>
+    <div class="dbgbar" id="dbgBar"></div>
 
     <div class="card">
       <div class="row-actions" style="justify-content:space-between;">
@@ -178,6 +192,7 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Doc ID</th>
               <th>Client ID</th>
               <th>Name</th>
               <th>Phone</th>
@@ -239,12 +254,25 @@
     };
   </script>
 
-  <!-- ✅ MUST: app.js -->
-  <script src="app.js?v=7"></script>
+  <!-- ✅ MUST: app.js (bump version to avoid cache) -->
+  <script src="app.js?v=8"></script>
 
   <script>
+    // ===== UI helpers =====
     function errBar(msg){
       const el = document.getElementById("errBar");
+      if(!el) return;
+      if(!msg){ el.style.display="none"; el.textContent=""; return; }
+      el.style.display="block"; el.textContent=msg;
+    }
+    function okBar(msg){
+      const el = document.getElementById("okBar");
+      if(!el) return;
+      if(!msg){ el.style.display="none"; el.textContent=""; return; }
+      el.style.display="block"; el.textContent=msg;
+    }
+    function dbgBar(msg){
+      const el = document.getElementById("dbgBar");
       if(!el) return;
       if(!msg){ el.style.display="none"; el.textContent=""; return; }
       el.style.display="block"; el.textContent=msg;
@@ -264,34 +292,79 @@
       return s ? String(s.value||"") : "";
     }
 
+    // ===== Hard checks (shows exact missing function) =====
+    function assertFn(name){
+      if(typeof window[name] !== "function"){
+        throw new Error(`${name}() is not defined. app.js load nahi hua ya function global export nahi hai.`);
+      }
+    }
+
     async function updateSelectedClientInfo(){
       const cid = selectedClientId();
       const out = document.getElementById("selClientInfo");
       if(!out) return;
+
       if(!cid){ out.textContent = "-"; return; }
-      const u = await getUserByIdFS(cid);
-      out.textContent = u ? `${u.name||"-"} (${u.clientId||cid}) • ${u.phone||"-"} • Points: ${u.points||0}` : cid;
+
+      try{
+        assertFn("getUserByIdFS");
+        const u = await getUserByIdFS(cid);
+        out.textContent = u
+          ? `${u.name||"-"} (${u.clientId||"-"}) • ${u.phone||"-"} • Points: ${u.points||0}`
+          : cid;
+      }catch(e){
+        errBar("ClientInfo Error: " + (e?.message || String(e)));
+        out.textContent = cid;
+      }
     }
 
+    // ✅ FIXED: history render with full error visibility
     async function renderHistory(){
       const cid = selectedClientId();
       const tb = document.getElementById("histBody");
       if(!tb) return;
+
       if(!cid){
         tb.innerHTML = `<tr><td colspan="7" class="small">Select a client to view history.</td></tr>`;
         return;
       }
-      const rows = await playsForUser(cid, 30);
+
+      tb.innerHTML = `<tr><td colspan="7" class="small">Loading...</td></tr>`;
+
+      let rows = [];
+      try{
+        assertFn("playsForUser");
+        rows = await playsForUser(cid, 30);
+
+        // debug snapshot
+        dbgBar(
+          "DEBUG\n" +
+          "selected docId: " + cid + "\n" +
+          "rows type: " + (Array.isArray(rows) ? "array" : typeof rows) + "\n" +
+          "rows length: " + (Array.isArray(rows) ? rows.length : 0)
+        );
+
+        if(!Array.isArray(rows)) rows = [];
+      }catch(e){
+        const msg = (e?.message || String(e));
+        errBar("History Error: " + msg);
+        tb.innerHTML = `<tr><td colspan="7" class="small">Error loading history.</td></tr>`;
+        return;
+      }
+
       if(!rows.length){
         tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
         return;
       }
+
       tb.innerHTML = rows.map(r=>{
         const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
         const resCol = r.resultColor || "-";
         const resBS  = r.resultBigSmall || "-";
+        const dateStr = (typeof fmtDate === "function") ? fmtDate(r.createdAt) : "-";
+
         return `<tr>
-          <td>${fmtDate(r.createdAt)}</td>
+          <td>${dateStr}</td>
           <td>${r.period || "-"}</td>
           <td>${r.modeLabel || r.mode || "-"}</td>
           <td>${(r.betLabel||r.bet||"-")} (${r.betAmount||r.amount||0})</td>
@@ -302,17 +375,25 @@
       }).join("");
     }
 
+    // ✅ FIXED: client dropdown uses ALWAYS doc.id (history mismatch fix)
     async function loadClientsUI(){
+      errBar("");
+      okBar("");
+      dbgBar("");
+
+      assertFn("listUsers");
+
       const users = await listUsers();
 
       users.sort((a,b)=>{
         const ar=a.role||"", br=b.role||"";
         if(ar!==br) return (ar==="admin"?-1:1);
-        return String(a.clientId||a.id||"").localeCompare(String(b.clientId||b.id||""));
+        return String(a.id||"").localeCompare(String(b.id||""));
       });
 
       const sel = document.getElementById("selClient");
       sel.innerHTML = "";
+
       const clients = users.filter(u=>u.role==="user");
 
       if(!clients.length){
@@ -322,7 +403,7 @@
       }else{
         clients.forEach(u=>{
           const opt=document.createElement("option");
-          opt.value = u.clientId || u.id;
+          opt.value = u.id; // ✅ force doc id
           opt.textContent = `${u.clientId||u.id} • ${u.name||"-"} • ${u.phone||"-"}`;
           sel.appendChild(opt);
         });
@@ -330,17 +411,20 @@
 
       const tb=document.getElementById("clientsBody");
       tb.innerHTML = users.length ? users.map(u=>{
-        const id = u.clientId || u.id || "-";
+        const docId = u.id || "-";
+        const clientId = u.clientId || "-";
         const pts = typeof u.points==="number" ? u.points : 0;
+
         return `<tr>
-          <td>${id}</td>
+          <td>${docId}</td>
+          <td>${clientId}</td>
           <td>${u.name||"-"}</td>
           <td>${u.phone||"-"}</td>
           <td>${u.role||"-"}</td>
           <td>${pts}</td>
-          <td>${fmtDate(u.createdAt)}</td>
+          <td>${(typeof fmtDate==="function") ? fmtDate(u.createdAt) : "-"}</td>
         </tr>`;
-      }).join("") : `<tr><td colspan="6" class="small">No users found.</td></tr>`;
+      }).join("") : `<tr><td colspan="7" class="small">No users found.</td></tr>`;
 
       await updateSelectedClientInfo();
       await renderHistory();
@@ -360,8 +444,29 @@
     // ✅ Fail-safe: never keep page hidden
     setTimeout(()=>{ document.body.style.visibility="visible"; }, 1200);
 
+    // ✅ Extra: show script errors on page (very important)
+    window.addEventListener("error", (ev)=>{
+      const msg = ev?.message || "Unknown error";
+      errBar("JS Error: " + msg);
+    });
+    window.addEventListener("unhandledrejection", (ev)=>{
+      const msg = ev?.reason?.message || String(ev?.reason || "Unhandled promise rejection");
+      errBar("Promise Error: " + msg);
+    });
+
     document.addEventListener("DOMContentLoaded", async function(){
       try{
+        // required core funcs from app.js
+        assertFn("requireAdminAsync");
+        assertFn("logout");
+        assertFn("updateAdminProfile");
+        assertFn("adminCreateClient");
+        assertFn("adjustPoints");
+        assertFn("adminResetClientPassword");
+        assertFn("clearClientHistory");
+        assertFn("deleteClient");
+        // playsForUser, listUsers, getUserByIdFS checked inside functions too
+
         const ADMIN = await requireAdminAsync();
         if(!ADMIN) return;
 
@@ -371,8 +476,11 @@
         document.getElementById("btnLogout").onclick = logout;
 
         document.getElementById("btnReload").onclick = async ()=>{
-          errBar(""); hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
+          errBar(""); okBar(""); dbgBar("");
+          hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
           await loadClientsUI();
+          okBar("Reloaded.");
+          setTimeout(()=>okBar(""), 1200);
         };
 
         document.getElementById("selClient").addEventListener("change", async ()=>{
@@ -381,7 +489,7 @@
         });
 
         document.getElementById("btnSaveAdmin").onclick = async ()=>{
-          hideBox("admMsg");
+          hideBox("admMsg"); errBar(""); okBar("");
           const nm=(document.getElementById("admNewName").value||"").trim();
           const pw=(document.getElementById("admNewPass").value||"").trim();
           const id=ADMIN.clientId||ADMIN.id;
@@ -393,7 +501,7 @@
         };
 
         document.getElementById("btnCreateClient").onclick = async ()=>{
-          hideBox("createMsg");
+          hideBox("createMsg"); errBar(""); okBar("");
           const name=(document.getElementById("cName").value||"").trim();
           const phone=(document.getElementById("cPhone").value||"").trim();
           const pass=(document.getElementById("cPass").value||"").trim();
@@ -408,7 +516,7 @@
         };
 
         document.getElementById("btnCredit").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           const amt=Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
@@ -421,7 +529,7 @@
         };
 
         document.getElementById("btnDebit").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           const amt=Number(document.getElementById("amt").value||0);
           if(!cid) return showBox("actMsg","Select client first.");
@@ -434,7 +542,7 @@
         };
 
         document.getElementById("btnResetPass").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           const np=(document.getElementById("resetPass").value||"").trim();
           if(!cid) return showBox("actMsg","Select client first.");
@@ -447,7 +555,7 @@
         };
 
         document.getElementById("btnClearHistory").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear selected client history?")) return;
@@ -458,7 +566,7 @@
         };
 
         document.getElementById("btnClearAll").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear history AND reset wallet to 0?")) return;
@@ -469,7 +577,7 @@
         };
 
         document.getElementById("btnDeleteClient").onclick = async ()=>{
-          hideBox("actMsg");
+          hideBox("actMsg"); errBar(""); okBar("");
           const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Delete client permanently?")) return;
@@ -481,8 +589,11 @@
         };
 
         document.getElementById("btnRefreshHistory").onclick = async ()=>{
+          errBar(""); okBar("");
           await updateSelectedClientInfo();
           await renderHistory();
+          okBar("History refreshed.");
+          setTimeout(()=>okBar(""), 900);
         };
 
         await loadClientsUI();
