@@ -1,6 +1,7 @@
 /* =====================================================
    Firebase + Firestore Cross-Device App (CLEAN + SAFE)
    - Works with compat SDK
+   - ADMIN Panel functions included
 ===================================================== */
 
 (function () {
@@ -32,7 +33,6 @@
     }
     return firebase.firestore();
   }
-
   function db() { return ensureFirebase(); }
 
   // ====== HELPERS ======
@@ -69,7 +69,7 @@
   }
 
   // ====== FIRESTORE PATHS ======
-  function userRef(userId) { return db().collection("users").doc(userId); }
+  function userRef(userId) { return db().collection("users").doc(String(userId)); }
   function txnsCol(userId) { return userRef(userId).collection("txns"); }
   function playsCol(userId) { return userRef(userId).collection("plays"); }
 
@@ -77,6 +77,11 @@
   async function getUserById(userId) {
     const snap = await userRef(userId).get();
     return snap.exists ? snap.data() : null;
+  }
+
+  // ✅ Admin panel expects getUserByIdFS(name)
+  async function getUserByIdFS(userId) {
+    return await getUserById(userId);
   }
 
   async function getUserByPhone(phone) {
@@ -177,7 +182,6 @@
     if (!q.empty) return { ok: false, msg: "Phone already exists" };
 
     const clientId = "C" + Math.floor(10000 + Math.random() * 90000);
-
     const ref = userRef(clientId);
     const exists = await ref.get();
     if (exists.exists) return { ok: false, msg: "Try again (ID collision)" };
@@ -275,6 +279,137 @@
   }
 
   // =====================================================
+  // ✅ ADMIN PANEL FUNCTIONS (added)
+  // =====================================================
+
+  // ✅ list all users (users collection docs)
+  async function listUsers() {
+    const snap = await db().collection("users").get();
+    return snap.docs.map(doc => {
+      const data = doc.data() || {};
+      // make sure doc.id also available
+      return { ...data, id: doc.id };
+    });
+  }
+
+  // ✅ update admin name/password
+  async function updateAdminProfile(adminId, newName, newPassword) {
+    try {
+      adminId = String(adminId || "").trim();
+      if (!adminId) return { ok: false, msg: "Admin missing" };
+
+      const a = await getUserById(adminId);
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+
+      const patch = { updatedAt: nowISO() };
+      const nm = String(newName || "").trim();
+      const pw = String(newPassword || "").trim();
+
+      if (nm) patch.name = nm;
+      if (pw) {
+        if (pw.length < 4) return { ok: false, msg: "Password min 4 chars." };
+        patch.passwordHash = await sha256(pw);
+      }
+
+      await userRef(adminId).update(patch);
+
+      // refresh session cache if current admin
+      if (window.__ME && window.__ME.clientId === adminId) {
+        window.__ME = await getUserById(adminId);
+      }
+
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e?.message || String(e) };
+    }
+  }
+
+  // ✅ reset client password (admin only)
+  async function adminResetClientPassword(clientId, newPassword, adminId) {
+    try {
+      const a = await getUserById(adminId);
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+
+      clientId = String(clientId || "").trim();
+      const pw = String(newPassword || "").trim();
+      if (!clientId) return { ok: false, msg: "Client missing" };
+      if (!pw || pw.length < 4) return { ok: false, msg: "Password min 4 chars." };
+
+      const u = await getUserById(clientId);
+      if (!u) return { ok: false, msg: "User not found" };
+      if (u.role !== "user") return { ok: false, msg: "Only user clients allowed" };
+
+      await userRef(clientId).update({ passwordHash: await sha256(pw), updatedAt: nowISO() });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e?.message || String(e) };
+    }
+  }
+
+  // ✅ clear plays history + optionally reset wallet
+  async function clearClientHistory(clientId, resetWalletToZero) {
+    try {
+      clientId = String(clientId || "").trim();
+      if (!clientId) return { ok: false, msg: "Client missing" };
+
+      // delete plays subcollection in chunks (client-side safe)
+      const col = playsCol(clientId);
+      const BATCH = 450;
+
+      while (true) {
+        const snap = await col.limit(BATCH).get();
+        if (snap.empty) break;
+        const batch = db().batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      }
+
+      if (resetWalletToZero) {
+        await userRef(clientId).update({ points: 0, updatedAt: nowISO() });
+      }
+
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e?.message || String(e) };
+    }
+  }
+
+  // ✅ delete client completely (user doc + subcollections best-effort)
+  async function deleteClient(clientId, adminId) {
+    try {
+      const a = await getUserById(adminId);
+      if (!a || a.role !== "admin") return { ok: false, msg: "Unauthorized" };
+
+      clientId = String(clientId || "").trim();
+      if (!clientId) return { ok: false, msg: "Client missing" };
+
+      const u = await getUserById(clientId);
+      if (!u) return { ok: false, msg: "User not found" };
+      if (u.role !== "user") return { ok: false, msg: "Only user clients allowed" };
+
+      // delete plays
+      await clearClientHistory(clientId, false);
+
+      // delete txns in chunks
+      const tcol = txnsCol(clientId);
+      const BATCH = 450;
+      while (true) {
+        const snap = await tcol.limit(BATCH).get();
+        if (snap.empty) break;
+        const batch = db().batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      }
+
+      // delete user doc
+      await userRef(clientId).delete();
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, msg: e?.message || String(e) };
+    }
+  }
+
+  // =====================================================
   // GAME RESULTS ENGINE (IST 30s Period Store)
   // =====================================================
   const GAME_CFG = { cycleSec: 30, resultsCol: "game_results_v1" };
@@ -309,7 +444,7 @@
 
   function cycleIndexNow() {
     const sec = secondsSinceISTMidnight();
-    return Math.floor(sec / GAME_CFG.cycleSec) + 1; // 1..2880
+    return Math.floor(sec / GAME_CFG.cycleSec) + 1;
   }
 
   function makePeriodByIndex(dateYmd, idx) {
@@ -367,7 +502,7 @@
       });
   }
 
-  // ====== EXPOSE GLOBALS ======
+  // ====== EXPOSE GLOBALS (INSIDE IIFE - correct) ======
   window.fmtDate = fmtDate;
   window.sha256 = sha256;
 
@@ -389,6 +524,14 @@
 
   window.logout = logout;
 
+  // ✅ ADMIN exports
+  window.updateAdminProfile = updateAdminProfile;
+  window.adminResetClientPassword = adminResetClientPassword;
+  window.clearClientHistory = clearClientHistory;
+  window.deleteClient = deleteClient;
+  window.listUsers = listUsers;
+  window.getUserByIdFS = getUserByIdFS;
+
   window.GAME = {
     cfg: GAME_CFG,
     currentPeriodIST,
@@ -399,24 +542,3 @@
     listenLastNResults
   };
 })();
-// ===== Make functions available to HTML (ADMIN PANEL) =====
-try{
-  window.requireAdminAsync = requireAdminAsync;
-  window.logout = logout;
-  window.updateAdminProfile = updateAdminProfile;
-
-  window.listUsers = listUsers;
-  window.getUserByIdFS = getUserByIdFS;
-
-  window.adminCreateClient = adminCreateClient;
-  window.adjustPoints = adjustPoints;
-  window.adminResetClientPassword = adminResetClientPassword;
-
-  window.clearClientHistory = clearClientHistory;
-  window.deleteClient = deleteClient;
-
-  window.playsForUser = playsForUser;
-  window.fmtDate = fmtDate;
-}catch(e){
-  console.warn("Export patch failed:", e);
-}
