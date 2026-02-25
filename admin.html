@@ -8,38 +8,14 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     body { visibility: hidden; }
-
-    .errbar{
-      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
-      border:1px solid rgba(255,90,90,.35);background:rgba(255,60,60,.12);
-      color:#ffd6d6;font-weight:800
-    }
-    .okbar{
-      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
-      border:1px solid rgba(80,200,120,.35);background:rgba(80,200,120,.12);
-      color:#d6ffe6;font-weight:800
-    }
-    .dbgbar{
-      display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);
-      color:#fff;font-weight:700;font-size:12px;white-space:pre-wrap;word-break:break-word
-    }
-
+    .errbar{display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,90,90,.35);background:rgba(255,60,60,.12);color:#ffd6d6;font-weight:800}
+    .okbar{display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(80,200,120,.35);background:rgba(80,200,120,.12);color:#d6ffe6;font-weight:800}
+    .dbgbar{display:none;margin:12px 0 0;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-weight:700;font-size:12px;white-space:pre-wrap;word-break:break-word}
     .pw-wrap{ position:relative; }
-    .pw-toggle{
-      position:absolute;right:10px;top:34px;border:0;background:transparent;cursor:pointer;
-      font-size:18px;line-height:1;padding:6px;opacity:.9;user-select:none
-    }
-    select{
-      width:100%;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);color:#fff;font-size:16px;outline:none;
-      -webkit-appearance:none;appearance:none
-    }
+    .pw-toggle{position:absolute;right:10px;top:34px;border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1;padding:6px;opacity:.9;user-select:none}
+    select{width:100%;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#fff;font-size:16px;outline:none;-webkit-appearance:none;appearance:none}
     select option{ color:#111; }
-    .table-wrap{
-      width:100%;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);touch-action:pan-x pan-y
-    }
+    .table-wrap{width:100%;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:14px;border:1px solid rgba(255,255,255,.10);touch-action:pan-x pan-y}
     .table-wrap .table{ width:100%;border-collapse:collapse;min-width:980px; }
     @media (max-width:720px){
       .table-wrap{ overflow-x:auto;overflow-y:hidden; }
@@ -51,11 +27,8 @@
     @media (max-width:620px){ .grid3{ grid-template-columns:1fr; } }
     .row-actions{ gap:10px;flex-wrap:wrap; }
     .mini{ font-size:12px;opacity:.75; }
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);
-      font-weight:800;font-size:12px;white-space:nowrap
-    }
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:800;font-size:12px;white-space:nowrap}
+    .disabled { opacity:.55; pointer-events:none; }
   </style>
 </head>
 
@@ -79,7 +52,7 @@
     <div class="okbar" id="okBar"></div>
     <div class="dbgbar" id="dbgBar"></div>
 
-    <div class="card">
+    <div class="card" id="adminCard">
       <div class="row-actions" style="justify-content:space-between;">
         <div>
           <div class="h2" style="margin:0;">Admin Panel</div>
@@ -179,15 +152,9 @@
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <div class="row-actions" style="justify-content:space-between;">
-        <div>
-          <div class="h2" style="margin:0;">Clients</div>
-          <div class="small">All users list</div>
-        </div>
-      </div>
-
+      <div class="h2" style="margin:0;">Clients</div>
+      <div class="small">All users list</div>
       <div class="hr"></div>
-
       <div class="table-wrap">
         <table class="table">
           <thead>
@@ -241,7 +208,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  <!-- your config -->
   <script>
     window.firebaseConfig = {
       apiKey: "AIzaSyBZFAk80TlzESxnFNlG0uonVyLj3bQ3PRo",
@@ -254,8 +220,8 @@
     };
   </script>
 
-  <!-- ✅ MUST: app.js (bump version to avoid cache) -->
-  <script src="app.js?v=8"></script>
+  <!-- app.js -->
+  <script src="app.js?v=9"></script>
 
   <script>
     // ===== UI helpers =====
@@ -292,33 +258,37 @@
       return s ? String(s.value||"") : "";
     }
 
-    // ===== Hard checks (shows exact missing function) =====
-    function assertFn(name){
-      if(typeof window[name] !== "function"){
-        throw new Error(`${name}() is not defined. app.js load nahi hua ya function global export nahi hai.`);
-      }
+    function disablePanel(disabled){
+      const card = document.getElementById("adminCard");
+      if(!card) return;
+      if(disabled) card.classList.add("disabled");
+      else card.classList.remove("disabled");
+    }
+
+    function missingFns(){
+      const need = [
+        "requireAdminAsync","logout","updateAdminProfile","adminCreateClient","adjustPoints",
+        "adminResetClientPassword","clearClientHistory","deleteClient","playsForUser",
+        "listUsers","getUserByIdFS","fmtDate"
+      ];
+      return need.filter(n => typeof window[n] !== "function");
     }
 
     async function updateSelectedClientInfo(){
       const cid = selectedClientId();
       const out = document.getElementById("selClientInfo");
       if(!out) return;
-
       if(!cid){ out.textContent = "-"; return; }
 
       try{
-        assertFn("getUserByIdFS");
-        const u = await getUserByIdFS(cid);
-        out.textContent = u
-          ? `${u.name||"-"} (${u.clientId||"-"}) • ${u.phone||"-"} • Points: ${u.points||0}`
-          : cid;
+        const u = await window.getUserByIdFS(cid);
+        out.textContent = u ? `${u.name||"-"} (${u.clientId||"-"}) • ${u.phone||"-"} • Points: ${u.points||0}` : cid;
       }catch(e){
         errBar("ClientInfo Error: " + (e?.message || String(e)));
         out.textContent = cid;
       }
     }
 
-    // ✅ FIXED: history render with full error visibility
     async function renderHistory(){
       const cid = selectedClientId();
       const tb = document.getElementById("histBody");
@@ -331,59 +301,39 @@
 
       tb.innerHTML = `<tr><td colspan="7" class="small">Loading...</td></tr>`;
 
-      let rows = [];
       try{
-        assertFn("playsForUser");
-        rows = await playsForUser(cid, 30);
+        const rows = await window.playsForUser(cid, 30);
+        dbgBar("DEBUG\nselected docId: " + cid + "\nrows: " + (Array.isArray(rows) ? rows.length : "not-array"));
 
-        // debug snapshot
-        dbgBar(
-          "DEBUG\n" +
-          "selected docId: " + cid + "\n" +
-          "rows type: " + (Array.isArray(rows) ? "array" : typeof rows) + "\n" +
-          "rows length: " + (Array.isArray(rows) ? rows.length : 0)
-        );
+        if(!Array.isArray(rows) || !rows.length){
+          tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
+          return;
+        }
 
-        if(!Array.isArray(rows)) rows = [];
+        tb.innerHTML = rows.map(r=>{
+          const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
+          const resCol = r.resultColor || "-";
+          const resBS  = r.resultBigSmall || "-";
+          return `<tr>
+            <td>${window.fmtDate(r.createdAt)}</td>
+            <td>${r.period || "-"}</td>
+            <td>${r.modeLabel || r.mode || "-"}</td>
+            <td>${(r.betLabel||r.bet||"-")} (${r.betAmount||r.amount||0})</td>
+            <td>${resNum} / ${resCol} / ${resBS}</td>
+            <td>${r.before ?? "-"}</td>
+            <td>${r.after ?? "-"}</td>
+          </tr>`;
+        }).join("");
       }catch(e){
-        const msg = (e?.message || String(e));
-        errBar("History Error: " + msg);
+        errBar("History Error: " + (e?.message || String(e)));
         tb.innerHTML = `<tr><td colspan="7" class="small">Error loading history.</td></tr>`;
-        return;
       }
-
-      if(!rows.length){
-        tb.innerHTML = `<tr><td colspan="7" class="small">No bet history yet.</td></tr>`;
-        return;
-      }
-
-      tb.innerHTML = rows.map(r=>{
-        const resNum = (r.resultNumber===0 || r.resultNumber) ? r.resultNumber : "-";
-        const resCol = r.resultColor || "-";
-        const resBS  = r.resultBigSmall || "-";
-        const dateStr = (typeof fmtDate === "function") ? fmtDate(r.createdAt) : "-";
-
-        return `<tr>
-          <td>${dateStr}</td>
-          <td>${r.period || "-"}</td>
-          <td>${r.modeLabel || r.mode || "-"}</td>
-          <td>${(r.betLabel||r.bet||"-")} (${r.betAmount||r.amount||0})</td>
-          <td>${resNum} / ${resCol} / ${resBS}</td>
-          <td>${r.before ?? "-"}</td>
-          <td>${r.after ?? "-"}</td>
-        </tr>`;
-      }).join("");
     }
 
-    // ✅ FIXED: client dropdown uses ALWAYS doc.id (history mismatch fix)
     async function loadClientsUI(){
-      errBar("");
-      okBar("");
-      dbgBar("");
+      errBar(""); okBar(""); dbgBar("");
 
-      assertFn("listUsers");
-
-      const users = await listUsers();
+      const users = await window.listUsers();
 
       users.sort((a,b)=>{
         const ar=a.role||"", br=b.role||"";
@@ -403,7 +353,7 @@
       }else{
         clients.forEach(u=>{
           const opt=document.createElement("option");
-          opt.value = u.id; // ✅ force doc id
+          opt.value = u.id; // ✅ doc id fix
           opt.textContent = `${u.clientId||u.id} • ${u.name||"-"} • ${u.phone||"-"}`;
           sel.appendChild(opt);
         });
@@ -414,7 +364,6 @@
         const docId = u.id || "-";
         const clientId = u.clientId || "-";
         const pts = typeof u.points==="number" ? u.points : 0;
-
         return `<tr>
           <td>${docId}</td>
           <td>${clientId}</td>
@@ -422,7 +371,7 @@
           <td>${u.phone||"-"}</td>
           <td>${u.role||"-"}</td>
           <td>${pts}</td>
-          <td>${(typeof fmtDate==="function") ? fmtDate(u.createdAt) : "-"}</td>
+          <td>${window.fmtDate(u.createdAt)}</td>
         </tr>`;
       }).join("") : `<tr><td colspan="7" class="small">No users found.</td></tr>`;
 
@@ -430,7 +379,7 @@
       await renderHistory();
     }
 
-    // ✅ password toggle
+    // password toggle
     document.addEventListener("click", function(e){
       const btn = e.target.closest(".pw-toggle");
       if(!btn) return;
@@ -441,46 +390,42 @@
       else { inp.type="password"; btn.textContent="👁️"; }
     });
 
-    // ✅ Fail-safe: never keep page hidden
-    setTimeout(()=>{ document.body.style.visibility="visible"; }, 1200);
+    // fail-safe show body
+    setTimeout(()=>{ document.body.style.visibility="visible"; }, 900);
 
-    // ✅ Extra: show script errors on page (very important)
-    window.addEventListener("error", (ev)=>{
-      const msg = ev?.message || "Unknown error";
-      errBar("JS Error: " + msg);
-    });
-    window.addEventListener("unhandledrejection", (ev)=>{
-      const msg = ev?.reason?.message || String(ev?.reason || "Unhandled promise rejection");
-      errBar("Promise Error: " + msg);
-    });
+    // show js errors on page
+    window.addEventListener("error", (ev)=> errBar("JS Error: " + (ev?.message || "Unknown error")));
+    window.addEventListener("unhandledrejection", (ev)=> errBar("Promise Error: " + (ev?.reason?.message || String(ev?.reason || "Unhandled rejection"))));
 
     document.addEventListener("DOMContentLoaded", async function(){
-      try{
-        // required core funcs from app.js
-        assertFn("requireAdminAsync");
-        assertFn("logout");
-        assertFn("updateAdminProfile");
-        assertFn("adminCreateClient");
-        assertFn("adjustPoints");
-        assertFn("adminResetClientPassword");
-        assertFn("clearClientHistory");
-        assertFn("deleteClient");
-        // playsForUser, listUsers, getUserByIdFS checked inside functions too
+      document.body.style.visibility = "visible";
 
-        const ADMIN = await requireAdminAsync();
+      // ✅ IMPORTANT: ensure app.js exported functions exist
+      const miss = missingFns();
+      if(miss.length){
+        disablePanel(true);
+        errBar(
+          "app.js functions global nahi hain.\nMissing: " + miss.join(", ") +
+          "\n\nFix: app.js ke END me export patch paste karo (main niche diya hai)."
+        );
+        return;
+      }
+
+      try{
+        disablePanel(false);
+
+        const ADMIN = await window.requireAdminAsync();
         if(!ADMIN) return;
 
-        document.body.style.visibility = "visible";
         document.getElementById("adminName").textContent = ADMIN.name || "Admin";
-
-        document.getElementById("btnLogout").onclick = logout;
+        document.getElementById("btnLogout").onclick = window.logout;
 
         document.getElementById("btnReload").onclick = async ()=>{
           errBar(""); okBar(""); dbgBar("");
           hideBox("admMsg"); hideBox("createMsg"); hideBox("actMsg");
           await loadClientsUI();
           okBar("Reloaded.");
-          setTimeout(()=>okBar(""), 1200);
+          setTimeout(()=>okBar(""), 1000);
         };
 
         document.getElementById("selClient").addEventListener("change", async ()=>{
@@ -493,7 +438,7 @@
           const nm=(document.getElementById("admNewName").value||"").trim();
           const pw=(document.getElementById("admNewPass").value||"").trim();
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await updateAdminProfile(id,nm,pw);
+          const r=await window.updateAdminProfile(id,nm,pw);
           if(!r.ok) return showBox("admMsg", r.msg||"Failed");
           showBox("admMsg","Saved.");
           document.getElementById("admNewPass").value="";
@@ -506,7 +451,7 @@
           const phone=(document.getElementById("cPhone").value||"").trim();
           const pass=(document.getElementById("cPass").value||"").trim();
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await adminCreateClient({name,phone,password:pass}, id);
+          const r=await window.adminCreateClient({name,phone,password:pass}, id);
           if(!r.ok) return showBox("createMsg", r.msg||"Failed");
           showBox("createMsg", `Client created: ${r.user.clientId||r.user.id}`);
           document.getElementById("cName").value="";
@@ -522,7 +467,7 @@
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt||amt<=0) return showBox("actMsg","Enter amount.");
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await adjustPoints(cid, +amt, "Admin Credit", id);
+          const r=await window.adjustPoints(cid, +amt, "Admin Credit", id);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg", `Credited. New points: ${r.points}`);
           await loadClientsUI();
@@ -535,7 +480,7 @@
           if(!cid) return showBox("actMsg","Select client first.");
           if(!amt||amt<=0) return showBox("actMsg","Enter amount.");
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await adjustPoints(cid, -amt, "Admin Debit", id);
+          const r=await window.adjustPoints(cid, -amt, "Admin Debit", id);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg", `Debited. New points: ${r.points}`);
           await loadClientsUI();
@@ -548,7 +493,7 @@
           if(!cid) return showBox("actMsg","Select client first.");
           if(!np||np.length<4) return showBox("actMsg","Password min 4 chars.");
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await adminResetClientPassword(cid, np, id);
+          const r=await window.adminResetClientPassword(cid, np, id);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Password reset done.");
           document.getElementById("resetPass").value="";
@@ -559,7 +504,7 @@
           const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear selected client history?")) return;
-          const r=await clearClientHistory(cid, false);
+          const r=await window.clearClientHistory(cid, false);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","History cleared.");
           await renderHistory();
@@ -570,7 +515,7 @@
           const cid=selectedClientId();
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Clear history AND reset wallet to 0?")) return;
-          const r=await clearClientHistory(cid, true);
+          const r=await window.clearClientHistory(cid, true);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Cleared + Wallet reset.");
           await loadClientsUI();
@@ -582,7 +527,7 @@
           if(!cid) return showBox("actMsg","Select client first.");
           if(!confirm("Delete client permanently?")) return;
           const id=ADMIN.clientId||ADMIN.id;
-          const r=await deleteClient(cid, id);
+          const r=await window.deleteClient(cid, id);
           if(!r.ok) return showBox("actMsg", r.msg||"Failed");
           showBox("actMsg","Client deleted.");
           await loadClientsUI();
@@ -598,8 +543,7 @@
 
         await loadClientsUI();
       }catch(e){
-        document.body.style.visibility="visible";
-        errBar("Error: " + (e && e.message ? e.message : String(e)));
+        errBar("Error: " + (e?.message || String(e)));
       }
     });
   </script>
