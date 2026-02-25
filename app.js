@@ -399,3 +399,24 @@
     listenLastNResults
   };
 })();
+// ===== Make functions available to HTML (ADMIN PANEL) =====
+try{
+  window.requireAdminAsync = requireAdminAsync;
+  window.logout = logout;
+  window.updateAdminProfile = updateAdminProfile;
+
+  window.listUsers = listUsers;
+  window.getUserByIdFS = getUserByIdFS;
+
+  window.adminCreateClient = adminCreateClient;
+  window.adjustPoints = adjustPoints;
+  window.adminResetClientPassword = adminResetClientPassword;
+
+  window.clearClientHistory = clearClientHistory;
+  window.deleteClient = deleteClient;
+
+  window.playsForUser = playsForUser;
+  window.fmtDate = fmtDate;
+}catch(e){
+  console.warn("Export patch failed:", e);
+}
