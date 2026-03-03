@@ -1165,7 +1165,6 @@
     document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === tabId));
     if (tabId === "hist") renderHistoryLive();
     try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { }
-    // tab change pe pending popup (sirf isi game ka) show karo
     tryShowActivePopup();
   }
   document.querySelectorAll(".tabBtn").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
@@ -1252,7 +1251,12 @@
 
   const GAME_DOC = (g) => db.collection("gameState").doc(g);
   const USERS = db.collection("users");
-  const BETS = db.collection("bets");
+
+  // ✅ NEW: per-user bets subcollection (history/last10/mybet yahi se aayega)
+  const USER_BETS = (uid) => USERS.doc(uid).collection("bets");
+
+  // (optional) global bets store (admin / analytics ke liye) — UI read isse nahi karega
+  const BETS_GLOBAL = db.collection("bets");
 
   /* ================= STATE ================= */
   let ME_ID = null;
@@ -1292,7 +1296,6 @@
     else { el.classList.add("lockClosed"); el.textContent = "CLOSED"; }
   }
 
-  // overlay me roundId nahi, SEQ show karna
   function setLockedOverlay(gameKey, show, seq, left) {
     const map = {
       DragonTiger: { box: "dtOverlay", rid: "dtOverlayRound", t: "dtOverlayTimer" },
@@ -1328,7 +1331,6 @@
   function closeResultModal() {
     qs("resultModal").classList.remove("show");
     modalOpen = false;
-    // close hote hi active game ka pending popup ho to show kar do
     setTimeout(tryShowActivePopup, 50);
   }
   qs("resClose").addEventListener("click", closeResultModal);
@@ -1343,27 +1345,23 @@
     return "Roulette";
   }
 
-  // IMPORTANT: popup ab sirf active tab ka show hoga (baaki pending me store)
   async function showPopupForGame(game, g) {
     if (!g || !g.result || !g.roundId) return;
 
-    // read my bet once
-    const betKey = ME_ID + "_" + game + "_" + g.roundId;
+    // ✅ my bet now from USER subcollection
+    const betKey = game + "_" + g.roundId; // per-user unique
     let myBet = null;
     try {
-      const bSnap = await BETS.doc(betKey).get();
+      const bSnap = await USER_BETS(ME_ID).doc(betKey).get();
       if (bSnap.exists) myBet = bSnap.data() || null;
     } catch (e) { }
 
-    // settle (if my bet exists)
     try { await settleMyBetIfNeeded(game, g); } catch (e) { }
 
-    // fill modal
     qs("resTitle").textContent = "🎯 " + gameLabel(game) + " Result";
     qs("resBig").textContent = String(g.result || "-");
     qs("resSub").textContent = "Round finished • New round will start automatically";
     qs("resGame").textContent = gameLabel(game);
-    // SHOW SEQ, not roundId
     qs("resRound").textContent = roundSeqText(g);
 
     if (!myBet) {
@@ -1389,14 +1387,9 @@
   }
 
   function handleResultArrived(game, g) {
-    // per game per round result sirf 1 baar
     if (lastShownResult[game] === g.roundId) return;
     lastShownResult[game] = g.roundId;
-
-    // store pending
     pendingPopup[game] = g;
-
-    // active tab same hai to turant show (agar modal open nahi)
     if (gameToTab[game] === activeTab) {
       tryShowActivePopup();
     }
@@ -1417,7 +1410,8 @@
   }
 
   async function calcWinLoss() {
-    const qsnap = await BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200).get();
+    // ✅ now from USER subcollection
+    const qsnap = await USER_BETS(ME_ID).orderBy("at", "desc").limit(200).get();
     let w = 0, l = 0;
     qsnap.forEach(doc => {
       const b = doc.data() || {};
@@ -1564,19 +1558,24 @@
     if (!stake || stake <= 0) throw new Error("Enter valid points");
     if (Number(ME_USER?.points || 0) < stake) throw new Error("Not enough points");
 
-    const betKey = ME_ID + "_" + game + "_" + roundId;
-    const ref = BETS.doc(betKey);
+    // ✅ per-user bet doc (simple read queries)
+    const userBetId = game + "_" + roundId;
+    const userRef = USER_BETS(ME_ID).doc(userBetId);
+
+    // (optional) global bet doc (admin side)
+    const globalBetId = ME_ID + "_" + game + "_" + roundId;
+    const globalRef = BETS_GLOBAL.doc(globalBetId);
 
     await db.runTransaction(async (tx) => {
-      const bSnap = await tx.get(ref);
+      const bSnap = await tx.get(userRef);
       if (bSnap.exists) throw new Error("Already played");
 
       tx.set(USERS.doc(ME_ID), {
         points: firebase.firestore.FieldValue.increment(-stake)
       }, { merge: true });
 
-      tx.set(ref, {
-        betId: betKey,
+      const payload = {
+        betId: globalBetId,
         clientId: ME_ID,
         game,
         pick,
@@ -1586,19 +1585,30 @@
         at: Date.now(),
         result: "PENDING",
         settled: false
-      }, { merge: true });
+      };
+
+      // ✅ write in user subcollection
+      tx.set(userRef, payload, { merge: true });
+
+      // optional global copy
+      tx.set(globalRef, payload, { merge: true });
     });
   }
 
   async function settleMyBetIfNeeded(game, gameDoc) {
     if (!gameDoc?.result) return;
 
-    const betKey = ME_ID + "_" + game + "_" + gameDoc.roundId;
-    const ref = BETS.doc(betKey);
+    const userBetId = game + "_" + gameDoc.roundId;
+    const userRef = USER_BETS(ME_ID).doc(userBetId);
+
+    // global copy (optional)
+    const globalBetId = ME_ID + "_" + game + "_" + gameDoc.roundId;
+    const globalRef = BETS_GLOBAL.doc(globalBetId);
 
     await db.runTransaction(async (tx) => {
-      const snap = await tx.get(ref);
+      const snap = await tx.get(userRef);
       if (!snap.exists) return;
+
       const b = snap.data() || {};
       if (b.settled) return;
 
@@ -1622,12 +1632,17 @@
         }, { merge: true });
       }
 
-      tx.set(ref, {
+      const settlePatch = {
         result: out,
         settled: true,
         settledAt: Date.now(),
         roundResult: gameDoc.result
-      }, { merge: true });
+      };
+
+      tx.set(userRef, settlePatch, { merge: true });
+
+      // optional: keep global updated too
+      tx.set(globalRef, settlePatch, { merge: true });
     });
 
     await refreshTop();
@@ -1637,25 +1652,34 @@
   async function setPastTable(game, tableId, waitId) {
     const tb = document.querySelector("#" + tableId + " tbody");
     const w = qs(waitId);
-
-    const qsnap = await BETS.where("clientId", "==", ME_ID)
-      .where("game", "==", game)
-      .orderBy("at", "desc").limit(10).get();
-
-    const arr = [];
-    qsnap.forEach(d => arr.push(d.data() || {}));
-    const pending = arr.filter(b => b.result === "PENDING").length;
-    if (w) w.textContent = pending ? ("Pending bets: " + pending) : "";
-
     if (!tb) return;
-    tb.innerHTML = arr.map(b => (
-      "<tr>" +
-      "<td>" + fmtDate(b.at) + "</td>" +
-      "<td>" + (b.pick || "-") + "</td>" +
-      "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-      "<td>" + (b.result || "-") + "</td>" +
-      "</tr>"
-    )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
+
+    try {
+      // ✅ now from USER subcollection (no other client's data possible)
+      const qsnap = await USER_BETS(ME_ID)
+        .where("game", "==", game)
+        .orderBy("at", "desc")
+        .limit(10)
+        .get();
+
+      const arr = [];
+      qsnap.forEach(d => arr.push(d.data() || {}));
+      const pending = arr.filter(b => b.result === "PENDING").length;
+      if (w) w.textContent = pending ? ("Pending bets: " + pending) : "";
+
+      tb.innerHTML = arr.map(b => (
+        "<tr>" +
+        "<td>" + fmtDate(b.at) + "</td>" +
+        "<td>" + (b.pick || "-") + "</td>" +
+        "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+        "<td>" + (b.result || "-") + "</td>" +
+        "</tr>"
+      )).join("") || "<tr><td colspan='4' class='muted'>No bets yet</td></tr>";
+    } catch (e) {
+      if (w) w.textContent = "History error";
+      tb.innerHTML = "<tr><td colspan='4' class='muted'>History load failed: " + (e?.message || e) + "</td></tr>";
+      console.error("setPastTable error:", e);
+    }
   }
 
   let histUnsub = null;
@@ -1665,21 +1689,30 @@
     const info = qs("histInfo");
     if (!tb) return;
 
-    histUnsub = BETS.where("clientId", "==", ME_ID).orderBy("at", "desc").limit(200)
-      .onSnapshot((snap) => {
-        const arr = [];
-        snap.forEach(d => arr.push(d.data() || {}));
-        if (info) info.textContent = arr.length ? ("Showing last " + arr.length) : "";
-        tb.innerHTML = arr.map(b => (
-          "<tr>" +
-          "<td>" + fmtDate(b.at) + "</td>" +
-          "<td>" + (b.game || "-") + "</td>" +
-          "<td>" + (b.pick || "-") + "</td>" +
-          "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
-          "<td>" + (b.result || "-") + "</td>" +
-          "</tr>"
-        )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
-      });
+    try {
+      // ✅ now from USER subcollection
+      histUnsub = USER_BETS(ME_ID).orderBy("at", "desc").limit(200)
+        .onSnapshot((snap) => {
+          const arr = [];
+          snap.forEach(d => arr.push(d.data() || {}));
+          if (info) info.textContent = arr.length ? ("Showing last " + arr.length) : "";
+          tb.innerHTML = arr.map(b => (
+            "<tr>" +
+            "<td>" + fmtDate(b.at) + "</td>" +
+            "<td>" + (b.game || "-") + "</td>" +
+            "<td>" + (b.pick || "-") + "</td>" +
+            "<td class='gold'>" + Number(b.stake || 0) + "</td>" +
+            "<td>" + (b.result || "-") + "</td>" +
+            "</tr>"
+          )).join("") || "<tr><td colspan='5' class='muted'>No history</td></tr>";
+        }, (err) => {
+          console.error("history onSnapshot err:", err);
+          tb.innerHTML = "<tr><td colspan='5' class='muted'>History load failed: " + (err?.message || err) + "</td></tr>";
+        });
+    } catch (e) {
+      console.error("renderHistoryLive error:", e);
+      tb.innerHTML = "<tr><td colspan='5' class='muted'>History load failed: " + (e?.message || e) + "</td></tr>";
+    }
   }
 
   function renderLatestResult(game, gameDoc) {
@@ -1714,6 +1747,7 @@
 
   /* ================= MY BET LIVE ================= */
   const myBetUnsub = { DragonTiger: null, TeenPatti: null, Roulette: null };
+
   function setMyBetUI(game, bet, gdoc) {
     let subId = "dtMyBetSub", stId = "dtMyBetStatus", bodyId = "dtMyBetBody";
     if (game === "TeenPatti") { subId = "tpMyBetSub"; stId = "tpMyBetStatus"; bodyId = "tpMyBetBody"; }
@@ -1740,10 +1774,16 @@
 
   function watchMyBet(game, roundId, gdoc) {
     if (myBetUnsub[game]) { try { myBetUnsub[game](); } catch (e) { } myBetUnsub[game] = null; }
-    const betKey = ME_ID + "_" + game + "_" + roundId;
-    myBetUnsub[game] = BETS.doc(betKey).onSnapshot((snap) => {
+
+    // ✅ per-user bet doc id
+    const userBetId = game + "_" + roundId;
+
+    myBetUnsub[game] = USER_BETS(ME_ID).doc(userBetId).onSnapshot((snap) => {
       if (!snap.exists) setMyBetUI(game, null, gdoc);
       else setMyBetUI(game, snap.data() || null, gdoc);
+    }, (err) => {
+      console.error("watchMyBet err:", err);
+      setMyBetUI(game, null, gdoc);
     });
   }
 
@@ -1753,8 +1793,6 @@
     const showLeft = Math.max(0, left);
     const pct = Math.max(0, Math.min(100, (showLeft / TOTAL_SEC) * 100)) + "%";
     const lockState = statusFromDoc(gameDoc);
-
-    // Round pill me ab roundId nahi, SEQ show karna
     const seqText = roundSeqText(gameDoc);
 
     if (game === "DragonTiger") {
@@ -1792,16 +1830,12 @@
       renderLatestResult(game, g);
       renderLast5(game, g);
 
-      // watch my bet for current roundId (internal), but UI shows SEQ
       if (ME_ID && g.roundId) watchMyBet(game, g.roundId, g);
 
-      // result text
       if (g.result) {
         if (game === "DragonTiger") qs("dtMsg").textContent = "ROUND RESULT: " + g.result;
         if (game === "TeenPatti") qs("tpMsg").textContent = "ROUND RESULT: " + g.result;
         if (game === "Roulette") qs("rMsg").textContent = "ROUND RESULT: " + g.result;
-
-        // IMPORTANT: DT/TP/R separate popup handling
         handleResultArrived(game, g);
       }
 
@@ -1893,7 +1927,6 @@
       if (state.Roulette) updateTimerUI("Roulette", state.Roulette);
     }, 200);
 
-    // default tab
     setTab("dt");
   })().catch((e) => {
     console.error("INIT ERROR:", e);
@@ -1903,4 +1936,5 @@
  
 </body>
 </html>
+
 
